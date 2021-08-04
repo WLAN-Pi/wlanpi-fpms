@@ -4,8 +4,8 @@
 sudo -H pip3 install --upgrade luma.oled
 
 # Enable SPI interface
-if grep -q -E "^#?dtparam=spi=" /boot/config.txt; then
-	sed -i 's/^#\?dtparam=spi=.*/dtparam=spi=on/' /boot/config.txt
+if grep -q -E "^#?dtparam=spi=on" /boot/config.txt; then
+	sed -i 's/^#\?dtparam=spi=on.*/dtparam=spi=on/' /boot/config.txt
 else
 	echo "dtparam=spi=on" >> /boot/config.txt
 fi
