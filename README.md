@@ -17,3 +17,13 @@ sudo systemctl status networkinfo
 ## Hardware requirements
 
 The SPI interface must be enabled for FPMS to work and communicate with the display. "sudo raspi-config" can be used to enable SPI.
+
+## Installation instructions
+
+Currently, "wlanpi-fpms" does not run in a virtual environment, but it is planned for near future. To install it, please follow these instructions.
+
+1. Edit boot config: sudo nano /boot/config.txt
+2. Enable SPI interface by adding this line: dtparam=spi=on
+3. Install Luma.OLED: sudo -H pip3 install --upgrade luma.oled
+4. Clone this repo by: cd /usr/share/ && sudo git clone https://github.com/WLAN-Pi/wlanpi-fpms.git
+5. Start FPMS: sudo python3 /usr/share/fpms/BakeBit/Software/Python/bakebit_nanohat_oled.py
