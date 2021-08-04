@@ -1,0 +1,5 @@
+wlanpi-fpms (1.0.0) unstable; urgency=medium
+
+  * Support for SPI display
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 28 Jul 2021 12:33:46 +0000

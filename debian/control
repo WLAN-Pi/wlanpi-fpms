@@ -1,0 +1,14 @@
+Source: wlanpi-fpms
+Section: embedded
+Priority: extra
+Maintainer: Daniel Finimundi <daniel@finimundi.com>
+Build-Depends: debhelper (>=9), build-essential
+Standards-Version: 3.9.8
+Homepage: https://github.com/WLAN-Pi/fpms
+
+Package: wlanpi-fpms
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Front Panael Management System - FPMS
+ FPMS for the WLAN Pi running on CM4.

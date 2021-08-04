@@ -1,0 +1,9 @@
+[Unit]
+Description=FPMS daemon responsible for OLED management
+
+[Service]
+ExecStart=python3 @datadir@/fpms/BakeBit/Software/Python/bakebit_nanohat_oled.py
+WorkingDirectory=@datadir@/fpms
+
+[Install]
+WantedBy=multi-user.target
