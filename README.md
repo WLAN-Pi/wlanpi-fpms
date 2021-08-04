@@ -1,8 +1,8 @@
 # WLAN Pi Front Panel Menu System (FPMS)
 
-This "wlanpi-fpms" project enabled the SPI display of WLAN Pi based on the CM4 hardware.
+This project enables the SPI display of WLAN Pi based on the CM4 hardware.
 
-The original "fpms" repo is only compatible with NEO2 hardware and its NanoHat OLED I2C display.
+The original ["fpms" repo](https://github.com/WLAN-Pi/fpms) is only compatible with NEO2 hardware and its NanoHat OLED I2C display.
 
 ## Services
 
