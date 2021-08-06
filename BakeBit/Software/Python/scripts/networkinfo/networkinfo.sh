@@ -12,12 +12,13 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 #Start neighbour detection immediately after this service starts
-pgrep cdpneigh.sh | xargs sudo pkill -P 2>/dev/null
-pgrep lldpneigh.sh | xargs sudo pkill -P 2>/dev/null
-"$DIRECTORY"/lldpneigh.sh &
-"$DIRECTORY"/cdpneigh.sh &
+#pgrep cdpneigh.sh | xargs sudo pkill -P 2>/dev/null
+#pgrep lldpneigh.sh | xargs sudo pkill -P 2>/dev/null
+#sleep 2
+#"$DIRECTORY"/lldpneigh.sh &
+#"$DIRECTORY"/cdpneigh.sh &
 #Start monitoring internet connectivity immediately after the WLAN Pi boots up
-"$DIRECTORY"/watchinternet.sh &
+#"$DIRECTORY"/watchinternet.sh &
 
 #Monitor up/down status changes of eth0 and execute neighbour detection or cleanup
 tail -fn0 /var/log/messages |
@@ -30,6 +31,7 @@ do
     pgrep cdpneigh.sh | xargs sudo pkill -P 2>/dev/null
     pgrep lldpneigh.sh | xargs sudo pkill -P 2>/dev/null
     #Execute neighbour detection scripts
+    sleep 2 
     "$DIRECTORY"/lldpneigh.sh &
     "$DIRECTORY"/cdpneigh.sh &
   ;;
