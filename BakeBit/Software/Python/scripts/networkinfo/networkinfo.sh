@@ -31,7 +31,7 @@ do
     pgrep cdpneigh.sh | xargs sudo pkill -P 2>/dev/null
     pgrep lldpneigh.sh | xargs sudo pkill -P 2>/dev/null
     #Execute neighbour detection scripts
-    sleep 2 
+    sleep 4 
     "$DIRECTORY"/lldpneigh.sh &
     "$DIRECTORY"/cdpneigh.sh &
   ;;
