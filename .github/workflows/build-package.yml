@@ -1,0 +1,44 @@
+name: Build Debian Package
+
+on:
+  push:
+    paths:
+      - 'debian/changelog'
+  pull_request:
+    paths:
+      - 'debian/changelog'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        distro: [buster]
+        arch: [armhf,arm64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build Debian package
+        uses: danielmundi/sbuild-debian-package@main
+        id: build-debian-package
+        with:
+          distro: ${{ matrix.distro }}
+          arch: ${{ matrix.arch }}
+
+      - name: Upload package
+        uses: actions/upload-artifact@v2
+        with:
+          name: wlanpi-fpms_package
+          path: ${{ steps.build-debian-package.outputs.deb-package }}
+
+      - name: Upload package
+        uses: danielmundi/upload-packagecloud@main
+        with:
+          package-name: ${{ steps.build-debian-package.outputs.deb-package }}
+          packagecloud-username: wlanpi
+          packagecloud-repo: dev
+          packagecloud-distrib: raspbian/${{ matrix.distro }}
+          packagecloud-token: ${{ secrets.PACKAGECLOUD_TOKEN }}
