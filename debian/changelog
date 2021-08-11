@@ -1,3 +1,9 @@
+wlanpi-fpms (1.0.2) unstable; urgency=medium
+
+  * Triggering the compilation
+
+ -- Daniel Finimundi <daniel@finimundi.com>  Wed, 11 Aug 2021 00:14:23 -0300
+
 wlanpi-fpms (1.0.1) unstable; urgency=medium
 
   * Fixed: CM4 fails to get IP address dynamically from DHCP server on boot
