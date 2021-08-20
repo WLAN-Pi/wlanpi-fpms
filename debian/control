@@ -10,5 +10,5 @@ Package: wlanpi-fpms
 Architecture: any
 Multi-Arch: foreign
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Description: Front Panael Management System - FPMS
+Description: Front Panel Management System - FPMS
  FPMS for the WLAN Pi running on CM4.
