@@ -26,7 +26,7 @@ networkinfo.service: networkinfo.service.in
 	sed -e '$(SERVICE_SUBS)' $< > $@
 
 install: installdirs $(binary_name) fpms.service networkinfo-links networkinfo.service
-	cp -rf $(filter-out debian fpms.service.in networkinfo.service.in $^,$(wildcard *)) $(install_data_dir)
+	cp -rf $(filter-out debian Makefile fpms.service.in networkinfo.service.in $^,$(wildcard *)) $(install_data_dir)
 	install -m 644 fpms.service $(DESTDIR)/lib/systemd/system
 	install -m 644 networkinfo.service $(DESTDIR)/lib/systemd/system
 
