@@ -13,7 +13,7 @@ History:
 
 """
 
-import modules.wlanpi_oled as oled
+
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -41,6 +41,7 @@ from modules.constants import (
     MODE_FILE,
     BUTTONS_FILE,
     WLANPI_IMAGE_FILE,
+    IMAGE_DIR,
 )
 
 from modules.nav.buttons import Button
@@ -57,6 +58,7 @@ from modules.modes import *
 from modules.system import *
 
 from modules.apps import *
+import modules.wlanpi_oled as oled
 
 ####################################
 # Initialize the SEED OLED display
@@ -109,7 +111,7 @@ g_vars = {
 ############################
 g_vars['image'] = Image.new('1', (PAGE_WIDTH, PAGE_HEIGHT))
 g_vars['draw'] = ImageDraw.Draw(g_vars['image'])
-g_vars['reboot_image'] = Image.open('images/reboot.png').convert('1')
+g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert('1')
 
 #####################################
 # check our current operating mode
@@ -602,14 +604,14 @@ def button_press(gpio_pin, g_vars=g_vars):
 
 # First time around (power-up), draw logo on display
 rogues_gallery = [ 
-    'images/wlanprologo.png', 
-    'images/wlanprologo.png', 
-    'images/joshschmelzle.png', 
-    'images/crv.png',
-    'images/jolla.png', 
-    'images/wifinigel.png',
-    'images/dansfini.png', 
-    'images/jiribrejcha.png'
+    IMAGE_DIR + '/wlanprologo.png', 
+    IMAGE_DIR + '/wlanprologo.png', 
+    IMAGE_DIR + '/joshschmelzle.png', 
+    IMAGE_DIR + '/crv.png',
+    IMAGE_DIR + '/jolla.png', 
+    IMAGE_DIR + '/wifinigel.png',
+    IMAGE_DIR + '/dansfini.png', 
+    IMAGE_DIR + '/jiribrejcha.png'
 ]
 
 random_image = random.choice(rogues_gallery)

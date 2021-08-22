@@ -5,6 +5,7 @@ from luma.core import cmdline, error
 from PIL import Image
 import sys
 import logging
+from modules.constants import PLATFORM
 
 # set possible vars to None
 DISPLAY_TYPE = None
@@ -13,10 +14,6 @@ I2C_ADDRESS = None
 INTERFACE_TYPE = None
 WIDTH = None
 HEIGHT = None
-
-# manually configure env (wlanpi_pro or sapphire)
-PLATFORM = "wlanpi_pro"
-PLATFORM = "sapphire"
 
 if PLATFORM == "wlanpi_pro":
 

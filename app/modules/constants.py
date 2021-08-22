@@ -19,6 +19,11 @@ if PLATFORM == "wlanpi_pro":
 else:
     HEIGHT_OFFSET = 0
 
+if PLATFORM == "wlanpi_pro":
+    IMAGE_DIR = "images/128x128"
+else:
+    IMAGE_DIR = "images/128x64"
+
 PAGE_SLEEP = 300             # Time in secs before sleep
 PAGE_WIDTH = 128             # Pixel size of screen width
 PAGE_HEIGHT = 64 + HEIGHT_OFFSET  # Pixel size of screen height
@@ -74,3 +79,21 @@ BLINKER_FILE = '/opt/wlanpi-common/networkinfo/portblinker.sh'
 # Key map file
 BUTTONS_FILE = SCRIPT_PATH + '/buttons.txt'
 
+# Button mapping (WLANPi Pro)
+BUTTONS_WLANPI_PRO = {
+    "up": 22,
+    "down": 15,
+    "left": 17,
+    "right": 27,
+    "center": 14,
+}
+
+# temp setup to test code using Sapphire HAT
+# (center - middle front panel button, up/down = side wheel up/down)
+BUTTONS_SAPPHIRE = {
+    "up": 26,
+    "down": 22,
+    "left": 4,
+    "right": 27,
+    "center": 17,
+}
