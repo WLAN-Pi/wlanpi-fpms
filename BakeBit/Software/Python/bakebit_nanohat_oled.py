@@ -537,7 +537,11 @@ if g_vars['current_mode'] != "classic":
     menu.pop(3)
 
 # Set up handlers to process key presses
-def receive_signal(signum, stack, g_vars=g_vars):
+def button_press(gpio_pin, g_vars=g_vars):
+
+    LEFT_KEY = 4
+    MIDDLE_KEY = 17
+    RIGHT_KEY = 27
 
     if g_vars['disable_keys'] == True:
         # someone disabled the front panel keys as they don't want to be interrupted
@@ -567,7 +571,7 @@ def receive_signal(signum, stack, g_vars=g_vars):
         return
 
     # Key 1 pressed - Down key
-    if signum == signal.SIGUSR1:
+    if gpio_pin == LEFT_KEY:
         g_vars['sig_fired'] = True
         g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key1']()
         #menu_down()
@@ -575,7 +579,7 @@ def receive_signal(signum, stack, g_vars=g_vars):
         return
 
     # Key 2 pressed - Right/Selection key
-    if signum == signal.SIGUSR2:
+    if gpio_pin == MIDDLE_KEY:
         g_vars['sig_fired'] = True
         g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key2']()
         #menu_right()
@@ -583,7 +587,7 @@ def receive_signal(signum, stack, g_vars=g_vars):
         return
 
     # Key 3 pressed - Left/Back key
-    if signum == signal.SIGALRM:
+    if gpio_pin == RIGHT_KEY:
         g_vars['sig_fired'] = True
         g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key3']()
         #menu_left()
@@ -611,14 +615,33 @@ rogues_gallery = [
 random_image = random.choice(rogues_gallery)
 image0 = Image.open(random_image).convert('1')
 
-oled.drawImage(image0)
-time.sleep(2)
+#oled.drawImage(image0)
+#time.sleep(2)
 
 # Set signal handlers for button presses - these fire every time a button
 # is pressed
-signal.signal(signal.SIGUSR1, receive_signal)
-signal.signal(signal.SIGUSR2, receive_signal)
-signal.signal(signal.SIGALRM, receive_signal)
+from gpiozero import Button as GPIO_Button
+
+def left_key():
+    button_press(4, g_vars)
+    #print("Left key pressed")
+
+def middle_key():
+    button_press(17, g_vars)
+    #print("Middle key pressed")
+
+def right_key():
+    button_press(27, g_vars)
+    #print("Right key pressed")
+
+button_left = GPIO_Button(4)
+button_middle = GPIO_Button(17)
+button_right = GPIO_Button(27)
+
+button_left.when_pressed = left_key
+button_middle.when_pressed = middle_key
+button_right.when_pressed = right_key
+
 
 ##############################################################################
 # Constant 'while' loop to paint images on display or execute actions in
@@ -674,6 +697,7 @@ while True:
                 continue
             else:
                 g_vars['option_selected']()
+            
         else:
             # lets try drawing our page (or refresh if already painted)
 
@@ -693,9 +717,10 @@ while True:
             g_vars['screen_cleared'] = True
 
         g_vars['pageSleepCountdown'] = g_vars['pageSleepCountdown'] - 1
-
+        
         # have a nap before we start our next loop
         time.sleep(1)
+        
 
     except KeyboardInterrupt:
         break
