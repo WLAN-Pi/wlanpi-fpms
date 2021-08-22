@@ -6,17 +6,33 @@ from PIL import Image
 import sys
 import logging
 
+# set possible vars to None
 DISPLAY_TYPE = None
-#I2C_PORT = None
-#I2C_ADDRESS = None
+I2C_PORT = None
+I2C_ADDRESS = None
 INTERFACE_TYPE = None
 WIDTH = None
 HEIGHT = None
 
-# Sapphire HAT OLED settings
-#DISPLAY_TYPE = "sh1106"
-#I2C_PORT = 1
+# manually configure env (wlanpi_pro or sapphire)
+PLATFORM = "wlanpi_pro"
+PLATFORM = "sapphire"
 
+if PLATFORM == "wlanpi_pro":
+
+    # ssd1351 128 x 128
+    DISPLAY_TYPE = "ssd1351"
+    INTERFACE_TYPE = "spi"
+    WIDTH = "128"
+    HEIGHT = "128"
+elif PLATFORM == "sapphire":
+    # Sapphire HAT OLED settings
+    DISPLAY_TYPE = "sh1106"
+    I2C_PORT = "0"
+    WIDTH = "128"
+    HEIGHT = "64"
+
+### Legacy settings here for other displays ###
 # Neo 2 OLED settings
 #DISPLAY_TYPE = "ssd1306"
 #I2C_PORT = 0
@@ -27,11 +43,6 @@ HEIGHT = None
 #WIDTH = "128"
 #HEIGHT = "128"
 
-# ssd1351 128 x 128
-DISPLAY_TYPE = "ssd1351"
-INTERFACE_TYPE = "spi"
-WIDTH = "128"
-HEIGHT = "128"
 
 '''
 ### This code is borrowed from https://github.com/rm-hull/luma.examples/blob/master/examples/demo_opts.py
@@ -66,8 +77,8 @@ def display_settings(device, args):
     version = 'luma.{} {} (luma.core {})'.format(
         lib_name, lib_version, luma.core.__version__)
 
-    return 'Version: {}\nDisplay: {}\n{}Dimensions: {} x {}\n{}'.format(
-        version, args.display, iface, device.width, device.height, '-' * 60)
+    return 'Version: {}\nDisplay: {}\n{}Dimensions: {} x {}\nMode: {}\n{}'.format(
+        version, args.display, iface, device.width, device.height, device.mode, '-' * 60)
 
 
 def get_device(actual_args=None):
@@ -116,6 +127,10 @@ if HEIGHT:
     actual_args.append("--height")
     actual_args.append(HEIGHT)
 
+if I2C_PORT:
+    actual_args.append("--i2c-port")
+    actual_args.append(I2C_PORT)
+
 device = get_device(actual_args=actual_args)
 
 # Init function of the OLED
@@ -129,8 +144,10 @@ def setHorizontalMode():
     return True
 
 def clearDisplay():
-    blank = Image.new("RGBA", device.size, "black")
-    device.display(blank.convert(device.mode))
+    #blank = Image.new("RGBA", device.size, "black")
+    #device.display(blank.convert(device.mode))
+    device.clear()
 
 def drawImage(image):
-    device.display(image.convert(device.mode))
+    #device.display(image.convert(device.mode))
+    device.display(image)
