@@ -66,10 +66,10 @@ SERVER_SWITCHER_FILE = '/usr/bin/server_switcher'
 # Networkinfo data file names
 LLDPNEIGH_FILE = '/tmp/lldpneigh.txt'
 CDPNEIGH_FILE = '/tmp/cdpneigh.txt'
-IPCONFIG_FILE = SCRIPT_PATH + '/scripts/networkinfo/ipconfig.sh 2>/dev/null'
-REACHABILITY_FILE = SCRIPT_PATH + '/scripts/networkinfo/reachability.sh'
-PUBLICIP_CMD = SCRIPT_PATH + '/scripts/networkinfo/publicip.sh'
-BLINKER_FILE = SCRIPT_PATH + '/scripts/networkinfo/portblinker.sh'
+IPCONFIG_FILE = '/opt/wlanpi-common/networkinfo/ipconfig.sh 2>/dev/null'
+REACHABILITY_FILE = '/opt/wlanpi-common/networkinfo/reachability.sh'
+PUBLICIP_CMD = '/opt/wlanpi-common/networkinfo/publicip.sh'
+BLINKER_FILE = '/opt/wlanpi-common/networkinfo/portblinker.sh'
 
 # Key map file
 BUTTONS_FILE = SCRIPT_PATH + '/buttons.txt'
