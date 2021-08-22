@@ -1,3 +1,2 @@
- app/__pycache__/
- app/modules/__pycache__/
- *.pyc
+*__pycache__*
+*.pyc
