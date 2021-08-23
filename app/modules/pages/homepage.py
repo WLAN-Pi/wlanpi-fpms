@@ -147,7 +147,7 @@ class HomePage(object):
         key_map_name = g_vars.get('key_map')
         key_map_type = g_vars['key_mappings'][key_map_name]['type']
 
-        self.nav_button_obj.back(function='menu')
+        #self.nav_button_obj.back(function='menu')
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False

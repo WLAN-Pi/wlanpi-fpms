@@ -18,7 +18,21 @@ class Button(object):
     #######################################
     # Actions taken when butons pressed
     #######################################
+    def _at_home_page(self, g_vars):
+        if g_vars['display_state'] == 'page' and len(g_vars['current_menu_location']) == 1:
+            return True
+        else:
+            return False
+
+    def _display_top_menu(self, g_vars, menu):
+        g_vars['display_state'] = 'menu'
+        return self.page_obj.draw_page(g_vars, menu)
+
+
     def menu_down(self, g_vars, menu):
+
+        if self._at_home_page(g_vars):
+            return self._display_top_menu(g_vars, menu)
 
         # If we are in a table, scroll down (unless at bottom of list)
         if g_vars['display_state'] == 'page':
@@ -36,11 +50,20 @@ class Button(object):
 
         self.page_obj.draw_page(g_vars, menu)
 
+    def menu_up(self, g_vars, menu):
+
+        if self._at_home_page(g_vars):
+            return self._display_top_menu(g_vars, menu)
+        
+        return True
 
     def menu_right(self, g_vars, menu):
 
         # make sure we know speedtest is done
         g_vars['speedtest_status'] = False
+
+        if self._at_home_page(g_vars):
+            return self._display_top_menu(g_vars, menu)
 
         # If we are in a table, scroll up (unless at top of list)
         if g_vars['display_state'] == 'page':

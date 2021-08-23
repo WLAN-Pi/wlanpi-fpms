@@ -143,9 +143,9 @@ class Page(object):
             y += y_offset
 
         # add nav buttons
-        self.nav_button_obj.down()
-        self.nav_button_obj.next()
-        self.nav_button_obj.back()
+        #self.nav_button_obj.down()
+        #self.nav_button_obj.next()
+        #self.nav_button_obj.back()
         # Don't show back button at top level of menu
         
         oled.drawImage(g_vars['image'])

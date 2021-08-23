@@ -331,6 +331,10 @@ def menu_down():
     button_obj = Button(g_vars, menu)
     button_obj.menu_down(g_vars, menu)
 
+def menu_up():
+    button_obj = Button(g_vars, menu)
+    button_obj.menu_up(g_vars, menu)
+
 def menu_left():
     button_obj = Button(g_vars, menu)
     button_obj.menu_left(g_vars, menu)
@@ -541,9 +545,10 @@ if g_vars['current_mode'] != "classic":
 # Set up handlers to process key presses
 def button_press(gpio_pin, g_vars=g_vars):
 
-    LEFT_KEY = 4
-    MIDDLE_KEY = 17
+    DOWN_KEY = 22
+    UP_KEY = 26
     RIGHT_KEY = 27
+    LEFT_KEY = 4
 
     if g_vars['disable_keys'] == True:
         # someone disabled the front panel keys as they don't want to be interrupted
@@ -572,27 +577,35 @@ def button_press(gpio_pin, g_vars=g_vars):
         g_vars['pageSleepCountdown'] = PAGE_SLEEP
         return
 
-    # Key 1 pressed - Down key
-    if gpio_pin == LEFT_KEY:
+    # Down key pressed
+    if gpio_pin == DOWN_KEY:
         g_vars['sig_fired'] = True
-        g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key1']()
-        #menu_down()
+        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key1']()
+        menu_down()
+        g_vars['sig_fired'] = False
+        return
+    
+    # Down key pressed
+    if gpio_pin == UP_KEY:
+        g_vars['sig_fired'] = True
+        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key1']()
+        menu_up()
         g_vars['sig_fired'] = False
         return
 
-    # Key 2 pressed - Right/Selection key
-    if gpio_pin == MIDDLE_KEY:
-        g_vars['sig_fired'] = True
-        g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key2']()
-        #menu_right()
-        g_vars['sig_fired'] = False
-        return
-
-    # Key 3 pressed - Left/Back key
+    # Right/Selection key pressed
     if gpio_pin == RIGHT_KEY:
         g_vars['sig_fired'] = True
-        g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key3']()
-        #menu_left()
+        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key2']()
+        menu_right()
+        g_vars['sig_fired'] = False
+        return
+
+    # Left/Back key
+    if gpio_pin == LEFT_KEY:
+        g_vars['sig_fired'] = True
+        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key3']()
+        menu_left()
         g_vars['sig_fired'] = False
         return
 
@@ -624,24 +637,26 @@ image0 = Image.open(random_image).convert('1')
 # is pressed
 from gpiozero import Button as GPIO_Button
 
+def down_key():
+    button_press(22, g_vars)
+
+def up_key():
+    button_press(26, g_vars)
+
 def left_key():
     button_press(4, g_vars)
-    #print("Left key pressed")
-
-def middle_key():
-    button_press(17, g_vars)
-    #print("Middle key pressed")
 
 def right_key():
     button_press(27, g_vars)
-    #print("Right key pressed")
 
+button_down = GPIO_Button(22)
+button_up = GPIO_Button(26)
 button_left = GPIO_Button(4)
-button_middle = GPIO_Button(17)
 button_right = GPIO_Button(27)
 
+button_down.when_pressed = down_key
+button_up.when_pressed = up_key
 button_left.when_pressed = left_key
-button_middle.when_pressed = middle_key
 button_right.when_pressed = right_key
 
 
