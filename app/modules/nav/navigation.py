@@ -13,12 +13,7 @@ class NavButton(object):
         self.font = font
         self.fill = fill
         self.g_vars = g_vars
-        
-        # figure out key map in use
-        self.key_map_name = g_vars.get('key_map')
-        self.key_map = g_vars['key_mappings'][self.key_map_name]['key_functions']
-        self.map_type = g_vars['key_mappings'][self.key_map_name]['type']
-        
+               
     #######################################
     # Rendering of buttons on screen
     #######################################

@@ -143,10 +143,6 @@ class HomePage(object):
         g_vars['draw'].text((0, 29), str(ip_addr), font=FONT14, fill=255)
         g_vars['draw'].text((0, 43), str(mode_name), font=SMART_FONT, fill=255)
 
-        # if we're using a symbol key map, over-ride the menu button with the down symbol
-        key_map_name = g_vars.get('key_map')
-        key_map_type = g_vars['key_mappings'][key_map_name]['type']
-
         #self.nav_button_obj.back(function='menu')
         oled.drawImage(g_vars['image'])
 
