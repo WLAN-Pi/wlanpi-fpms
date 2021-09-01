@@ -76,6 +76,7 @@ class SimpleTable(object):
             table_bottom_entry = g_vars['current_scroll_selection'] + table_display_max
             item_list = item_list[g_vars['current_scroll_selection']: table_bottom_entry]
 
+            """
             # show down if not at end of list in display window
             if table_bottom_entry < g_vars['table_list_length']:
                 self.nav_button_obj.down()
@@ -83,7 +84,8 @@ class SimpleTable(object):
             # show an up button if not at start of list
             if g_vars['current_scroll_selection'] > 0:
                 self.nav_button_obj.next(function="up")
-
+            """
+        
         for item in item_list:
 
             if len(item) > item_length_max:
@@ -94,9 +96,11 @@ class SimpleTable(object):
 
             font_offset += font_size
 
+        """
         # Back button
         if back_button_req:
             self.nav_button_obj.back(function="exit")
+        """
 
         oled.drawImage(g_vars['image'])
 

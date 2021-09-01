@@ -53,6 +53,7 @@ class PagedTable(object):
         # write title
         title = table_data['title']
         total_pages = len(table_data['pages'])
+        g_vars['table_pages'] = total_pages
 
         if total_pages > 1:
             title += " ({}/{})".format(g_vars['current_scroll_selection'] + 1, total_pages)
@@ -71,7 +72,7 @@ class PagedTable(object):
             g_vars['current_scroll_selection'] = page_count - 1
 
         # Correct over-shoot of page up
-        if g_vars['current_scroll_selection'] == -1:
+        if g_vars['current_scroll_selection'] < 0:
             g_vars['current_scroll_selection'] = 0
 
         page = table_pages[g_vars['current_scroll_selection']]
@@ -89,6 +90,7 @@ class PagedTable(object):
 
             font_offset += font_size
 
+        """
         # if we're going need to scroll through pages, create buttons
         if (page_count > 1):
 
@@ -102,7 +104,7 @@ class PagedTable(object):
         # Back button
         if back_button_req:
             self.nav_button_obj.back(function="exit")
-
+        """
         oled.drawImage(g_vars['image'])
 
         g_vars['display_state'] = 'page'
