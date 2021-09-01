@@ -400,22 +400,18 @@ menu = [
     },
     {"name": "Modes", "action": [
         {"name": "Wi-Fi Console",   "action": [
-            {"name": "Cancel", "action": go_up},
             {"name": "Confirm", "action": wconsole_switcher},
         ]
         },
         {"name": "Hotspot",   "action": [
-            {"name": "Cancel", "action": go_up},
             {"name": "Confirm", "action": hotspot_switcher},
         ]
         },
         {"name": "Wiperf",   "action": [
-            {"name": "Cancel", "action": go_up},
             {"name": "Confirm", "action": wiperf_switcher},
         ]
         },
         {"name": "Server",   "action": [
-            {"name": "Cancel", "action": go_up},
             {"name": "Confirm", "action": server_switcher},
         ]
         },
@@ -436,12 +432,10 @@ menu = [
     },
     {"name": "System", "action": [
         {"name": "Shutdown", "action": [
-            {"name": "Cancel", "action": go_up},
             {"name": "Confirm", "action": shutdown},
         ]
         },
         {"name": "Reboot",   "action": [
-            {"name": "Cancel", "action": go_up},
             {"name": "Confirm", "action": reboot},
         ]
         },
@@ -472,7 +466,6 @@ if g_vars['current_mode'] == "server":
 if g_vars['current_mode'] != "classic":
     menu[2] = {"name": "Mode", "action": [
         {"name": "Classic Mode",   "action": [
-            {"name": "Cancel", "action": go_up},
             {"name": "Confirm", "action": switcher_dispatcher},
         ]
         },
