@@ -506,11 +506,11 @@ rogues_gallery = [
     IMAGE_DIR + '/jiribrejcha.png'
 ]
 
-random_image = random.choice(rogues_gallery)
-image0 = Image.open(random_image).convert('1')
+#random_image = random.choice(rogues_gallery)
+#image0 = Image.open(random_image).convert('1')
 
-oled.drawImage(image0)
-time.sleep(2)
+#oled.drawImage(image0)
+#time.sleep(2)
 
 # Set signal handlers for button presses - these fire every time a button
 # is pressed
