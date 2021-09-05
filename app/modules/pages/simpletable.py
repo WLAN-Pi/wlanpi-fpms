@@ -9,6 +9,7 @@ from modules.nav.navigation import *
 from modules.constants import (
     SMART_FONT,
     FONT11,
+    MAX_TABLE_LINES,
 )
 
 class SimpleTable(object):
@@ -43,12 +44,12 @@ class SimpleTable(object):
             font_type = SMART_FONT
             font_size = 11
             item_length_max = 20
-            table_display_max = 5
+            table_display_max = MAX_TABLE_LINES + 1
         elif font == "medium":
             font_type = FONT11
             font_size = 11
             item_length_max = 17
-            table_display_max = 4
+            table_display_max = MAX_TABLE_LINES
 
         # write title if present
         if title != '':

@@ -39,9 +39,9 @@ from modules.constants import (
     NAV_BAR_TOP,
     MENU_VERSION,
     MODE_FILE,
-    BUTTONS_FILE,
     WLANPI_IMAGE_FILE,
     IMAGE_DIR,
+    BUTTONS_PINS,
 )
 
 from modules.nav.buttons import Button
@@ -53,6 +53,7 @@ from modules.pages.page import Page
 
 from modules.network import *
 from modules.utils import *
+from modules.env_utils import EnvUtils
 from modules.cloud_tests import CloudUtils
 from modules.modes import *
 from modules.system import *
@@ -94,6 +95,7 @@ g_vars = {
     'start_up': True,            # True if in initial (home page) start-up state
     'disable_keys': False,       # Set to true when need to ignore key presses
     'table_list_length': 0,         # Total length of currently displayed table
+    'table_pages': 1,            # pages in current table
     'result_cache': False,          # used to cache results when paging info
     'speedtest_status': False,   # Indicates if speedtest has run or is in progress
     'speedtest_result_text': '', # tablulated speedtest result data
@@ -117,33 +119,8 @@ g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert('1')
 # check our current operating mode
 #####################################
 
-valid_modes = ['classic', 'wconsole', 'hotspot', 'wiperf', 'server']
-
-# check mode file exists and read mode...create with classic mode if not
-if os.path.isfile(MODE_FILE):
-    with open(MODE_FILE, 'r') as f:
-        current_mode = f.readline().strip()
-    
-    # send msg to stdout & exit if mode invalid
-    if not current_mode in valid_modes:
-        print("The mode read from {} is not a valid mode of operation: {}". format(MODE_FILE, current_mode))
-        sys.exit()
-
-    g_vars['current_mode'] = current_mode
-
-else:
-    # create the mode file as it does not exist
-    with open(MODE_FILE, 'w') as f:
-        current_mode = 'classic'
-        f.write(current_mode)
-    
-    g_vars['current_mode'] = current_mode
-
-# if the buttons file exists, read content
-if os.path.isfile(BUTTONS_FILE):
-    with open(BUTTONS_FILE, 'r') as f:
-        key_map = f.readline()
-        g_vars['key_map'] = key_map
+env_utils = EnvUtils()
+g_vars['current_mode'] = env_utils.get_mode(MODE_FILE)
 
 #######################################################################
 # Server mode non-persistence
@@ -159,25 +136,10 @@ if g_vars['current_mode'] == "server":
 ##################################
 
 # get & the current version of WLANPi image
-g_vars['wlanpi_ver'] = "unknown"
-
-if os.path.isfile(WLANPI_IMAGE_FILE):
-    with open(WLANPI_IMAGE_FILE, 'r') as f:
-        lines = f.readlines()
-    
-    # pull out the version number for the FPMS home page
-    for line in lines:
-        (name, value) = line.split("=")
-        if name=="VERSION":
-            version = value.strip()
-            g_vars['wlanpi_ver'] = "WLAN Pi " + version[1:-1]
-            break
+g_vars['wlanpi_ver'] = env_utils.get_image_ver(WLANPI_IMAGE_FILE)
 
 # get hostname
-try:
-    g_vars['hostname'] = subprocess.check_output('hostname', shell=True).decode()
-except:
-    g_vars['hostname'] = 'Unknown'
+g_vars['hostname'] = env_utils.get_hostname()
 
 ###########################
 # Network menu area utils
@@ -343,22 +305,6 @@ def menu_right():
     button_obj = Button(g_vars, menu)
     button_obj.menu_right(g_vars, menu)
 
-def go_up():
-    button_obj = Button(g_vars, menu)
-    button_obj.go_up(g_vars, menu)
-
-def buttons_classic():
-    button_obj = Button(g_vars, menu)
-    button_obj.buttons_classic(g_vars)
-
-def buttons_intuitive():
-    button_obj = Button(g_vars, menu)
-    button_obj.buttons_intuitive(g_vars)
-
-def buttons_symbol():
-    button_obj = Button(g_vars, menu)
-    button_obj.buttons_symbol(g_vars)
-
 #######################
 # menu structure here
 #######################
@@ -378,17 +324,14 @@ menu = [
     {"name": "Utils", "action": [
         {"name": "Reachability", "action": show_reachability},
         {"name": "Speedtest", "action": [
-            {"name": "Back", "action": go_up},
             {"name": "Start Test", "action": show_speedtest},
         ]
         },
         {"name": "Mist Cloud", "action": [
-            {"name": "Back", "action": go_up},
             {"name": "Start Test", "action": show_mist_test},
         ]
         },
         {"name": "Port Blinker", "action": [
-            {"name": "Back", "action": go_up},
             {"name": "Start", "action": show_blinker},
             {"name": "Stop", "action": stop_blinker},
         ]
@@ -477,10 +420,11 @@ if g_vars['current_mode'] != "classic":
 # Set up handlers to process key presses
 def button_press(gpio_pin, g_vars=g_vars):
 
-    DOWN_KEY = 22
-    UP_KEY = 26
-    RIGHT_KEY = 27
-    LEFT_KEY = 4
+    DOWN_KEY = BUTTONS_PINS['down']
+    UP_KEY = BUTTONS_PINS['up']
+    RIGHT_KEY = BUTTONS_PINS['right']
+    LEFT_KEY = BUTTONS_PINS['left']
+    CENTER_KEY = BUTTONS_PINS['center']
 
     if g_vars['disable_keys'] == True:
         # someone disabled the front panel keys as they don't want to be interrupted
@@ -512,7 +456,6 @@ def button_press(gpio_pin, g_vars=g_vars):
     # Down key pressed
     if gpio_pin == DOWN_KEY:
         g_vars['sig_fired'] = True
-        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key1']()
         menu_down()
         g_vars['sig_fired'] = False
         return
@@ -520,7 +463,6 @@ def button_press(gpio_pin, g_vars=g_vars):
     # Down key pressed
     if gpio_pin == UP_KEY:
         g_vars['sig_fired'] = True
-        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key1']()
         menu_up()
         g_vars['sig_fired'] = False
         return
@@ -528,7 +470,6 @@ def button_press(gpio_pin, g_vars=g_vars):
     # Right/Selection key pressed
     if gpio_pin == RIGHT_KEY:
         g_vars['sig_fired'] = True
-        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key2']()
         menu_right()
         g_vars['sig_fired'] = False
         return
@@ -536,8 +477,14 @@ def button_press(gpio_pin, g_vars=g_vars):
     # Left/Back key
     if gpio_pin == LEFT_KEY:
         g_vars['sig_fired'] = True
-        #g_vars['key_mappings'][ g_vars['key_map'] ]['key_actions']['key3']()
         menu_left()
+        g_vars['sig_fired'] = False
+        return
+    
+    # Center key
+    if gpio_pin == CENTER_KEY:
+        g_vars['sig_fired'] = True
+        pass
         g_vars['sig_fired'] = False
         return
 
@@ -562,34 +509,39 @@ rogues_gallery = [
 random_image = random.choice(rogues_gallery)
 image0 = Image.open(random_image).convert('1')
 
-#oled.drawImage(image0)
-#time.sleep(2)
+oled.drawImage(image0)
+time.sleep(2)
 
 # Set signal handlers for button presses - these fire every time a button
 # is pressed
 from gpiozero import Button as GPIO_Button
 
 def down_key():
-    button_press(22, g_vars)
+    button_press(BUTTONS_PINS['down'], g_vars)
 
 def up_key():
-    button_press(26, g_vars)
+    button_press(BUTTONS_PINS['up'], g_vars)
 
 def left_key():
-    button_press(4, g_vars)
+    button_press(BUTTONS_PINS['left'], g_vars)
 
 def right_key():
-    button_press(27, g_vars)
+    button_press(BUTTONS_PINS['right'], g_vars)
 
-button_down = GPIO_Button(22)
-button_up = GPIO_Button(26)
-button_left = GPIO_Button(4)
-button_right = GPIO_Button(27)
+def center_key():
+    button_press(BUTTONS_PINS['center'], g_vars)
+
+button_down = GPIO_Button(BUTTONS_PINS['down'])
+button_up = GPIO_Button(BUTTONS_PINS['up'])
+button_left = GPIO_Button(BUTTONS_PINS['left'])
+button_right = GPIO_Button(BUTTONS_PINS['right'])
+button_center = GPIO_Button(BUTTONS_PINS['center'])
 
 button_down.when_pressed = down_key
 button_up.when_pressed = up_key
 button_left.when_pressed = left_key
 button_right.when_pressed = right_key
+button_center.when_pressed = center_key
 
 
 ##############################################################################

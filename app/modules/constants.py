@@ -7,22 +7,27 @@ constants.py - shared constant vars
 from PIL import ImageFont
 import os
 import pathlib
+from modules.env_utils import EnvUtils
 
 __version__ = "2.0.2"
 __author__ = "wifinigel@gmail.com"
 
-#PLATFORM = "wlanpi_pro"
-PLATFORM = "sapphire"
 
-if PLATFORM == "wlanpi_pro":
+env_util = EnvUtils()
+PLATFORM = env_util.get_platform()
+
+# set misc vars depending on platform type
+HEIGHT_OFFSET = 0
+IMAGE_DIR = "images/128x64"
+MAX_TABLE_LINES = 4
+MAX_PAGE_LINES = 3
+
+if PLATFORM == "pro":
     HEIGHT_OFFSET = 64
-else:
-    HEIGHT_OFFSET = 0
-
-if PLATFORM == "wlanpi_pro":
     IMAGE_DIR = "images/128x128"
-else:
-    IMAGE_DIR = "images/128x64"
+    MAX_TABLE_LINES = 7
+    MAX_PAGE_LINES = 6  
+
 
 PAGE_SLEEP = 300             # Time in secs before sleep
 PAGE_WIDTH = 128             # Pixel size of screen width
@@ -76,9 +81,6 @@ REACHABILITY_FILE = '/opt/wlanpi-common/networkinfo/reachability.sh'
 PUBLICIP_CMD = '/opt/wlanpi-common/networkinfo/publicip.sh'
 BLINKER_FILE = '/opt/wlanpi-common/networkinfo/portblinker.sh'
 
-# Key map file
-BUTTONS_FILE = SCRIPT_PATH + '/buttons.txt'
-
 # Button mapping (WLANPi Pro)
 BUTTONS_WLANPI_PRO = {
     "up": 22,
@@ -97,3 +99,11 @@ BUTTONS_SAPPHIRE = {
     "right": 27,
     "center": 17,
 }
+
+BUTTONS_PINS = {}
+
+if PLATFORM == "pro":
+    BUTTONS_PINS = BUTTONS_WLANPI_PRO
+else:
+    BUTTONS_PINS = BUTTONS_SAPPHIRE
+

@@ -9,6 +9,7 @@ from modules.constants import (
     SMART_FONT,
     FONT11,
     FONTB12,
+    MAX_PAGE_LINES,
 )
 
 class Page(object):
@@ -110,15 +111,14 @@ class Page(object):
         y_offset = 13
 
         # define display window limit for menu table
-        table_window = 3
+        table_window = MAX_PAGE_LINES
 
         # determine the menu list to show based on current selection and window limits
         if (len(menu_list) > table_window):
 
             # We've got more items than we can fit in our window, need to slice to fit
             if (option_number_selected >= table_window):
-                menu_list = menu_list[(
-                    option_number_selected - (table_window - 1)): option_number_selected + 1]
+                menu_list = menu_list[(option_number_selected - (table_window - 1)): option_number_selected + 1]
             else:
                 # We have enough space for the menu items, so no special treatment required
                 menu_list = menu_list[0: table_window]
@@ -141,13 +141,7 @@ class Page(object):
             g_vars['draw'].rectangle((0, y, 127, y+y_offset), outline=0, fill=rect_fill)
             g_vars['draw'].text((1, y+1), menu_item,  font=FONT11, fill=text_fill)
             y += y_offset
-
-        # add nav buttons
-        #self.nav_button_obj.down()
-        #self.nav_button_obj.next()
-        #self.nav_button_obj.back()
-        # Don't show back button at top level of menu
-        
+       
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False

@@ -7,6 +7,7 @@ from modules.pages.display import *
 from modules.nav.navigation import *
 from modules.constants import (
     SMART_FONT,
+    MAX_TABLE_LINES,
 )
 
 class PagedTable(object):
@@ -48,7 +49,7 @@ class PagedTable(object):
         font_offset = 0
         font_size = 11
         item_length_max = 20
-        table_display_max = 4
+        table_display_max = MAX_TABLE_LINES
 
         # write title
         title = table_data['title']

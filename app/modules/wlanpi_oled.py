@@ -15,14 +15,14 @@ INTERFACE_TYPE = None
 WIDTH = None
 HEIGHT = None
 
-if PLATFORM == "wlanpi_pro":
+if PLATFORM == "pro":
 
     # ssd1351 128 x 128
     DISPLAY_TYPE = "ssd1351"
     INTERFACE_TYPE = "spi"
     WIDTH = "128"
     HEIGHT = "128"
-elif PLATFORM == "sapphire":
+else:
     # Sapphire HAT OLED settings
     DISPLAY_TYPE = "sh1106"
     I2C_PORT = "0"

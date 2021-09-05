@@ -3,11 +3,6 @@ import types
 from modules.pages.homepage import *
 from modules.pages.page import *
 from modules.pages.simpletable import * 
-from modules.constants import (
-    BUTTONS_FILE,
-)
-
-from pprint import pprint
 
 class Button(object):
 
@@ -172,13 +167,6 @@ class Button(object):
 
             self.page_obj.draw_page(g_vars, menu)
     
-    def button_set(self, g_vars, keyword, results):
-        with open(BUTTONS_FILE, 'w') as f:
-            f.write(keyword)
-            g_vars['key_map'] = keyword
-
-        self.simple_table_obj.display_simple_table(g_vars, results, back_button_req=1)
-
     def buttons_classic(self, g_vars):
             self.button_set(g_vars, 'classic', ['Classic mode',  'selected'])
 
