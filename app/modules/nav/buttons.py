@@ -148,30 +148,3 @@ class Button(object):
             g_vars['display_state'] = 'menu'
             self.page_obj.draw_page(g_vars, menu)
 
-
-    def go_up(self, g_vars, menu):
-
-        # executed when the back navigation item is selected
-        # (e.g. "Cancel") - this is not a button press action
-
-        g_vars['display_state'] = 'menu'
-
-        if len(g_vars['current_menu_location']) == 1:
-            # we must be at top level, do nothing
-            return
-        else:
-            # Take off last level of menu structure to go up
-            # Set index to 0 so top menu item selected
-            g_vars['current_menu_location'].pop()
-            g_vars['current_menu_location'][-1] = 0
-
-            self.page_obj.draw_page(g_vars, menu)
-    
-    def buttons_classic(self, g_vars):
-            self.button_set(g_vars, 'classic', ['Classic mode',  'selected'])
-
-    def buttons_intuitive(self, g_vars):
-        self.button_set(g_vars, 'alt', ['Intuit mode',  'selected'])
-
-    def buttons_symbol(self, g_vars):
-        self.button_set(g_vars, 'symbols', ['Symbols mode',  'selected'])

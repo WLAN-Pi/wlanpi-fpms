@@ -4,7 +4,6 @@
 import modules.wlanpi_oled as oled
 
 from modules.pages.display import *
-from modules.nav.navigation import *
 from modules.constants import (
     SMART_FONT,
     MAX_TABLE_LINES,
@@ -16,9 +15,6 @@ class PagedTable(object):
 
         # grab a screeb obj
         self.display_obj = Display(g_vars)
-
-        # grab a navigation obj
-        self.nav_button_obj = NavButton(g_vars, 255, SMART_FONT)
         self.draw = g_vars['draw']
 
     def display_paged_table(self, g_vars, table_data, back_button_req=0):
@@ -91,21 +87,6 @@ class PagedTable(object):
 
             font_offset += font_size
 
-        """
-        # if we're going need to scroll through pages, create buttons
-        if (page_count > 1):
-
-            # if (g_vars['current_scroll_selection'] < page_count) and (g_vars['current_scroll_selection'] < page_count-1):
-            if g_vars['current_scroll_selection'] < page_count-1:
-                self.nav_button_obj.down(function="pgdown")
-
-            if (g_vars['current_scroll_selection'] > 0) and (g_vars['current_scroll_selection'] <= page_count - 1):
-                self.nav_button_obj.down(function="pgup")
-
-        # Back button
-        if back_button_req:
-            self.nav_button_obj.back(function="exit")
-        """
         oled.drawImage(g_vars['image'])
 
         g_vars['display_state'] = 'page'
@@ -128,7 +109,7 @@ class PagedTable(object):
         data['pages'] = []
 
         # slice up list in to pages
-        table_display_max = 4
+        table_display_max = MAX_TABLE_LINES
 
         counter = 0
         while item_list:

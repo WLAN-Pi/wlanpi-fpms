@@ -4,7 +4,6 @@
 import modules.wlanpi_oled as oled
 
 from modules.pages.display import *
-from modules.nav.navigation import *
 from modules.constants import (
     SMART_FONT,
     FONT11,
@@ -18,9 +17,6 @@ class Page(object):
 
         # grab a screeb obj
         self.display_obj = Display(g_vars)
-
-        # grab a navigation obj
-        self.nav_button_obj = NavButton(g_vars, 255, SMART_FONT)
 
     def draw_page(self, g_vars, menu):
 

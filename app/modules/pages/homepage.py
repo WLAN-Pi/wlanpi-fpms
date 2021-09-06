@@ -7,7 +7,6 @@ import re
 import os.path
 
 from modules.pages.display import *
-from modules.nav.navigation import *
 from modules.pages.simpletable import *
 from modules.constants import (
     SMART_FONT,
@@ -22,9 +21,6 @@ class HomePage(object):
 
         # grab a screeb obj
         self.display_obj = Display(g_vars)
-
-        # grab a navigation obj
-        self.nav_button_obj = NavButton(g_vars, 255, SMART_FONT)
 
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
@@ -142,9 +138,6 @@ class HomePage(object):
         g_vars['draw'].text((95, 20), if_name, font=SMART_FONT, fill=255)
         g_vars['draw'].text((0, 29), str(ip_addr), font=FONT14, fill=255)
         g_vars['draw'].text((0, 43), str(mode_name), font=SMART_FONT, fill=255)
-
-        #self.nav_button_obj.back(function='menu')
-        oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False
         return

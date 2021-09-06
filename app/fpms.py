@@ -103,7 +103,6 @@ g_vars = {
     'last_button_press_count': 0, # copy of count of button pressses used in main loop
     'pageSleepCountdown': PAGE_SLEEP, # Set page sleep control
     'home_page_name': "Home",       # Display name for top level menu
-    'key_map': 'classic',      # key map options: classic, alt, symbols
     'blinker_status': False,
 
 }

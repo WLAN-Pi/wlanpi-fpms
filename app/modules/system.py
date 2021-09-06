@@ -5,7 +5,6 @@ import subprocess
 import socket
 
 from modules.pages.display import *
-from modules.nav.navigation import *
 from modules.pages.simpletable import * 
 from modules.constants import (
     MENU_VERSION,
@@ -20,9 +19,6 @@ class System(object):
        
         # grab a screeb obj
         self.display_obj = Display(g_vars)
-
-        # grab a navigation obj
-        self.nav_button_obj = NavButton(g_vars, 255, SMART_FONT)
 
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
@@ -140,9 +136,6 @@ class System(object):
         g_vars['draw'].text((1, 26), text, font=FONTB14, fill=255)
         text = time.strftime("%Z")
         g_vars['draw'].text((1, 41), "TZ: " + text, font=FONT12, fill=255)
-
-        # Back button
-        self.nav_button_obj.back()
 
         oled.drawImage(g_vars['image'])
 

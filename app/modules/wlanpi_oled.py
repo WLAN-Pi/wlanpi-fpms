@@ -146,5 +146,5 @@ def clearDisplay():
     device.clear()
 
 def drawImage(image):
-    #device.display(image.convert(device.mode))
-    device.display(image)
+    device.display(image.convert(device.mode))
+    #device.display(image)

@@ -4,7 +4,6 @@ import subprocess
 import re
 
 from modules.pages.display import *
-from modules.nav.navigation import *
 from modules.pages.simpletable import *
 from modules.pages.pagedtable import *
 from modules.constants import (
