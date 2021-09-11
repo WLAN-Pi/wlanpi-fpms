@@ -10,6 +10,7 @@ This file must be run as root
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
+from gpiozero import Button as GPIO_Button
 import time
 import subprocess
 import signal
@@ -505,8 +506,6 @@ time.sleep(2)
 
 # Set signal handlers for button presses - these fire every time a button
 # is pressed
-from gpiozero import Button as GPIO_Button
-
 def down_key():
     button_press(BUTTONS_PINS['down'], g_vars)
 
