@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-This script loosely based on the original bakebit_nanonhat_oled.py provided
-by Friendlyarm. It has been updated to support a scalable menu structure and
-a number of additional features to support the WLANPi initiative.
+FPMS main app file
 
-History:
-
- 2.0.0 - Complete re-write to move to modular architcture - Nigel 03/03/2020
- 2.0.1 - First release baked in to iniital v2 alpha release
- 2.0.2 - Added profiler2 support
-
+This file must be run as root
 """
 
 
