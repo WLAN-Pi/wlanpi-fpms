@@ -7,7 +7,6 @@ import socket
 from modules.pages.display import *
 from modules.pages.simpletable import * 
 from modules.constants import (
-    MENU_VERSION,
     SMART_FONT,
     FONT12,
     FONTB14,
@@ -25,7 +24,7 @@ class System(object):
     
     def shutdown(self, g_vars):
         
-        self.simple_table_obj.display_dialog_msg(g_vars, 'Shutting down...', back_button_req=0)
+        self.simple_table_obj.display_dialog_msg(g_vars, 'Shutting down...')
         time.sleep(1)
 
         oled.clearDisplay()
@@ -37,7 +36,7 @@ class System(object):
 
     def reboot(self, g_vars):
         
-        self.simple_table_obj. display_dialog_msg(g_vars, 'Rebooting...', back_button_req=0)
+        self.simple_table_obj. display_dialog_msg(g_vars, 'Rebooting...')
         time.sleep(1)
 
         oled.drawImage(g_vars['reboot_image'])
@@ -113,7 +112,7 @@ class System(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, results, back_button_req=1)
+        self.simple_table_obj.display_simple_table(g_vars, results)
 
         return
 
@@ -142,5 +141,5 @@ class System(object):
         g_vars['display_state'] = 'page'
         g_vars['drawing_in_progress'] = False
     
-    def fpms_version(self, g_vars):
-        self.simple_table_obj.display_simple_table(g_vars, ["Menu version:", MENU_VERSION ],  back_button_req=1, font="medium")
+    def wlanpi_version(self, g_vars):
+        self.simple_table_obj.display_simple_table(g_vars, ["WLAN Pi version:", g_vars['wlanpi_ver'] ], font="medium")

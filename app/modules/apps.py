@@ -66,7 +66,7 @@ class App(object):
         except:
             # cmd failed, so profiler service not installed
             self.simple_table_obj. display_dialog_msg(g_vars, 'not available: {}'.format(
-                profiler_ctl_file), back_button_req=1)
+                profiler_ctl_file))
             g_vars['display_state'] = 'page'
             g_vars['result_cache'] = True
             return
@@ -87,7 +87,7 @@ class App(object):
             else:
                 item_list = ['Profiler not active']
 
-            self.simple_table_obj.display_simple_table(g_vars, item_list, back_button_req=1,
+            self.simple_table_obj.display_simple_table(g_vars, item_list,
                                 title='Profiler Status')
             g_vars['display_state'] = 'page'
             
@@ -95,7 +95,7 @@ class App(object):
             return True
 
         if action.startswith("start"):
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...", back_button_req=0)
+            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
 
             if action == "start":
                 # set the config file to use params
@@ -129,7 +129,7 @@ class App(object):
                     
         elif action == "stop":
 
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...", back_button_req=0)
+            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
 
             if not self.profiler_running():
                 dialog_msg = 'Already stopped!'
@@ -144,7 +144,7 @@ class App(object):
         elif action == "purge_reports":
             # call profiler2 with the --clean option
 
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...", back_button_req=0)
+            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
 
             try:
                 cmd = "/opt/wlanpi/pipx/bin/profiler --clean --yes"
@@ -157,7 +157,7 @@ class App(object):
         elif action == "purge_files":
             # call profiler2 with the --clean --files option
 
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...", back_button_req=0)
+            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
 
             try:
                 cmd = "/opt/wlanpi/pipx/bin/profiler --clean --files --yes"
@@ -170,7 +170,7 @@ class App(object):
         # signal that result is cached (stops re-painting screen)
         g_vars['result_cache'] = True
 
-        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg, back_button_req=1)
+        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg)
         g_vars['display_state'] = 'page'
         return True
 

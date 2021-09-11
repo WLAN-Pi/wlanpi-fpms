@@ -37,7 +37,6 @@ from modules.constants import (
     PAGE_HEIGHT,
     PAGE_WIDTH,
     NAV_BAR_TOP,
-    MENU_VERSION,
     MODE_FILE,
     WLANPI_IMAGE_FILE,
     IMAGE_DIR,
@@ -277,9 +276,9 @@ def show_date():
     system_obj = System(g_vars)
     system_obj.show_date(g_vars)
 
-def show_menu_ver():
+def show_wlanpi_ver():
     system_obj = System(g_vars)
-    system_obj.fpms_version(g_vars)
+    system_obj.wlanpi_version(g_vars)
 
 #############################
 # Button presses & home page
@@ -383,7 +382,7 @@ menu = [
         },
         {"name": "Summary", "action": show_summary},
         {"name": "Date/Time", "action": show_date},
-        {"name": "Version", "action": show_menu_ver},
+        {"name": "Version", "action": show_wlanpi_ver},
     ]
     },
 ]
@@ -505,11 +504,11 @@ rogues_gallery = [
     IMAGE_DIR + '/jiribrejcha.png'
 ]
 
-#random_image = random.choice(rogues_gallery)
-#image0 = Image.open(random_image).convert('1')
+random_image = random.choice(rogues_gallery)
+image0 = Image.open(random_image).convert('1')
 
-#oled.drawImage(image0)
-#time.sleep(2)
+oled.drawImage(image0)
+time.sleep(2)
 
 # Set signal handlers for button presses - these fire every time a button
 # is pressed

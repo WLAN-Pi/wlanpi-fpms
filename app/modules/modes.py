@@ -28,13 +28,11 @@ class Mode(object):
         # check resource is available
         if not os.path.isfile(resource_switcher_file):
 
-            self.simple_table_obj. display_dialog_msg(g_vars, '{} not available'.format(resource_title), back_button_req=1)
+            self.simple_table_obj. display_dialog_msg(g_vars, '{} not available'.format(resource_title))
             g_vars['display_state'] = 'page'
             return
 
         # Resource switcher was detected, so assume it's installed
-        back_button_req = 0
-
         if g_vars['current_mode'] == "classic":
             # if in classic mode, switch to the resource
             dialog_msg = 'Switching to {} mode (rebooting...)'.format(resource_title)
@@ -43,12 +41,12 @@ class Mode(object):
             dialog_msg = 'Switching to Classic mode (rebooting...)'
             switch = "off"
         else:
-            dialog_msg('Unknown mode: {}'.format(g_vars['current_mode']), back_button_req=1)
+            dialog_msg('Unknown mode: {}'.format(g_vars['current_mode']))
             g_vars['display_state'] = 'page'
             return False
 
         # Flip the mode
-        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg, back_button_req)
+        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg)
         g_vars['shutdown_in_progress'] = True
         time.sleep(2)
 
@@ -66,7 +64,7 @@ class Mode(object):
         # (Note that the switcher script reboots the WLANPi)
         g_vars['shutdown_in_progress'] = False
         g_vars['screen_cleared'] = False
-        self.simple_table_obj. display_dialog_msg(g_vars, "Switch failed: {}".format(dialog_msg), back_button_req=0)
+        self.simple_table_obj. display_dialog_msg(g_vars, "Switch failed: {}".format(dialog_msg))
         g_vars['display_state'] = 'menu'
 
         # allow 5 secs to view failure msg

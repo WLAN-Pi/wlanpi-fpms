@@ -17,7 +17,7 @@ class PagedTable(object):
         self.display_obj = Display(g_vars)
         self.draw = g_vars['draw']
 
-    def display_paged_table(self, g_vars, table_data, back_button_req=0):
+    def display_paged_table(self, g_vars, table_data):
         '''
         This function takes several pages of information and displays on the
         display with appropriate pg up/pg down buttons
@@ -95,7 +95,7 @@ class PagedTable(object):
         return
 
 
-    def display_list_as_paged_table(self, g_vars, item_list, back_button_req=0, title=''):
+    def display_list_as_paged_table(self, g_vars, item_list, title=''):
         '''
         This function builds on display_paged_table() and creates a paged display
         from a simple list of results. This provides a better experience that the
@@ -117,6 +117,6 @@ class PagedTable(object):
             data['pages'].append(slice)
             item_list = item_list[counter+table_display_max:]
 
-        self.display_paged_table(g_vars, data, back_button_req)
+        self.display_paged_table(g_vars, data)
 
         return

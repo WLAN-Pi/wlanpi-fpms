@@ -34,7 +34,7 @@ class CloudUtils(object):
 
             # paint our empty table
             item_list = ['...Testing', '', '', '']
-            self.simple_table_obj.display_simple_table(g_vars, item_list, back_button_req=0, title='--Mist Cloud--')
+            self.simple_table_obj.display_simple_table(g_vars, item_list, title='--Mist Cloud--')
 
             # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
@@ -82,7 +82,7 @@ class CloudUtils(object):
                     test_fail = True
 
             # show results
-            self.simple_table_obj.display_simple_table(g_vars, item_list, back_button_req=1, title='--Mist Cloud--')
+            self.simple_table_obj.display_simple_table(g_vars, item_list, title='--Mist Cloud--')
 
             # set flag to prevent constant refresh of screen
             g_vars['speedtest_status'] = True

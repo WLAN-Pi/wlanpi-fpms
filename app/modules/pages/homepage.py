@@ -38,7 +38,7 @@ class HomePage(object):
             output = exc.output.decode()
             #error_descr = "Issue getting number of  Wi-Fi clients"
             wccerror = ["Err: Wi-Fi client count", str(output)]
-            self.simple_table_obj.display_simple_table(g_vars, wccerror, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, wccerror)
             return
 
         return client_count.strip()

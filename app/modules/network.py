@@ -42,7 +42,7 @@ class Network(object):
                 ifconfig_file, shell=True).decode()
         except Exception as ex:
             interfaces = ["Err: ifconfig error", str(ex)]
-            self.simple_table_obj.display_simple_table(g_vars, interfaces, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, interfaces)
             return
 
         # Extract interface info with a bit of regex magic
@@ -95,7 +95,7 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, back_button_req=1, title="--Interfaces--")
+        self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, title="--Interfaces--")
 
     def channel_lookup(self, freq):
 
@@ -165,7 +165,7 @@ class Network(object):
             ifconfig_info = subprocess.check_output('{} -s'.format(ifconfig_file), shell=True).decode()
         except Exception as ex:
             interfaces = ["Err: ifconfig error", str(ex)]
-            self.simple_table_obj.display_simple_table(g_vars, interfaces, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, interfaces)
             return
 
         # Extract interface info
@@ -255,7 +255,7 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_paged_table(g_vars, data, back_button_req=1)
+        self.paged_table_obj.display_paged_table(g_vars, data)
 
 
     def show_eth0_ipconfig(self, g_vars):
@@ -275,7 +275,7 @@ class Network(object):
             output = exc.output.decode()
             #error_descr = "Issue getting ipconfig"
             ipconfigerror = ["Err: ipconfig command error", output]
-            self.simple_table_obj.display_simple_table(g_vars, ipconfigerror, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, ipconfigerror)
             return
 
         if len(ipconfig_info) == 0:
@@ -296,7 +296,7 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, back_button_req=1, title='--Eth0 IP Cfg--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--Eth0 IP Cfg--')
 
         return
 
@@ -322,7 +322,7 @@ class Network(object):
 
             except:
                 error = ["No VLAN found"]
-                self.simple_table_obj.display_simple_table(g_vars, error, back_button_req=1)
+                self.simple_table_obj.display_simple_table(g_vars, error)
                 return
 
         if len(vlan_info) == 0:
@@ -336,7 +336,7 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, vlan_info, back_button_req=1, title='--Eth0 VLAN--')
+        self.simple_table_obj.display_simple_table(g_vars, vlan_info, title='--Eth0 VLAN--')
 
     def show_lldp_neighbour(self, g_vars):
         '''
@@ -358,7 +358,7 @@ class Network(object):
                 output = exc.output.decode()
                 #error_descr = "Issue getting LLDP neighbour"
                 error = ["Err: Neighbour command error", output]
-                self.simple_table_obj.display_simple_table(g_vars, error, back_button_req=1)
+                self.simple_table_obj.display_simple_table(g_vars, error)
                 return
 
         if len(neighbour_info) == 0:
@@ -382,8 +382,8 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, back_button_req=1, title='--LLDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, back_button_req=1, title='--LLDP N/bor--')
+        #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--LLDP Neighbour--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--LLDP N/bor--')
 
 
     def show_cdp_neighbour(self, g_vars):
@@ -406,7 +406,7 @@ class Network(object):
                 output = exc.output.decode()
                 #error_descr = "Issue getting LLDP neighbour"
                 error = ["Err: Neighbour command error", output]
-                self.simple_table_obj.display_simple_table(g_vars, error, back_button_req=1)
+                self.simple_table_obj.display_simple_table(g_vars, error)
                 return
 
         if len(neighbour_info) == 0:
@@ -430,8 +430,8 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, back_button_req=1, title='--CDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, back_button_req=1, title='--CDP N/bor--')
+        #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--CDP Neighbour--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--CDP N/bor--')
 
     def show_publicip(self, g_vars):
         '''
@@ -450,7 +450,7 @@ class Network(object):
             output = exc.output.decode()
             #error_descr = "Public IP Error"
             error = ["Err: Public IP", output]
-            self.simple_table_obj.display_simple_table(g_vars, error, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, error)
             return
 
         if len(publicip_info) == 0:
@@ -468,5 +468,5 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, back_button_req=1, title='  --Public IP--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='  --Public IP--')
         time.sleep(0.5)

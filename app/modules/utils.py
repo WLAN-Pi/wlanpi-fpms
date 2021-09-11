@@ -32,7 +32,7 @@ class Utils(object):
             # ignore any more key presses as this could cause us issues
             g_vars['disable_keys'] = True
 
-            self.simple_table_obj.display_dialog_msg(g_vars, 'Running Speedtest. Please wait.', back_button_req=0)
+            self.simple_table_obj.display_dialog_msg(g_vars, 'Running Speedtest. Please wait.')
 
             speedtest_info = []
             speedtest_cmd = "speedtest | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\(/My IP: /g; s/\)\.\.\.//g; s/Download/D/g; s/Upload/U/g; s/bit\/s/bps/g'"
@@ -43,7 +43,7 @@ class Utils(object):
             except subprocess.CalledProcessError as exc:
                 output = exc.output.decode()
                 error = ["Err: Speedtest error", output]
-                self.simple_table_obj.display_simple_table(g_vars, error, back_button_req=1)
+                self.simple_table_obj.display_simple_table(g_vars, error)
                 # re-enable front panel keys
                 g_vars['disable_keys'] = False
                 return
@@ -64,7 +64,7 @@ class Utils(object):
         # re-enable front panel keys
         g_vars['disable_keys'] = False
 
-        self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], back_button_req=1, title='--Speedtest--')
+        self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='--Speedtest--')
 
     def show_blinker(self, g_vars):
         '''
@@ -83,13 +83,13 @@ class Utils(object):
             g_vars['disable_keys'] = False
 
         else:
-            self.simple_table_obj.display_dialog_msg(g_vars, 'Blinking eth0. Watch port LEDs on the switch.', back_button_req=1)
+            self.simple_table_obj.display_dialog_msg(g_vars, 'Blinking eth0. Watch port LEDs on the switch.')
             g_vars['blinker_status'] = True
 
     def stop_blinker(self, g_vars):
         g_vars['blinker_process'].kill()
         g_vars['blinker_status'] = False
-        self.simple_table_obj.display_dialog_msg(g_vars, 'Port Blinker stopped.', back_button_req=1)
+        self.simple_table_obj.display_dialog_msg(g_vars, 'Port Blinker stopped.')
 
     def show_reachability(self, g_vars):
         '''
@@ -106,7 +106,7 @@ class Utils(object):
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
             error = ["Err: Reachability command error", output]
-            self.simple_table_obj.display_simple_table(g_vars, error, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, error)
             return
 
         if len(reachability_info) == 0:
@@ -124,7 +124,7 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, back_button_req=1, title='--Reachability')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--Reachability')
     
     def show_wpa_passphrase(self, g_vars):
         '''
@@ -140,7 +140,7 @@ class Utils(object):
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
             swperror = ["Err: WPA passphrase", output]
-            self.simple_table_obj.display_simple_table(g_vars, swperror, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, swperror)
             return
 
         # final check no-one pressed a button before we render page
@@ -155,7 +155,7 @@ class Utils(object):
             if len(n) > 20:
                 choppedoutput.append(n[20:40])
 
-        self.simple_table_obj.display_simple_table(g_vars, choppedoutput, back_button_req=1, title='--WPA passphrase--')
+        self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--WPA passphrase--')
     
     def show_usb(self, g_vars):
         '''
@@ -172,7 +172,7 @@ class Utils(object):
             output = exc.output.decode()
             #error_descr = "Issue getting usb info using lsusb command"
             interfaces = ["Err: lsusb error", str(output)]
-            self.simple_table_obj.display_simple_table(g_vars, interfaces, back_button_req=1)
+            self.simple_table_obj.display_simple_table(g_vars, interfaces)
             return
 
         interfaces = []
@@ -191,7 +191,7 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, interfaces, back_button_req=1, title='--USB Interfaces--')
+        self.simple_table_obj.display_simple_table(g_vars, interfaces, title='--USB Interfaces--')
 
         return
 
@@ -207,7 +207,7 @@ class Utils(object):
         # check ufw is available
         if not os.path.isfile(ufw_file):
 
-            self.simple_table_obj. display_dialog_msg(g_vars, 'UFW not installed', back_button_req=1)
+            self.simple_table_obj. display_dialog_msg(g_vars, 'UFW not installed')
 
             g_vars['display_state'] = 'page'
             return
@@ -223,7 +223,7 @@ class Utils(object):
             except Exception as ex:
                 error_descr = "Issue getting ufw info using ufw command"
                 interfaces = ["Err: ufw error", error_descr, str(ex)]
-                self.simple_table_obj.display_simple_table(g_vars, interfaces, back_button_req=1)
+                self.simple_table_obj.display_simple_table(g_vars, interfaces)
                 return
         else:
             # we must have cached results from last time
@@ -254,6 +254,6 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, back_button_req=1, title='--UFW Summary--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='--UFW Summary--')
 
         return
