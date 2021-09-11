@@ -139,5 +139,7 @@ class HomePage(object):
         g_vars['draw'].text((0, 29), str(ip_addr), font=FONT14, fill=255)
         g_vars['draw'].text((0, 43), str(mode_name), font=SMART_FONT, fill=255)
 
+        oled.drawImage(g_vars['image'])
+
         g_vars['drawing_in_progress'] = False
         return
