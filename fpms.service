@@ -1,9 +1,0 @@
-[Unit]
-Description=FPMS daemon responsible for OLED management
-
-[Service]
-ExecStart=python3 /usr/local/share/fpms/fpms.py
-WorkingDirectory=/usr/local/share/fpms
-
-[Install]
-WantedBy=multi-user.target
