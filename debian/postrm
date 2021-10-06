@@ -2,4 +2,4 @@
 
 # Removes __pycache__ folders and .pyc files which prevent full uninstallation and FPMS folder deletion
 echo "Cleaning up FPMS directory"
-rm -rf /usr/share/fpms/
+rm -rf /opt/wlanpi-fpms

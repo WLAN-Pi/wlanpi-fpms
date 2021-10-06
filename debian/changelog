@@ -1,3 +1,9 @@
+wlanpi-fpms (1.0.3) unstable; urgency=medium
+
+  * New FPMS designed for WLAN Pi Pro display and 4 push buttons
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 06 Oct 2021 16:17:12 +0000
+
 wlanpi-fpms (1.0.2-1) unstable; urgency=medium
 
   * Removed networkinfo and moved to wlanpi-common
