@@ -1,3 +1,9 @@
+wlanpi-fpms (1.0.2-1) unstable; urgency=medium
+
+  * Removed networkinfo and moved to wlanpi-common
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Fri, 20 Aug 2021 23:53:42 +0000
+
 wlanpi-fpms (1.0.2) unstable; urgency=medium
 
   * Triggering the compilation
