@@ -1,9 +1,9 @@
 [Unit]
-Description=FPMS daemon responsible for OLED management
+Description=Front Panel Menu System for the WLAN Pi OLED display
 
 [Service]
-ExecStart=python3 @datadir@/fpms/fpms.py
-WorkingDirectory=@datadir@/fpms
+ExecStart=python3 /opt/wlanpi-fpms/fpms.py
+WorkingDirectory=/opt/wlanpi-fpms
 
 [Install]
 WantedBy=multi-user.target
