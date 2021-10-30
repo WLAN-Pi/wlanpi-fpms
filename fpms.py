@@ -11,6 +11,10 @@ from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 from gpiozero import Button as GPIO_Button
+from gpiozero import Device
+from gpiozero.pins.mock import MockFactory
+import getopt
+import threading, termios, tty
 import time
 import subprocess
 import signal
@@ -53,6 +57,19 @@ from modules.system import *
 
 from modules.apps import *
 import modules.wlanpi_oled as oled
+
+####################################
+# Parse arguments
+####################################
+
+emulate = False
+
+argv = sys.argv[1:]
+opts, args = getopt.getopt(argv, "e", ["emulate-buttons"])
+
+for opt, arg in opts:
+    if opt in ['-e', "--emulate-buttons"]:
+        emulate = True
 
 ####################################
 # Initialize the SEED OLED display
@@ -504,6 +521,9 @@ image0 = Image.open(random_image).convert('1')
 oled.drawImage(image0)
 time.sleep(2)
 
+if emulate:
+    Device.pin_factory = MockFactory()
+
 # Set signal handlers for button presses - these fire every time a button
 # is pressed
 def down_key():
@@ -533,6 +553,60 @@ button_left.when_pressed = left_key
 button_right.when_pressed = right_key
 button_center.when_pressed = center_key
 
+running = True
+
+##############################################################################
+# Emulate button presses using a keyboard
+##############################################################################
+
+def getch():
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        ch = sys.stdin.read(1)
+
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return ch
+
+def emulate_buttons():
+
+    global running
+
+    while True:
+        char = getch()
+
+        if (char == "k" or char == "K"):
+            running = False
+            break
+
+        if (char == "8" or char == "w"):
+            button_up.pin.drive_low()
+            button_up.pin.drive_high()
+
+        if (char == "2" or char == "x"):
+            button_down.pin.drive_low()
+            button_down.pin.drive_high()
+
+        if (char == "4" or char == "a"):
+            button_left.pin.drive_low()
+            button_left.pin.drive_high()
+
+        if (char == "6" or char == "d"):
+            button_right.pin.drive_low()
+            button_right.pin.drive_high()
+
+        if (char == "5" or char == "s"):
+            button_center.pin.drive_low()
+            button_center.pin.drive_high()
+
+
+if emulate:
+    print("UP = 'w', DOWN = 'x', LEFT = 'a', RIGHT = 'd', CENTER = 's'")
+    print("Press 'k' to terminate.")
+    e = threading.Thread(name="button-emulator", target=emulate_buttons)
+    e.start()
 
 ##############################################################################
 # Constant 'while' loop to paint images on display or execute actions in
@@ -555,7 +629,7 @@ button_center.when_pressed = center_key
 # is the case, based on testing with variable scopes and checking for process
 # IDs when different parts of the script are executing.
 ##############################################################################
-while True:
+while running:
 
     try:
 
