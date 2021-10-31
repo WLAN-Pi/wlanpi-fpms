@@ -147,7 +147,7 @@ class App(object):
             self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
 
             try:
-                cmd = "/opt/wlanpi/pipx/bin/profiler --clean --yes"
+                cmd = "/usr/sbin/profiler --clean --yes"
                 subprocess.run(cmd, shell=True)
                 dialog_msg = "Reports purged."
             except subprocess.CalledProcessError as exc:
@@ -160,7 +160,7 @@ class App(object):
             self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
 
             try:
-                cmd = "/opt/wlanpi/pipx/bin/profiler --clean --files --yes"
+                cmd = "/usr/sbin/profiler --clean --files --yes"
                 subprocess.run(cmd, shell=True)
                 dialog_msg = "Files purged."
             except subprocess.CalledProcessError as exc:
