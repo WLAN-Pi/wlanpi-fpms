@@ -9,11 +9,11 @@ from modules.pages.simpletable import SimpleTable
 class App(object):
 
     def __init__(self, g_vars):
-       
+
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
-   
+
     def profiler_ctl_file_update(self, fields_dict, filename):
 
         # read in file to an array
@@ -28,40 +28,40 @@ class App(object):
                 # replace match in file with key/value pair
                 if line.startswith(key):
                     lines[count] = "{}: {}\n".format(key, value)
-        
+
         # write modified file back out
         with open(filename, 'w') as f:
             f.writelines(lines)
 
-        
+
     def profiler_running(self):
         try:
             # this cmd fails if process not active
-            cmd = "systemctl is-active --quiet profiler.service"
+            cmd = "systemctl is-active --quiet wlanpi-profiler"
             subprocess.check_output(cmd, shell=True)
             return True
         except subprocess.CalledProcessError as exc:
             return False
-                
+
     def profiler_ctl(self, g_vars, action="status"):
         '''
         Function to start/stop and get status of Profiler processes
         '''
-        # if we're been round this loop before, 
+        # if we're been round this loop before,
         # results treated as cached to prevent re-evaluating
-        # and re-painting 
+        # and re-painting
         if g_vars['result_cache'] == True:
            # re-enable keys
            g_vars['disable_keys'] = False
            return True
-        
+
         # disable keys while we react to the key press that got us here
         g_vars['disable_keys'] = True
 
         # check resource is available
         try:
             # this cmd fails if service not installed
-            cmd = "systemctl is-enabled profiler.service"
+            cmd = "systemctl is-enabled wlanpi-profiler"
             subprocess.run(cmd, shell=True)
         except:
             # cmd failed, so profiler service not installed
@@ -70,17 +70,17 @@ class App(object):
             g_vars['display_state'] = 'page'
             g_vars['result_cache'] = True
             return
-        
-        config_file = "/etc/profiler2/config.ini"
-      
+
+        config_file = "/etc/wlanpi-profiler/config.ini"
+
         dialog_msg = "Unset"
         item_list = []
 
         # get profiler process status
-        # (no check for cached result as need to re-evaluate 
+        # (no check for cached result as need to re-evaluate
         # on each 1 sec main loop cycle)
         if action == "status":
-            
+
             # check profiler status & return text
             if self.profiler_running():
                 item_list = ['Profiler active']
@@ -90,7 +90,7 @@ class App(object):
             self.simple_table_obj.display_simple_table(g_vars, item_list,
                                 title='Profiler Status')
             g_vars['display_state'] = 'page'
-            
+
             g_vars['result_cache'] = True
             return True
 
@@ -119,14 +119,14 @@ class App(object):
                 dialog_msg = 'Already running!'
             else:
                 try:
-                    cmd = "/bin/systemctl start profiler.service"
+                    cmd = "/bin/systemctl start wlanpi-profiler"
                     subprocess.run(cmd, shell=True, timeout=2)
                     dialog_msg = "Started."
                 except subprocess.CalledProcessError as proc_exc:
                     dialog_msg = 'Start failed!'
                 except subprocess.TimeoutExpired as timeout_exc:
                     dialog_msg = 'Proc timed-out!'
-                    
+
         elif action == "stop":
 
             self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
@@ -135,12 +135,12 @@ class App(object):
                 dialog_msg = 'Already stopped!'
             else:
                 try:
-                    cmd = "/bin/systemctl stop profiler.service"
+                    cmd = "/bin/systemctl stop wlanpi-profiler"
                     subprocess.run(cmd, shell=True)
                     dialog_msg = "Stopped"
                 except subprocess.CalledProcessError as exc:
                     dialog_msg = 'Stop failed!'
-                
+
         elif action == "purge_reports":
             # call profiler2 with the --clean option
 
@@ -153,7 +153,7 @@ class App(object):
             except subprocess.CalledProcessError as exc:
                 dialog_msg = "Reports purge error: {}".format(exc)
                 print(dialog_msg)
-             
+
         elif action == "purge_files":
             # call profiler2 with the --clean --files option
 
@@ -193,7 +193,7 @@ class App(object):
     def profiler_start_no11r(self, g_vars):
         self.profiler_ctl(g_vars, action="start_no11r")
         return
-    
+
     def profiler_start_no11ax(self, g_vars):
         self.profiler_ctl(g_vars, action="start_no11ax")
         return
