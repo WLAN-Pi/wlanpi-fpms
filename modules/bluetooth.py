@@ -81,7 +81,7 @@ class Bluetooth(object):
         else:
             status.append("Power: Off")
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="--Bluetooth--")
+        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="--Bluetooth Status--")
 
     def bluetooth_on(self, g_vars):
         if self.bluetooth_set_power(True):
