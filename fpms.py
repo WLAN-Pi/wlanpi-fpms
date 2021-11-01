@@ -44,8 +44,8 @@ from modules.constants import (
 from modules.nav.buttons import Button
 from modules.pages.display import Display
 from modules.pages.homepage import HomePage
-from modules.pages.simpletable import SimpleTable 
-from modules.pages.pagedtable import PagedTable 
+from modules.pages.simpletable import SimpleTable
+from modules.pages.pagedtable import PagedTable
 from modules.pages.page import Page
 
 from modules.network import *
@@ -97,7 +97,7 @@ g_vars = {
     'shutdown_in_progress': False,  # True when shutdown or reboot started
     'screen_cleared': False,        # True when display cleared (e.g. screen save)
     'display_state': 'page',        # current display state: 'page' or 'menu'
-    'sig_fired': False,             # Set to True when button handler fired 
+    'sig_fired': False,             # Set to True when button handler fired
     'option_selected': 0,        # Content of currently selected menu level
     'current_menu_location': [0],   # Pointer to current location in menu structure
     'current_scroll_selection': 0,  # where we currently are in scrolling table
@@ -450,9 +450,9 @@ def button_press(gpio_pin, g_vars=g_vars):
 
     if g_vars['drawing_in_progress'] or g_vars['shutdown_in_progress']:
         return
-    
+
     # If we get this far, an action wil be taken as a result of the button press
-    # increment the button press counter to indicate the something has been done 
+    # increment the button press counter to indicate the something has been done
     # and a page refresh is required
     g_vars['button_press_count'] += 1
 
@@ -468,7 +468,7 @@ def button_press(gpio_pin, g_vars=g_vars):
         menu_down()
         g_vars['sig_fired'] = False
         return
-    
+
     # Down key pressed
     if gpio_pin == UP_KEY:
         g_vars['sig_fired'] = True
@@ -489,7 +489,7 @@ def button_press(gpio_pin, g_vars=g_vars):
         menu_left()
         g_vars['sig_fired'] = False
         return
-    
+
     # Center key
     if gpio_pin == CENTER_KEY:
         g_vars['sig_fired'] = True
@@ -504,14 +504,14 @@ def button_press(gpio_pin, g_vars=g_vars):
 ###############################################################################
 
 # First time around (power-up), draw logo on display
-rogues_gallery = [ 
-    IMAGE_DIR + '/wlanprologo.png', 
-    IMAGE_DIR + '/wlanprologo.png', 
-    IMAGE_DIR + '/joshschmelzle.png', 
+rogues_gallery = [
+    IMAGE_DIR + '/wlanprologo.png',
+    IMAGE_DIR + '/wlanprologo.png',
+    IMAGE_DIR + '/joshschmelzle.png',
     IMAGE_DIR + '/crv.png',
-    IMAGE_DIR + '/jolla.png', 
+    IMAGE_DIR + '/jolla.png',
     IMAGE_DIR + '/wifinigel.png',
-    IMAGE_DIR + '/dansfini.png', 
+    IMAGE_DIR + '/dansfini.png',
     IMAGE_DIR + '/jiribrejcha.png'
 ]
 
@@ -662,14 +662,14 @@ while running:
                 continue
             else:
                 g_vars['option_selected']()
-            
+
         else:
             # lets try drawing our page (or refresh if already painted)
 
             # No point in repainting screen if we are on a
             # menu page and no buttons pressed since last loop cycle
             # In reality, this condition will rarely (if ever) be true
-            # as the page painting is driven from the key press which 
+            # as the page painting is driven from the key press which
             # interrupts this flow anyhow. Left in as a safeguard
             if g_vars['button_press_count'] > g_vars['last_button_press_count']:
                 page_obj = Page(g_vars)
@@ -682,23 +682,23 @@ while running:
             g_vars['screen_cleared'] = True
 
         g_vars['pageSleepCountdown'] = g_vars['pageSleepCountdown'] - 1
-        
+
         # have a nap before we start our next loop
         time.sleep(1)
-        
+
 
     except KeyboardInterrupt:
         break
     except IOError as ex:
         print("Error " + str(ex))
-    
+
     g_vars['last_button_press_count'] = g_vars['button_press_count']
 
 '''
 Discounted ideas
 
     1. Vary sleep timer for main while loop (e.g. longer for less frequently
-       updating data) - doesn;t work as main while loop may be in middle of 
+       updating data) - doesn;t work as main while loop may be in middle of
        long sleep when button action taken, so screen refresh very long.
 
 '''

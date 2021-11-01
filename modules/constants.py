@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-""" 
+"""
 constants.py - shared constant vars
 """
 
@@ -26,7 +26,7 @@ if PLATFORM == "pro":
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
     MAX_TABLE_LINES = 7
-    MAX_PAGE_LINES = 6  
+    MAX_PAGE_LINES = 6
 
 
 PAGE_SLEEP = 300             # Time in secs before sleep
@@ -106,4 +106,3 @@ if PLATFORM == "pro":
     BUTTONS_PINS = BUTTONS_WLANPI_PRO
 else:
     BUTTONS_PINS = BUTTONS_SAPPHIRE
-
