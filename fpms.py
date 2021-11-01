@@ -185,6 +185,10 @@ def show_publicip():
 ###########################
 # Bluetooth menu area
 ###########################
+def bluetooth_status():
+    bluetooth_obj = Bluetooth(g_vars)
+    bluetooth_obj.bluetooth_status(g_vars)
+
 def bluetooth_on():
     bluetooth_obj = Bluetooth(g_vars)
     bluetooth_obj.bluetooth_on(g_vars)
@@ -343,8 +347,9 @@ menu = [
     ]
     },
     {"name": "Bluetooth", "action": [
-        {"name": "On", "action": bluetooth_on},
-        {"name": "Off", "action": bluetooth_off}
+        {"name": "Status", "action": bluetooth_status},
+        {"name": "Turn On", "action": bluetooth_on},
+        {"name": "Turn Off", "action": bluetooth_off}
     ]
     },
     {"name": "Utils", "action": [

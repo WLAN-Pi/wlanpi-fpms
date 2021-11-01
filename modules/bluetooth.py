@@ -5,6 +5,7 @@ import modules.wlanpi_oled as oled
 import sys
 
 from modules.pages.simpletable import SimpleTable
+from modules.pages.pagedtable import PagedTable
 
 class Bluetooth(object):
 
@@ -13,11 +14,22 @@ class Bluetooth(object):
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
+        # create paged table
+        self.paged_table_obj = PagedTable(g_vars)
+
     def bluetooth_name(self):
         try:
             cmd = "bt-adapter -i | grep Name | awk '{ print $2 }'"
             name = subprocess.check_output(cmd, shell=True).decode().strip()
             return name
+        except subprocess.CalledProcessError as exc:
+            return None
+
+    def bluetooth_address(self):
+        try:
+            cmd = "bt-adapter -i | grep Address | awk '{ print $2 }'"
+            address = subprocess.check_output(cmd, shell=True).decode().strip()
+            return address
         except subprocess.CalledProcessError as exc:
             return None
 
@@ -48,6 +60,19 @@ class Bluetooth(object):
             return True
         except subprocess.CalledProcessError as exc:
             return False
+
+    def bluetooth_status(self, g_vars):
+        status = []
+
+        status.append("Name: " + self.bluetooth_name())
+        status.append("Addr: " + self.bluetooth_address().replace(":", ""))
+
+        if self.bluetooth_power():
+            status.append("Power: On")
+        else:
+            status.append("Power: Off")
+
+        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="--Bluetooth--")
 
     def bluetooth_on(self, g_vars):
         if self.bluetooth_set_power(True):
