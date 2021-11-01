@@ -72,7 +72,7 @@ class SimpleTable(object):
 
             table_bottom_entry = g_vars['current_scroll_selection'] + table_display_max
             item_list = item_list[g_vars['current_scroll_selection']: table_bottom_entry]
-       
+
         for item in item_list:
 
             if len(item) > item_length_max:
@@ -89,7 +89,7 @@ class SimpleTable(object):
         g_vars['drawing_in_progress'] = False
 
         return
-    
+
     def display_dialog_msg(self, g_vars, msg, wrap_limit=17, font="medium"):
         '''
         display informational dialog box

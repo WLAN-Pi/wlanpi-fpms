@@ -22,4 +22,3 @@ class Display(object):
         g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, PAGE_HEIGHT), outline=0, fill=0)
 
         return
-

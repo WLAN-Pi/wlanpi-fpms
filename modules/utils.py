@@ -3,7 +3,7 @@ import os.path
 import os
 import time
 
-from modules.pages.simpletable import * 
+from modules.pages.simpletable import *
 from modules.pages.pagedtable import *
 from modules.constants import (
     REACHABILITY_FILE,
@@ -14,8 +14,8 @@ from modules.constants import (
 class Utils(object):
 
     def __init__(self, g_vars):
-       
-        # create simple table object to show dialog & results on display 
+
+        # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
 
         # create paged table
@@ -125,7 +125,7 @@ class Utils(object):
             return
 
         self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--Reachability')
-    
+
     def show_wpa_passphrase(self, g_vars):
         '''
         Show WPA passphrase
@@ -156,7 +156,7 @@ class Utils(object):
                 choppedoutput.append(n[20:40])
 
         self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--WPA passphrase--')
-    
+
     def show_usb(self, g_vars):
         '''
         Return a list of non-Linux USB interfaces found with the lsusb command

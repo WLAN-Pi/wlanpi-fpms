@@ -2,13 +2,13 @@ import subprocess
 import os.path
 import socket
 
-from modules.pages.simpletable import * 
+from modules.pages.simpletable import *
 
 class CloudUtils(object):
 
     def __init__(self, g_vars):
-       
-        # create simple table object to show dialog & results on display 
+
+        # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
 
 
@@ -22,13 +22,13 @@ class CloudUtils(object):
         4. Can get get a http 200 response to https://ep-terminator.mistsys.net/about
 
         '''
-        
+
         # ignore any more key presses as this could cause us issues
         g_vars['disable_keys'] = True
-        
+
         # Has speedtest been run already?
         if g_vars['speedtest_status'] == False:
-        
+
             # record test success/fail
             test_fail = False
 
@@ -48,7 +48,7 @@ class CloudUtils(object):
             else:
                 item_list[0] = "Eth port up:unknown"
                 test_fail = True
-            
+
             # we're done if test failed
             if not test_fail:
                 # Have we got an IP address?
@@ -60,7 +60,7 @@ class CloudUtils(object):
                 else:
                     item_list[1] = "IP:            None"
                     test_fail = True
-            
+
             if not test_fail:
                 # Can we resolve address ep-terminator.mistsys.net?
                 try:
@@ -86,8 +86,6 @@ class CloudUtils(object):
 
             # set flag to prevent constant refresh of screen
             g_vars['speedtest_status'] = True
-    
+
         # re-enable front panel keys
         g_vars['disable_keys'] = False
-
-

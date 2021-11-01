@@ -1,6 +1,6 @@
 """
 
-    A set of utilities that query vary aspects of the environment in which 
+    A set of utilities that query vary aspects of the environment in which
     FPMS is running. These will be replcaed by back-end API calls in the
     longer term
 """
@@ -12,7 +12,7 @@ import os
 class EnvUtils(object):
 
     def __init__(self):
-       
+
         pass
 
     def get_platform(self):
@@ -49,10 +49,10 @@ class EnvUtils(object):
             return "Unknown"
 
         if not re.search(r'Compute Module 4', model):
-            platform = "community" 
+            platform = "community"
 
         return platform
-    
+
     def get_mode(self, MODE_FILE):
 
         valid_modes = ['classic', 'wconsole', 'hotspot', 'wiperf', 'server']
@@ -61,7 +61,7 @@ class EnvUtils(object):
         if os.path.isfile(MODE_FILE):
             with open(MODE_FILE, 'r') as f:
                 current_mode = f.readline().strip()
-            
+
             # send msg to stdout & exit if mode invalid
             if not current_mode in valid_modes:
                 print("The mode read from {} is not a valid mode of operation: {}". format(MODE_FILE, current_mode))
@@ -71,9 +71,9 @@ class EnvUtils(object):
             with open(MODE_FILE, 'w') as f:
                 current_mode = 'classic'
                 f.write(current_mode)
-        
+
         return current_mode
-    
+
     def get_image_ver(self, WLANPI_IMAGE_FILE):
 
         wlanpi_ver = "unknown"
@@ -81,7 +81,7 @@ class EnvUtils(object):
         if os.path.isfile(WLANPI_IMAGE_FILE):
             with open(WLANPI_IMAGE_FILE, 'r') as f:
                 lines = f.readlines()
-            
+
             # pull out the version number for the FPMS home page
             for line in lines:
                 (name, value) = line.split("=")
@@ -89,15 +89,14 @@ class EnvUtils(object):
                     version = value.strip()
                     wlanpi_ver = "WLAN Pi " + version[1:-1]
                     break
-        
+
         return wlanpi_ver
-    
+
     def get_hostname(self):
 
         try:
             hostname = subprocess.check_output('hostname', shell=True).decode()
         except:
             hostname = 'Unknown'
-        
+
         return hostname
-        

@@ -2,12 +2,12 @@ import types
 
 from modules.pages.homepage import *
 from modules.pages.page import *
-from modules.pages.simpletable import * 
+from modules.pages.simpletable import *
 
 class Button(object):
 
     def __init__(self, g_vars, menu):
-       
+
         self.homepage_obj = HomePage(g_vars)
         self.page_obj = Page(g_vars)
         self.simple_table_obj = SimpleTable(g_vars)
@@ -20,7 +20,7 @@ class Button(object):
             return True
         else:
             return False
-    
+
     def _bottom_of_list(self, current_location, menu):
 
         # pull apart current menu location (e.g. [0, 1, 1])
@@ -31,14 +31,14 @@ class Button(object):
         # trim off the branch to reach leaf
         for choice in branch:
             menu_selection = menu_selection[choice]['action']
-        
+
         # check if the next leaf exists, or whether we are at end of the structure
         try:
             if menu_selection[(leaf + 1)]:
                 return False
         except IndexError:
             return True
-        
+
         # we shouldn't hit this point, but just in case
         return True
 
@@ -61,9 +61,9 @@ class Button(object):
         # Menu not currently shown, do nothing
         if g_vars['display_state'] != 'menu':
             return
-        
+
         if not self._bottom_of_list(g_vars['current_menu_location'], menu):
-            # pop the last menu list item, increment & push back on        
+            # pop the last menu list item, increment & push back on
             current_selection = g_vars['current_menu_location'].pop()
             current_selection = current_selection + 1
             g_vars['current_menu_location'].append(current_selection)
@@ -74,7 +74,7 @@ class Button(object):
 
         if self._at_home_page(g_vars):
             return self._display_top_menu(g_vars, menu)
-        
+
         # If we are in a table, scroll up (unless at top of list)
         if g_vars['display_state'] == 'page' and g_vars['current_scroll_selection'] > 0:
             g_vars['current_scroll_selection'] -= 1
@@ -83,13 +83,13 @@ class Button(object):
         # Menu not currently shown, do nothing
         if g_vars['display_state'] != 'menu':
             return
-        
+
         # pop the last menu list item, deccrement & push back on
         current_selection = g_vars['current_menu_location'].pop()
         if current_selection != 0:
             current_selection = current_selection - 1
         g_vars['current_menu_location'].append(current_selection)
-        
+
         self.page_obj.draw_page(g_vars, menu)
 
     def menu_right(self, g_vars, menu):
@@ -147,4 +147,3 @@ class Button(object):
         else:
             g_vars['display_state'] = 'menu'
             self.page_obj.draw_page(g_vars, menu)
-
