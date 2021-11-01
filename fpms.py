@@ -49,6 +49,7 @@ from modules.pages.pagedtable import PagedTable
 from modules.pages.page import Page
 
 from modules.network import *
+from modules.bluetooth import *
 from modules.utils import *
 from modules.env_utils import EnvUtils
 from modules.cloud_tests import CloudUtils
@@ -180,6 +181,17 @@ def show_cdp_neighbour():
 def show_publicip():
     network_obj = Network(g_vars)
     network_obj.show_publicip(g_vars)
+
+###########################
+# Bluetooth menu area
+###########################
+def bluetooth_on():
+    bluetooth_obj = Bluetooth(g_vars)
+    bluetooth_obj.bluetooth_on(g_vars)
+
+def bluetooth_off():
+    bluetooth_obj = Bluetooth(g_vars)
+    bluetooth_obj.bluetooth_off(g_vars)
 
 ###########################
 # Utils menu area
@@ -328,6 +340,11 @@ menu = [
         {"name": "LLDP Neighbour", "action": show_lldp_neighbour},
         {"name": "CDP Neighbour", "action": show_cdp_neighbour},
         {"name": "Public IP Address", "action": show_publicip},
+    ]
+    },
+    {"name": "Bluetooth", "action": [
+        {"name": "On", "action": bluetooth_on},
+        {"name": "Off", "action": bluetooth_off}
     ]
     },
     {"name": "Utils", "action": [
