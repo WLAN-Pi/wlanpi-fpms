@@ -59,11 +59,11 @@ class Bluetooth(object):
             if power:
                 if bluetooth_is_on:
                     return True
-                cmd = "bt-adapter --set Powered 1"
+                cmd = "bt-adapter --set Powered 1 && echo 1 > /etc/wlanpi-bluetooth/state"
             else:
                 if not bluetooth_is_on:
                     return True
-                cmd = "bt-adapter --set Powered 0"
+                cmd = "bt-adapter --set Powered 0 && echo 0 > /etc/wlanpi-bluetooth/state"
             subprocess.run(cmd, shell=True)
             return True
         except subprocess.CalledProcessError as exc:
