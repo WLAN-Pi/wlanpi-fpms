@@ -14,7 +14,7 @@ from modules.constants import (
 class Mode(object):
 
     def __init__(self, g_vars):
-       
+
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 

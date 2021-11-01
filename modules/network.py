@@ -19,7 +19,7 @@ from modules.constants import (
 class Network(object):
 
     def __init__(self, g_vars):
-       
+
         # grab a screeb obj
         self.display_obj = Display(g_vars)
 
@@ -142,7 +142,7 @@ class Network(object):
         }
 
         return channels.get(freq, 'unknown')
-    
+
     def field_extractor(self, field_name, pattern, cmd_output_text):
 
         re_result = re.search(pattern, cmd_output_text)
@@ -210,7 +210,7 @@ class Network(object):
                 # lookup channel number from freq
                 if freq:
                     channel = self.channel_lookup(str(freq))
-                
+
                 # Extract Mode
                 pattern = r'Mode\:(.*?) '
                 field_name = "mode"

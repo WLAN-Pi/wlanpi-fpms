@@ -5,7 +5,7 @@ import subprocess
 import socket
 
 from modules.pages.display import *
-from modules.pages.simpletable import * 
+from modules.pages.simpletable import *
 from modules.constants import (
     SMART_FONT,
     FONT12,
@@ -15,7 +15,7 @@ from modules.constants import (
 class System(object):
 
     def __init__(self, g_vars):
-       
+
         # grab a screeb obj
         self.display_obj = Display(g_vars)
 
@@ -23,7 +23,7 @@ class System(object):
         self.simple_table_obj = SimpleTable(g_vars)
     
     def shutdown(self, g_vars):
-        
+
         self.simple_table_obj.display_dialog_msg(g_vars, 'Shutting down...')
         time.sleep(1)
 
@@ -35,7 +35,7 @@ class System(object):
         return
 
     def reboot(self, g_vars):
-        
+
         self.simple_table_obj. display_dialog_msg(g_vars, 'Rebooting...')
         time.sleep(1)
 
@@ -48,7 +48,7 @@ class System(object):
         return
 
     def show_summary(self, g_vars):
-        
+
         '''
         Summary page - taken from original bakebit script
         '''
@@ -68,7 +68,7 @@ class System(object):
             IP = '127.0.0.1'
         finally:
             s.close()
-        
+
         # determine CPU load
         cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
         try:
@@ -116,7 +116,7 @@ class System(object):
 
         return
 
-    
+
     def show_date(self, g_vars):
         '''
         Date page - taken from original bakebit script & modified to add TZ
@@ -140,6 +140,6 @@ class System(object):
 
         g_vars['display_state'] = 'page'
         g_vars['drawing_in_progress'] = False
-    
+
     def wlanpi_version(self, g_vars):
         self.simple_table_obj.display_simple_table(g_vars, ["WLAN Pi version:", g_vars['wlanpi_ver'] ], font="medium")

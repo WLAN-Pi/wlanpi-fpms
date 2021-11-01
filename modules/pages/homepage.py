@@ -24,11 +24,11 @@ class HomePage(object):
 
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
-    
+
     def wifi_client_count(self):
         '''
         Get a count of connected clients when in hotspot mode
-        ''' 
+        '''
         wccc = "sudo /sbin/iw dev wlan0 station dump | grep 'Station' | wc -l"
 
         try:
@@ -42,7 +42,7 @@ class HomePage(object):
             return
 
         return client_count.strip()
-    
+
     def check_wiperf_status(self):
         '''
         Read the wiperf status file for visual status indication
@@ -130,7 +130,7 @@ class HomePage(object):
             ip_addr = subprocess.check_output(ip_addr_cmd, shell=True).decode()
         except Exception as ex:
             ip_addr = "No IP Addr"
-        
+
 
         self.display_obj.clear_display(g_vars)
         g_vars['draw'].text((0, 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=255)

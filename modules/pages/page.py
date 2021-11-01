@@ -137,7 +137,7 @@ class Page(object):
             g_vars['draw'].rectangle((0, y, 127, y+y_offset), outline=0, fill=rect_fill)
             g_vars['draw'].text((1, y+1), menu_item,  font=FONT11, fill=text_fill)
             y += y_offset
-       
+
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False
