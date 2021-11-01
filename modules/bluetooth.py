@@ -25,6 +25,14 @@ class Bluetooth(object):
         except subprocess.CalledProcessError as exc:
             return None
 
+    def bluetooth_alias(self):
+        try:
+            cmd = "bt-adapter -i | grep Alias | awk '{ print $2 }'"
+            alias = subprocess.check_output(cmd, shell=True).decode().strip()
+            return alias
+        except subprocess.CalledProcessError as exc:
+            return None
+
     def bluetooth_address(self):
         try:
             cmd = "bt-adapter -i | grep Address | awk '{ print $2 }'"
@@ -64,8 +72,9 @@ class Bluetooth(object):
     def bluetooth_status(self, g_vars):
         status = []
 
-        status.append("Name: " + self.bluetooth_name())
-        status.append("Addr: " + self.bluetooth_address().replace(":", ""))
+        status.append("Name: "  + self.bluetooth_name())
+        status.append("Alias: " + self.bluetooth_alias())
+        status.append("Addr: "  + self.bluetooth_address().replace(":", ""))
 
         if self.bluetooth_power():
             status.append("Power: On")
@@ -76,11 +85,11 @@ class Bluetooth(object):
 
     def bluetooth_on(self, g_vars):
         if self.bluetooth_set_power(True):
-            name = self.bluetooth_name()
+            alias = self.bluetooth_alias()
             try:
                 cmd = "systemctl start bt-timedpair"
                 subprocess.run(cmd, shell=True)
-                dialog_msg = "Discoverable as \"" + name + "\""
+                dialog_msg = "Discoverable as \"" + alias + "\""
             except subprocess.CalledProcessError as exc:
                 dialog_msg = "Failed to pair bluetooth."
         else:
