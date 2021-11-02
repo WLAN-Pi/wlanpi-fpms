@@ -519,8 +519,8 @@ rogues_gallery = [
 random_image = random.choice(rogues_gallery)
 image0 = Image.open(random_image).convert(DISPLAY_MODE)
 
-oled.drawImage(image0)
-time.sleep(2)
+#oled.drawImage(image0)
+#time.sleep(2)
 
 if emulate:
     Device.pin_factory = MockFactory()

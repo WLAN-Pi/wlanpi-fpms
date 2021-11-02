@@ -63,7 +63,7 @@ class PagedTable(object):
         g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
                                                     " "),  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
 
-        font_offset += font_size + 4
+        font_offset += font_size + padding
 
         # Extract pages data
         table_pages = table_data['pages']

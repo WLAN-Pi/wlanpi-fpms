@@ -56,7 +56,7 @@ class SimpleTable(object):
             g_vars['draw'].rectangle((x, y, PAGE_WIDTH, 12), outline=0, fill=THEME.simple_table_title_background.value)
             g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
                                                                " "),  font=font_type, fill=THEME.simple_table_title_foreground.value)
-            font_offset += font_size + 4
+            font_offset += font_size + padding
             table_display_max -= 1
 
         previous_table_list_length = g_vars['table_list_length']

@@ -13,6 +13,8 @@ PLATFORM = env_util.get_platform()
 class BlackAndWhiteTheme(Enum):
     text_foreground               = "white"
     text_background               = "black"
+    status_bar_foreground         = "black"
+    status_bar_background         = "white"
     page_title_background         = "white"
     page_title_foreground         = "black"
     page_item_foreground          = "white"
@@ -31,6 +33,8 @@ class BlackAndWhiteTheme(Enum):
 class ProTheme(Enum):
     text_foreground               = "white"
     text_background               = "black"
+    status_bar_foreground         = "white"
+    status_bar_background         = "#205493"
     page_title_foreground         = "white"
     page_title_background         = "#205493"
     page_item_foreground          = "white"

@@ -5,13 +5,17 @@ import modules.wlanpi_oled as oled
 import subprocess
 import re
 import os.path
+import time
 
+from modules.env_utils import EnvUtils
 from modules.pages.display import *
 from modules.pages.simpletable import *
 from modules.constants import (
+    SHOW_STATUS_BAR,
     SMART_FONT,
     FONT11,
     FONT14,
+    ICONS,
     ETHTOOL_FILE,
 )
 from modules.themes import (
@@ -134,13 +138,32 @@ class HomePage(object):
         except Exception as ex:
             ip_addr = "No IP Addr"
 
+        bluetooth_on = True
+
+        x = 0
+        y = 0
+        padding = 2
+        status_bar_height = 15
 
         self.display_obj.clear_display(g_vars)
-        g_vars['draw'].text((0, 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_foreground.value)
-        g_vars['draw'].text((0, 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_foreground.value)
-        g_vars['draw'].text((95, 20), if_name, font=SMART_FONT, fill=THEME.text_foreground.value)
-        g_vars['draw'].text((0, 29), str(ip_addr), font=FONT14, fill=THEME.text_foreground.value)
-        g_vars['draw'].text((0, 43), str(mode_name), font=SMART_FONT, fill=THEME.text_foreground.value)
+
+        canvas = g_vars['draw']
+
+        if SHOW_STATUS_BAR:
+            canvas.rectangle((x, y, PAGE_WIDTH, status_bar_height), outline = 0, fill=THEME.status_bar_background.value)
+
+            y += 2
+            canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
+            if bluetooth_on:
+                canvas.text((PAGE_WIDTH - 10, y + 2), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
+
+            y += status_bar_height
+
+        canvas.text((x + padding, y + 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_foreground.value)
+        canvas.text((x + padding, y + 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_foreground.value)
+        canvas.text((x + padding + 95, y + 20), if_name, font=SMART_FONT, fill=THEME.text_foreground.value)
+        canvas.text((x + padding, y + 29), str(ip_addr), font=FONT14, fill=THEME.text_foreground.value)
+        canvas.text((x + padding, y + 43), str(mode_name), font=SMART_FONT, fill=THEME.text_foreground.value)
 
         oled.drawImage(g_vars['image'])
 

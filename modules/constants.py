@@ -22,6 +22,7 @@ IMAGE_DIR = "images/128x64"
 MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
 DISPLAY_MODE = '1'
+SHOW_STATUS_BAR = True
 
 if PLATFORM == "pro":
     HEIGHT_OFFSET = 64
@@ -51,6 +52,7 @@ FONT14 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 14)
 FONTB11 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 11)
 FONTB12 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 12)
 FONTB14 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 14)
+ICONS = ImageFont.truetype('fonts/ionicons.ttf', 10)
 
 #######################################
 # File name constants
