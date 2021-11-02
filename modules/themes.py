@@ -34,7 +34,7 @@ class ProTheme(Enum):
     text_foreground               = "white"
     text_background               = "black"
     status_bar_foreground         = "white"
-    status_bar_background         = "#205493"
+    status_bar_background         = "#0071bc"
     page_title_foreground         = "white"
     page_title_background         = "#205493"
     page_item_foreground          = "white"

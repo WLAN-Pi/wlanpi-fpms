@@ -31,7 +31,6 @@ if PLATFORM == "pro":
     MAX_PAGE_LINES = 8
     DISPLAY_MODE = 'RGB'
 
-
 PAGE_SLEEP = 300             # Time in secs before sleep
 PAGE_WIDTH = 128             # Pixel size of screen width
 PAGE_HEIGHT = 64 + HEIGHT_OFFSET  # Pixel size of screen height

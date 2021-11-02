@@ -10,6 +10,7 @@ import time
 from modules.env_utils import EnvUtils
 from modules.pages.display import *
 from modules.pages.simpletable import *
+from modules.bluetooth import *
 from modules.constants import (
     SHOW_STATUS_BAR,
     SMART_FONT,
@@ -138,26 +139,16 @@ class HomePage(object):
         except Exception as ex:
             ip_addr = "No IP Addr"
 
-        bluetooth_on = True
-
         x = 0
         y = 0
         padding = 2
-        status_bar_height = 15
 
         self.display_obj.clear_display(g_vars)
 
         canvas = g_vars['draw']
 
         if SHOW_STATUS_BAR:
-            canvas.rectangle((x, y, PAGE_WIDTH, status_bar_height), outline = 0, fill=THEME.status_bar_background.value)
-
-            y += 2
-            canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
-            if bluetooth_on:
-                canvas.text((PAGE_WIDTH - 10, y + 2), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
-
-            y += status_bar_height
+            y += self.status_bar(g_vars)
 
         canvas.text((x + padding, y + 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_foreground.value)
         canvas.text((x + padding, y + 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_foreground.value)
@@ -169,3 +160,17 @@ class HomePage(object):
 
         g_vars['drawing_in_progress'] = False
         return
+
+    def status_bar(self, g_vars, x=0, y=0, padding=2, height=15):
+
+        bluetooth_power = Bluetooth(g_vars).bluetooth_power()
+
+        canvas = g_vars['draw']
+
+        canvas.rectangle((x, y, PAGE_WIDTH, height), outline = 0, fill=THEME.status_bar_background.value)
+        y += 2
+        canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
+        if bluetooth_power:
+            canvas.text((PAGE_WIDTH - 10, y + 2), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
+
+        return height
