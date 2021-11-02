@@ -14,6 +14,9 @@ from modules.constants import (
     FONT14,
     ETHTOOL_FILE,
 )
+from modules.themes import (
+    THEME
+)
 
 class HomePage(object):
 
@@ -133,11 +136,11 @@ class HomePage(object):
 
 
         self.display_obj.clear_display(g_vars)
-        g_vars['draw'].text((0, 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=255)
-        g_vars['draw'].text((0, 11), str(g_vars['hostname']), font=FONT11, fill=255)
-        g_vars['draw'].text((95, 20), if_name, font=SMART_FONT, fill=255)
-        g_vars['draw'].text((0, 29), str(ip_addr), font=FONT14, fill=255)
-        g_vars['draw'].text((0, 43), str(mode_name), font=SMART_FONT, fill=255)
+        g_vars['draw'].text((0, 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_foreground.value)
+        g_vars['draw'].text((0, 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_foreground.value)
+        g_vars['draw'].text((95, 20), if_name, font=SMART_FONT, fill=THEME.text_foreground.value)
+        g_vars['draw'].text((0, 29), str(ip_addr), font=FONT14, fill=THEME.text_foreground.value)
+        g_vars['draw'].text((0, 43), str(mode_name), font=SMART_FONT, fill=THEME.text_foreground.value)
 
         oled.drawImage(g_vars['image'])
 

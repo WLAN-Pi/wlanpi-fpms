@@ -95,7 +95,7 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, title="--Interfaces--")
+        self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, title="Interfaces")
 
     def channel_lookup(self, freq):
 
@@ -247,7 +247,7 @@ class Network(object):
                 interfaces.append(['No Wlan Interfaces'])
 
         data = {
-            'title': '--WLAN I/F--',
+            'title': 'WLAN Interface',
             'pages': interfaces
         }
 
@@ -296,7 +296,7 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--Eth0 IP Cfg--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Eth0 IP Config')
 
         return
 
@@ -320,23 +320,21 @@ class Network(object):
                     vlan_cmd, shell=True).decode()
                 vlan_info = vlan_output.split('\n')
 
+                if len(vlan_info) == 0:
+                    vlan_info.append("No VLAN found")
+
+                # final chop down of the string to fit the display
+                for n in vlan_info:
+                    n = n[0:19]
+
             except:
-                error = ["No VLAN found"]
-                self.simple_table_obj.display_simple_table(g_vars, error)
-                return
-
-        if len(vlan_info) == 0:
-            vlan_info.append("No VLAN found")
-
-        # final chop down of the string to fit the display
-        for n in vlan_info:
-            n = n[0:19]
+                vlan_info = ["No VLAN found"]
 
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, vlan_info, title='--Eth0 VLAN--')
+        self.simple_table_obj.display_simple_table(g_vars, vlan_info, title='Eth0 VLAN')
 
     def show_lldp_neighbour(self, g_vars):
         '''
@@ -383,7 +381,7 @@ class Network(object):
             return
 
         #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--LLDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--LLDP N/bor--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='LLDP Neighbour')
 
 
     def show_cdp_neighbour(self, g_vars):
@@ -431,7 +429,7 @@ class Network(object):
             return
 
         #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--CDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--CDP N/bor--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='CDP Neighbour')
 
     def show_publicip(self, g_vars):
         '''
@@ -468,5 +466,5 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='  --Public IP--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Public IP')
         time.sleep(0.5)

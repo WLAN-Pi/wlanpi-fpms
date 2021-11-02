@@ -14,14 +14,15 @@ I2C_ADDRESS = None
 INTERFACE_TYPE = None
 WIDTH = None
 HEIGHT = None
+COLOR_ORDER_BGR = False
 
 if PLATFORM == "pro":
-
     # ssd1351 128 x 128
     DISPLAY_TYPE = "ssd1351"
     INTERFACE_TYPE = "spi"
     WIDTH = "128"
     HEIGHT = "128"
+    COLOR_ORDER_BGR = True
 else:
     # Sapphire HAT OLED settings
     DISPLAY_TYPE = "sh1106"
@@ -127,6 +128,9 @@ if HEIGHT:
 if I2C_PORT:
     actual_args.append("--i2c-port")
     actual_args.append(I2C_PORT)
+
+if COLOR_ORDER_BGR:
+    actual_args.append("--bgr")
 
 device = get_device(actual_args=actual_args)
 

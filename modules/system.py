@@ -21,7 +21,7 @@ class System(object):
 
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
-    
+
     def shutdown(self, g_vars):
 
         self.simple_table_obj.display_dialog_msg(g_vars, 'Shutting down...')
@@ -112,7 +112,7 @@ class System(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, results)
+        self.simple_table_obj.display_simple_table(g_vars, results, title="Summary")
 
         return
 
@@ -142,4 +142,4 @@ class System(object):
         g_vars['drawing_in_progress'] = False
 
     def wlanpi_version(self, g_vars):
-        self.simple_table_obj.display_simple_table(g_vars, ["WLAN Pi version:", g_vars['wlanpi_ver'] ], font="medium")
+        self.simple_table_obj.display_simple_table(g_vars, [ g_vars['wlanpi_ver'] ], font="medium", title="Version")

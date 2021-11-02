@@ -64,7 +64,7 @@ class Utils(object):
         # re-enable front panel keys
         g_vars['disable_keys'] = False
 
-        self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='--Speedtest--')
+        self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='Speedtest')
 
     def show_blinker(self, g_vars):
         '''
@@ -124,7 +124,7 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--Reachability')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Reachability')
 
     def show_wpa_passphrase(self, g_vars):
         '''
@@ -155,7 +155,7 @@ class Utils(object):
             if len(n) > 20:
                 choppedoutput.append(n[20:40])
 
-        self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--WPA passphrase--')
+        self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='WPA Passphrase')
 
     def show_usb(self, g_vars):
         '''
@@ -191,7 +191,7 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, interfaces, title='--USB Interfaces--')
+        self.simple_table_obj.display_simple_table(g_vars, interfaces, title='USB Devices')
 
         return
 
@@ -254,6 +254,6 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='--UFW Summary--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='UFW Summary')
 
         return

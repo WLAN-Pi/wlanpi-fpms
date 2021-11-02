@@ -21,12 +21,14 @@ HEIGHT_OFFSET = 0
 IMAGE_DIR = "images/128x64"
 MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
+DISPLAY_MODE = '1'
 
 if PLATFORM == "pro":
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
     MAX_TABLE_LINES = 7
     MAX_PAGE_LINES = 6
+    DISPLAY_MODE = 'RGB'
 
 
 PAGE_SLEEP = 300             # Time in secs before sleep

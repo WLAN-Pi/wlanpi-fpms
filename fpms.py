@@ -37,6 +37,7 @@ from modules.constants import (
     NAV_BAR_TOP,
     MODE_FILE,
     WLANPI_IMAGE_FILE,
+    DISPLAY_MODE,
     IMAGE_DIR,
     BUTTONS_PINS,
 )
@@ -120,9 +121,9 @@ g_vars = {
 ############################
 # shared objects
 ############################
-g_vars['image'] = Image.new('1', (PAGE_WIDTH, PAGE_HEIGHT))
+g_vars['image'] = Image.new(DISPLAY_MODE, (PAGE_WIDTH, PAGE_HEIGHT))
 g_vars['draw'] = ImageDraw.Draw(g_vars['image'])
-g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert('1')
+g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert(DISPLAY_MODE)
 
 #####################################
 # check our current operating mode
@@ -516,7 +517,7 @@ rogues_gallery = [
 ]
 
 random_image = random.choice(rogues_gallery)
-image0 = Image.open(random_image).convert('1')
+image0 = Image.open(random_image).convert(DISPLAY_MODE)
 
 oled.drawImage(image0)
 time.sleep(2)

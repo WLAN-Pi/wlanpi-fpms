@@ -8,6 +8,9 @@ from modules.constants import (
     SMART_FONT,
     MAX_TABLE_LINES,
 )
+from modules.themes import (
+    THEME
+)
 
 class PagedTable(object):
 
@@ -42,6 +45,7 @@ class PagedTable(object):
 
         y = 0
         x = 0
+        padding = 2
         font_offset = 0
         font_size = 11
         item_length_max = 20
@@ -55,10 +59,11 @@ class PagedTable(object):
         if total_pages > 1:
             title += " ({}/{})".format(g_vars['current_scroll_selection'] + 1, total_pages)
 
-        g_vars['draw'].text((x, y + font_offset), title.center(item_length_max,
-                                                    " "),  font=SMART_FONT, fill=255)
+        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, 12), fill=THEME.page_table_title_background.value)
+        g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
+                                                    " "),  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
 
-        font_offset += font_size
+        font_offset += font_size + 4
 
         # Extract pages data
         table_pages = table_data['pages']
@@ -83,7 +88,7 @@ class PagedTable(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            g_vars['draw'].text((x, y + font_offset), item,  font=SMART_FONT, fill=255)
+            g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
 
             font_offset += font_size
 

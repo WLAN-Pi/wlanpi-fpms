@@ -10,6 +10,9 @@ from modules.constants import (
     FONT11,
     MAX_TABLE_LINES,
 )
+from modules.themes import (
+    THEME
+)
 
 class SimpleTable(object):
 
@@ -34,6 +37,7 @@ class SimpleTable(object):
 
         y = 0
         x = 0
+        padding = 2
         font_offset = 0
 
         if font == "small":
@@ -49,9 +53,10 @@ class SimpleTable(object):
 
         # write title if present
         if title != '':
-            g_vars['draw'].text((x, y + font_offset), title.center(item_length_max,
-                                                               " "),  font=font_type, fill=255)
-            font_offset += font_size
+            g_vars['draw'].rectangle((x, y, PAGE_WIDTH, 12), fill=THEME.simple_table_title_background.value)
+            g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
+                                                               " "),  font=font_type, fill=THEME.simple_table_title_foreground.value)
+            font_offset += font_size + 4
             table_display_max -= 1
 
         previous_table_list_length = g_vars['table_list_length']
@@ -78,8 +83,8 @@ class SimpleTable(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            self.draw.text((x, y + font_offset), item,
-                            font=font_type, fill=255)
+            self.draw.text((x + padding, y + font_offset), item,
+                            font=font_type, fill=THEME.simple_table_row_foreground.value)
 
             font_offset += font_size
 
