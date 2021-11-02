@@ -98,49 +98,15 @@ class Network(object):
         self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, title="Interfaces")
 
     def channel_lookup(self, freq):
-
-        channels = {
-            '2.412': 1,
-            '2.417': 2,
-            '2.422': 3,
-            '2.427': 4,
-            '2.432': 5,
-            '2.437': 6,
-            '2.442': 7,
-            '2.447': 8,
-            '2.452': 9,
-            '2.457': 10,
-            '2.462': 11,
-            '2.467': 12,
-            '2.472': 13,
-            '2.484': 14,
-            '5.18':  36,
-            '5.2':  40,
-            '5.22':  44,
-            '5.24':  48,
-            '5.26':  52,
-            '5.28':  56,
-            '5.3':   60,
-            '5.32':  64,
-            '5.5':   100,
-            '5.52':  104,
-            '5.54':  108,
-            '5.56':  112,
-            '5.58':  116,
-            '5.6':   120,
-            '5.62':  124,
-            '5.64':  128,
-            '5.66':  132,
-            '5.68':  136,
-            '5.7':   140,
-            '5.72':  144,
-            '5.745': 149,
-            '5.765': 153,
-            '5.785': 157,
-            '5.805': 161,
-            '5.825': 165,
-        }
-
+        freq_mhz = freq * 1000
+        if freq_mhz == 2484:
+            return 14
+        elif freq_mhz >= 2412 and freq_mhz <= 2484:
+            return int(((freq_mhz - 2412) / 5) + 1)
+        elif freq_mhz >= 5160 and freq_mhz <= 5885:
+            return int(((freq_mhz - 5180) / 5) + 36)
+        elif freq_mhz >= 5955 and freq_mhz <= 7115:
+            return int(((freq_mhz - 5955) / 5) + 1)
         return channels.get(freq, 'unknown')
 
     def field_extractor(self, field_name, pattern, cmd_output_text):
@@ -179,10 +145,10 @@ class Network(object):
             for interface_name in interface_re:
 
                 interface_info = []
-                ssid = False
-                freq = False
-                channel = False
-                mode = False
+                ssid = None
+                freq = None
+                channel = None
+                mode = None
 
                 # use iwconfig to find further info for each wlan interface
                 try:
@@ -207,9 +173,9 @@ class Network(object):
                 if extraction:
                     freq = extraction
 
-                # lookup channel number from freq
+                # Lookup channel number from freq
                 if freq:
-                    channel = self.channel_lookup(str(freq))
+                    channel = self.channel_lookup(freq)
 
                 # Extract Mode
                 pattern = r'Mode\:(.*?) '
@@ -223,22 +189,22 @@ class Network(object):
                 interface_info.append("Interface: " + interface_name)
 
                 # SSID
-                if 'ssid':
+                if ssid:
                     interface_info.append("SSID: {}".format(ssid))
                 else:
                     interface_info.append("SSID: N/A")
 
                 # Mode
-                if 'mode':
+                if mode:
                     interface_info.append( "Mode: {}".format(mode))
                 else:
                     interface_info.append("Mode: N/A")
 
                 # Channel
-                if 'channel':
-                    interface_info.append("Ch: {}".format(channel))
+                if channel:
+                    interface_info.append("Channel: {}".format(channel))
                 else:
-                    interface_info.append("Ch: unknown")
+                    interface_info.append("Channel: unknown")
 
                 interfaces.append(interface_info)
 
