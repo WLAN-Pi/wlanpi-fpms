@@ -254,6 +254,6 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='UFW Summary')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='UFW Ports')
 
         return

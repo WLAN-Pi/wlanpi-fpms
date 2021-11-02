@@ -26,8 +26,8 @@ DISPLAY_MODE = '1'
 if PLATFORM == "pro":
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
-    MAX_TABLE_LINES = 7
-    MAX_PAGE_LINES = 6
+    MAX_TABLE_LINES = 9
+    MAX_PAGE_LINES = 8
     DISPLAY_MODE = 'RGB'
 
 
@@ -47,8 +47,9 @@ os.chdir(SCRIPT_PATH)
 SMART_FONT = ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 10)
 FONT11 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 11)
 FONT12 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 12)
-FONTB12 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 12)
 FONT14 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 14)
+FONTB11 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 11)
+FONTB12 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 12)
 FONTB14 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 14)
 
 #######################################

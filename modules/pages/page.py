@@ -7,6 +7,7 @@ from modules.pages.display import *
 from modules.constants import (
     SMART_FONT,
     FONT11,
+    FONTB11,
     FONTB12,
     MAX_PAGE_LINES,
 )
@@ -101,13 +102,15 @@ class Page(object):
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
+        header_height = 15
+
         # paint the page title
-        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, 17), fill=THEME.page_title_background.value)
+        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, header_height), outline=0, fill=THEME.page_title_background.value)
         g_vars['draw'].text((1, 1), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
 
         # vertical starting point for menu (under title) & incremental offset for
         # subsequent items
-        y = 15
+        y = header_height
         y_offset = 13
 
         # define display window limit for menu table

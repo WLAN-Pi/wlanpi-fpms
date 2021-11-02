@@ -328,7 +328,7 @@ menu = [
         {"name": "Eth0 VLAN", "action": show_vlan},
         {"name": "LLDP Neighbour", "action": show_lldp_neighbour},
         {"name": "CDP Neighbour", "action": show_cdp_neighbour},
-        {"name": "Public IP Address", "action": show_publicip},
+        {"name": "Public IP", "action": show_publicip},
     ]
     },
     {"name": "Utils", "action": [
