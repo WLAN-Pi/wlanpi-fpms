@@ -12,9 +12,6 @@ class Bluetooth(object):
 
     def __init__(self, g_vars):
 
-        # create simple table
-        self.simple_table_obj = SimpleTable(g_vars)
-
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 

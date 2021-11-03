@@ -6,6 +6,7 @@ from textwrap import wrap
 
 from modules.pages.display import *
 from modules.constants import (
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     MAX_TABLE_LINES,
@@ -36,18 +37,20 @@ class Alert(object):
         y = 0
         x = 0
         padding = 2
-        font_offset = 0
+        font_offset = 2
 
         font_type = FONT11
         font_size = 11
-        item_length_max = 17
+        item_length_max = 20
 
         # write title if present
-        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, 13), outline=0, fill=title_background)
-        g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max, " "),  font=FONT11, fill=title_foreground)
+        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=title_background)
+        g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max, " "),  font=SMART_FONT, fill=title_foreground)
         font_offset += font_size + padding
 
         y += font_offset
+
+        item_length_max = 17
 
         for item in item_list:
 
