@@ -21,6 +21,14 @@ class Bluetooth(object):
         # create alert
         self.alert_obj = Alert(g_vars)
 
+    def bluetooth_present(self):
+        try:
+            cmd = "bt-adapter -l > /dev/null"
+            subprocess.run(cmd, shell=True).check_returncode()
+            return True
+        except subprocess.CalledProcessError as exc:
+            return False
+
     def bluetooth_name(self):
         try:
             cmd = "bt-adapter -i | grep Name | awk '{ print $2 }'"
@@ -76,6 +84,11 @@ class Bluetooth(object):
     def bluetooth_status(self, g_vars):
         status = []
 
+        if not self.bluetooth_present():
+            self.alert_obj.display_alert_error(g_vars, "Bluetooth adapter not found.")
+            g_vars['display_state'] = 'page'
+            return
+
         status.append("Name: "  + self.bluetooth_name())
         status.append("Alias: " + self.bluetooth_alias())
         status.append("Addr: "  + self.bluetooth_address().replace(":", ""))
@@ -90,6 +103,12 @@ class Bluetooth(object):
         g_vars['display_state'] = 'page'
 
     def bluetooth_on(self, g_vars):
+
+        if not self.bluetooth_present():
+            self.alert_obj.display_alert_error(g_vars, "Bluetooth adapter not found.")
+            g_vars['display_state'] = 'page'
+            return
+
         ok = False
         if self.bluetooth_set_power(True):
             alias = self.bluetooth_alias()
@@ -111,6 +130,12 @@ class Bluetooth(object):
         g_vars['display_state'] = 'page'
 
     def bluetooth_off(self, g_vars):
+
+        if not self.bluetooth_present():
+            self.alert_obj.display_alert_error(g_vars, "Bluetooth adapter not found.")
+            g_vars['display_state'] = 'page'
+            return
+
         ok = False
         if self.bluetooth_set_power(False):
             alert_msg = "Bluetooth is off."

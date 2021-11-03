@@ -161,14 +161,14 @@ class HomePage(object):
 
     def status_bar(self, g_vars, x=0, y=0, padding=2, height=STATUS_BAR_HEIGHT):
 
-        bluetooth_power = Bluetooth(g_vars).bluetooth_power()
+        bluetooth = Bluetooth(g_vars)
 
         canvas = g_vars['draw']
 
         canvas.rectangle((x, y, PAGE_WIDTH, height), outline = 0, fill=THEME.status_bar_background.value)
         y += 2
         canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
-        if bluetooth_power:
+        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
             canvas.text((PAGE_WIDTH - 10, y + 2), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
 
         return height
