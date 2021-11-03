@@ -44,12 +44,12 @@ class SimpleTable(object):
         if font == "small":
             font_type = SMART_FONT
             font_size = 11
-            item_length_max = 21
+            item_length_max = 20
             table_display_max = MAX_TABLE_LINES + 1
         elif font == "medium":
             font_type = FONT11
             font_size = 11
-            item_length_max = 18
+            item_length_max = 17
             table_display_max = MAX_TABLE_LINES
 
         # write title if present
@@ -96,7 +96,7 @@ class SimpleTable(object):
 
         return
 
-    def display_dialog_msg(self, g_vars, msg, wrap_limit=18, font="medium"):
+    def display_dialog_msg(self, g_vars, msg, wrap_limit=17, font="medium"):
         '''
         display informational dialog box
         '''

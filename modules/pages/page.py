@@ -98,7 +98,7 @@ class Page(object):
             # otherwise show the name of the parent menu item
             page_name = section_name[-2]
 
-        page_title = page_name.center(18, " ").upper()
+        page_title = page_name.center(17, " ").upper()
 
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
