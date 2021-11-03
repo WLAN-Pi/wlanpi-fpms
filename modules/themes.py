@@ -55,9 +55,9 @@ class ProTheme(Enum):
     simple_table_row_foreground   = "white"
     simple_table_row_background   = "black"
     alert_info_title_foreground   = "white"
-    alert_info_title_background   = "green"
+    alert_info_title_background   = "#2e8540"
     alert_error_title_foreground  = "white"
-    alert_error_title_background  = "red"
+    alert_error_title_background  = "#cd2026"
     alert_message_foreground      = "white"
 
 if PLATFORM == "pro":

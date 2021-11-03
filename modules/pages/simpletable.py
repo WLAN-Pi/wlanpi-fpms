@@ -23,7 +23,7 @@ class SimpleTable(object):
         self.display_obj = Display(g_vars)
         self.draw = g_vars['draw']
 
-    def display_simple_table(self, g_vars, item_list, title='', font="small"):
+    def display_simple_table(self, g_vars, item_list, title=''):
         '''
         This function takes a list and paints each entry as a line on a
         page. It also displays appropriate up/down scroll buttons if the
@@ -40,17 +40,10 @@ class SimpleTable(object):
         x = 0
         padding = 2
         font_offset = 2
-
-        if font == "small":
-            font_type = SMART_FONT
-            font_size = 11
-            item_length_max = 20
-            table_display_max = MAX_TABLE_LINES + 1
-        elif font == "medium":
-            font_type = FONT11
-            font_size = 11
-            item_length_max = 17
-            table_display_max = MAX_TABLE_LINES
+        font_type = SMART_FONT
+        font_size = 11
+        item_length_max = 20
+        table_display_max = MAX_TABLE_LINES + 1
 
         # write title if present
         if title != '':
@@ -95,11 +88,3 @@ class SimpleTable(object):
         g_vars['drawing_in_progress'] = False
 
         return
-
-    def display_dialog_msg(self, g_vars, msg, wrap_limit=17, font="medium"):
-        '''
-        display informational dialog box
-        '''
-
-        msg_list = wrap(msg, wrap_limit)
-        self.display_simple_table(g_vars, msg_list, title='Info', font=font)

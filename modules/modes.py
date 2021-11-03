@@ -3,6 +3,7 @@ import os.path
 import subprocess
 import modules.wlanpi_oled as oled
 
+from modules.pages.alert import Alert
 from modules.pages.simpletable import SimpleTable
 from modules.constants import (
     WCONSOLE_SWITCHER_FILE,
@@ -18,6 +19,9 @@ class Mode(object):
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
+        # create alert
+        self.alert_obj = Alert(g_vars)
+
     def switcher(self, g_vars, resource_title, resource_switcher_file, mode_name):
         '''
         Function to perform generic set of operations to switch wlanpi mode
@@ -28,25 +32,25 @@ class Mode(object):
         # check resource is available
         if not os.path.isfile(resource_switcher_file):
 
-            self.simple_table_obj. display_dialog_msg(g_vars, '{} not available'.format(resource_title))
+            self.alert_obj.display_alert_error(g_vars, '{} mode not available.'.format(resource_title))
             g_vars['display_state'] = 'page'
             return
 
         # Resource switcher was detected, so assume it's installed
         if g_vars['current_mode'] == "classic":
             # if in classic mode, switch to the resource
-            dialog_msg = 'Switching to {} mode (rebooting...)'.format(resource_title)
+            alert_msg = 'Switching to {} mode (rebooting...)'.format(resource_title)
             switch = "on"
         elif g_vars['current_mode'] == mode_name:
-            dialog_msg = 'Switching to Classic mode (rebooting...)'
+            alert_msg = 'Switching to Classic mode (rebooting...)'
             switch = "off"
         else:
-            dialog_msg('Unknown mode: {}'.format(g_vars['current_mode']))
+            self.alert_obj.display_alert_error(g_vars, 'Unknown mode: {}'.format(g_vars['current_mode']))
             g_vars['display_state'] = 'page'
             return False
 
         # Flip the mode
-        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg)
+        self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
         g_vars['shutdown_in_progress'] = True
         time.sleep(2)
 
@@ -54,17 +58,16 @@ class Mode(object):
         g_vars['screen_cleared'] = True
 
         try:
-            dialog_msg = subprocess.check_output("{} {}".format(resource_switcher_file, switch), shell=True).decode()  # reboots
+            alert_msg = subprocess.check_output("{} {}".format(resource_switcher_file, switch), shell=True).decode()  # reboots
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
-            output = exc.output.decode()
-            dialog_msg = mode_name
+            alert_msg = exc.output.decode()
 
         # We only get to this point if the switch has failed for some reason
         # (Note that the switcher script reboots the WLANPi)
         g_vars['shutdown_in_progress'] = False
         g_vars['screen_cleared'] = False
-        self.simple_table_obj. display_dialog_msg(g_vars, "Switch failed: {}".format(dialog_msg))
+        self.alert_obj.display_alert_error(g_vars, alert_msg)
         g_vars['display_state'] = 'menu'
 
         # allow 5 secs to view failure msg

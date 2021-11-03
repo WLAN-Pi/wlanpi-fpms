@@ -4,6 +4,7 @@ import os
 import subprocess
 import socket
 
+from modules.pages.alert import *
 from modules.pages.display import *
 from modules.pages.simpletable import *
 from modules.constants import (
@@ -22,9 +23,12 @@ class System(object):
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
+        # create alert
+        self.alert_obj = Alert(g_vars)
+
     def shutdown(self, g_vars):
 
-        self.simple_table_obj.display_dialog_msg(g_vars, 'Shutting down...')
+        self.alert_obj.display_alert_info(g_vars, "Shutting down...", title="Success")
         time.sleep(1)
 
         oled.clearDisplay()
@@ -36,7 +40,7 @@ class System(object):
 
     def reboot(self, g_vars):
 
-        self.simple_table_obj. display_dialog_msg(g_vars, 'Rebooting...')
+        self.alert_obj.display_alert_info(g_vars, "Rebooting...", title="Success")
         time.sleep(1)
 
         oled.drawImage(g_vars['reboot_image'])
@@ -142,4 +146,4 @@ class System(object):
         g_vars['drawing_in_progress'] = False
 
     def wlanpi_version(self, g_vars):
-        self.simple_table_obj.display_simple_table(g_vars, [ g_vars['wlanpi_ver'] ], font="medium", title="Version")
+        self.simple_table_obj.display_simple_table(g_vars, [ g_vars['wlanpi_ver'] ], title="Version")

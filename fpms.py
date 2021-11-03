@@ -356,11 +356,11 @@ menu = [
     {"name": "Utils", "action": [
         {"name": "Reachability", "action": show_reachability},
         {"name": "Speedtest", "action": [
-            {"name": "Start Test", "action": show_speedtest},
+            {"name": "Run Test", "action": show_speedtest},
         ]
         },
         {"name": "Mist Cloud", "action": [
-            {"name": "Start Test", "action": show_mist_test},
+            {"name": "Run Test", "action": show_mist_test},
         ]
         },
         {"name": "Port Blinker", "action": [
