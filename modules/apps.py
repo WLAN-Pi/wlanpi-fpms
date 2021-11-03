@@ -1,18 +1,16 @@
 import time
 import os.path
 import subprocess
-import modules.wlanpi_oled as oled
 import sys
 
-from modules.pages.simpletable import SimpleTable
+from modules.pages.alert import Alert
 
 class App(object):
 
     def __init__(self, g_vars):
 
-        # create simple table
-        self.simple_table_obj = SimpleTable(g_vars)
-
+        # create alert
+        self.alert_obj = Alert(g_vars)
 
     def profiler_ctl_file_update(self, fields_dict, filename):
 
@@ -62,19 +60,15 @@ class App(object):
         try:
             # this cmd fails if service not installed
             cmd = "systemctl is-enabled wlanpi-profiler"
-            subprocess.run(cmd, shell=True)
+            subprocess.run(cmd, shell=True).check_returncode()
         except:
             # cmd failed, so profiler service not installed
-            self.simple_table_obj. display_dialog_msg(g_vars, 'not available: {}'.format(
-                profiler_ctl_file))
+            self.alert_obj.display_alert_error(g_vars, "wlanpi-profiler not available.")
             g_vars['display_state'] = 'page'
             g_vars['result_cache'] = True
             return
 
         config_file = "/etc/wlanpi-profiler/config.ini"
-
-        dialog_msg = "Unset"
-        item_list = []
 
         # get profiler process status
         # (no check for cached result as need to re-evaluate
@@ -83,19 +77,17 @@ class App(object):
 
             # check profiler status & return text
             if self.profiler_running():
-                item_list = ['Profiler active']
+                alert_msg = 'Profiler is active.'
             else:
-                item_list = ['Profiler not active']
+                alert_msg = 'Profiler is not active.'
 
-            self.simple_table_obj.display_simple_table(g_vars, item_list,
-                                title='Profiler Status')
+            self.alert_obj.display_alert_info(g_vars, alert_msg, title="Status")
+
             g_vars['display_state'] = 'page'
-
             g_vars['result_cache'] = True
             return True
 
         if action.startswith("start"):
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
 
             if action == "start":
                 # set the config file to use params
@@ -116,61 +108,62 @@ class App(object):
                 print("Unknown profiler action: {}".format(action))
 
             if self.profiler_running():
-                dialog_msg = 'Already running!'
+                self.alert_obj.display_alert_error(g_vars, "Profiler is already running.")
             else:
+                self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Start Profiler")
                 try:
                     cmd = "/bin/systemctl start wlanpi-profiler"
                     subprocess.run(cmd, shell=True, timeout=2)
-                    dialog_msg = "Started."
+                    self.alert_obj.display_alert_info(g_vars, "Profiler started.", title="Success")
                 except subprocess.CalledProcessError as proc_exc:
-                    dialog_msg = 'Start failed!'
+                    self.alert_obj.display_alert_error(g_vars, "Start failed.")
                 except subprocess.TimeoutExpired as timeout_exc:
-                    dialog_msg = 'Proc timed-out!'
+                    self.alert_obj.display_alert_error(g_vars, "Process timed out.")
 
         elif action == "stop":
 
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
-
             if not self.profiler_running():
-                dialog_msg = 'Already stopped!'
+                self.alert_obj.display_alert_error(g_vars, "Profiler is already stopped.")
             else:
+                self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Stop Profiler")
                 try:
                     cmd = "/bin/systemctl stop wlanpi-profiler"
                     subprocess.run(cmd, shell=True)
-                    dialog_msg = "Stopped"
+                    self.alert_obj.display_alert_info(g_vars, "Profiler stopped.", title="Success")
                 except subprocess.CalledProcessError as exc:
-                    dialog_msg = 'Stop failed!'
+                    self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 
         elif action == "purge_reports":
             # call profiler2 with the --clean option
 
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
+            self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Purge Reports")
 
             try:
                 cmd = "/usr/sbin/profiler --clean --yes"
-                subprocess.run(cmd, shell=True)
-                dialog_msg = "Reports purged."
+                subprocess.run(cmd, shell=True).check_returncode()
+                self.alert_obj.display_alert_info(g_vars, "Reports purged.", title="Success")
             except subprocess.CalledProcessError as exc:
-                dialog_msg = "Reports purge error: {}".format(exc)
-                print(dialog_msg)
+                alert_msg = "Reports purge error: {}".format(exc)
+                self.alert_obj.display_alert_error(g_vars, alert_msg)
+                print(alert_msg)
 
         elif action == "purge_files":
             # call profiler2 with the --clean --files option
 
-            self.simple_table_obj. display_dialog_msg(g_vars, "Please wait...")
+            self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Purge Files")
 
             try:
                 cmd = "/usr/sbin/profiler --clean --files --yes"
                 subprocess.run(cmd, shell=True)
-                dialog_msg = "Files purged."
+                self.alert_obj.display_alert_info(g_vars, "Files purged.", title="Success")
             except subprocess.CalledProcessError as exc:
-                dialog_msg = "Files purge error: {}".format(exc)
-                print(dialog_msg)
+                alert_msg = "Files purge error: {}".format(exc)
+                self.alert_obj.display_alert_error(g_vars, alert_msg)
+                print(alert_msg)
 
         # signal that result is cached (stops re-painting screen)
         g_vars['result_cache'] = True
 
-        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg)
         g_vars['display_state'] = 'page'
         return True
 

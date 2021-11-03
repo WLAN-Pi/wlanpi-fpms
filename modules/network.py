@@ -107,7 +107,7 @@ class Network(object):
             return int(((freq_mhz - 5180) / 5) + 36)
         elif freq_mhz >= 5955 and freq_mhz <= 7115:
             return int(((freq_mhz - 5955) / 5) + 1)
-        return channels.get(freq, 'unknown')
+        return None
 
     def field_extractor(self, field_name, pattern, cmd_output_text):
 
@@ -175,7 +175,7 @@ class Network(object):
 
                 # Lookup channel number from freq
                 if freq:
-                    channel = self.channel_lookup(freq)
+                    channel = self.channel_lookup(float(freq))
 
                 # Extract Mode
                 pattern = r'Mode\:(.*?) '

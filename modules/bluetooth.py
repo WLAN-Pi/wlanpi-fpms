@@ -87,6 +87,8 @@ class Bluetooth(object):
 
         self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Status")
 
+        g_vars['display_state'] = 'page'
+
     def bluetooth_on(self, g_vars):
         ok = False
         if self.bluetooth_set_power(True):
