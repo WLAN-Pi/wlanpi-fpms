@@ -29,6 +29,11 @@ class BlackAndWhiteTheme(Enum):
     simple_table_title_background = "white"
     simple_table_row_foreground   = "white"
     simple_table_row_background   = "black"
+    alert_info_title_foreground   = "black"
+    alert_info_title_background   = "white"
+    alert_error_title_foreground  = "black"
+    alert_error_title_background  = "white"
+    alert_message_foreground      = "white"
 
 class ProTheme(Enum):
     text_foreground               = "white"
@@ -49,6 +54,11 @@ class ProTheme(Enum):
     simple_table_title_background = "#f9c642"
     simple_table_row_foreground   = "white"
     simple_table_row_background   = "black"
+    alert_info_title_foreground   = "white"
+    alert_info_title_background   = "green"
+    alert_error_title_foreground  = "white"
+    alert_error_title_background  = "red"
+    alert_message_foreground      = "white"
 
 if PLATFORM == "pro":
     THEME = ProTheme

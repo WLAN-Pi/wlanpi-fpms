@@ -6,6 +6,7 @@ import sys
 
 from modules.pages.simpletable import SimpleTable
 from modules.pages.pagedtable import PagedTable
+from modules.pages.alert import Alert
 
 class Bluetooth(object):
 
@@ -16,6 +17,9 @@ class Bluetooth(object):
 
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
+
+        # create alert
+        self.alert_obj = Alert(g_vars)
 
     def bluetooth_name(self):
         try:
@@ -84,25 +88,37 @@ class Bluetooth(object):
         self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Status")
 
     def bluetooth_on(self, g_vars):
+        ok = False
         if self.bluetooth_set_power(True):
             alias = self.bluetooth_alias()
             try:
                 cmd = "systemctl start bt-timedpair"
-                subprocess.run(cmd, shell=True)
-                dialog_msg = "Discoverable as \"" + alias + "\""
+                subprocess.run(cmd, shell=True).check_returncode()
+                alert_msg = "Bluetooth is on. Discoverable as \"" + alias + "\""
+                ok = True
             except subprocess.CalledProcessError as exc:
-                dialog_msg = "Failed to pair bluetooth."
+                alert_msg = "Failed to set as discoverable."
         else:
-            dialog_msg = "Failed to turn on bluetooth."
+            alert_msg = "Failed to turn on bluetooth."
 
-        self.simple_table_obj.display_dialog_msg(g_vars, dialog_msg)
+        if ok:
+            self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
+        else:
+            self.alert_obj.display_alert_error(g_vars, alert_msg)
+
         g_vars['display_state'] = 'page'
 
     def bluetooth_off(self, g_vars):
+        ok = False
         if self.bluetooth_set_power(False):
-            dialog_msg = "Bluetooth is off."
+            alert_msg = "Bluetooth is off."
+            ok = True
         else:
-            dialog_msg = "Failed to turn off bluetooth."
+            alert_msg = "Failed to turn off bluetooth."
 
-        self.simple_table_obj.display_dialog_msg(g_vars, dialog_msg)
+        if ok:
+            self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
+        else:
+            self.alert_obj.display_alert_error(g_vars, alert_msg)
+
         g_vars['display_state'] = 'page'

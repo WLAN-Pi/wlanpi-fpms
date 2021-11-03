@@ -5,6 +5,7 @@ import modules.wlanpi_oled as oled
 
 from modules.pages.display import *
 from modules.constants import (
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     MAX_TABLE_LINES,
 )
@@ -46,7 +47,7 @@ class PagedTable(object):
         y = 0
         x = 0
         padding = 2
-        font_offset = 0
+        font_offset = 2
         font_size = 11
         item_length_max = 20
         table_display_max = MAX_TABLE_LINES
@@ -59,7 +60,7 @@ class PagedTable(object):
         if total_pages > 1:
             title += " ({}/{})".format(g_vars['current_scroll_selection'] + 1, total_pages)
 
-        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, 12), outline=0, fill=THEME.page_table_title_background.value)
+        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=THEME.page_table_title_background.value)
         g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
                                                     " "),  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
 

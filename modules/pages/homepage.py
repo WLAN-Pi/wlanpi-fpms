@@ -12,7 +12,7 @@ from modules.pages.display import *
 from modules.pages.simpletable import *
 from modules.bluetooth import *
 from modules.constants import (
-    SHOW_STATUS_BAR,
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     FONT14,
@@ -145,11 +145,9 @@ class HomePage(object):
 
         self.display_obj.clear_display(g_vars)
 
+        y += self.status_bar(g_vars)
+
         canvas = g_vars['draw']
-
-        if SHOW_STATUS_BAR:
-            y += self.status_bar(g_vars)
-
         canvas.text((x + padding, y + 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_foreground.value)
         canvas.text((x + padding, y + 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_foreground.value)
         canvas.text((x + padding + 95, y + 20), if_name, font=SMART_FONT, fill=THEME.text_foreground.value)
@@ -161,7 +159,7 @@ class HomePage(object):
         g_vars['drawing_in_progress'] = False
         return
 
-    def status_bar(self, g_vars, x=0, y=0, padding=2, height=15):
+    def status_bar(self, g_vars, x=0, y=0, padding=2, height=STATUS_BAR_HEIGHT):
 
         bluetooth_power = Bluetooth(g_vars).bluetooth_power()
 

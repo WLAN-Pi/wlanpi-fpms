@@ -6,6 +6,7 @@ from textwrap import wrap
 
 from modules.pages.display import *
 from modules.constants import (
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     MAX_TABLE_LINES,
@@ -38,7 +39,7 @@ class SimpleTable(object):
         y = 0
         x = 0
         padding = 2
-        font_offset = 0
+        font_offset = 2
 
         if font == "small":
             font_type = SMART_FONT
@@ -53,7 +54,7 @@ class SimpleTable(object):
 
         # write title if present
         if title != '':
-            g_vars['draw'].rectangle((x, y, PAGE_WIDTH, 13), outline=0, fill=THEME.simple_table_title_background.value)
+            g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=THEME.simple_table_title_background.value)
             g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
                                                                " "),  font=font_type, fill=THEME.simple_table_title_foreground.value)
             font_offset += font_size + padding

@@ -22,7 +22,6 @@ IMAGE_DIR = "images/128x64"
 MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
 DISPLAY_MODE = '1'
-SHOW_STATUS_BAR = True
 
 if PLATFORM == "pro":
     HEIGHT_OFFSET = 64
@@ -35,6 +34,7 @@ PAGE_SLEEP = 300             # Time in secs before sleep
 PAGE_WIDTH = 128             # Pixel size of screen width
 PAGE_HEIGHT = 64 + HEIGHT_OFFSET  # Pixel size of screen height
 NAV_BAR_TOP = 54 + HEIGHT_OFFSET  # Top pixel number of nav bar
+STATUS_BAR_HEIGHT = 15
 MENU_VERSION =  __version__  # fpms version
 
 # figure out the script path

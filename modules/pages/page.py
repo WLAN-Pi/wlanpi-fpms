@@ -5,6 +5,7 @@ import modules.wlanpi_oled as oled
 
 from modules.pages.display import *
 from modules.constants import (
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     FONTB11,
@@ -97,21 +98,19 @@ class Page(object):
             # otherwise show the name of the parent menu item
             page_name = section_name[-2]
 
-        page_title = page_name.center(17, " ")
+        page_title = page_name.center(17, " ").upper()
 
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
-        header_height = 15
-
         # paint the page title
-        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, header_height), outline=0, fill=THEME.page_title_background.value)
+        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=THEME.page_title_background.value)
         g_vars['draw'].text((1, 1), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
 
         # vertical starting point for menu (under title) & incremental offset for
         # subsequent items
-        y = header_height
-        y_offset = 13
+        y = STATUS_BAR_HEIGHT
+        y_offset = 14
 
         # define display window limit for menu table
         table_window = MAX_PAGE_LINES
