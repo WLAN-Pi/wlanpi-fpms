@@ -398,9 +398,15 @@ menu = [
             {"name": "Stop", "action":            profiler_stop},
             {"name": "Start", "action":           profiler_start},
             {"name": "Start (no 11r)", "action":  profiler_start_no11r},
-            {"name": "Start (no 11ax)", "action":  profiler_start_no11ax},
-            {"name": "Purge Reports", "action":   profiler_purge_reports},
-            {"name": "Purge Files", "action":     profiler_purge_files},
+            {"name": "Start (no 11ax)", "action": profiler_start_no11ax},
+            {"name": "Purge Reports", "action": [
+                {"name": "Confirm", "action": profiler_purge_reports},
+            ]
+            },
+            {"name": "Purge Files", "action": [
+                {"name": "Confirm", "action": profiler_purge_files},
+            ]
+            }
         ]
         },
     ]
