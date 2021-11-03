@@ -9,6 +9,7 @@ from modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
+    FONT12,
     FONTB11,
     FONTB12,
     MAX_PAGE_LINES,
@@ -128,18 +129,20 @@ class Page(object):
 
             rect_fill = THEME.page_item_background.value
             text_fill = THEME.page_item_foreground.value
+            font_type = FONT11
 
             # this is selected menu item: highlight it and remove * character
             if (menu_item[0] == '*'):
                 rect_fill = THEME.page_selected_item_background.value
                 text_fill = THEME.page_selected_item_foreground.value
+                font_type = FONTB11
                 menu_item = menu_item[1:len(menu_item)]
 
             # convert menu item to std width format with nav indicator
             menu_item = "{:<17}>".format(menu_item)
 
             g_vars['draw'].rectangle((0, y, PAGE_WIDTH, y+y_offset), fill=rect_fill)
-            g_vars['draw'].text((2, y), menu_item,  font=FONT11, fill=text_fill)
+            g_vars['draw'].text((2, y), menu_item,  font=font_type, fill=text_fill)
             y += y_offset
 
         oled.drawImage(g_vars['image'])
