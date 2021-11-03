@@ -11,6 +11,7 @@ env_util = EnvUtils()
 PLATFORM = env_util.get_platform()
 
 class BlackAndWhiteTheme(Enum):
+    display_background            = "black"
     text_foreground               = "white"
     text_background               = "black"
     status_bar_foreground         = "black"
@@ -35,7 +36,34 @@ class BlackAndWhiteTheme(Enum):
     alert_error_title_background  = "white"
     alert_message_foreground      = "white"
 
-class ProTheme(Enum):
+class LightTheme(Enum):
+    display_background            = "#e4e2e0"
+    text_foreground               = "black"
+    text_background               = "white"
+    status_bar_foreground         = "white"
+    status_bar_background         = "#0071bc"
+    page_title_foreground         = "white"
+    page_title_background         = "#205493"
+    page_item_foreground          = "black"
+    page_item_background          = "#e4e2e0"
+    page_selected_item_foreground = "black"
+    page_selected_item_background = "#f9c642"
+    page_table_title_foreground   = "black"
+    page_table_title_background   = "#f9c642"
+    page_table_row_foreground     = "black"
+    page_table_row_background     = "#e4e2e0"
+    simple_table_title_foreground = "black"
+    simple_table_title_background = "#f9c642"
+    simple_table_row_foreground   = "black"
+    simple_table_row_background   = "#e4e2e0"
+    alert_info_title_foreground   = "white"
+    alert_info_title_background   = "#2e8540"
+    alert_error_title_foreground  = "white"
+    alert_error_title_background  = "#cd2026"
+    alert_message_foreground      = "black"
+
+class DarkTheme(Enum):
+    display_background            = "black"
     text_foreground               = "white"
     text_background               = "black"
     status_bar_foreground         = "white"
@@ -61,6 +89,6 @@ class ProTheme(Enum):
     alert_message_foreground      = "white"
 
 if PLATFORM == "pro":
-    THEME = ProTheme
+    THEME = DarkTheme
 else:
     THEME = BlackAndWhiteTheme

@@ -1,3 +1,4 @@
+from modules.themes import THEME
 from modules.constants import (
     PAGE_HEIGHT,
     PAGE_WIDTH,
@@ -18,6 +19,7 @@ class Display(object):
         '''
 
         # Draw a black filled box to clear the display.
-        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, PAGE_HEIGHT), outline=0, fill=0)
+        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, PAGE_HEIGHT),
+            fill=THEME.display_background.value)
 
         return

@@ -42,7 +42,7 @@ class Alert(object):
         item_length_max = 20
 
         # write title if present
-        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=title_background)
+        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background)
         g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max, " "),  font=SMART_FONT, fill=title_foreground)
         font_offset += font_size + padding
 

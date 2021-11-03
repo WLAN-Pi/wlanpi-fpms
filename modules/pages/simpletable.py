@@ -47,10 +47,10 @@ class SimpleTable(object):
 
         # write title if present
         if title != '':
-            g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=THEME.simple_table_title_background.value)
+            g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.simple_table_title_background.value)
             g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
                                                                " "),  font=font_type, fill=THEME.simple_table_title_foreground.value)
-            font_offset += font_size + padding
+            font_offset += font_size + padding + padding
             table_display_max -= 1
 
         previous_table_list_length = g_vars['table_list_length']

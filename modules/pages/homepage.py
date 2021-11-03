@@ -165,7 +165,7 @@ class HomePage(object):
 
         canvas = g_vars['draw']
 
-        canvas.rectangle((x, y, PAGE_WIDTH, height), outline = 0, fill=THEME.status_bar_background.value)
+        canvas.rectangle((x, y, PAGE_WIDTH, height), fill=THEME.status_bar_background.value)
         y += 2
         canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
         if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():

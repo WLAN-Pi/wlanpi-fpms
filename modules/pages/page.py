@@ -102,12 +102,12 @@ class Page(object):
         self.display_obj.clear_display(g_vars)
 
         # paint the page title
-        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=THEME.page_title_background.value)
-        g_vars['draw'].text((1, 1), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
+        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_title_background.value)
+        g_vars['draw'].text((1, 0), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
 
         # vertical starting point for menu (under title) & incremental offset for
         # subsequent items
-        y = STATUS_BAR_HEIGHT
+        y = STATUS_BAR_HEIGHT + 1
         y_offset = 14
 
         # define display window limit for menu table
@@ -138,7 +138,7 @@ class Page(object):
             # convert menu item to std width format with nav indicator
             menu_item = "{:<17}>".format(menu_item)
 
-            g_vars['draw'].rectangle((0, y, PAGE_WIDTH, y+y_offset), outline=0, fill=rect_fill)
+            g_vars['draw'].rectangle((0, y, PAGE_WIDTH, y+y_offset), fill=rect_fill)
             g_vars['draw'].text((2, y), menu_item,  font=FONT11, fill=text_fill)
             y += y_offset
 
