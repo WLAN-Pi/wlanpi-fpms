@@ -11,16 +11,15 @@ from modules.env_utils import EnvUtils
 from modules.pages.display import *
 from modules.pages.simpletable import *
 from modules.bluetooth import *
+from modules.themes import THEME
 from modules.constants import (
+    PLATFORM,
     STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     FONT14,
     ICONS,
-    ETHTOOL_FILE,
-)
-from modules.themes import (
-    THEME
+    ETHTOOL_FILE
 )
 
 class HomePage(object):
@@ -145,7 +144,8 @@ class HomePage(object):
 
         self.display_obj.clear_display(g_vars)
 
-        y += self.status_bar(g_vars)
+        if PLATFORM == "pro":
+            y += self.status_bar(g_vars)
 
         canvas = g_vars['draw']
         canvas.text((x + padding, y + 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_foreground.value)

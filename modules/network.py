@@ -72,7 +72,7 @@ class Network(object):
                 inet_search = re.search(
                     "inet (.+?) ", interface_info, re.MULTILINE)
                 if inet_search is None:
-                    ip_address = "No IP address"
+                    ip_address = "-"
 
                     # do check if this is an interface in monitor mode
                     if (re.search(r"wlan\d", interface_name, re.MULTILINE)):
@@ -196,7 +196,7 @@ class Network(object):
 
                 # Mode
                 if mode:
-                    interface_info.append( "Mode: {}".format(mode))
+                    interface_info.append("Mode: {}".format(mode))
                 else:
                     interface_info.append("Mode: N/A")
 
@@ -248,6 +248,9 @@ class Network(object):
             eth0_ipconfig_info.append("Nothing to display")
 
         for n in ipconfig_info:
+            # do some cleanup
+            n = n.replace("DHCP server name", "DHCP")
+            n = n.replace("DHCP server address", "DHCP IP")
             eth0_ipconfig_info.append(n)
 
         # chop down output to fit up to 2 lines on display

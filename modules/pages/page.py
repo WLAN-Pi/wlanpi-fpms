@@ -4,6 +4,7 @@
 import modules.wlanpi_oled as oled
 
 from modules.pages.display import *
+from modules.themes import THEME
 from modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
@@ -11,9 +12,6 @@ from modules.constants import (
     FONTB11,
     FONTB12,
     MAX_PAGE_LINES,
-)
-from modules.themes import (
-    THEME
 )
 
 class Page(object):

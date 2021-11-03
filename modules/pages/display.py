@@ -13,7 +13,6 @@ class Display(object):
         pass
 
     def clear_display(self, g_vars):
-
         '''
         Paint display black prior to painting new page
         '''

@@ -238,6 +238,8 @@ class Utils(object):
         # Add in status line
         port_entries.append(ufw_info[0])
 
+        port_entries.append("Ports:")
+
         # lose top 4 & last 2 lines of output
         ufw_info = ufw_info[4:-2]
 
@@ -252,7 +254,7 @@ class Utils(object):
             port_entries.append(final_result)
 
         if len(port_entries) == 0:
-            port_entries.append("No ufw info detected")
+            port_entries.append("No UF info detected")
 
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':

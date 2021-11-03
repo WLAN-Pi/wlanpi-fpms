@@ -5,14 +5,13 @@ import modules.wlanpi_oled as oled
 from textwrap import wrap
 
 from modules.pages.display import *
+from modules.pages.utils import *
+from modules.themes import THEME
 from modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     MAX_TABLE_LINES,
-)
-from modules.themes import (
-    THEME
 )
 
 class SimpleTable(object):
@@ -22,8 +21,9 @@ class SimpleTable(object):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
         self.draw = g_vars['draw']
+        self.string_formatter = StringFormatter()
 
-    def display_simple_table(self, g_vars, item_list, title=''):
+    def display_simple_table(self, g_vars, item_list, title='', justify=True):
         '''
         This function takes a list and paints each entry as a line on a
         page. It also displays appropriate up/down scroll buttons if the
@@ -76,6 +76,9 @@ class SimpleTable(object):
 
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
+
+            if justify:
+                item = self.string_formatter.justify(item, width=item_length_max)
 
             self.draw.text((x + padding, y + font_offset), item,
                             font=font_type, fill=THEME.simple_table_row_foreground.value)

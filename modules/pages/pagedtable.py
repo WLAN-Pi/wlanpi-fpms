@@ -4,13 +4,12 @@
 import modules.wlanpi_oled as oled
 
 from modules.pages.display import *
+from modules.pages.utils import *
+from modules.themes import THEME
 from modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
     MAX_TABLE_LINES,
-)
-from modules.themes import (
-    THEME
 )
 
 class PagedTable(object):
@@ -20,8 +19,9 @@ class PagedTable(object):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
         self.draw = g_vars['draw']
+        self.string_formatter = StringFormatter()
 
-    def display_paged_table(self, g_vars, table_data):
+    def display_paged_table(self, g_vars, table_data, justify=True):
         '''
         This function takes several pages of information and displays on the
         display with appropriate pg up/pg down buttons
@@ -88,6 +88,9 @@ class PagedTable(object):
 
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
+
+            if justify:
+                item = self.string_formatter.justify(item, width=item_length_max)
 
             g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
 

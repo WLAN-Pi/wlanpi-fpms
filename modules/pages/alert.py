@@ -5,14 +5,12 @@ import modules.wlanpi_oled as oled
 from textwrap import wrap
 
 from modules.pages.display import *
+from modules.themes import THEME
 from modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     MAX_TABLE_LINES,
-)
-from modules.themes import (
-    THEME
 )
 
 class Alert(object):
