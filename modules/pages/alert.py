@@ -29,7 +29,7 @@ class Alert(object):
         g_vars['drawing_in_progress'] = True
         g_vars['display_state'] = 'page'
 
-        item_list = wrap(message, 17)
+        item_list = wrap(message, 18)
 
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
@@ -41,7 +41,7 @@ class Alert(object):
 
         font_type = FONT11
         font_size = 11
-        item_length_max = 20
+        item_length_max = 21
 
         # write title if present
         g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), outline=0, fill=title_background)
@@ -50,7 +50,7 @@ class Alert(object):
 
         y += font_offset
 
-        item_length_max = 17
+        item_length_max = 18
 
         for item in item_list:
 

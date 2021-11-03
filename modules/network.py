@@ -213,7 +213,7 @@ class Network(object):
                 interfaces.append(['No Wlan Interfaces'])
 
         data = {
-            'title': 'WLAN Interface',
+            'title': 'WLAN Interfaces',
             'pages': interfaces
         }
 

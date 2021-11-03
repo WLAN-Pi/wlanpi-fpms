@@ -49,7 +49,7 @@ class PagedTable(object):
         padding = 2
         font_offset = 2
         font_size = 11
-        item_length_max = 20
+        item_length_max = 21
         table_display_max = MAX_TABLE_LINES
 
         # write title
