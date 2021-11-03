@@ -57,6 +57,8 @@ class Network(object):
 
                 # save the interface name
                 interface_name = result[0]
+
+                '''
                 if re.match(r'^eth', interface_name):
                     interface_name = "e{}".format(interface_name[-1])
                 elif re.match(r'^wlan', interface_name):
@@ -65,6 +67,7 @@ class Network(object):
                     interface_name = "u{}".format(interface_name[-1])
                 elif re.match(r'^zt', interface_name):
                     interface_name = "zt"
+                '''
 
                 # look at the rest of the interface info & extract IP if available
                 interface_info = result[1]
