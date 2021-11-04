@@ -1,14 +1,8 @@
-wlanpi-fpms (1.0.4+nmu2) UNRELEASED; urgency=medium
+wlanpi-fpms (1.0.5) unstable; urgency=medium
 
-  * Attempt fix of import in apps.py
+  * dh_virtualenv packaging 
 
- -- Josh Schmelzle <josh@joshschmelzle.com>  Thu, 04 Nov 2021 12:21:11 -0400
-
-wlanpi-fpms (1.0.4+nmu1) UNRELEASED; urgency=medium
-
-  * Update depends with libopenjp2-7
-
- -- Josh Schmelzle <josh@joshschmelzle.com>  Thu, 04 Nov 2021 11:15:13 -0400
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Thu, 04 Nov 2021 17:17:41 -0400
 
 wlanpi-fpms (1.0.4) UNRELEASED; urgency=low
 
