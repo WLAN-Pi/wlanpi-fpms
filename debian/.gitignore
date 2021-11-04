@@ -4,3 +4,4 @@ wlanpi-fpms/
 wlanpi-fpms-*/
 files
 debhelper-build-stamp
+*.log

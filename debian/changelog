@@ -1,5 +1,9 @@
 wlanpi-fpms (1.0.4) UNRELEASED; urgency=low
 
+  [ Jiri Brejcha ]
   * wlanpi-fpms: Initial debian packaging
 
- -- Jiri Brejcha <jirka@jiribrejcha.net> Day, 01 Jan 2014 12:34:56 +0000
+  [ Josh Schmelzle ]
+  * Fix build
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Wed, 03 Nov 2021 22:05:35 -0400
