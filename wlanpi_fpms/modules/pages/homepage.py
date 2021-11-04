@@ -1,18 +1,17 @@
 #################################################
 # Create a page object that renders dispay page
 #################################################
-import modules.wlanpi_oled as oled
+import wlanpi_fpms.modules.wlanpi_oled as oled
 import subprocess
 import re
 import os.path
 import time
 
-from modules.env_utils import EnvUtils
-from modules.pages.display import *
-from modules.pages.simpletable import *
-from modules.bluetooth import *
-from modules.themes import THEME
-from modules.constants import (
+from wlanpi_fpms.modules.pages.display import *
+from wlanpi_fpms.modules.pages.simpletable import *
+from wlanpi_fpms.modules.bluetooth import *
+from wlanpi_fpms.modules.themes import THEME
+from wlanpi_fpms.modules.constants import (
     PLATFORM,
     STATUS_BAR_HEIGHT,
     SMART_FONT,

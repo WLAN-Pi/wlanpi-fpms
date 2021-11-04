@@ -1,23 +1,15 @@
-wlanpi-fpms (1.0.3) unstable; urgency=medium
+wlanpi-fpms (1.0.5) unstable; urgency=medium
 
-  * New FPMS designed for WLAN Pi Pro display and 4 push buttons
+  * dh_virtualenv packaging 
 
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 06 Oct 2021 16:17:12 +0000
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Thu, 04 Nov 2021 17:17:41 -0400
 
-wlanpi-fpms (1.0.2-1) unstable; urgency=medium
+wlanpi-fpms (1.0.4) UNRELEASED; urgency=low
 
-  * Removed networkinfo and moved to wlanpi-common
+  [ Jiri Brejcha ]
+  * wlanpi-fpms: Initial debian packaging
 
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Fri, 20 Aug 2021 23:53:42 +0000
+  [ Josh Schmelzle ]
+  * wlanpi-fpms: Packaging changes 
 
-wlanpi-fpms (1.0.1) unstable; urgency=medium
-
-  * Fixed: CM4 fails to get IP address dynamically from DHCP server on boot
-
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 06 Aug 2021 15:52:46 +0000
-
-wlanpi-fpms (1.0.0) unstable; urgency=medium
-
-  * Support for SPI display
-
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 28 Jul 2021 12:33:46 +0000
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Wed, 03 Nov 2021 22:05:35 -0400

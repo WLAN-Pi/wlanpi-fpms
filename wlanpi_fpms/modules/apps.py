@@ -1,9 +1,11 @@
 import time
 import os.path
 import subprocess
+import wlanpi_fpms.modules.wlanpi_oled as oled
 import sys
 
-from modules.pages.alert import Alert
+from wlanpi_fpms.modules.pages.alert import Alert
+from wlanpi_fpms.modules.pages.simpletable import SimpleTable
 
 class App(object):
 

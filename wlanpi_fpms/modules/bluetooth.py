@@ -1,12 +1,12 @@
 import time
 import os.path
 import subprocess
-import modules.wlanpi_oled as oled
+import wlanpi_fpms.modules.wlanpi_oled as oled
 import sys
 
-from modules.pages.simpletable import SimpleTable
-from modules.pages.pagedtable import PagedTable
-from modules.pages.alert import Alert
+from wlanpi_fpms.modules.pages.simpletable import SimpleTable
+from wlanpi_fpms.modules.pages.pagedtable import PagedTable
+from wlanpi_fpms.modules.pages.alert import Alert
 
 class Bluetooth(object):
 

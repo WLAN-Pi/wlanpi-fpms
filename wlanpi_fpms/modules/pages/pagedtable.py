@@ -1,12 +1,12 @@
 #################################
 # Create a simpe table object
 #################################
-import modules.wlanpi_oled as oled
+import wlanpi_fpms.modules.wlanpi_oled as oled
 
-from modules.pages.display import *
-from modules.pages.utils import *
-from modules.themes import THEME
-from modules.constants import (
+from wlanpi_fpms.modules.pages.display import *
+from wlanpi_fpms.modules.pages.utils import *
+from wlanpi_fpms.modules.themes import THEME
+from wlanpi_fpms.modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
     MAX_TABLE_LINES,

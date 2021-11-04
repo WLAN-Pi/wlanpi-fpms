@@ -1,0 +1,7 @@
+wlanpi-fpms.*.debhelper
+wlanpi-fpms.substvars
+wlanpi-fpms/
+wlanpi-fpms-*/
+files
+debhelper-build-stamp
+*.log

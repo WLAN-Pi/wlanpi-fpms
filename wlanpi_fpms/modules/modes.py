@@ -1,11 +1,11 @@
 import time
 import os.path
 import subprocess
-import modules.wlanpi_oled as oled
+import wlanpi_fpms.modules.wlanpi_oled as oled
 
-from modules.pages.alert import Alert
-from modules.pages.simpletable import SimpleTable
-from modules.constants import (
+from wlanpi_fpms.modules.pages.alert import Alert
+from wlanpi_fpms.modules.pages.simpletable import SimpleTable
+from wlanpi_fpms.modules.constants import (
     WCONSOLE_SWITCHER_FILE,
     HOTSPOT_SWITCHER_FILE,
     WIPERF_SWITCHER_FILE,

@@ -1,0 +1,13 @@
+{
+    "_template": "https://github.com/Springerle/dh-virtualenv-mold.git",
+    "distro": "UNRELEASED",
+    "email": "jirka@jiribrejcha.net",
+    "full_name": "Jiri Brejcha",
+    "package": "wlanpi-fpms",
+    "repo_name": "debian",
+    "short_description": "WLAN Pi Front Panel Management System (FPMS)",
+    "snake": "/usr/bin/python3",
+    "url": "https://github.com/WLAN-Pi/wlanpi-fpms",
+    "version": "1.0.4",
+    "year": "2021"
+}

@@ -2,8 +2,8 @@ import subprocess
 import os.path
 import socket
 
-from modules.pages.alert import *
-from modules.pages.simpletable import *
+from wlanpi_fpms.modules.pages.alert import *
+from wlanpi_fpms.modules.pages.simpletable import *
 
 class CloudUtils(object):
 
