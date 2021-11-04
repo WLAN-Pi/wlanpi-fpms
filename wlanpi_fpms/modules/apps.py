@@ -1,7 +1,7 @@
 import time
 import os.path
 import subprocess
-import modules.wlanpi_oled as oled
+import wlanpi_fpms.modules.wlanpi_oled as oled
 import sys
 
 from wlanpi_fpms.modules.pages.simpletable import SimpleTable
