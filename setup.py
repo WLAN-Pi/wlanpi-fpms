@@ -5,7 +5,7 @@ setup(name='wlanpi-fpms',
       description='Front Panel Menu System for the WLAN Pi',
       long_description='Front Panel Menu System for the WLAN Pi',
       author='Jiri Brejcha',
-      packages=['wlanpi-fpms'],
+      packages=['wlanpi_fpms'],
       install_requires=[
             'luma',
             'gpiozero',
