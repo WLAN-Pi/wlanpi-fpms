@@ -1,5 +1,7 @@
 *__pycache__*
 *.pyc
 fpms.service
-build
+build/
+*.log
+venv/
 *.egg-info/
