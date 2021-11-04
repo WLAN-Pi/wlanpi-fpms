@@ -1,10 +1,10 @@
 #################################
 # Create a simpe table object
 #################################
-import modules.wlanpi_oled as oled
+import wlanpi_fpms.modules.wlanpi_oled as oled
 
-from modules.pages.display import *
-from modules.constants import (
+from wlanpi_fpms.modules.pages.display import *
+from wlanpi_fpms.modules.constants import (
     SMART_FONT,
     MAX_TABLE_LINES,
 )

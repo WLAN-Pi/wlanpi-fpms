@@ -2,8 +2,7 @@
 Description=Front Panel Menu System for the WLAN Pi OLED display
 
 [Service]
-ExecStart=python3 /opt/wlanpi-fpms/fpms.py
-WorkingDirectory=/opt/wlanpi-fpms
+ExecStart=/usr/sbin/fpms
 
 [Install]
 WantedBy=multi-user.target

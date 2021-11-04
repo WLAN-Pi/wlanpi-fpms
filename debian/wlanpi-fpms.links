@@ -1,1 +1,1 @@
-# opt/venvs/wlanpi-fpms/bin/wlanpi-fpms usr/bin/wlanpi-fpms
+opt/wlanpi-fpms/bin/fpms usr/sbin/fpms

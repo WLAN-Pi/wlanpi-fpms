@@ -1,4 +1,4 @@
-from modules.constants import (
+from wlanpi_fpms.modules.constants import (
     PAGE_HEIGHT,
     PAGE_WIDTH,
 )

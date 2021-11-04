@@ -1,14 +1,14 @@
 #################################################
 # Create a page object that renders dispay page
 #################################################
-import modules.wlanpi_oled as oled
+import wlanpi_fpms.modules.wlanpi_oled as oled
 import subprocess
 import re
 import os.path
 
-from modules.pages.display import *
-from modules.pages.simpletable import *
-from modules.constants import (
+from wlanpi_fpms.modules.pages.display import *
+from wlanpi_fpms.modules.pages.simpletable import *
+from wlanpi_fpms.modules.constants import (
     SMART_FONT,
     FONT11,
     FONT14,

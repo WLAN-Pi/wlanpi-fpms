@@ -4,7 +4,7 @@ import subprocess
 import modules.wlanpi_oled as oled
 import sys
 
-from modules.pages.simpletable import SimpleTable
+from wlanpi_fpms.modules.pages.simpletable import SimpleTable
 
 class App(object):
 
