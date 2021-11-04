@@ -13,7 +13,7 @@ Homepage: https://github.com/WLAN-Pi/wlanpi-fpms
 Package: wlanpi-fpms
 Architecture: any
 Pre-Depends: dpkg (>= 1.16.1), python3, ${misc:Pre-Depends}
-Depends: ${misc:Depends}
+Depends: libopenjp2-7 ${misc:Depends}
 Description: WLAN Pi Front Panel Management System (FPMS)
     .
     This is a distribution of "wlanpi-fpms" as a self-contained
