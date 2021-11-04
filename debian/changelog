@@ -1,23 +1,5 @@
-wlanpi-fpms (1.0.3) unstable; urgency=medium
+wlanpi-fpms (1.0.4) UNRELEASED; urgency=low
 
-  * New FPMS designed for WLAN Pi Pro display and 4 push buttons
+  * wlanpi-fpms: Initial debian packaging
 
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 06 Oct 2021 16:17:12 +0000
-
-wlanpi-fpms (1.0.2-1) unstable; urgency=medium
-
-  * Removed networkinfo and moved to wlanpi-common
-
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Fri, 20 Aug 2021 23:53:42 +0000
-
-wlanpi-fpms (1.0.1) unstable; urgency=medium
-
-  * Fixed: CM4 fails to get IP address dynamically from DHCP server on boot
-
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 06 Aug 2021 15:52:46 +0000
-
-wlanpi-fpms (1.0.0) unstable; urgency=medium
-
-  * Support for SPI display
-
- -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 28 Jul 2021 12:33:46 +0000
+ -- Jiri Brejcha <jirka@jiribrejcha.net> Day, 01 Jan 2014 12:34:56 +0000
