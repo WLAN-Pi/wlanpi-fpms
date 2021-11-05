@@ -21,18 +21,20 @@ HEIGHT_OFFSET = 0
 IMAGE_DIR = "images/128x64"
 MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
+DISPLAY_MODE = '1'
 
 if PLATFORM == "pro":
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
-    MAX_TABLE_LINES = 7
-    MAX_PAGE_LINES = 6
-
+    MAX_TABLE_LINES = 9
+    MAX_PAGE_LINES = 8
+    DISPLAY_MODE = 'RGB'
 
 PAGE_SLEEP = 300             # Time in secs before sleep
 PAGE_WIDTH = 128             # Pixel size of screen width
 PAGE_HEIGHT = 64 + HEIGHT_OFFSET  # Pixel size of screen height
 NAV_BAR_TOP = 54 + HEIGHT_OFFSET  # Top pixel number of nav bar
+STATUS_BAR_HEIGHT = 15
 MENU_VERSION =  __version__  # fpms version
 
 # figure out the script path
@@ -45,9 +47,11 @@ os.chdir(SCRIPT_PATH)
 SMART_FONT = ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 10)
 FONT11 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 11)
 FONT12 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 12)
-FONTB12 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 12)
 FONT14 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 14)
+FONTB11 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 11)
+FONTB12 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 12)
 FONTB14 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 14)
+ICONS = ImageFont.truetype('fonts/ionicons.ttf', 10)
 
 #######################################
 # File name constants

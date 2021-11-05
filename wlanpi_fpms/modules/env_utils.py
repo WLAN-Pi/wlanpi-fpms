@@ -100,3 +100,6 @@ class EnvUtils(object):
             hostname = 'Unknown'
 
         return hostname
+
+    def battery_charge_perc(self):
+        return 0.47

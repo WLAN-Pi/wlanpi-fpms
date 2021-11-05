@@ -5,7 +5,10 @@ import wlanpi_fpms.modules.wlanpi_oled as oled
 from textwrap import wrap
 
 from wlanpi_fpms.modules.pages.display import *
+from wlanpi_fpms.modules.pages.utils import *
+from wlanpi_fpms.modules.themes import THEME
 from wlanpi_fpms.modules.constants import (
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
     MAX_TABLE_LINES,
@@ -18,8 +21,9 @@ class SimpleTable(object):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
         self.draw = g_vars['draw']
+        self.string_formatter = StringFormatter()
 
-    def display_simple_table(self, g_vars, item_list, title='', font="small"):
+    def display_simple_table(self, g_vars, item_list, title='', justify=True):
         '''
         This function takes a list and paints each entry as a line on a
         page. It also displays appropriate up/down scroll buttons if the
@@ -34,24 +38,19 @@ class SimpleTable(object):
 
         y = 0
         x = 0
-        font_offset = 0
-
-        if font == "small":
-            font_type = SMART_FONT
-            font_size = 11
-            item_length_max = 20
-            table_display_max = MAX_TABLE_LINES + 1
-        elif font == "medium":
-            font_type = FONT11
-            font_size = 11
-            item_length_max = 17
-            table_display_max = MAX_TABLE_LINES
+        padding = 2
+        font_offset = 2
+        font_type = SMART_FONT
+        font_size = 11
+        item_length_max = 20
+        table_display_max = MAX_TABLE_LINES + 1
 
         # write title if present
         if title != '':
-            g_vars['draw'].text((x, y + font_offset), title.center(item_length_max,
-                                                               " "),  font=font_type, fill=255)
-            font_offset += font_size
+            g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.simple_table_title_background.value)
+            g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
+                                                               " "),  font=font_type, fill=THEME.simple_table_title_foreground.value)
+            font_offset += font_size + padding + padding
             table_display_max -= 1
 
         previous_table_list_length = g_vars['table_list_length']
@@ -78,8 +77,11 @@ class SimpleTable(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            self.draw.text((x, y + font_offset), item,
-                            font=font_type, fill=255)
+            if justify:
+                item = self.string_formatter.justify(item, width=item_length_max)
+
+            self.draw.text((x + padding, y + font_offset), item,
+                            font=font_type, fill=THEME.simple_table_row_foreground.value)
 
             font_offset += font_size
 
@@ -89,11 +91,3 @@ class SimpleTable(object):
         g_vars['drawing_in_progress'] = False
 
         return
-
-    def display_dialog_msg(self, g_vars, msg, wrap_limit=17, font="medium"):
-        '''
-        display informational dialog box
-        '''
-
-        msg_list = wrap(msg, wrap_limit)
-        self.display_simple_table(g_vars, msg_list, title='Info:', font=font)

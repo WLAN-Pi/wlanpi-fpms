@@ -4,7 +4,10 @@
 import wlanpi_fpms.modules.wlanpi_oled as oled
 
 from wlanpi_fpms.modules.pages.display import *
+from wlanpi_fpms.modules.pages.utils import *
+from wlanpi_fpms.modules.themes import THEME
 from wlanpi_fpms.modules.constants import (
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     MAX_TABLE_LINES,
 )
@@ -16,8 +19,9 @@ class PagedTable(object):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
         self.draw = g_vars['draw']
+        self.string_formatter = StringFormatter()
 
-    def display_paged_table(self, g_vars, table_data):
+    def display_paged_table(self, g_vars, table_data, justify=True):
         '''
         This function takes several pages of information and displays on the
         display with appropriate pg up/pg down buttons
@@ -42,7 +46,8 @@ class PagedTable(object):
 
         y = 0
         x = 0
-        font_offset = 0
+        padding = 2
+        font_offset = 2
         font_size = 11
         item_length_max = 20
         table_display_max = MAX_TABLE_LINES
@@ -55,10 +60,11 @@ class PagedTable(object):
         if total_pages > 1:
             title += " ({}/{})".format(g_vars['current_scroll_selection'] + 1, total_pages)
 
-        g_vars['draw'].text((x, y + font_offset), title.center(item_length_max,
-                                                    " "),  font=SMART_FONT, fill=255)
+        g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_table_title_background.value)
+        g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
+                                                    " "),  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
 
-        font_offset += font_size
+        font_offset += font_size + padding + padding
 
         # Extract pages data
         table_pages = table_data['pages']
@@ -83,7 +89,10 @@ class PagedTable(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            g_vars['draw'].text((x, y + font_offset), item,  font=SMART_FONT, fill=255)
+            if justify:
+                item = self.string_formatter.justify(item, width=item_length_max)
+
+            g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
 
             font_offset += font_size
 

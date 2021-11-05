@@ -37,6 +37,7 @@ from .modules.constants import (
     NAV_BAR_TOP,
     MODE_FILE,
     WLANPI_IMAGE_FILE,
+    DISPLAY_MODE,
     IMAGE_DIR,
     BUTTONS_PINS,
 )
@@ -60,6 +61,9 @@ from .modules.apps import *
 from .modules import wlanpi_oled as oled
 
 def main():
+
+    global running
+
     ####################################
     # Parse arguments
     ####################################
@@ -122,9 +126,9 @@ def main():
     ############################
     # shared objects
     ############################
-    g_vars['image'] = Image.new('1', (PAGE_WIDTH, PAGE_HEIGHT))
+    g_vars['image'] = Image.new(DISPLAY_MODE, (PAGE_WIDTH, PAGE_HEIGHT))
     g_vars['draw'] = ImageDraw.Draw(g_vars['image'])
-    g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert('1')
+    g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert(DISPLAY_MODE)
 
     #####################################
     # check our current operating mode
@@ -344,7 +348,7 @@ def main():
             {"name": "Eth0 VLAN", "action": show_vlan},
             {"name": "LLDP Neighbour", "action": show_lldp_neighbour},
             {"name": "CDP Neighbour", "action": show_cdp_neighbour},
-            {"name": "Public IP Address", "action": show_publicip},
+            {"name": "Public IP", "action": show_publicip},
         ]
         },
         {"name": "Bluetooth", "action": [
@@ -356,11 +360,11 @@ def main():
         {"name": "Utils", "action": [
             {"name": "Reachability", "action": show_reachability},
             {"name": "Speedtest", "action": [
-                {"name": "Start Test", "action": show_speedtest},
+                {"name": "Run Test", "action": show_speedtest},
             ]
             },
             {"name": "Mist Cloud", "action": [
-                {"name": "Start Test", "action": show_mist_test},
+                {"name": "Run Test", "action": show_mist_test},
             ]
             },
             {"name": "Port Blinker", "action": [
@@ -398,9 +402,15 @@ def main():
                 {"name": "Stop", "action":            profiler_stop},
                 {"name": "Start", "action":           profiler_start},
                 {"name": "Start (no 11r)", "action":  profiler_start_no11r},
-                {"name": "Start (no 11ax)", "action":  profiler_start_no11ax},
-                {"name": "Purge Reports", "action":   profiler_purge_reports},
-                {"name": "Purge Files", "action":     profiler_purge_files},
+                {"name": "Start (no 11ax)", "action": profiler_start_no11ax},
+                {"name": "Purge Reports", "action": [
+                    {"name": "Confirm", "action": profiler_purge_reports},
+                ]
+                },
+                {"name": "Purge Files", "action": [
+                    {"name": "Confirm", "action": profiler_purge_files},
+                ]
+                }
             ]
             },
         ]
@@ -539,10 +549,10 @@ def main():
     ]
 
     random_image = random.choice(rogues_gallery)
-    image0 = Image.open(random_image).convert('1')
+    image0 = Image.open(random_image).convert(DISPLAY_MODE)
 
-    oled.drawImage(image0)
-    time.sleep(2)
+    #oled.drawImage(image0)
+    #time.sleep(2)
 
     if emulate:
         Device.pin_factory = MockFactory()
@@ -721,7 +731,7 @@ def main():
     Discounted ideas
 
         1. Vary sleep timer for main while loop (e.g. longer for less frequently
-        updating data) - doesn;t work as main while loop may be in middle of
-        long sleep when button action taken, so screen refresh very long.
+           updating data) - doesn;t work as main while loop may be in middle of
+           long sleep when button action taken, so screen refresh very long.
 
     '''

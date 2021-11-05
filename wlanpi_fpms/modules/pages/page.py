@@ -4,9 +4,13 @@
 import wlanpi_fpms.modules.wlanpi_oled as oled
 
 from wlanpi_fpms.modules.pages.display import *
+from wlanpi_fpms.modules.themes import THEME
 from wlanpi_fpms.modules.constants import (
+    STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,
+    FONT12,
+    FONTB11,
     FONTB12,
     MAX_PAGE_LINES,
 )
@@ -93,18 +97,19 @@ class Page(object):
             # otherwise show the name of the parent menu item
             page_name = section_name[-2]
 
-        page_title = ("[ " + page_name + " ]").center(17, " ")
+        page_title = page_name.center(17, " ").upper()
 
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
         # paint the page title
-        g_vars['draw'].text((1, 1), page_title,  font=FONTB12, fill=255)
+        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_title_background.value)
+        g_vars['draw'].text((1, 0), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
 
         # vertical starting point for menu (under title) & incremental offset for
         # subsequent items
-        y = 15
-        y_offset = 13
+        y = STATUS_BAR_HEIGHT + 1
+        y_offset = 14
 
         # define display window limit for menu table
         table_window = MAX_PAGE_LINES
@@ -122,20 +127,22 @@ class Page(object):
         # paint the menu items, highlighting selected menu item
         for menu_item in menu_list:
 
-            rect_fill = 0
-            text_fill = 255
+            rect_fill = THEME.page_item_background.value
+            text_fill = THEME.page_item_foreground.value
+            font_type = FONT11
 
             # this is selected menu item: highlight it and remove * character
             if (menu_item[0] == '*'):
-                rect_fill = 255
-                text_fill = 0
+                rect_fill = THEME.page_selected_item_background.value
+                text_fill = THEME.page_selected_item_foreground.value
+                font_type = FONTB11
                 menu_item = menu_item[1:len(menu_item)]
 
             # convert menu item to std width format with nav indicator
             menu_item = "{:<17}>".format(menu_item)
 
-            g_vars['draw'].rectangle((0, y, 127, y+y_offset), outline=0, fill=rect_fill)
-            g_vars['draw'].text((1, y+1), menu_item,  font=FONT11, fill=text_fill)
+            g_vars['draw'].rectangle((0, y, PAGE_WIDTH, y+y_offset), fill=rect_fill)
+            g_vars['draw'].text((2, y), menu_item,  font=font_type, fill=text_fill)
             y += y_offset
 
         oled.drawImage(g_vars['image'])

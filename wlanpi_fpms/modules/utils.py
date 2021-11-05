@@ -3,6 +3,7 @@ import os.path
 import os
 import time
 
+from wlanpi_fpms.modules.pages.alert import *
 from wlanpi_fpms.modules.pages.simpletable import *
 from wlanpi_fpms.modules.pages.pagedtable import *
 from wlanpi_fpms.modules.constants import (
@@ -21,6 +22,9 @@ class Utils(object):
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
+        # create alert
+        self.alert_obj = Alert(g_vars)
+
     def show_speedtest(self, g_vars):
         '''
         Run speedtest.net speed test and format output to fit the OLED screen
@@ -32,7 +36,7 @@ class Utils(object):
             # ignore any more key presses as this could cause us issues
             g_vars['disable_keys'] = True
 
-            self.simple_table_obj.display_dialog_msg(g_vars, 'Running Speedtest. Please wait.')
+            self.alert_obj.display_alert_info(g_vars, "Running Speedtest. Please wait...", title="Success")
 
             speedtest_info = []
             speedtest_cmd = "speedtest | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\(/My IP: /g; s/\)\.\.\.//g; s/Download/D/g; s/Upload/U/g; s/bit\/s/bps/g'"
@@ -42,8 +46,7 @@ class Utils(object):
                 speedtest_info = speedtest_output.split('\n')
             except subprocess.CalledProcessError as exc:
                 output = exc.output.decode()
-                error = ["Err: Speedtest error", output]
-                self.simple_table_obj.display_simple_table(g_vars, error)
+                self.alert_obj.display_alert_error(g_vars, output)
                 # re-enable front panel keys
                 g_vars['disable_keys'] = False
                 return
@@ -64,7 +67,7 @@ class Utils(object):
         # re-enable front panel keys
         g_vars['disable_keys'] = False
 
-        self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='--Speedtest--')
+        self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='Speedtest')
 
     def show_blinker(self, g_vars):
         '''
@@ -83,13 +86,15 @@ class Utils(object):
             g_vars['disable_keys'] = False
 
         else:
-            self.simple_table_obj.display_dialog_msg(g_vars, 'Blinking eth0. Watch port LEDs on the switch.')
+            self.alert_obj.display_alert_info(g_vars, "Blinking eth0. Watch port LEDs on the switch.", title="Success")
             g_vars['blinker_status'] = True
 
     def stop_blinker(self, g_vars):
-        g_vars['blinker_process'].kill()
-        g_vars['blinker_status'] = False
-        self.simple_table_obj.display_dialog_msg(g_vars, 'Port Blinker stopped.')
+        if g_vars['blinker_status'] == True:
+            g_vars['blinker_process'].kill()
+            g_vars['blinker_status'] = False
+        else:
+            self.alert_obj.display_alert_info(g_vars, "Port Blinker stopped.", title="Success")
 
     def show_reachability(self, g_vars):
         '''
@@ -124,7 +129,7 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--Reachability')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Reachability')
 
     def show_wpa_passphrase(self, g_vars):
         '''
@@ -155,7 +160,7 @@ class Utils(object):
             if len(n) > 20:
                 choppedoutput.append(n[20:40])
 
-        self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--WPA passphrase--')
+        self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='WPA Passphrase')
 
     def show_usb(self, g_vars):
         '''
@@ -191,7 +196,7 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, interfaces, title='--USB Interfaces--')
+        self.simple_table_obj.display_simple_table(g_vars, interfaces, title='USB Devices')
 
         return
 
@@ -201,13 +206,12 @@ class Utils(object):
         Return a list ufw ports
         '''
         ufw_file = UFW_FILE
-
         ufw_info = []
 
         # check ufw is available
         if not os.path.isfile(ufw_file):
 
-            self.simple_table_obj. display_dialog_msg(g_vars, 'UFW not installed')
+            self.alert_obj.display_alert_error(g_vars, "UFW is not installed.")
 
             g_vars['display_state'] = 'page'
             return
@@ -234,6 +238,8 @@ class Utils(object):
         # Add in status line
         port_entries.append(ufw_info[0])
 
+        port_entries.append("Ports:")
+
         # lose top 4 & last 2 lines of output
         ufw_info = ufw_info[4:-2]
 
@@ -248,12 +254,12 @@ class Utils(object):
             port_entries.append(final_result)
 
         if len(port_entries) == 0:
-            port_entries.append("No ufw info detected")
+            port_entries.append("No UF info detected")
 
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='--UFW Summary--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='UFW Ports')
 
         return

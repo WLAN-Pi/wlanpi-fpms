@@ -1,3 +1,4 @@
+from wlanpi_fpms.modules.themes import THEME
 from wlanpi_fpms.modules.constants import (
     PAGE_HEIGHT,
     PAGE_WIDTH,
@@ -13,12 +14,12 @@ class Display(object):
         pass
 
     def clear_display(self, g_vars):
-
         '''
         Paint display black prior to painting new page
         '''
 
         # Draw a black filled box to clear the display.
-        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, PAGE_HEIGHT), outline=0, fill=0)
+        g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, PAGE_HEIGHT),
+            fill=THEME.display_background.value)
 
         return

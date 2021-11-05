@@ -2,6 +2,7 @@ import subprocess
 import os.path
 import socket
 
+from wlanpi_fpms.modules.pages.alert import *
 from wlanpi_fpms.modules.pages.simpletable import *
 
 class CloudUtils(object):
@@ -11,6 +12,8 @@ class CloudUtils(object):
         # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
 
+        # create alert
+        self.alert_obj = Alert(g_vars)
 
     def test_mist_cloud(self, g_vars):
         '''
@@ -32,43 +35,44 @@ class CloudUtils(object):
             # record test success/fail
             test_fail = False
 
-            # paint our empty table
-            item_list = ['...Testing', '', '', '']
-            self.simple_table_obj.display_simple_table(g_vars, item_list, title='--Mist Cloud--')
+            # create empty table
+            item_list = ['', '', '', '']
+
+            self.alert_obj.display_alert_info(g_vars, "Testing...", title="Mist Cloud")
 
             # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
             if result == 'yes':
-                item_list[0] = "Eth port up:    YES"
+                item_list[0] = "Eth Port Up: YES"
             elif result == 'no':
-                item_list[0] = "Eth port up:     NO"
+                item_list[0] = "Eth Port Up: NO"
                 test_fail = True
             else:
-                item_list[0] = "Eth port up:unknown"
+                item_list[0] = "Eth Port Up: Unknown"
                 test_fail = True
 
             # we're done if test failed
             if not test_fail:
                 # Have we got an IP address?
                 cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
-                result = subprocess.check_output(cmd, shell=True).decode()
+                result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "IP: {:>16}".format(result)
+                    item_list[1] = "IP: {}".format(result)
                 else:
-                    item_list[1] = "IP:            None"
+                    item_list[1] = "IP: None"
                     test_fail = True
 
             if not test_fail:
                 # Can we resolve address ep-terminator.mistsys.net?
                 try:
                     socket.gethostbyname("ep-terminator.mistsys.net")
-                    item_list[2] = "DNS:             OK"
+                    item_list[2] = "DNS: OK"
                 except:
                     test_fail = True
-                    item_list[2] = "DNS:           FAIL"
+                    item_list[2] = "DNS: FAIL"
 
             if not test_fail:
                 # Can we get an http 200 from https://ep-terminator.mistsys.net/about ?
@@ -76,13 +80,13 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode()
 
                 if result == '200':
-                    item_list[3] = "HTTP:            OK"
+                    item_list[3] = "HTTP: OK"
                 else:
-                    item_list[3] = "HTTP:          FAIL"
+                    item_list[3] = "HTTP: FAIL"
                     test_fail = True
 
             # show results
-            self.simple_table_obj.display_simple_table(g_vars, item_list, title='--Mist Cloud--')
+            self.simple_table_obj.display_simple_table(g_vars, item_list, title='Mist Cloud')
 
             # set flag to prevent constant refresh of screen
             g_vars['speedtest_status'] = True

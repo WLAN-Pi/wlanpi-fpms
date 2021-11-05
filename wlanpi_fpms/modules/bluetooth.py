@@ -6,16 +6,25 @@ import sys
 
 from wlanpi_fpms.modules.pages.simpletable import SimpleTable
 from wlanpi_fpms.modules.pages.pagedtable import PagedTable
+from wlanpi_fpms.modules.pages.alert import Alert
 
 class Bluetooth(object):
 
     def __init__(self, g_vars):
 
-        # create simple table
-        self.simple_table_obj = SimpleTable(g_vars)
-
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
+
+        # create alert
+        self.alert_obj = Alert(g_vars)
+
+    def bluetooth_present(self):
+        try:
+            cmd = "bt-adapter -l > /dev/null"
+            subprocess.run(cmd, shell=True).check_returncode()
+            return True
+        except subprocess.CalledProcessError as exc:
+            return False
 
     def bluetooth_name(self):
         try:
@@ -72,6 +81,11 @@ class Bluetooth(object):
     def bluetooth_status(self, g_vars):
         status = []
 
+        if not self.bluetooth_present():
+            self.alert_obj.display_alert_error(g_vars, "Bluetooth adapter not found.")
+            g_vars['display_state'] = 'page'
+            return
+
         status.append("Name: "  + self.bluetooth_name())
         status.append("Alias: " + self.bluetooth_alias())
         status.append("Addr: "  + self.bluetooth_address().replace(":", ""))
@@ -81,28 +95,54 @@ class Bluetooth(object):
         else:
             status.append("Power: Off")
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="--Bluetooth Status--")
+        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Status")
+
+        g_vars['display_state'] = 'page'
 
     def bluetooth_on(self, g_vars):
+
+        if not self.bluetooth_present():
+            self.alert_obj.display_alert_error(g_vars, "Bluetooth adapter not found.")
+            g_vars['display_state'] = 'page'
+            return
+
+        ok = False
         if self.bluetooth_set_power(True):
             alias = self.bluetooth_alias()
             try:
                 cmd = "systemctl start bt-timedpair"
-                subprocess.run(cmd, shell=True)
-                dialog_msg = "Discoverable as \"" + alias + "\""
+                subprocess.run(cmd, shell=True).check_returncode()
+                alert_msg = "Bluetooth is on. Discoverable as \"" + alias + "\""
+                ok = True
             except subprocess.CalledProcessError as exc:
-                dialog_msg = "Failed to pair bluetooth."
+                alert_msg = "Failed to set as discoverable."
         else:
-            dialog_msg = "Failed to turn on bluetooth."
+            alert_msg = "Failed to turn on bluetooth."
 
-        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg)
+        if ok:
+            self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
+        else:
+            self.alert_obj.display_alert_error(g_vars, alert_msg)
+
         g_vars['display_state'] = 'page'
 
     def bluetooth_off(self, g_vars):
-        if self.bluetooth_set_power(False):
-            dialog_msg = "Bluetooth is off."
-        else:
-            dialog_msg = "Failed to turn off bluetooth."
 
-        self.simple_table_obj. display_dialog_msg(g_vars, dialog_msg)
+        if not self.bluetooth_present():
+            self.alert_obj.display_alert_error(g_vars, "Bluetooth adapter not found.")
+            g_vars['display_state'] = 'page'
+            return
+
+        ok = False
+        if self.bluetooth_set_power(False):
+            alert_msg = "Bluetooth is off."
+            ok = True
+        else:
+            alert_msg = "Failed to turn off bluetooth."
+
+        if ok:
+            self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
+        else:
+            self.alert_obj.display_alert_error(g_vars, alert_msg)
+
         g_vars['display_state'] = 'page'

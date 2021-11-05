@@ -57,6 +57,8 @@ class Network(object):
 
                 # save the interface name
                 interface_name = result[0]
+
+                '''
                 if re.match(r'^eth', interface_name):
                     interface_name = "e{}".format(interface_name[-1])
                 elif re.match(r'^wlan', interface_name):
@@ -65,6 +67,7 @@ class Network(object):
                     interface_name = "u{}".format(interface_name[-1])
                 elif re.match(r'^zt', interface_name):
                     interface_name = "zt"
+                '''
 
                 # look at the rest of the interface info & extract IP if available
                 interface_info = result[1]
@@ -72,7 +75,7 @@ class Network(object):
                 inet_search = re.search(
                     "inet (.+?) ", interface_info, re.MULTILINE)
                 if inet_search is None:
-                    ip_address = "No IP address"
+                    ip_address = "-"
 
                     # do check if this is an interface in monitor mode
                     if (re.search(r"wlan\d", interface_name, re.MULTILINE)):
@@ -95,53 +98,19 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, title="--Interfaces--")
+        self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, title="Interfaces")
 
     def channel_lookup(self, freq):
-
-        channels = {
-            '2.412': 1,
-            '2.417': 2,
-            '2.422': 3,
-            '2.427': 4,
-            '2.432': 5,
-            '2.437': 6,
-            '2.442': 7,
-            '2.447': 8,
-            '2.452': 9,
-            '2.457': 10,
-            '2.462': 11,
-            '2.467': 12,
-            '2.472': 13,
-            '2.484': 14,
-            '5.18':  36,
-            '5.2':  40,
-            '5.22':  44,
-            '5.24':  48,
-            '5.26':  52,
-            '5.28':  56,
-            '5.3':   60,
-            '5.32':  64,
-            '5.5':   100,
-            '5.52':  104,
-            '5.54':  108,
-            '5.56':  112,
-            '5.58':  116,
-            '5.6':   120,
-            '5.62':  124,
-            '5.64':  128,
-            '5.66':  132,
-            '5.68':  136,
-            '5.7':   140,
-            '5.72':  144,
-            '5.745': 149,
-            '5.765': 153,
-            '5.785': 157,
-            '5.805': 161,
-            '5.825': 165,
-        }
-
-        return channels.get(freq, 'unknown')
+        freq_mhz = freq * 1000
+        if freq_mhz == 2484:
+            return 14
+        elif freq_mhz >= 2412 and freq_mhz <= 2484:
+            return int(((freq_mhz - 2412) / 5) + 1)
+        elif freq_mhz >= 5160 and freq_mhz <= 5885:
+            return int(((freq_mhz - 5180) / 5) + 36)
+        elif freq_mhz >= 5955 and freq_mhz <= 7115:
+            return int(((freq_mhz - 5955) / 5) + 1)
+        return None
 
     def field_extractor(self, field_name, pattern, cmd_output_text):
 
@@ -179,10 +148,10 @@ class Network(object):
             for interface_name in interface_re:
 
                 interface_info = []
-                ssid = False
-                freq = False
-                channel = False
-                mode = False
+                ssid = None
+                freq = None
+                channel = None
+                mode = None
 
                 # use iwconfig to find further info for each wlan interface
                 try:
@@ -207,9 +176,9 @@ class Network(object):
                 if extraction:
                     freq = extraction
 
-                # lookup channel number from freq
+                # Lookup channel number from freq
                 if freq:
-                    channel = self.channel_lookup(str(freq))
+                    channel = self.channel_lookup(float(freq))
 
                 # Extract Mode
                 pattern = r'Mode\:(.*?) '
@@ -223,22 +192,22 @@ class Network(object):
                 interface_info.append("Interface: " + interface_name)
 
                 # SSID
-                if 'ssid':
+                if ssid:
                     interface_info.append("SSID: {}".format(ssid))
                 else:
                     interface_info.append("SSID: N/A")
 
                 # Mode
-                if 'mode':
-                    interface_info.append( "Mode: {}".format(mode))
+                if mode:
+                    interface_info.append("Mode: {}".format(mode))
                 else:
                     interface_info.append("Mode: N/A")
 
                 # Channel
-                if 'channel':
-                    interface_info.append("Ch: {}".format(channel))
+                if channel:
+                    interface_info.append("Channel: {}".format(channel))
                 else:
-                    interface_info.append("Ch: unknown")
+                    interface_info.append("Channel: unknown")
 
                 interfaces.append(interface_info)
 
@@ -247,7 +216,7 @@ class Network(object):
                 interfaces.append(['No Wlan Interfaces'])
 
         data = {
-            'title': '--WLAN I/F--',
+            'title': 'WLAN Interfaces',
             'pages': interfaces
         }
 
@@ -282,6 +251,9 @@ class Network(object):
             eth0_ipconfig_info.append("Nothing to display")
 
         for n in ipconfig_info:
+            # do some cleanup
+            n = n.replace("DHCP server name", "DHCP")
+            n = n.replace("DHCP server address", "DHCP IP")
             eth0_ipconfig_info.append(n)
 
         # chop down output to fit up to 2 lines on display
@@ -296,7 +268,7 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--Eth0 IP Cfg--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Eth0 IP Config')
 
         return
 
@@ -320,23 +292,21 @@ class Network(object):
                     vlan_cmd, shell=True).decode()
                 vlan_info = vlan_output.split('\n')
 
+                if len(vlan_info) == 0:
+                    vlan_info.append("No VLAN found")
+
+                # final chop down of the string to fit the display
+                for n in vlan_info:
+                    n = n[0:19]
+
             except:
-                error = ["No VLAN found"]
-                self.simple_table_obj.display_simple_table(g_vars, error)
-                return
-
-        if len(vlan_info) == 0:
-            vlan_info.append("No VLAN found")
-
-        # final chop down of the string to fit the display
-        for n in vlan_info:
-            n = n[0:19]
+                vlan_info = ["No VLAN found"]
 
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, vlan_info, title='--Eth0 VLAN--')
+        self.simple_table_obj.display_simple_table(g_vars, vlan_info, title='Eth0 VLAN')
 
     def show_lldp_neighbour(self, g_vars):
         '''
@@ -383,7 +353,7 @@ class Network(object):
             return
 
         #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--LLDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--LLDP N/bor--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='LLDP Neighbour')
 
 
     def show_cdp_neighbour(self, g_vars):
@@ -431,7 +401,7 @@ class Network(object):
             return
 
         #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--CDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='--CDP N/bor--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='CDP Neighbour')
 
     def show_publicip(self, g_vars):
         '''
@@ -468,5 +438,5 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='  --Public IP--')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Public IP')
         time.sleep(0.5)
