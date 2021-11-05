@@ -6,12 +6,12 @@ The original ["fpms" repo](https://github.com/WLAN-Pi/fpms) is only compatible w
 
 ## Services
 
-"fpms" service displays information on the SPI display.
+"wlanpi-fpms" service displays information on the SPI display.
 
 "networkinfo" service mainly delivers the LLDP and CDP neighbour detection.
 
 To check status of the services, execute:
-`sudo systemctl status fpms`
+`sudo systemctl status wlanpi-fpms`
 `sudo systemctl status networkinfo`
 
 ## Hardware requirements
