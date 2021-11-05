@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # Enable SPI interface for OLED display
+echo "Enabling SPI interface"
 if grep -q -E "^?dtparam=spi=" /boot/config.txt; then
-	echo "line already present"
 	sed -i 's/^#\?dtparam=spi=.*/dtparam=spi=on/' /boot/config.txt
 else
-	echo "added new line"
 	echo "dtparam=spi=on" >> /boot/config.txt
 fi
