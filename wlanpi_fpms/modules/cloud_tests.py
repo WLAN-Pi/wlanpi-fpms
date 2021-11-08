@@ -38,7 +38,7 @@ class CloudUtils(object):
             # create empty table
             item_list = ['', '', '', '']
 
-            self.alert_obj.display_alert_info(g_vars, "Testing...", title="Mist Cloud")
+            self.alert_obj.display_popup_alert(g_vars, "Running...")
 
             # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"

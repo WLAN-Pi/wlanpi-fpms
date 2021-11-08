@@ -36,7 +36,7 @@ class Utils(object):
             # ignore any more key presses as this could cause us issues
             g_vars['disable_keys'] = True
 
-            self.alert_obj.display_alert_info(g_vars, "Running Speedtest. Please wait...", title="Success")
+            self.alert_obj.display_popup_alert(g_vars, "Running...")
 
             speedtest_info = []
             speedtest_cmd = "speedtest | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\(/My IP: /g; s/\)\.\.\.//g; s/Download/D/g; s/Upload/U/g; s/bit\/s/bps/g'"

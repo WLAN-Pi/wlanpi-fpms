@@ -28,8 +28,7 @@ class System(object):
 
     def shutdown(self, g_vars):
 
-        self.alert_obj.display_alert_info(g_vars, "Shutting down...", title="Success")
-        time.sleep(1)
+        self.alert_obj.display_popup_alert(g_vars, "Shutting down...", delay=1)
 
         oled.clearDisplay()
         g_vars['screen_cleared'] = True
@@ -40,8 +39,7 @@ class System(object):
 
     def reboot(self, g_vars):
 
-        self.alert_obj.display_alert_info(g_vars, "Rebooting...", title="Success")
-        time.sleep(1)
+        self.alert_obj.display_popup_alert(g_vars, "Rebooting...", delay=1)
 
         oled.drawImage(g_vars['reboot_image'])
 

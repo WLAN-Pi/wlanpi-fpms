@@ -35,6 +35,8 @@ class BlackAndWhiteTheme(Enum):
     alert_error_title_foreground  = "black"
     alert_error_title_background  = "white"
     alert_message_foreground      = "white"
+    alert_popup_foreground        = "white"
+    alert_popup_background        = "black"
 
 class LightTheme(Enum):
     display_background            = "#e4e2e0"
@@ -61,6 +63,8 @@ class LightTheme(Enum):
     alert_error_title_foreground  = "white"
     alert_error_title_background  = "#cd2026"
     alert_message_foreground      = "black"
+    alert_popup_foreground        = "white"
+    alert_popup_background        = "black"
 
 class DarkTheme(Enum):
     display_background            = "black"
@@ -87,6 +91,8 @@ class DarkTheme(Enum):
     alert_error_title_foreground  = "white"
     alert_error_title_background  = "#cd2026"
     alert_message_foreground      = "white"
+    alert_popup_foreground        = "white"
+    alert_popup_background        = "#5b616b"
 
 if PLATFORM == "pro":
     THEME = DarkTheme

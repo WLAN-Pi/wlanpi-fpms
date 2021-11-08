@@ -55,6 +55,8 @@ class App(object):
            g_vars['disable_keys'] = False
            return True
 
+        g_vars['drawing_in_progress'] = True
+
         # disable keys while we react to the key press that got us here
         g_vars['disable_keys'] = True
 
@@ -112,7 +114,7 @@ class App(object):
             if self.profiler_running():
                 self.alert_obj.display_alert_error(g_vars, "Profiler is already running.")
             else:
-                self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Start Profiler")
+                self.alert_obj.display_popup_alert(g_vars, "Starting...")
                 try:
                     cmd = "/bin/systemctl start wlanpi-profiler"
                     subprocess.run(cmd, shell=True, timeout=2)
@@ -127,7 +129,7 @@ class App(object):
             if not self.profiler_running():
                 self.alert_obj.display_alert_error(g_vars, "Profiler is already stopped.")
             else:
-                self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Stop Profiler")
+                self.alert_obj.display_popup_alert(g_vars, "Stopping...")
                 try:
                     cmd = "/bin/systemctl stop wlanpi-profiler"
                     subprocess.run(cmd, shell=True)
@@ -138,7 +140,7 @@ class App(object):
         elif action == "purge_reports":
             # call profiler2 with the --clean option
 
-            self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Purge Reports")
+            self.alert_obj.display_popup_alert(g_vars, "Purging reports...")
 
             try:
                 cmd = "/usr/sbin/profiler --clean --yes"
@@ -152,7 +154,7 @@ class App(object):
         elif action == "purge_files":
             # call profiler2 with the --clean --files option
 
-            self.alert_obj.display_alert_info(g_vars, "Please wait...", title="Purge Files")
+            self.alert_obj.display_popup_alert(g_vars, "Purging files...")
 
             try:
                 cmd = "/usr/sbin/profiler --clean --files --yes"
@@ -165,8 +167,8 @@ class App(object):
 
         # signal that result is cached (stops re-painting screen)
         g_vars['result_cache'] = True
-
         g_vars['display_state'] = 'page'
+        g_vars['drawing_in_progress'] = False
         return True
 
 
