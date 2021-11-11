@@ -2,14 +2,18 @@ import time
 import os.path
 import subprocess
 import wlanpi_fpms.modules.wlanpi_oled as oled
+import re
 import sys
 
 from wlanpi_fpms.modules.pages.alert import Alert
-from wlanpi_fpms.modules.pages.simpletable import SimpleTable
+from wlanpi_fpms.modules.pages.pagedtable import PagedTable
 
 class App(object):
 
     def __init__(self, g_vars):
+
+        # create paged table
+        self.paged_table_obj = PagedTable(g_vars)
 
         # create alert
         self.alert_obj = Alert(g_vars)
@@ -32,7 +36,6 @@ class App(object):
         # write modified file back out
         with open(filename, 'w') as f:
             f.writelines(lines)
-
 
     def profiler_running(self):
         try:
@@ -79,13 +82,41 @@ class App(object):
         # on each 1 sec main loop cycle)
         if action == "status":
 
+            status =[]
+
             # check profiler status & return text
             if self.profiler_running():
-                alert_msg = 'Profiler is active.'
+                status.append("Status: Active")
             else:
-                alert_msg = 'Profiler is not active.'
+                status.append("Status: Inactive")
 
-            self.alert_obj.display_alert_info(g_vars, alert_msg, title="Status")
+            # read config
+            with open(config_file) as f:
+                lines = f.readlines()
+                for line in lines:
+                    if not line.strip().startswith("#"):
+                        # Channel
+                        try:
+                            channel = re.search('^channel:\s+(.+)', line).group(1)
+                            status.append("Channel: {}".format(channel))
+                        except AttributeError:
+                            pass
+
+                        # SSID
+                        try:
+                            ssid = re.search('^ssid:\s+(.+)', line).group(1)
+                            status.append("SSID: {}".format(ssid))
+                        except AttributeError:
+                            pass
+
+                        # Interface
+                        try:
+                            interface = re.search('^interface:\s+(.+)', line).group(1)
+                            status.append("Interface: {}".format(interface))
+                        except AttributeError:
+                            pass
+
+            self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Status")
 
             g_vars['display_state'] = 'page'
             g_vars['result_cache'] = True
@@ -171,21 +202,17 @@ class App(object):
         g_vars['drawing_in_progress'] = False
         return True
 
-
     def profiler_status(self, g_vars):
         self.profiler_ctl(g_vars, action="status")
         return
-
 
     def profiler_stop(self, g_vars):
         self.profiler_ctl(g_vars, action="stop")
         return
 
-
     def profiler_start(self, g_vars):
         self.profiler_ctl(g_vars, action="start")
         return
-
 
     def profiler_start_no11r(self, g_vars):
         self.profiler_ctl(g_vars, action="start_no11r")
