@@ -150,7 +150,7 @@ class Network(object):
                 ethtool_output = subprocess.check_output(f"{ETHTOOL_FILE} -i {interface}", shell=True).decode().strip()
                 driver = re.search(".*driver:\s+(.*)", ethtool_output).group(1)
                 page.append(f"Driver: {driver}")
-            except Exception as e:
+            except Exception:
                 pass
 
             # Addr
@@ -158,7 +158,7 @@ class Network(object):
                 ifconfig_output = subprocess.check_output(f"{IFCONFIG_FILE} {interface}", shell=True).decode().strip()
                 addr = re.search(".*ether\s+([^\s]*).*", ifconfig_output).group(1).replace(":", "").upper()
                 page.append(f"Addr: {addr}")
-            except Exception as e:
+            except Exception:
                 pass
 
             # SSID, Mode, Channel
