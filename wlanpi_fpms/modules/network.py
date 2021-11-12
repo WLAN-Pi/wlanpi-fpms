@@ -161,7 +161,7 @@ class Network(object):
 
                 # Addr
                 try:
-                    addr = re.search(".*addr\s+(.*)", ifconfig_output).group(1).replace(":", "").upper()
+                    addr = re.search(".*addr\s+(.*)", iw_output).group(1).replace(":", "").upper()
                     page.append(f"Addr: {addr}")
                 except Exception:
                     pass
