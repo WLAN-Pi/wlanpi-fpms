@@ -155,35 +155,34 @@ class Network(object):
             except Exception:
                 pass
 
-            # Addr
+            # Addr, SSID, Mode, Channel
             try:
-                ifconfig_output = subprocess.check_output(f"{IFCONFIG_FILE} {interface}", shell=True).decode().strip()
-                addr = re.search(".*ether\s+([^\s]*).*", ifconfig_output).group(1).replace(":", "").upper()
-                page.append(f"Addr: {addr}")
-            except Exception:
-                pass
+                iw_output = subprocess.check_output(f"{IW_FILE} {interface} info", shell=True).decode().strip()
 
-            # SSID, Mode, Channel
-            try:
-                iwconfig_output = subprocess.check_output(f"{IWCONFIG_FILE} {interface}", shell=True).decode().strip()
+                # Addr
+                try:
+                    addr = re.search(".*addr\s+(.*)", ifconfig_output).group(1).replace(":", "").upper()
+                    page.append(f"Addr: {addr}")
+                except Exception:
+                    pass
 
                 # Mode
                 try:
-                    mode = re.search(".*Mode:([^\s]*)\s.*", iwconfig_output).group(1)
-                    page.append(f"Mode: {mode}")
+                    mode = re.search(".*type\s+(.*)", iw_output).group(1)
+                    page.append(f"Mode: {mode.capitalize() if not mode.isupper() else mode}")
                 except Exception:
                     pass
 
                 # SSID
                 try:
-                    ssid = re.search(".*ESSID:\"([^\"]*)\".*", iwconfig_output).group(1)
+                    ssid = re.search(".*ssid\s+(.*)", iw_output).group(1)
                     page.append(f"SSID: {ssid}")
                 except Exception:
                     pass
 
                 # Frequency
                 try:
-                    freq = int(float(re.search(".*Frequency:([^\s]*)\s.*", iwconfig_output).group(1)) * 1000)
+                    freq = int(re.search(".*\(([0-9]+)\s+MHz\).*", iw_output).group(1))
                     channel = self.channel_lookup(freq)
                     page.append(f"Freq (MHz): {freq}")
                     page.append(f"Channel: {channel}")
@@ -193,7 +192,15 @@ class Network(object):
             except Exception as e:
                 print(e)
 
-            pages.append(page)
+            # chop down output to fit up to 2 lines on display
+            choppedoutput = []
+
+            for item in page:
+                choppedoutput.append(item[0:20])
+                if len(item) > 20:
+                    choppedoutput.append(item[20:40])
+
+            pages.append(choppedoutput)
 
         self.paged_table_obj.display_paged_table(g_vars, { 'title' : "WLAN Interfaces", 'pages': pages })
 
