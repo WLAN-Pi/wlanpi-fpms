@@ -67,7 +67,7 @@ class Network(object):
                 interface_info = result[1]
 
                 # determine interface status
-                status = "▲" if re.search("UP", interface_info, re.MULTILINE) is not None else "▼"
+                status = "▲" if re.search("UP", interface_info, re.MULTILINE) is not None else "▽"
 
                 # determine IP address
                 inet_search = re.search(
