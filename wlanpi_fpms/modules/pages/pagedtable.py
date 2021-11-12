@@ -78,23 +78,25 @@ class PagedTable(object):
         if g_vars['current_scroll_selection'] < 0:
             g_vars['current_scroll_selection'] = 0
 
-        page = table_pages[g_vars['current_scroll_selection']]
+        # Display current page (if there are pages to display)
+        if page_count > 0:
+            page = table_pages[g_vars['current_scroll_selection']]
 
-        # If the page has greater than table_display_max entries, slice it
-        if len(page) > table_display_max:
-            page = page[0:table_display_max]
+            # If the page has greater than table_display_max entries, slice it
+            if len(page) > table_display_max:
+                page = page[0:table_display_max]
 
-        for item in page:
+            for item in page:
 
-            if len(item) > item_length_max:
-                item = item[0:item_length_max]
+                if len(item) > item_length_max:
+                    item = item[0:item_length_max]
 
-            if justify:
-                item = self.string_formatter.justify(item, width=item_length_max)
+                if justify:
+                    item = self.string_formatter.justify(item, width=item_length_max)
 
-            g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
+                g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
 
-            font_offset += font_size
+                font_offset += font_size
 
         oled.drawImage(g_vars['image'])
 
