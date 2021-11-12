@@ -3,6 +3,7 @@ import os
 import subprocess
 import re
 
+from wlanpi_fpms.modules.pages.alert import *
 from wlanpi_fpms.modules.pages.display import *
 from wlanpi_fpms.modules.pages.simpletable import *
 from wlanpi_fpms.modules.pages.pagedtable import *
@@ -29,6 +30,9 @@ class Network(object):
 
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
+
+        # create alert
+        self.alert_obj = Alert(g_vars)
 
     def show_interfaces(self, g_vars):
         '''
@@ -381,24 +385,20 @@ class Network(object):
         '''
         Shows public IP address and related details, works with any interface with internet connectivity
         '''
-        publicip_cmd = PUBLICIP_CMD
 
         publicip_info = []
 
         try:
             publicip_output = subprocess.check_output(
-                publicip_cmd, shell=True).decode()
+                PUBLICIP_CMD, shell=True).decode().strip()
             publicip_info = publicip_output.split('\n')
-
-        except subprocess.CalledProcessError as exc:
-            output = exc.output.decode()
-            #error_descr = "Public IP Error"
-            error = ["Err: Public IP", output]
-            self.simple_table_obj.display_simple_table(g_vars, error)
+        except subprocess.CalledProcessError:
+            self.alert_obj.display_alert_error(g_vars, "Failed to detect public IP address")
             return
 
-        if len(publicip_info) == 0:
-            publicip_info.append("No output sorry")
+        if len(publicip_info) == 1:
+            self.alert_obj.display_alert_error(g_vars, publicip_info[0])
+            return
 
         # chop down output to fit up to 2 lines on display
         choppedoutput = []
@@ -413,4 +413,3 @@ class Network(object):
             return
 
         self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Public IP')
-        time.sleep(0.5)
