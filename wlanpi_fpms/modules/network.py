@@ -36,7 +36,7 @@ class Network(object):
 
     def show_interfaces(self, g_vars):
         '''
-        Return a list of network interfaces found to be up, with IP address if available
+        Return the list of network interfaces with IP address (if available)
         '''
 
         ifconfig_file = IFCONFIG_FILE
@@ -44,7 +44,7 @@ class Network(object):
 
         try:
             ifconfig_info = subprocess.check_output(
-                ifconfig_file, shell=True).decode()
+                f"{ifconfig_file} -a", shell=True).decode()
         except Exception as ex:
             interfaces = ["Err: ifconfig error", str(ex)]
             self.simple_table_obj.display_simple_table(g_vars, interfaces)
@@ -63,27 +63,20 @@ class Network(object):
                 # save the interface name
                 interface_name = result[0]
 
-                '''
-                if re.match(r'^eth', interface_name):
-                    interface_name = "e{}".format(interface_name[-1])
-                elif re.match(r'^wlan', interface_name):
-                    interface_name = "w{}".format(interface_name[-1])
-                elif re.match(r'^usb', interface_name):
-                    interface_name = "u{}".format(interface_name[-1])
-                elif re.match(r'^zt', interface_name):
-                    interface_name = "zt"
-                '''
-
                 # look at the rest of the interface info & extract IP if available
                 interface_info = result[1]
 
+                # determine interface status
+                status = "▲" if re.search("UP", interface_info, re.MULTILINE) is not None else "▼"
+
+                # determine IP address
                 inet_search = re.search(
                     "inet (.+?) ", interface_info, re.MULTILINE)
                 if inet_search is None:
                     ip_address = "-"
 
                     # do check if this is an interface in monitor mode
-                    if (re.search(r"wlan\d", interface_name, re.MULTILINE)):
+                    if (re.search(r"(wlan\d+)|(mon\d+)", interface_name, re.MULTILINE)):
 
                         # fire up 'iw' for this interface (hmmm..is this a bit of an un-necessary ovehead?)
                         try:
@@ -91,13 +84,18 @@ class Network(object):
                                 '{} {} info'.format(iw_file, interface_name), shell=True).decode()
 
                             if re.search("type monitor", iw_info, re.MULTILINE):
-                                ip_address = "(Monitor)"
+                                ip_address = "Monitor"
                         except:
-                            ip_address = "unknown"
+                            ip_address = "-"
                 else:
                     ip_address = inet_search.group(1)
 
-                interfaces.append('{}: {}'.format(interface_name, ip_address))
+                # shorten interface name to make space for status and IP address
+                if len(interface_name) > 2:
+                    interface_name = "{}{}".format(interface_name[0], interface_name[-1])
+
+                # format interface info
+                interfaces.append('{} {}:{}'.format(status, interface_name, ip_address))
 
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
