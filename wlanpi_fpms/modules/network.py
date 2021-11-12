@@ -11,6 +11,7 @@ from wlanpi_fpms.modules.constants import (
     CDPNEIGH_FILE,
     IPCONFIG_FILE,
     PUBLICIP_CMD,
+    ETHTOOL_FILE,
     IFCONFIG_FILE,
     IWCONFIG_FILE,
     IW_FILE,
@@ -100,8 +101,10 @@ class Network(object):
 
         self.paged_table_obj.display_list_as_paged_table(g_vars, interfaces, title="Interfaces")
 
-    def channel_lookup(self, freq):
-        freq_mhz = freq * 1000
+    def channel_lookup(self, freq_mhz):
+        '''
+        Converts frequency (MHz) to channel number
+        '''
         if freq_mhz == 2484:
             return 14
         elif freq_mhz >= 2412 and freq_mhz <= 2484:
@@ -110,122 +113,93 @@ class Network(object):
             return int(((freq_mhz - 5180) / 5) + 36)
         elif freq_mhz >= 5955 and freq_mhz <= 7115:
             return int(((freq_mhz - 5955) / 5) + 1)
+
         return None
-
-    def field_extractor(self, field_name, pattern, cmd_output_text):
-
-        re_result = re.search(pattern, cmd_output_text)
-
-        if not re_result is None:
-            field_value = re_result.group(1)
-            return field_value
-        else:
-            return None
 
     def show_wlan_interfaces(self, g_vars):
         '''
         Create pages to summarise WLAN interface info
         '''
 
-        ifconfig_file = IFCONFIG_FILE
-        iwconfig_file = IWCONFIG_FILE
+        g_wlan_interfaces_key = 'network_wlan_interfaces'
+
+        g_vars['disable_keys'] = True
+        g_vars['drawing_in_progress'] = True
+
+        # Display cached results (if any)
+        if g_vars['result_cache'] == True:
+            self.paged_table_obj.display_paged_table(g_vars,
+                { 'title' : "WLAN Interfaces", 'pages': g_vars[g_wlan_interfaces_key] })
+            g_vars['disable_keys'] = False
+            return None
+
+        interfaces = []
+        pages = []
 
         try:
-            ifconfig_info = subprocess.check_output('{} -s'.format(ifconfig_file), shell=True).decode()
-        except Exception as ex:
-            interfaces = ["Err: ifconfig error", str(ex)]
-            self.simple_table_obj.display_simple_table(g_vars, interfaces)
-            return
+            interfaces = subprocess.check_output(f"{IWCONFIG_FILE} 2>&1 | grep 802.11" + "| awk '{ print $1 }'", shell=True).decode().strip().split()
+        except Exception as e:
+            print(e)
 
-        # Extract interface info
-        interface_re = re.findall(
-            r'^(wlan\d)  ', ifconfig_info, re.DOTALL | re.MULTILINE)
-        if interface_re is None:
-            interfaces = ["Error: match error"]
-        else:
+        for interface in interfaces:
+            page = []
+            page.append(f"Interface: {interface}")
 
-            interfaces = []
-            for interface_name in interface_re:
+            # Driver
+            try:
+                ethtool_output = subprocess.check_output(f"{ETHTOOL_FILE} -i {interface}", shell=True).decode().strip()
+                driver = re.search(".*driver:\s+(.*)", ethtool_output).group(1)
+                page.append(f"Driver: {driver}")
+            except Exception as e:
+                pass
 
-                interface_info = []
-                ssid = None
-                freq = None
-                channel = None
-                mode = None
+            # Addr
+            try:
+                ifconfig_output = subprocess.check_output(f"{IFCONFIG_FILE} {interface}", shell=True).decode().strip()
+                addr = re.search(".*ether\s+([^\s]*).*", ifconfig_output).group(1).replace(":", "").upper()
+                page.append(f"Addr: {addr}")
+            except Exception as e:
+                pass
 
-                # use iwconfig to find further info for each wlan interface
-                try:
-                    cmd = "{} {}".format(iwconfig_file, interface_name)
-                    iwconfig_info = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True).decode()
-                except subprocess.CalledProcessError:
-                    iwconfig_info = "Err: iwconfig cmd failed"
-
-                # Extract SSID
-                pattern = r'ESSID\:\"(.*?)\"'
-                field_name = "ssid"
-                extraction = self.field_extractor(
-                    field_name, pattern, iwconfig_info)
-                if extraction:
-                    ssid = extraction
-
-                # Extract Frequency
-                pattern = r'Frequency[\:|\=](\d+\.\d+) '
-                field_name = "freq"
-                extraction = self.field_extractor(
-                    field_name, pattern, iwconfig_info)
-                if extraction:
-                    freq = extraction
-
-                # Lookup channel number from freq
-                if freq:
-                    channel = self.channel_lookup(float(freq))
-
-                # Extract Mode
-                pattern = r'Mode\:(.*?) '
-                field_name = "mode"
-                extraction = self.field_extractor(
-                    field_name, pattern, iwconfig_info)
-                if extraction:
-                    mode = extraction
-
-                # construct our page data - start with name
-                interface_info.append("Interface: " + interface_name)
-
-                # SSID
-                if ssid:
-                    interface_info.append("SSID: {}".format(ssid))
-                else:
-                    interface_info.append("SSID: N/A")
+            # SSID, Mode, Channel
+            try:
+                iwconfig_output = subprocess.check_output(f"{IWCONFIG_FILE} {interface}", shell=True).decode().strip()
 
                 # Mode
-                if mode:
-                    interface_info.append("Mode: {}".format(mode))
-                else:
-                    interface_info.append("Mode: N/A")
+                try:
+                    mode = re.search(".*Mode:([^\s]*)\s.*", iwconfig_output).group(1)
+                    page.append(f"Mode: {mode}")
+                except Exception:
+                    pass
 
-                # Channel
-                if channel:
-                    interface_info.append("Channel: {}".format(channel))
-                else:
-                    interface_info.append("Channel: unknown")
+                # SSID
+                try:
+                    ssid = re.search(".*ESSID:\"([^\"]*)\".*", iwconfig_output).group(1)
+                    page.append(f"SSID: {ssid}")
+                except Exception:
+                    pass
 
-                interfaces.append(interface_info)
+                # Frequency
+                try:
+                    freq = int(float(re.search(".*Frequency:([^\s]*)\s.*", iwconfig_output).group(1)) * 1000)
+                    channel = self.channel_lookup(freq)
+                    page.append(f"Freq (MHz): {freq}")
+                    page.append(f"Channel: {channel}")
+                except Exception:
+                    pass
 
-            # if we had no WLAN interfaces, insert message
-            if len(interfaces) == 0:
-                interfaces.append(['No Wlan Interfaces'])
+            except Exception as e:
+                print(e)
 
-        data = {
-            'title': 'WLAN Interfaces',
-            'pages': interfaces
-        }
+            pages.append(page)
 
-        # final check no-one pressed a button before we render page
-        if g_vars['display_state'] == 'menu':
-            return
+        self.paged_table_obj.display_paged_table(g_vars, { 'title' : "WLAN Interfaces", 'pages': pages })
 
-        self.paged_table_obj.display_paged_table(g_vars, data)
-
+        g_vars[g_wlan_interfaces_key] = pages
+        g_vars['result_cache'] = True
+        g_vars['display_state'] = 'page'
+        g_vars['drawing_in_progress'] = False
+        g_vars['disable_keys'] = False
 
     def show_eth0_ipconfig(self, g_vars):
         '''
