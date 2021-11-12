@@ -42,7 +42,7 @@ class SimpleTable(object):
         font_offset = 2
         font_type = SMART_FONT
         font_size = 11
-        item_length_max = 20
+        item_length_max = 21
         table_display_max = MAX_TABLE_LINES + 1
 
         # write title if present

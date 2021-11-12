@@ -43,7 +43,7 @@ class Alert(object):
 
         font_type = FONT11
         font_size = 11
-        item_length_max = 20
+        item_length_max = 21
 
         # write title if present
         self.draw.rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background)

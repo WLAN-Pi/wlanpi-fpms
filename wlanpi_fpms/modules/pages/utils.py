@@ -4,7 +4,7 @@ class StringFormatter(object):
     def __init__(self):
         pass
 
-    def justify(self, text, width=20):
+    def justify(self, text, width=21):
         '''
         Inserts spaces between ':' and the remaining of the text to make
         sure 'text' is 'width' characters in length.

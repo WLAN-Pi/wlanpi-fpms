@@ -92,7 +92,16 @@ class Network(object):
 
                 # shorten interface name to make space for status and IP address
                 if len(interface_name) > 2:
-                    interface_name = "{}{}".format(interface_name[0], interface_name[-1])
+                    short_name = interface_name
+                    try:
+                        id = re.search(".*(\d+).*", interface_name).group(1)
+                        if interface_name.endswith(id):
+                            short_name = "{}{}".format(interface_name[0], id)
+                        else:
+                            short_name = "{}{}{}".format(interface_name[0], id, interface_name[-1])
+                        interface_name = short_name
+                    except:
+                        pass
 
                 # format interface info
                 interfaces.append('{} {}:{}'.format(status, interface_name, ip_address))

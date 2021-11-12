@@ -100,7 +100,7 @@ class System(object):
 
         if tempI > 1000:
             tempI = tempI/1000
-        tempStr = "CPU TEMP: %sC" % str(tempI)
+        tempStr = "CPU Temp: %sC" % str(round(tempI, 1))
 
         results = [
             "IP: " + str(IP),
