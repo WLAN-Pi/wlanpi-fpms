@@ -8,7 +8,7 @@ import sys
 from wlanpi_fpms.modules.pages.alert import Alert
 from wlanpi_fpms.modules.pages.pagedtable import PagedTable
 
-class App(object):
+class Profiler(object):
 
     def __init__(self, g_vars):
 

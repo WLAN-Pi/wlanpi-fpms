@@ -61,6 +61,7 @@ ICONS = ImageFont.truetype('fonts/ionicons.ttf', 10)
 IFCONFIG_FILE = '/sbin/ifconfig'
 IWCONFIG_FILE = '/sbin/iwconfig'
 IW_FILE = '/sbin/iw'
+IP_FILE = '/usr/sbin/ip'
 UFW_FILE = '/usr/sbin/ufw'
 ETHTOOL_FILE = '/sbin/ethtool'
 

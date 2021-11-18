@@ -83,8 +83,8 @@ class PagedTable(object):
             page = table_pages[g_vars['current_scroll_selection']]
 
             # If the page has greater than table_display_max entries, slice it
-            if len(page) > table_display_max:
-                page = page[0:table_display_max]
+            #if len(page) > table_display_max:
+            #    page = page[0:table_display_max]
 
             for item in page:
 
@@ -94,9 +94,12 @@ class PagedTable(object):
                 if justify:
                     item = self.string_formatter.justify(item, width=item_length_max)
 
-                g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
-
-                font_offset += font_size
+                if item == "---":
+                    g_vars['draw'].line([(x, y + font_offset + 2), (PAGE_WIDTH, y + font_offset + 2)], fill=THEME.page_table_row_separator.value)
+                    font_offset += 3
+                else:
+                    g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
+                    font_offset += font_size
 
         oled.drawImage(g_vars['image'])
 
@@ -106,7 +109,7 @@ class PagedTable(object):
         return
 
 
-    def display_list_as_paged_table(self, g_vars, item_list, title=''):
+    def display_list_as_paged_table(self, g_vars, item_list, title='', justify=True):
         '''
         This function builds on display_paged_table() and creates a paged display
         from a simple list of results. This provides a better experience that the
@@ -122,12 +125,11 @@ class PagedTable(object):
         # slice up list in to pages
         table_display_max = MAX_TABLE_LINES
 
-        counter = 0
         while item_list:
-            slice = item_list[counter: counter+table_display_max]
+            slice = item_list[:table_display_max]
             data['pages'].append(slice)
-            item_list = item_list[counter+table_display_max:]
+            item_list = item_list[table_display_max:]
 
-        self.display_paged_table(g_vars, data)
+        self.display_paged_table(g_vars, data, justify=justify)
 
         return

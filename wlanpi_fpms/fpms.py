@@ -57,7 +57,9 @@ from .modules.cloud_tests import CloudUtils
 from .modules.modes import *
 from .modules.system import *
 
-from .modules.apps import *
+from .modules.apps.profiler import *
+from .modules.apps.scanner import *
+
 from .modules import wlanpi_oled as oled
 
 def main():
@@ -104,23 +106,22 @@ def main():
         'screen_cleared': False,        # True when display cleared (e.g. screen save)
         'display_state': 'page',        # current display state: 'page' or 'menu'
         'sig_fired': False,             # Set to True when button handler fired
-        'option_selected': 0,        # Content of currently selected menu level
+        'option_selected': 0,           # Content of currently selected menu level
         'current_menu_location': [0],   # Pointer to current location in menu structure
         'current_scroll_selection': 0,  # where we currently are in scrolling table
         'current_mode': 'classic',      # Currently selected mode (e.g. wconsole/classic)
-        'start_up': True,            # True if in initial (home page) start-up state
-        'disable_keys': False,       # Set to true when need to ignore key presses
+        'start_up': True,               # True if in initial (home page) start-up state
+        'disable_keys': False,          # Set to true when need to ignore key presses
         'table_list_length': 0,         # Total length of currently displayed table
-        'table_pages': 1,            # pages in current table
+        'table_pages': 1,               # pages in current table
         'result_cache': False,          # used to cache results when paging info
-        'speedtest_status': False,   # Indicates if speedtest has run or is in progress
-        'speedtest_result_text': '', # tablulated speedtest result data
-        'button_press_count': 0, # global count of button pressses
-        'last_button_press_count': 0, # copy of count of button pressses used in main loop
+        'speedtest_status': False,      # Indicates if speedtest has run or is in progress
+        'speedtest_result_text': '',    # tablulated speedtest result data
+        'button_press_count': 0,        # global count of button pressses
+        'last_button_press_count': 0,   # copy of count of button pressses used in main loop
         'pageSleepCountdown': PAGE_SLEEP, # Set page sleep control
         'home_page_name': "Home",       # Display name for top level menu
         'blinker_status': False,
-
     }
 
     ############################
@@ -260,33 +261,36 @@ def main():
     # Apps area
     ###########################
     def profiler_status():
-        app_obj = App(g_vars)
+        app_obj = Profiler(g_vars)
         app_obj.profiler_status(g_vars)
 
     def profiler_stop():
-        app_obj = App(g_vars)
+        app_obj = Profiler(g_vars)
         app_obj.profiler_stop(g_vars)
 
     def profiler_start():
-        app_obj = App(g_vars)
+        app_obj = Profiler(g_vars)
         app_obj.profiler_start(g_vars)
 
     def profiler_start_no11r():
-        app_obj = App(g_vars)
+        app_obj = Profiler(g_vars)
         app_obj.profiler_start_no11r(g_vars)
 
     def profiler_start_no11ax():
-        app_obj = App(g_vars)
+        app_obj = Profiler(g_vars)
         app_obj.profiler_start_no11ax(g_vars)
 
     def profiler_purge_reports():
-        app_obj = App(g_vars)
+        app_obj = Profiler(g_vars)
         app_obj.profiler_purge_reports(g_vars)
 
     def profiler_purge_files():
-        app_obj = App(g_vars)
+        app_obj = Profiler(g_vars)
         app_obj.profiler_purge_files(g_vars)
 
+    def scanner_scan():
+        app_obj = Scanner(g_vars)
+        app_obj.scanner_scan(g_vars)
 
     ###########################
     # System menu area utils
@@ -413,6 +417,7 @@ def main():
                 }
             ]
             },
+            {"name": "Scanner", "action": scanner_scan}
         ]
         },
         {"name": "System", "action": [
