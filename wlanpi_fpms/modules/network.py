@@ -229,7 +229,7 @@ class Network(object):
 
         try:
             ipconfig_output = subprocess.check_output(
-                ipconfig_file, shell=True).decode()
+                ipconfig_file, shell=True).decode().strip()
             ipconfig_info = ipconfig_output.split('\n')
 
         except subprocess.CalledProcessError as exc:
