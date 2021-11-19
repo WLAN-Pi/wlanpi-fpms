@@ -13,6 +13,16 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "fpms", "__version__.py"), "r", "utf-8") as f:
     exec(f.read(), metadata)
 
+extras = {
+    "development": [
+        "black",
+        "isort",
+        "mypy",
+        "flake8",
+        "pytest",
+    ],
+}
+
 # fmt: off
 # Pillow must be on its own line otherwise Debian packaging will fail
 setup(
@@ -30,8 +40,10 @@ setup(
     install_requires=[
         "luma.oled==3.8.1",
         "gpiozero==1.6.2",
+        "textfsm==1.1.2",
         "Pillow==8.4.0", 
     ],
+    extras_require=extras,
     project_urls={
         "Documentation": "https://docs.wlanpi.com",
         "Source": metadata["__url__"],

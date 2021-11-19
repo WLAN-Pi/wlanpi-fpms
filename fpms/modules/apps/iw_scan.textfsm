@@ -1,0 +1,10 @@
+Value Required BSS (([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2}))
+Value Required FREQ (\d+)
+Value Required RSSI (-\d+)
+Value Required SSID ([^\r\n]*)
+
+Start
+  ^BSS ${BSS}
+  ^\s+freq: ${FREQ}   
+  ^\s+signal: ${RSSI}
+  ^\s+SSID: ${SSID} -> Record
