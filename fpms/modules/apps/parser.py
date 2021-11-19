@@ -17,7 +17,7 @@ def parse(iw_scan_output: str) -> str:
         bssid,frequency,rssi,ssid
         ...
     """
-
+    __template.Reset()
     out = ""
     for details in __template.ParseText(iw_scan_output):
         out += ",".join(details) + "\n"
