@@ -1,12 +1,12 @@
 import time
 import os.path
 import subprocess
-import wlanpi_fpms.modules.wlanpi_oled as oled
+import fpms.modules.wlanpi_oled as oled
 import re
 import sys
 
-from wlanpi_fpms.modules.pages.alert import Alert
-from wlanpi_fpms.modules.pages.pagedtable import PagedTable
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.pagedtable import PagedTable
 
 class Profiler(object):
 

@@ -3,10 +3,10 @@ import os.path
 import os
 import time
 
-from wlanpi_fpms.modules.pages.alert import *
-from wlanpi_fpms.modules.pages.simpletable import *
-from wlanpi_fpms.modules.pages.pagedtable import *
-from wlanpi_fpms.modules.constants import (
+from fpms.modules.pages.alert import *
+from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.pagedtable import *
+from fpms.modules.constants import (
     REACHABILITY_FILE,
     BLINKER_FILE,
     UFW_FILE,

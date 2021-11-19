@@ -1,10 +1,10 @@
 import subprocess
 import threading
-import wlanpi_fpms.modules.wlanpi_oled as oled
+import fpms.modules.wlanpi_oled as oled
 
-from wlanpi_fpms.modules.pages.alert import Alert
-from wlanpi_fpms.modules.pages.pagedtable import PagedTable
-from wlanpi_fpms.modules.constants import (
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.pagedtable import PagedTable
+from fpms.modules.constants import (
     MAX_TABLE_LINES,
     IP_FILE,
     IWCONFIG_FILE,

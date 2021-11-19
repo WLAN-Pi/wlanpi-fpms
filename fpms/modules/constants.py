@@ -7,7 +7,7 @@ constants.py - shared constant vars
 from PIL import ImageFont
 import os
 import pathlib
-from wlanpi_fpms.modules.env_utils import EnvUtils
+from fpms.modules.env_utils import EnvUtils
 
 __version__ = "2.0.2"
 __author__ = "wifinigel@gmail.com"

@@ -2,6 +2,7 @@
 *.pyc
 .eggs/
 build/
+dist/
 *.log
 venv/
 *.egg-info/

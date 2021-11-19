@@ -5,7 +5,7 @@ from luma.core import cmdline, error
 from PIL import Image
 import sys
 import logging
-from wlanpi_fpms.modules.constants import PLATFORM
+from fpms.modules.constants import PLATFORM
 
 # set possible vars to None
 DISPLAY_TYPE = None

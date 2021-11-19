@@ -5,7 +5,7 @@ themes.py - display themes
 """
 
 from enum import Enum
-from wlanpi_fpms.modules.env_utils import EnvUtils
+from fpms.modules.env_utils import EnvUtils
 
 env_util = EnvUtils()
 PLATFORM = env_util.get_platform()

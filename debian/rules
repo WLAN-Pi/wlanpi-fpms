@@ -11,7 +11,7 @@
 # all files needed for a release build.
 
 # Increase trace logging, see debhelper(7) (uncomment to enable)
-DH_VERBOSE=1
+# DH_VERBOSE=1
 
 export DH_VIRTUALENV_INSTALL_ROOT=/opt
 export PYBUILD_NAME=wlanpi-fpms

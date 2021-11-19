@@ -2,12 +2,12 @@
 # Create an alert object
 #################################
 import time
-import wlanpi_fpms.modules.wlanpi_oled as oled
+import fpms.modules.wlanpi_oled as oled
 from textwrap import wrap
 
-from wlanpi_fpms.modules.pages.display import *
-from wlanpi_fpms.modules.themes import THEME
-from wlanpi_fpms.modules.constants import (
+from fpms.modules.pages.display import *
+from fpms.modules.themes import THEME
+from fpms.modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
     FONT11,

@@ -1,4 +1,4 @@
 include LICENSE
-graft wlanpi_fpms/fonts
-graft wlanpi_fpms/images
+graft fpms/fonts
+graft fpms/images
 global-exclude *.pyc

@@ -1,66 +1,66 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python3
+
 """
-FPMS main app file
+FPMS
+~~~~
 
-This file must be run as root
+Front Panel Menu System
 """
 
+import getopt
+import os
+import os.path
+import random
+import signal
+import socket
+import subprocess
+import sys
+import termios
+import threading
+import time
+import tty
 
-from PIL import Image
-from PIL import ImageFont
-from PIL import ImageDraw
 from gpiozero import Button as GPIO_Button
 from gpiozero import Device
 from gpiozero.pins.mock import MockFactory
-import getopt
-import threading, termios, tty
-import time
-import subprocess
-import signal
-import os
-import os.path
-import sys
-import socket
-import random
+from PIL import Image, ImageDraw, ImageFont
 
 # Check we're running as root
 if not os.geteuid()==0:
-    print("This script must be run as root - exiting")
-    sys.exit()
+    print("fpms must be run as root ... exiting ...")
+    sys.exit(-1)
 
-from .modules.constants import (
-    SCRIPT_PATH,
-    PAGE_SLEEP,
-    PAGE_HEIGHT,
-    PAGE_WIDTH,
-    NAV_BAR_TOP,
-    MODE_FILE,
-    WLANPI_IMAGE_FILE,
-    DISPLAY_MODE,
-    IMAGE_DIR,
-    BUTTONS_PINS,
-)
-
-from .modules.nav.buttons import Button
-from .modules.pages.display import Display
-from .modules.pages.homepage import HomePage
-from .modules.pages.simpletable import SimpleTable
-from .modules.pages.pagedtable import PagedTable
-from .modules.pages.page import Page
-
-from .modules.network import *
-from .modules.bluetooth import *
-from .modules.utils import *
-from .modules.env_utils import EnvUtils
-from .modules.cloud_tests import CloudUtils
-from .modules.modes import *
-from .modules.system import *
-
+from .__version__ import __title__, __version__
+from .modules import wlanpi_oled as oled
 from .modules.apps.profiler import *
 from .modules.apps.scanner import *
+from .modules.bluetooth import *
+from .modules.cloud_tests import CloudUtils
+from .modules.constants import (
+    BUTTONS_PINS,
+    DISPLAY_MODE,
+    IMAGE_DIR,
+    MODE_FILE,
+    NAV_BAR_TOP,
+    PAGE_HEIGHT,
+    PAGE_SLEEP,
+    PAGE_WIDTH,
+    SCRIPT_PATH,
+    WLANPI_IMAGE_FILE,
+)
+from .modules.env_utils import EnvUtils
+from .modules.modes import *
+from .modules.nav.buttons import Button
+from .modules.network import *
+from .modules.pages.display import Display
+from .modules.pages.homepage import HomePage
+from .modules.pages.page import Page
+from .modules.pages.pagedtable import PagedTable
+from .modules.pages.simpletable import SimpleTable
+from .modules.system import *
+from .modules.utils import *
 
-from .modules import wlanpi_oled as oled
 
 def main():
 

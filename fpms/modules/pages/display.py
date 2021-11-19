@@ -1,5 +1,5 @@
-from wlanpi_fpms.modules.themes import THEME
-from wlanpi_fpms.modules.constants import (
+from fpms.modules.themes import THEME
+from fpms.modules.constants import (
     PAGE_HEIGHT,
     PAGE_WIDTH,
 )

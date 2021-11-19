@@ -3,11 +3,11 @@ import os
 import subprocess
 import re
 
-from wlanpi_fpms.modules.pages.alert import *
-from wlanpi_fpms.modules.pages.display import *
-from wlanpi_fpms.modules.pages.simpletable import *
-from wlanpi_fpms.modules.pages.pagedtable import *
-from wlanpi_fpms.modules.constants import (
+from fpms.modules.pages.alert import *
+from fpms.modules.pages.display import *
+from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.pagedtable import *
+from fpms.modules.constants import (
     LLDPNEIGH_FILE,
     CDPNEIGH_FILE,
     IPCONFIG_FILE,

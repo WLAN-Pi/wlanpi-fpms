@@ -1,8 +1,8 @@
 import types
 
-from wlanpi_fpms.modules.pages.homepage import *
-from wlanpi_fpms.modules.pages.page import *
-from wlanpi_fpms.modules.pages.simpletable import *
+from fpms.modules.pages.homepage import *
+from fpms.modules.pages.page import *
+from fpms.modules.pages.simpletable import *
 
 class Button(object):
 

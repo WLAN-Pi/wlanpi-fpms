@@ -1,13 +1,13 @@
-import wlanpi_fpms.modules.wlanpi_oled as oled
+import fpms.modules.wlanpi_oled as oled
 import time
 import os
 import subprocess
 import socket
 
-from wlanpi_fpms.modules.pages.alert import *
-from wlanpi_fpms.modules.pages.display import *
-from wlanpi_fpms.modules.pages.simpletable import *
-from wlanpi_fpms.modules.constants import (
+from fpms.modules.pages.alert import *
+from fpms.modules.pages.display import *
+from fpms.modules.pages.simpletable import *
+from fpms.modules.constants import (
     SMART_FONT,
     FONT12,
     FONTB14,
