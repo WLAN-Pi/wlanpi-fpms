@@ -65,6 +65,10 @@ class Scanner(object):
         try:
             scan_output = subprocess.check_output(cmd, shell=True).decode().strip()
             networks = self.parse(scan_output)
+
+            # Sort results by RSSI
+            networks.sort(key = lambda x: x[2])
+
             results = []
             for network in networks:
                 # BSSID
