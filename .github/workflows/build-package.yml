@@ -2,9 +2,13 @@ name: Build Debian Package
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'debian/changelog'
   pull_request:
+    branches:
+      - main
     paths:
       - 'debian/changelog'
 
