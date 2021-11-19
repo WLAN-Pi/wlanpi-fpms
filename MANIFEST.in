@@ -1,5 +1,6 @@
 include LICENSE
+include fpms/modules/apps/iw_scan.textfsm
+include fpms/AUTHORS.md
 graft fpms/fonts
 graft fpms/images
-graft fpms/modules/apps/iw_scan.textfsm
 global-exclude *.pyc
