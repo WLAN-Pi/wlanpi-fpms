@@ -1,7 +1,10 @@
+import os
 import subprocess
 import threading
+from typing import List
 
-import fpms.modules.apps.parser as parser
+import textfsm
+
 import fpms.modules.wlanpi_oled as oled
 from fpms.modules.constants import IP_FILE, IW_FILE, IWCONFIG_FILE, MAX_TABLE_LINES
 from fpms.modules.pages.alert import Alert
@@ -12,6 +15,11 @@ IFACE = "wlan0"
 
 class Scanner(object):
     def __init__(self, g_vars):
+        # load textfsm template to parse iw output
+        with open(
+            os.path.realpath(os.path.join(os.getcwd(), "modules/apps/iw_scan.textfsm"))
+        ) as f:
+            self.iw_textfsm_template = textfsm.TextFSM(f)
 
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
@@ -34,6 +42,20 @@ class Scanner(object):
 
         return None
 
+    def parse(self, iw_scan_output: str) -> List:
+        """
+        Returns a string containing a list of wireless networks
+
+        Fields:
+            [["bssid","frequency","rssi","ssid"]]
+
+        Example:
+            [["aa:bb:cc:00:11:22", "2412", "-69", "Outlaw"]]
+            ...
+        """
+        self.iw_textfsm_template.Reset()
+        return self.iw_textfsm_template.ParseText(iw_scan_output)
+
     def scan(self, g_vars):
 
         g_vars["scanner_status"] = True
@@ -42,23 +64,25 @@ class Scanner(object):
 
         try:
             scan_output = subprocess.check_output(cmd, shell=True).decode().strip()
-            networks = parser.parse(scan_output).splitlines()
+            networks = self.parse(scan_output)
+
+            # Sort results by RSSI
+            networks.sort(key = lambda x: x[2])
+
             results = []
             for network in networks:
-                fields = network.split(",", 3)
-
                 # BSSID
-                bssid = fields[0].upper()
+                bssid = network[0].upper()
 
                 # Freq
-                freq = int(fields[1])
+                freq = int(network[1])
                 channel = self.freq_to_channel(freq)
 
                 # RSSI
-                rssi = int(fields[2])
+                rssi = int(network[2])
 
                 # SSID
-                ssid = fields[3]
+                ssid = network[3]
 
                 if len(ssid) == 0:
                     ssid = "Hidden Network"

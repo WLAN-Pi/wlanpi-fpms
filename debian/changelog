@@ -1,3 +1,9 @@
+wlanpi-fpms (1.0.8-3) unstable; urgency=medium
+
+  * Fix scanner bug not displaying hidden networks and squash list growth
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Fri, 19 Nov 2021 9:58:00 +0500
+
 wlanpi-fpms (1.0.8-2) unstable; urgency=medium
 
   * Fix scanner when transition mode is present in neighbor SSID
