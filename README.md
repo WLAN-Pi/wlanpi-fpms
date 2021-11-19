@@ -49,4 +49,4 @@ sudo raspi-config
 
 ## Thanks
 
-`wlanpi-fpms` is built and maintained by a wonderful list of folks found in either [AUTHORS.md](AUTHORS.md) or the git commit log. If your name is missing, please add yourself and submit a PR.
+`wlanpi-fpms` is built and maintained by a wonderful list of folks found in either [AUTHORS.md](fpms/AUTHORS.md) or the git commit log. If your name is missing, please add yourself and submit a PR.

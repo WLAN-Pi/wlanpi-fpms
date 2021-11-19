@@ -75,8 +75,8 @@ def display_settings(device, args):
     version = 'luma.{} {} (luma.core {})'.format(
         lib_name, lib_version, luma.core.__version__)
 
-    return 'Version: {}\nDisplay: {}\n{}Dimensions: {} x {}\nMode: {}\n{}'.format(
-        version, args.display, iface, device.width, device.height, device.mode, '-' * 60)
+    return '{0}\nVersion: {1}\nDisplay: {2}\n{3}Dimensions: {4} x {5}\nMode: {6}\n{7}'.format(
+        '-' * 50, version, args.display, iface, device.width, device.height, device.mode, '-' * 50)
 
 
 def get_device(actual_args=None):

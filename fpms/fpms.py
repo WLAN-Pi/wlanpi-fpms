@@ -70,14 +70,53 @@ def main():
     # Parse arguments
     ####################################
 
-    emulate = False
+    def authors():
+        authors = os.path.realpath(os.path.join(os.getcwd(), "AUTHORS.md"))
+        if not os.path.isfile(authors):
+            # Couldn't find authors
+            print(authors)
+            return ""
+        else:
+            with open(authors) as f:
+                return "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
+        
 
-    argv = sys.argv[1:]
-    opts, args = getopt.getopt(argv, "e", ["emulate-buttons"])
+    def usage():
+        return """
+usage: fpms [-a] [-h] [-e] [-v]
+
+wlanpi-fpms drives the Front Panel Menu System on the WLAN Pi
+
+optional options:
+  -a                print authors
+  -e                emulate buttons from keyboard
+  -h                show this message and exit
+  -v                show module version and exit
+        """
+
+    try:
+        opts, _args = getopt.getopt(sys.argv[1:], ":ahev", ["authors", "help", "emulate-buttons", "version"])
+    except getopt.GetoptError as error:
+        print("{0} ... ".format(error))
+        print(usage())
+        sys.exit(2)
+
+    emulate = False
 
     for opt, arg in opts:
         if opt in ['-e', "--emulate-buttons"]:
             emulate = True
+        elif opt in ("-a", "--authors"):
+            print(authors())
+            sys.exit()
+        elif opt in ("-h", "--help"):
+            print(usage())
+            sys.exit()
+        elif opt in ("-v", "--version"):
+            print("{0} {1}".format(__title__, __version__))
+            sys.exit()
+        else:
+            assert False, "unhandled option"
 
     ####################################
     # Initialize the SEED OLED display
