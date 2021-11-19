@@ -1,29 +1,52 @@
+[![packagecloud-badge](https://img.shields.io/badge/deb-packagecloud.io-844fec.svg)](https://packagecloud.io/)
+
 # WLAN Pi Front Panel Menu System (FPMS)
 
 This project enables the SPI display of WLAN Pi based on the CM4 hardware.
 
 The original ["fpms" repo](https://github.com/WLAN-Pi/fpms) is only compatible with NEO2 hardware and its NanoHat OLED I2C display.
 
-## Services
+## systemd Service
 
-"wlanpi-fpms" service displays information on the SPI display.
+There are two primary service units for `wlanpi-fpms`:
 
-"networkinfo" service mainly delivers the LLDP and CDP neighbour detection.
+* `wlanpi-fpms` service which displays information on the SPI display.
+* `networkinfo` service which mainly delivers the LLDP and CDP neighbour detection.
 
-To check status of the services, execute:
-`sudo systemctl status wlanpi-fpms`
-`sudo systemctl status networkinfo`
+For troubleshooting, use `systemctl` to check status of the services:
 
-## Hardware requirements
+```
+systemctl status wlanpi-fpms
+systemctl status networkinfo
+```
 
-The SPI interface must be enabled for FPMS to work and communicate with the display. `sudo raspi-config` can be used to enable SPI.
+## Packages 
 
-## Installation instructions
+Debian software packages for `wlanpi-fpms` can be found on Packagecloud here <https://packagecloud.io/app/wlanpi/main/search?q=fpms>.
 
-Currently, "wlanpi-fpms" does not run in a virtual environment, but it is planned for near future. To install it, please follow these instructions.
+## Development instructions
 
-1. Edit boot config: `sudo nano /boot/config.txt`
+Looking to get your hands dirty?
+
+To install and run `wlanpi-fpms` for development and manual testing refer to the [DEVELOPMENT.md](DEVELOPMENT.md) documentation.
+
+## System requirements
+
+The SPI interface must be enabled for FPMS to work and communicate with the display. 
+
+### Option 1
+
+Use `raspi-config` to enable SPI:
+
+```
+sudo raspi-config
+```
+
+### Option 2
+
+1. Edit boot config: `sudo vim /boot/config.txt`
 2. Enable SPI interface by adding this line: `dtparam=spi=on`
-3. Install Luma.OLED: `sudo -H pip3 install --upgrade luma.oled`
-4. Clone this repo by: `cd /usr/share/ && sudo git clone https://github.com/WLAN-Pi/wlanpi-fpms.git`
-5. Start FPMS: `sudo python3 /usr/share/fpms/BakeBit/Software/Python/bakebit_nanohat_oled.py`
+
+## Thanks
+
+`wlanpi-fpms` is built and maintained by a wonderful list of folks found in either [AUTHORS.md](AUTHORS.md) or the git commit log. If your name is missing, please add yourself and submit a PR.
