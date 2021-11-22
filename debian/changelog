@@ -1,8 +1,8 @@
 wlanpi-fpms (1.0.8-4) unstable; urgency=medium
 
-  * Bullseye
+  * Buster CI check
 
- --  Josh Schmelzle <josh@joshschmelzle.com>  Sun, 21 Nov 2021 14:08:04 -0500
+ --  Josh Schmelzle <josh@joshschmelzle.com>  Mon, 22 Nov 2021 10:18:04 -0500
 
 wlanpi-fpms (1.0.8-3) unstable; urgency=medium
 
