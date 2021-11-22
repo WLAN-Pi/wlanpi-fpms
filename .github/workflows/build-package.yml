@@ -19,14 +19,14 @@ jobs:
     strategy:
       matrix:
         distro: [buster]
-        arch: [armhf,arm64]
+        arch: [armhf]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Build Debian package
-        uses: danielmundi/sbuild-debian-package@main
+        uses: wlan-pi/sbuild-debian-package@main
         id: build-debian-package
         with:
           distro: ${{ matrix.distro }}
