@@ -1,4 +1,4 @@
-name: Build Debian Package
+name: Build and Deploy Debian Package On Push
 
 on:
   push:
@@ -6,39 +6,43 @@ on:
       - main
     paths:
       - 'debian/changelog'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'debian/changelog'
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: 'ubuntu-20.04'
 
     strategy:
+      fail-fast: false
       matrix:
-        distro: [buster]
-        arch: [armhf]
+        distro: [buster,bullseye]
+        arch: [armhf,arm64]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build Debian package
+      - name: sbuild for ${{ matrix.distro }} ${{ matrix.arch }}
         uses: wlan-pi/sbuild-debian-package@main
         id: build-debian-package
         with:
           distro: ${{ matrix.distro }}
           arch: ${{ matrix.arch }}
-
-      - name: Upload package
+      
+      - name: Notify Slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        if: always()
+        uses: pullreminders/slack-action@master
+        with:
+          args: '{\"channel\":\"CFRDLJJDU\",\"text\": \"${{ github.repository }} <${{ github.event.commits[0].url }}/checks|workflow> *${{ job.status }}* (${{ matrix.distro }}\\${{ matrix.arch }}) --- <${{ github.event.commits[0].url }}|${{ github.event.commits[0].message }}> by ${{ github.event.commits[0].author.name }}\"}'
+      
+      - name: Archive artifacts and upload to GitHub
         uses: actions/upload-artifact@v2
         with:
           name: wlanpi-fpms_package
           path: ${{ steps.build-debian-package.outputs.deb-package }}
 
-      - name: Upload package
+      - name: Upload Package to Packagecloud
         uses: danielmundi/upload-packagecloud@main
         with:
           package-name: ${{ steps.build-debian-package.outputs.deb-package }}
