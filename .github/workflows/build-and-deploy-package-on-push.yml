@@ -39,7 +39,7 @@ jobs:
       - name: Archive artifacts and upload to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: wlanpi-fpms_package
+          name: wlanpi-fpms-${{ matrix.distro }}-${{ matrix.arch }}
           path: ${{ steps.build-debian-package.outputs.deb-package }}
 
       - name: Upload Package to Packagecloud

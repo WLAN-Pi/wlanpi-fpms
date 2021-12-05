@@ -41,5 +41,5 @@ jobs:
       - name: Archive artifacts and upload to GitHub
         uses: actions/upload-artifact@v2
         with:
-          name: wlanpi-profiler-${{ matrix.distro }}-${{ matrix.arch }}
+          name: wlanpi-fpms-${{ matrix.distro }}-${{ matrix.arch }}
           path: ${{ steps.build-debian-package.outputs.deb-package }}
