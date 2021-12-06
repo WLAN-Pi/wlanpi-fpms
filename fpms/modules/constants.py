@@ -89,10 +89,10 @@ BLINKER_FILE = '/opt/wlanpi-common/networkinfo/portblinker.sh'
 # Button mapping (WLANPi Pro)
 BUTTONS_WLANPI_PRO = {
     "up": 22,
-    "down": 15,
+    "down": 5,
     "left": 17,
     "right": 27,
-    "center": 14,
+    "center": 6,
 }
 
 # temp setup to test code using Sapphire HAT
