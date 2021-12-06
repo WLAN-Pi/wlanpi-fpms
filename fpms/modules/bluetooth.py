@@ -20,9 +20,14 @@ class Bluetooth(object):
 
     def bluetooth_present(self):
         try:
-            cmd = "bt-adapter -l > /dev/null"
-            subprocess.run(cmd, shell=True).check_returncode()
-            return True
+            cmd = "systemctl is-active --quiet bluetooth"
+            subprocess.check_output(cmd, shell=True)
+            try:
+                cmd = "bt-adapter -l"
+                subprocess.check_output(cmd, shell=True)
+                return True
+            except subprocess.CalledProcessError as exc:
+                return False
         except subprocess.CalledProcessError as exc:
             return False
 
