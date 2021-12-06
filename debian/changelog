@@ -1,4 +1,4 @@
-wlanpi-fpms (1.0.8-6) unstable; urgency=medium
+wlanpi-fpms (1.0.8-7) unstable; urgency=medium
 
   * Fix UI blocking if bluetooth device is not present
 
