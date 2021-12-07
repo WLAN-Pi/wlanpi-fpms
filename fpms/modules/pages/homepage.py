@@ -9,6 +9,7 @@ import time
 
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
+from fpms.modules.battery import *
 from fpms.modules.bluetooth import *
 from fpms.modules.themes import THEME
 from fpms.modules.constants import (
@@ -158,16 +159,73 @@ class HomePage(object):
         g_vars['drawing_in_progress'] = False
         return
 
-    def status_bar(self, g_vars, x=0, y=0, padding=2, height=STATUS_BAR_HEIGHT):
-
-        bluetooth = Bluetooth(g_vars)
+    def status_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=STATUS_BAR_HEIGHT):
 
         canvas = g_vars['draw']
 
-        canvas.rectangle((x, y, PAGE_WIDTH, height), fill=THEME.status_bar_background.value)
+        canvas.rectangle((x, y, width, height), fill=THEME.status_bar_background.value)
         y += 2
         canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
-        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
-            canvas.text((PAGE_WIDTH - 10, y + 2), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
+
+        # Battery indicator
+        self.battery_indicator(g_vars, x, y, width, height)
+
+        # Bluetooth indicator
+        self.bluetooth_indicator(g_vars, x, y, width, height)
 
         return height
+
+    def bluetooth_indicator(self, g_vars, x, y, width, height):
+        bluetooth = Bluetooth(g_vars)
+        canvas = g_vars['draw']
+        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
+            canvas.text((width - 30, y + 1), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
+
+    def battery_indicator(self, g_vars, x, y, width, height):
+        battery = Battery(g_vars)
+        offset  = 20
+
+        # Draw indicator
+        canvas = g_vars['draw']
+        bx = width - offset
+        by = y + 2
+        status = battery.battery_status()
+        charge = battery.battery_charge()
+
+        battery_indicator_width  = 16
+        battery_indicator_height = 8
+        canvas.rounded_rectangle((bx, by, bx + battery_indicator_width, by + battery_indicator_height), radius=1, outline=THEME.status_bar_foreground.value)
+
+        bx = bx + battery_indicator_width
+        by = by + 3
+        canvas.rectangle((bx , by, bx+1, by + 2), fill=THEME.status_bar_foreground.value)
+
+        if battery.battery_present():
+
+            # Draw current charge level
+            if charge > 0:
+                bx = width - offset
+                by = y + 2
+                fill_color = THEME.status_bar_foreground.value
+
+                if status == "charging":
+                    fill_color = THEME.status_bar_battery_full.value
+                elif charge <= 25:
+                    fill_color = THEME.status_bar_battery_low.value
+                elif charge >= 100:
+                    if status == "not charging":
+                        fill_color = THEME.status_bar_battery_full.value
+
+                canvas.rectangle((bx+2, by+2, bx + ((battery_indicator_width - 2) * charge / 100), by + battery_indicator_height-2), fill=fill_color)
+
+            # Draw charging indicator (aka lighting bolt)
+            if status == "charging":
+                xy = [
+                (bx + battery_indicator_width/2 + 1, by - 2),
+                (bx + battery_indicator_width/2 - 4, by + battery_indicator_height/2 + 1),
+                (bx + battery_indicator_width/2 - 1, by + battery_indicator_height/2 + 1),
+                (bx + battery_indicator_width/2 - 1, by + battery_indicator_height + 2),
+                (bx + battery_indicator_width/2 + 4, by + battery_indicator_height/2 - 1),
+                (bx + battery_indicator_width/2 + 1, by + battery_indicator_height/2 - 1)
+                ]
+                canvas.polygon(xy, fill=THEME.status_bar_foreground.value, outline=THEME.status_bar_background.value)
