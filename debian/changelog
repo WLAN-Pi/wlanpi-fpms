@@ -1,3 +1,9 @@
+wlanpi-fpms (1.1.1) unstable; urgency=medium
+
+  * Add a battery indicator to the status bar
+
+ -- Adrian Granados <adrian@intuitibits.com>  Tue, 07 Dec 2021 18:56:01 +0000
+
 wlanpi-fpms (1.1.0) unstable; urgency=medium
 
   * Remap buttons for them to work with WLAN Pi Pro prototype rev2
