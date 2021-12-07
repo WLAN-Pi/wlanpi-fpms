@@ -1,4 +1,4 @@
-wlanpi-fpms (2.0.0) unstable; urgency=medium
+wlanpi-fpms (1.1.0) unstable; urgency=medium
 
   * Remap buttons for them to work with WLAN Pi Pro prototype rev2
   * Buttons on WLAN Pi Pro prototype rev1 are no longer supported
