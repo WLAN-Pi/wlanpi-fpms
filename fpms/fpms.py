@@ -59,6 +59,7 @@ from .modules.pages.page import Page
 from .modules.pages.pagedtable import PagedTable
 from .modules.pages.simpletable import SimpleTable
 from .modules.system import *
+from .modules.battery import *
 from .modules.utils import *
 
 
@@ -79,7 +80,7 @@ def main():
         else:
             with open(authors) as f:
                 return "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
-        
+
 
     def usage():
         return """
@@ -347,6 +348,10 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_summary(g_vars)
 
+    def show_battery():
+        system_obj = Battery(g_vars)
+        system_obj.show_battery(g_vars)
+
     def show_date():
         system_obj = System(g_vars)
         system_obj.show_date(g_vars)
@@ -469,6 +474,7 @@ optional options:
             ]
             },
             {"name": "Summary", "action": show_summary},
+            {"name": "Battery", "action": show_battery},
             {"name": "Date/Time", "action": show_date},
             {"name": "Version", "action": show_wlanpi_ver},
         ]

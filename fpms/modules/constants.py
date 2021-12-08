@@ -86,6 +86,10 @@ REACHABILITY_FILE = '/opt/wlanpi-common/networkinfo/reachability.sh'
 PUBLICIP_CMD = '/opt/wlanpi-common/networkinfo/publicip.sh'
 BLINKER_FILE = '/opt/wlanpi-common/networkinfo/portblinker.sh'
 
+# Battery status file
+BATTERY_STATUS_FILE = '/sys/class/power_supply/bq27546-0/uevent'
+#BATTERY_STATUS_FILE = '/home/wlanpi/battery_status.txt'
+
 # Button mapping (WLANPi Pro)
 BUTTONS_WLANPI_PRO = {
     "up": 22,
