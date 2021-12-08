@@ -1,3 +1,12 @@
+wlanpi-fpms (1.1.3) unstable; urgency=medium
+
+  * Adds a "Pair Device" option for pairing a Bluetooth device that removes
+    existing paired devices before becoming discoverable and pairable again
+  * Adds information about the existing paired device to Home > Bluetooth >
+    Status
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 08 Dec 2021 16:16:47 -0600
+
 wlanpi-fpms (1.1.2) unstable; urgency=medium
 
   * Lower OLED display contrast
