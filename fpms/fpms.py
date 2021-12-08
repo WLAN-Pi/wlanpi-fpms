@@ -235,6 +235,10 @@ optional options:
         bluetooth_obj = Bluetooth(g_vars)
         bluetooth_obj.bluetooth_status(g_vars)
 
+    def bluetooth_pair():
+        bluetooth_obj = Bluetooth(g_vars)
+        bluetooth_obj.bluetooth_pair(g_vars)
+
     def bluetooth_on():
         bluetooth_obj = Bluetooth(g_vars)
         bluetooth_obj.bluetooth_on(g_vars)
@@ -402,7 +406,8 @@ optional options:
         {"name": "Bluetooth", "action": [
             {"name": "Status", "action": bluetooth_status},
             {"name": "Turn On", "action": bluetooth_on},
-            {"name": "Turn Off", "action": bluetooth_off}
+            {"name": "Turn Off", "action": bluetooth_off},
+            {"name": "Pair Device", "action": bluetooth_pair},
         ]
         },
         {"name": "Utils", "action": [
