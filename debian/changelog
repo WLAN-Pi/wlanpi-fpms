@@ -1,3 +1,9 @@
+wlanpi-fpms (1.1.2) unstable; urgency=medium
+
+  * Lower OLED display contrast
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Wed, 08 Dec 2021 11:12:01 +0000
+
 wlanpi-fpms (1.1.1) unstable; urgency=medium
 
   * Add a battery indicator to the status bar
