@@ -1,6 +1,9 @@
 name: Build Debian Package On PR
 
 on:
+  # Allow manual runs of workflow from Actions tab
+  workflow_dispatch:
+
   pull_request:
     branches:
       - main
