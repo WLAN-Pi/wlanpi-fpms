@@ -3,10 +3,13 @@ import os.path
 import subprocess
 import fpms.modules.wlanpi_oled as oled
 import sys
+import re
 
 from fpms.modules.pages.simpletable import SimpleTable
 from fpms.modules.pages.pagedtable import PagedTable
 from fpms.modules.pages.alert import Alert
+
+from fpms.modules.constants import MAX_TABLE_LINES
 
 class Bluetooth(object):
 
@@ -83,6 +86,25 @@ class Bluetooth(object):
         except subprocess.CalledProcessError as exc:
             return False
 
+    def bluetooth_paired_devices(self):
+        '''
+        Returns a dictionary of paired devices, indexed by MAC address
+        '''
+
+        if not self.bluetooth_present():
+            return None
+
+        try:
+            cmd = "bluetoothctl -- paired-devices"
+            output = subprocess.check_output(cmd, shell=True).decode().strip()
+            if len(output) > 0:
+                output = re.sub("Device *", "", output).split('\n')
+                return dict([line.split(" ", 1) for line in output])
+            else:
+                return None
+        except subprocess.CalledProcessError as exc:
+            return None
+
     def bluetooth_status(self, g_vars):
         status = []
 
@@ -91,17 +113,84 @@ class Bluetooth(object):
             g_vars['display_state'] = 'page'
             return
 
-        status.append("Name: "  + self.bluetooth_name())
-        status.append("Alias: " + self.bluetooth_alias())
-        status.append("Addr: "  + self.bluetooth_address().replace(":", ""))
+        status.append("Name:"  + self.bluetooth_name())
+        status.append("Alias:" + self.bluetooth_alias())
+        status.append("Addr:"  + self.bluetooth_address().replace(":", ""))
 
         if self.bluetooth_power():
-            status.append("Power: On")
+            status.append("Power:On")
         else:
-            status.append("Power: Off")
+            status.append("Power:Off")
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Status")
+        paired_devices = self.bluetooth_paired_devices()
 
+        if paired_devices != None:
+            status.append("---")
+            status.append("PAIRED DEVICES")
+            status.append("---")
+            for mac in paired_devices:
+                status.append("Name:" + paired_devices[mac])
+                status.append("Addr:" + mac.replace(":", ""))
+
+        choppedoutput = []
+
+        for item in status:
+            choppedoutput.append(item[0:20])
+            if len(item) > 20:
+                choppedoutput.append(item[20:40])
+
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title="Status")
+
+        g_vars['display_state'] = 'page'
+
+    def bluetooth_pair(self, g_vars):
+
+        if not self.bluetooth_present():
+            self.alert_obj.display_alert_error(g_vars, "Bluetooth adapter not found.")
+            g_vars['display_state'] = 'page'
+            return
+
+        ok = False
+        alert_msg = None
+        if self.bluetooth_set_power(True):
+            if not g_vars['result_cache']:
+                # Unpair existing paired devices
+                self.alert_obj.display_popup_alert(g_vars, "Entering pairing mode...")
+                paired_devices = self.bluetooth_paired_devices()
+                if paired_devices != None:
+                    self.alert_obj.display_popup_alert(g_vars, "Unpairing existing device...")
+                    for dev in paired_devices:
+                        try:
+                            cmd = f"bluetoothctl -- remove {dev}"
+                            subprocess.run(cmd, shell=True)
+                        except:
+                            pass
+            else:
+                paired_devices = self.bluetooth_paired_devices()
+                if paired_devices != None:
+                    for dev in paired_devices:
+                        alert_msg = f"Paired to {paired_devices[dev]}"
+                        ok = True
+                        break
+                else:
+                    alias = self.bluetooth_alias()
+                    try:
+                        cmd = "systemctl start bt-timedpair"
+                        subprocess.run(cmd, shell=True).check_returncode()
+                        alert_msg = "Bluetooth is on. Discoverable as \"" + alias + "\""
+                        ok = True
+                    except subprocess.CalledProcessError as exc:
+                        alert_msg = "Failed to set as discoverable."
+        else:
+            alert_msg = "Failed to turn on bluetooth."
+
+        if alert_msg != None:
+            if ok:
+                self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
+            else:
+                self.alert_obj.display_alert_error(g_vars, alert_msg)
+
+        g_vars['result_cache'] = True
         g_vars['display_state'] = 'page'
 
     def bluetooth_on(self, g_vars):
@@ -113,14 +202,8 @@ class Bluetooth(object):
 
         ok = False
         if self.bluetooth_set_power(True):
-            alias = self.bluetooth_alias()
-            try:
-                cmd = "systemctl start bt-timedpair"
-                subprocess.run(cmd, shell=True).check_returncode()
-                alert_msg = "Bluetooth is on. Discoverable as \"" + alias + "\""
-                ok = True
-            except subprocess.CalledProcessError as exc:
-                alert_msg = "Failed to set as discoverable."
+            alert_msg = "Bluetooth is on."
+            ok = True
         else:
             alert_msg = "Failed to turn on bluetooth."
 

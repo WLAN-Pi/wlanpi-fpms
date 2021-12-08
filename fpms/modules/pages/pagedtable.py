@@ -125,6 +125,15 @@ class PagedTable(object):
         # slice up list in to pages
         table_display_max = MAX_TABLE_LINES
 
+        # count separators
+        separator_count = 0
+        for item in item_list:
+            if item == "---":
+                separator_count = separator_count + 1
+
+        # adjust max number of lines
+        table_display_max = table_display_max + separator_count
+
         while item_list:
             slice = item_list[:table_display_max]
             data['pages'].append(slice)
