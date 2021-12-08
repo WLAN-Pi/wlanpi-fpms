@@ -136,6 +136,7 @@ device = get_device(actual_args=actual_args)
 
 # Init function of the OLED
 def init():
+    device.contrast(128)
     return True
 
 def setNormalDisplay():
