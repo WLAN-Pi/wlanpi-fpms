@@ -161,7 +161,8 @@ optional options:
         'last_button_press_count': 0,   # copy of count of button pressses used in main loop
         'pageSleepCountdown': PAGE_SLEEP, # Set page sleep control
         'home_page_name': "Home",       # Display name for top level menu
-        'blinker_status': False,
+        'blinker_status': False,        # Blinker status
+        'eth_carrier_status': 0,        # Eth0 physical link status
     }
 
     ############################
@@ -697,6 +698,26 @@ optional options:
         e.start()
 
     ##############################################################################
+    # Helper functions
+    ##############################################################################
+
+    def check_eth():
+        '''
+        Detects a change in the status of the Ethernet port and wakes up
+        the screen if necessary
+        '''
+        try:
+            cmd = "cat /sys/class/net/eth0/carrier"
+            carrier = int(subprocess.check_output(cmd, shell=True).decode().strip())
+            if g_vars['eth_carrier_status'] == 0:
+                if carrier == 1:
+                    g_vars['screen_cleared'] = False
+                    g_vars['pageSleepCountdown'] = PAGE_SLEEP
+            g_vars['eth_carrier_status'] = carrier
+        except subprocess.CalledProcessError as exc:
+            pass
+
+    ##############################################################################
     # Constant 'while' loop to paint images on display or execute actions in
     # response to selections made with buttons. When any of the 3 WLANPi buttons
     # are pressed, I believe the signal handler takes over the Python interpreter
@@ -720,6 +741,9 @@ optional options:
     while running:
 
         try:
+
+            # check if eth0 link status has changed so we exit from screen save if needed
+            check_eth()
 
             if g_vars['shutdown_in_progress'] or g_vars['screen_cleared'] or g_vars['drawing_in_progress'] or g_vars['sig_fired']:
 
@@ -773,7 +797,6 @@ optional options:
 
             # have a nap before we start our next loop
             time.sleep(1)
-
 
         except KeyboardInterrupt:
             break
