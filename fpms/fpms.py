@@ -361,9 +361,9 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_date(g_vars)
 
-    def show_wlanpi_ver():
+    def show_about():
         system_obj = System(g_vars)
-        system_obj.wlanpi_version(g_vars)
+        system_obj.show_about(g_vars)
 
     #############################
     # Button presses & home page
@@ -482,7 +482,7 @@ optional options:
             {"name": "Summary", "action": show_summary},
             {"name": "Battery", "action": show_battery},
             {"name": "Date/Time", "action": show_date},
-            {"name": "Version", "action": show_wlanpi_ver},
+            {"name": "About", "action": show_about},
         ]
         },
     ]

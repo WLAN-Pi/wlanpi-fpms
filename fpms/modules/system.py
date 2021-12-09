@@ -3,10 +3,12 @@ import time
 import os
 import subprocess
 import socket
+import random
 
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.pagedtable import *
 from fpms.modules.constants import (
     SMART_FONT,
     FONT12,
@@ -22,6 +24,9 @@ class System(object):
 
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
+
+        # create paged table
+        self.paged_table_obj = PagedTable(g_vars)
 
         # create alert
         self.alert_obj = Alert(g_vars)
@@ -143,5 +148,32 @@ class System(object):
         g_vars['display_state'] = 'page'
         g_vars['drawing_in_progress'] = False
 
-    def wlanpi_version(self, g_vars):
-        self.simple_table_obj.display_simple_table(g_vars, [ g_vars['wlanpi_ver'] ], title="Version")
+    def show_about(self, g_vars):
+
+        if g_vars['result_cache'] == True:
+            self.paged_table_obj.display_list_as_paged_table(g_vars, g_vars['about'], title="About")
+            return None
+
+
+        version = g_vars['wlanpi_ver']
+        authors = None
+        authors_file = os.path.realpath(os.path.join(os.getcwd(), "AUTHORS.md"))
+        if os.path.isfile(authors_file):
+            with open(authors_file) as f:
+                authors = "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
+
+        about = []
+        about.append("")
+        about.append(version.center(20, " "))
+        about.append("")
+
+        if authors != None:
+            authors_list = []
+            for author in authors.split("\n"):
+                author = author.replace("*", "").strip()
+                authors_list.append(author.split(",")[0].strip().center(20, " "))
+            random.shuffle(authors_list)
+            about.extend(authors_list)
+
+        g_vars['about'] = about
+        g_vars['result_cache'] = True
