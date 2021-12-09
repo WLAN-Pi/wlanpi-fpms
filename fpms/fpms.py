@@ -721,7 +721,7 @@ optional options:
 
         try:
 
-            if g_vars['shutdown_in_progress'] or g_vars['screen_cleared'] or g_vars['drawing_in_progress']:
+            if g_vars['shutdown_in_progress'] or g_vars['screen_cleared'] or g_vars['drawing_in_progress'] or g_vars['sig_fired']:
 
                 # we don't really want to do anything at the moment, lets
                 # nap and loop around

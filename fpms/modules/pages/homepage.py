@@ -12,15 +12,7 @@ from fpms.modules.pages.simpletable import *
 from fpms.modules.battery import *
 from fpms.modules.bluetooth import *
 from fpms.modules.themes import THEME
-from fpms.modules.constants import (
-    PLATFORM,
-    STATUS_BAR_HEIGHT,
-    SMART_FONT,
-    FONT11,
-    FONT14,
-    ICONS,
-    ETHTOOL_FILE
-)
+from fpms.modules.constants import *
 
 class HomePage(object):
 
@@ -68,9 +60,111 @@ class HomePage(object):
             # return extracted line
             return " ({})".format(msg)
         else:
-            return ''
+            return '15 Mbps/30 Mbps'
+
+    def if_address(self, if_name):
+        '''
+        Returns the IP address for the given interface
+        '''
+        ip_addr = "No IP address"
+
+        cmd = "ip addr show {}  2>/dev/null | grep -Po \'inet \K[\d.]+\' | head -n 1".format(if_name)
+        try:
+            output = subprocess.check_output(cmd, shell=True).decode().strip()
+            if len(output) > 0:
+                ip_addr = output
+        except Exception as ex:
+            pass
+
+        return ip_addr
+
+    def if_link_status(self, if_name):
+        '''
+        Returns the link status for the given interface
+        '''
+
+        status = None
+        try:
+            eth_info = subprocess.check_output(
+                '{} {} 2>/dev/null'.format(ETHTOOL_FILE, if_name), shell=True).decode()
+            speed_re = re.findall(r'Speed\: (.*\/s)', eth_info, re.MULTILINE)
+            duplex_re = re.findall(r'Duplex\: (.*)', eth_info, re.MULTILINE)
+            link_re = re.findall(r'Link detected\: (.*)',
+                                eth_info, re.MULTILINE)
+
+            if (speed_re is None) or (duplex_re is None) or (link_re is None):
+                # Our pattern matching failed...silently fail....we must set up logging at some stage
+                pass
+            elif (link_re[0] == "no"):
+                # Ethernet link is down, report msg instead of speed & duplex
+                status = "Link down"
+            else:
+                # Report the speed & duplex messages from ethtool
+                status = "{} {}".format(speed_re[0], duplex_re[0])
+
+        except Exception as ex:
+            # Something went wrong...show nothing
+            pass
+
+        return status
 
     def home_page(self, g_vars, menu):
+        if PLATFORM == "pro":
+            self.home_page_pro(g_vars, menu)
+        else:
+            self.home_page_legacy(g_vars, menu)
+
+    def home_page_pro(self, g_vars, menu):
+        x = 0
+        y = 0
+        padding = 2
+
+        g_vars['drawing_in_progress'] = True
+        g_vars['display_state'] = 'page'
+        canvas = g_vars['draw']
+
+        self.display_obj.clear_display(g_vars)
+
+        if_name = "eth0"
+        mode_name = "WLAN Pi Pro"
+        mode = self.default_mode
+
+        if g_vars['current_mode'] == "wconsole":
+            if_name = "wlan0"
+            mode_name = "Wi-Fi Console"
+            mode = self.wconsole_mode
+        elif g_vars['current_mode'] == "hotspot":
+            if_name = "wlan0"
+            mode_name = "Hotspot"
+            mode = self.hotspot_mode
+
+        elif g_vars['current_mode'] == "wiperf":
+            if_name = "wlan0"
+            mode_name = "Wiperf"
+            mode = self.wiperf_mode
+
+        elif g_vars['current_mode'] == "server":
+            if_name = "eth0"
+            mode_name = "DHCP Server"
+            mode = self.dhcp_server_mode
+
+        # Display status bar
+        y += self.status_bar(g_vars)
+        y += padding * 2
+
+        # Display mode
+        canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name, font=FONTB13, fill=THEME.text_highlighted_color.value)
+        y += 14 + padding * 2
+
+        mode(g_vars, x=x, y=y, padding=padding)
+
+        # Display system bar
+        self.system_bar(g_vars, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-1)
+
+        oled.drawImage(g_vars['image'])
+        g_vars['drawing_in_progress'] = False
+
+    def home_page_legacy(self, g_vars, menu):
 
         ethtool_file = ETHTOOL_FILE
 
@@ -144,44 +238,95 @@ class HomePage(object):
 
         self.display_obj.clear_display(g_vars)
 
-        if PLATFORM == "pro":
-            y += self.status_bar(g_vars)
-
         canvas = g_vars['draw']
-        canvas.text((x + padding, y + 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_foreground.value)
-        canvas.text((x + padding, y + 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_foreground.value)
-        canvas.text((x + padding + 95, y + 20), if_name, font=SMART_FONT, fill=THEME.text_foreground.value)
-        canvas.text((x + padding, y + 29), str(ip_addr), font=FONT14, fill=THEME.text_foreground.value)
-        canvas.text((x + padding, y + 43), str(mode_name), font=SMART_FONT, fill=THEME.text_foreground.value)
+        canvas.text((x + padding, y + 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_color.value)
+        canvas.text((x + padding, y + 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_color.value)
+        canvas.text((x + padding + 95, y + 20), if_name, font=SMART_FONT, fill=THEME.text_color.value)
+        canvas.text((x + padding, y + 29), str(ip_addr), font=FONT14, fill=THEME.text_color.value)
+        canvas.text((x + padding, y + 43), str(mode_name), font=SMART_FONT, fill=THEME.text_color.value)
 
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False
         return
 
-    def status_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=STATUS_BAR_HEIGHT):
+    def iface_details(self, g_vars, if_name, x=0, y=0, padding=2):
+        '''
+        Displays the IP address and link status details for the given interface
+        '''
 
         canvas = g_vars['draw']
+        offset = 0
 
-        canvas.rectangle((x, y, width, height), fill=THEME.status_bar_background.value)
-        y += 2
-        canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
+        addr = self.if_address(if_name)
+        link_status = self.if_link_status(if_name)
+        if addr != None:
+            canvas.text((x + (PAGE_WIDTH - FONTB12.getsize(addr)[0])/2, y + padding + offset), addr, font=FONTB12, fill=THEME.text_color.value)
+            offset += 13
+        if link_status != None:
+            canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(link_status)[0])/2, y + padding + offset), link_status, font=SMART_FONT, fill=THEME.text_secondary_color.value)
+            offset += 11
 
-        # Battery indicator
-        self.battery_indicator(g_vars, x, y, width, height)
+        return offset
 
-        # Bluetooth indicator
-        self.bluetooth_indicator(g_vars, x, y, width, height)
+    def default_mode(self, g_vars, x=0, y=0, padding=2):
+        canvas = g_vars['draw']
+        y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+        y += 12
 
-        return height
+        # If bluetooth is on and we're paired with a device, show the PAN address
+        bluetooth = Bluetooth(g_vars)
+        if bluetooth.bluetooth_power() == True:
+            paired_devices = bluetooth.bluetooth_paired_devices()
+            if paired_devices != None:
+                pan = self.if_address("pan0")
+                if pan != "No IP address":
+                    pan_info = f"PAN: {pan}"
+                    canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(pan_info)[0])/2, y), pan_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+                    y += 11
+
+        # If the eth0 interface link is down, show the USB (OTG) address
+        eth_link_status = self.if_link_status("eth0")
+        if eth_link_status == "Link down":
+            usb = self.if_address("usb0")
+            if usb != "No IP address":
+                usb_info = f"USB: {usb}"
+                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(usb_info)[0])/2, y), usb_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+                y += 11
+
+    def hotspot_mode(self, g_vars, x=0, y=0, padding=2):
+        canvas = g_vars['draw']
+        y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
+        y += 12
+        clients = self.wifi_client_count() + " clients"
+        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(clients)[0])/2, y), clients, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+
+    def wconsole_mode(self, g_vars, x=0, y=0, padding=2):
+        self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
+
+    def wiperf_mode(self, g_vars, x=0, y=0, padding=2):
+        canvas = g_vars['draw']
+        y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
+        y += 12
+        status = self.check_wiperf_status()
+        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(status)[0])/2, y), status, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+
+    def dhcp_server_mode(self, g_vars, x=0, y=0, padding=2):
+        self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
     def bluetooth_indicator(self, g_vars, x, y, width, height):
+        '''
+        Displays a bluetooth icon if bluetooth is on
+        '''
         bluetooth = Bluetooth(g_vars)
         canvas = g_vars['draw']
         if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
             canvas.text((width - 30, y + 1), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
 
     def battery_indicator(self, g_vars, x, y, width, height):
+        '''
+        Displays a battery indicator that shows charge level and power status
+        '''
         battery = Battery(g_vars)
         offset  = 20
 
@@ -229,3 +374,37 @@ class HomePage(object):
                 (bx + battery_indicator_width/2 + 1, by + battery_indicator_height/2 - 1)
                 ]
                 canvas.polygon(xy, fill=THEME.status_bar_foreground.value, outline=THEME.status_bar_background.value)
+
+    def status_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=STATUS_BAR_HEIGHT):
+
+        canvas = g_vars['draw']
+
+        canvas.rectangle((x, y, width, height), fill=THEME.status_bar_background.value)
+        y += 2
+        canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
+
+        # Battery indicator
+        self.battery_indicator(g_vars, x, y, width, height)
+
+        # Bluetooth indicator
+        self.bluetooth_indicator(g_vars, x, y, width, height)
+
+        return height
+
+    def system_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=SYSTEM_BAR_HEIGHT):
+
+        canvas = g_vars['draw']
+
+        # Draw background
+        canvas.rectangle((x, y, width, y + height), fill=THEME.system_bar_background.value)
+
+        # Draw hostname
+        hostname = g_vars['hostname']
+        canvas.text((x + padding, y + padding), hostname, font=SMART_FONT, fill=THEME.system_bar_foreground.value)
+
+        # Draw version
+        version = g_vars['wlanpi_ver'].split()[-1]
+        size = SMART_FONT.getsize(version)
+        canvas.text((width - size[0] - padding, y + padding), version, font=SMART_FONT, fill=THEME.system_bar_foreground.value)
+
+        return height

@@ -118,13 +118,7 @@ class Button(object):
         elif (isinstance(g_vars['option_selected'], types.FunctionType)):
             # if we have a function (dispatcher), execute it
             g_vars['display_state'] = 'page'
-            # Adrian's Note (12/08/2021): I'm commenting out this call because
-            # it may result in the function (dispatcher) been called twice in
-            # a quick succession, causing undesired effects. If there's a
-            # function to be called, it'll be called by the main loop in
-            # the next iteration.
-            #g_vars['option_selected']()
-
+            g_vars['option_selected']()
 
     def menu_left(self, g_vars, menu):
 
