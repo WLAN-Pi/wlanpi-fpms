@@ -78,6 +78,10 @@ class Page(object):
                     section_name.append(item_name)
                     item_name = "*" + item_name
 
+                # this item contains a list of options, append name with '>'
+                if (type(menu_item['action']) is list):
+                    item_name = item_name + ">"
+
                 menu_list.append((item_name))
 
                 item_counter = item_counter + 1
@@ -127,22 +131,35 @@ class Page(object):
         # paint the menu items, highlighting selected menu item
         for menu_item in menu_list:
 
+            nav = False
+
             rect_fill = THEME.page_item_background.value
             text_fill = THEME.page_item_foreground.value
+            nav_fill  = THEME.page_nav_indicator_foreground.value
             font_type = FONT11
+
+            # this is a menu item that has more options: remove > character
+            if (menu_item[-1] == '>'):
+                text_fill = THEME.page_nav_item_foreground.value
+                font_type = FONTB11
+                nav = True
+                menu_item = menu_item[:-1]
 
             # this is selected menu item: highlight it and remove * character
             if (menu_item[0] == '*'):
                 rect_fill = THEME.page_selected_item_background.value
                 text_fill = THEME.page_selected_item_foreground.value
-                font_type = FONTB11
+                nav_fill  = THEME.page_selected_item_foreground.value
                 menu_item = menu_item[1:len(menu_item)]
 
-            # convert menu item to std width format with nav indicator
-            menu_item = "{:<17}>".format(menu_item)
-
             g_vars['draw'].rectangle((0, y, PAGE_WIDTH, y+y_offset), fill=rect_fill)
-            g_vars['draw'].text((2, y), menu_item,  font=font_type, fill=text_fill)
+            g_vars['draw'].text((1, y), menu_item,  font=font_type, fill=text_fill)
+
+            # draw navigation indicator
+            if nav:
+                g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+3)], fill=nav_fill, width=1)
+                g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+y_offset-3)], fill=nav_fill, width=1)
+
             y += y_offset
 
         oled.drawImage(g_vars['image'])

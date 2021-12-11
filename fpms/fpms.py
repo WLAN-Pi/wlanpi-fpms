@@ -388,6 +388,10 @@ optional options:
         button_obj = Button(g_vars, menu)
         button_obj.menu_right(g_vars, menu)
 
+    def menu_center():
+        button_obj = Button(g_vars, menu)
+        button_obj.menu_center(g_vars, menu)
+
     #######################
     # menu structure here
     #######################
@@ -582,7 +586,7 @@ optional options:
         # Center key
         if gpio_pin == CENTER_KEY:
             g_vars['sig_fired'] = True
-            pass
+            menu_center()
             g_vars['sig_fired'] = False
             return
 

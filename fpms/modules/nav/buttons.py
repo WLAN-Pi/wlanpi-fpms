@@ -100,25 +100,12 @@ class Button(object):
         if self._at_home_page(g_vars):
             return self._display_top_menu(g_vars, menu)
 
-        # If we are in a table, scroll up (unless at top of list)
-        if g_vars['display_state'] == 'page':
-            if g_vars['current_scroll_selection'] == 0:
-                return
-            else:
-                g_vars['current_scroll_selection'] -= 1
-                return
-
         # Check if the "action" field at the current location is an
-        # array or a function.
-
-        # if we have an array, append the current selection and re-draw menu
+        # array or a function. If we have an array, append the current
+        # selection and re-draw menu
         if (type(g_vars['option_selected']) is list):
             g_vars['current_menu_location'].append(0)
             self.page_obj.draw_page(g_vars, menu)
-        elif (isinstance(g_vars['option_selected'], types.FunctionType)):
-            # if we have a function (dispatcher), execute it
-            g_vars['display_state'] = 'page'
-            g_vars['option_selected']()
 
     def menu_left(self, g_vars, menu):
 
@@ -146,3 +133,19 @@ class Button(object):
         else:
             g_vars['display_state'] = 'menu'
             self.page_obj.draw_page(g_vars, menu)
+
+    def menu_center(self, g_vars, menu):
+
+        # make sure we know speedtest is done
+        g_vars['speedtest_status'] = False
+
+        # Check if the "action" field at the current location is an
+        # array or a function. If we have an array, append the current
+        # selection and re-draw menu
+        if (type(g_vars['option_selected']) is list):
+            g_vars['current_menu_location'].append(0)
+            self.page_obj.draw_page(g_vars, menu)
+        elif (isinstance(g_vars['option_selected'], types.FunctionType)):
+            # if we have a function (dispatcher), execute it
+            g_vars['display_state'] = 'page'
+            g_vars['option_selected']()
