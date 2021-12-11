@@ -16,6 +16,7 @@ class BlackAndWhiteTheme(Enum):
     text_secondary_color          = "white"
     text_tertiary_color           = "white"
     text_highlighted_color        = "white"
+    text_important_color          = "white"
     status_bar_foreground         = "black"
     status_bar_background         = "white"
     status_bar_battery_low        = "white"
@@ -76,6 +77,7 @@ class LightTheme(Enum):
     simple_table_title_background = "#f9c642"
     simple_table_row_foreground   = "#323a45"
     simple_table_row_background   = "#e4e2e0"
+    text_important_color          = 255
     alert_info_title_foreground   = "white"
     alert_info_title_background   = "#2e8540"
     alert_error_title_foreground  = "white"
@@ -90,6 +92,7 @@ class DarkTheme(Enum):
     text_secondary_color          = "#aeb0b5"
     text_tertiary_color           = "#4773aa"
     text_highlighted_color        = "#f9c642"
+    text_important_color          = 255
     status_bar_foreground         = "white"
     status_bar_background         = "#0071bc"
     status_bar_battery_low        = "#fdb81e"
@@ -100,7 +103,7 @@ class DarkTheme(Enum):
     page_title_background         = "#205493"
     page_item_foreground          = "white"
     page_item_background          = "black"
-    page_nav_item_foreground      = "#939499"
+    page_nav_item_foreground      = "#a6a7ad"
     page_nav_indicator_foreground = "#4773aa"
     page_selected_item_foreground = "black"
     page_selected_item_background = "#f9c642"
@@ -121,7 +124,7 @@ class DarkTheme(Enum):
     alert_popup_foreground        = "white"
     alert_popup_background        = "#5b616b"
 
-if PLATFORM == "pro":
+if PLATFORM == "pro1":
     THEME = DarkTheme
 else:
     THEME = BlackAndWhiteTheme

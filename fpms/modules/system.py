@@ -5,13 +5,16 @@ import subprocess
 import socket
 import random
 
+from PIL import ImageFont
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
 from fpms.modules.pages.pagedtable import *
 from fpms.modules.constants import (
     SMART_FONT,
+    FONT11,
     FONT12,
+    FONT13,
     FONTB14,
 )
 
@@ -134,14 +137,31 @@ class System(object):
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
-        text = time.strftime("%A")
-        g_vars['draw'].text((1, 0), text, font=FONT12, fill=255)
-        text = time.strftime("%e %b %Y")
-        g_vars['draw'].text((1, 13), text, font=FONT12, fill=255)
+        clock_font = ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 18)
+        margin = 2
+
+        # Draw time
         text = time.strftime("%X")
-        g_vars['draw'].text((1, 26), text, font=FONTB14, fill=255)
-        text = time.strftime("%Z")
-        g_vars['draw'].text((1, 41), "TZ: " + text, font=FONT12, fill=255)
+        text_size = clock_font.getsize(text)
+        x = (PAGE_WIDTH - text_size[0])/2
+        y = PAGE_HEIGHT/4
+        g_vars['draw'].text((x, y), text, font=clock_font, fill=THEME.text_important_color.value)
+        y = PAGE_HEIGHT/4 + text_size[1]
+
+        # Draw date
+        text = time.strftime("%e %b. %Y")
+        text_size = FONT13.getsize(text)
+        x = (PAGE_WIDTH - text_size[0])/2
+        y = y + margin * 2
+        g_vars['draw'].text((x, y), text, font=FONT13, fill=THEME.text_color.value)
+        y = y + text_size[1] + margin
+
+        # Draw timezone
+        text = "Timezone: " + time.strftime("%Z")
+        text_size = FONT11.getsize(text)
+        x = (PAGE_WIDTH - text_size[0])/2
+        y = y + margin * 3
+        g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_secondary_color.value)
 
         oled.drawImage(g_vars['image'])
 
