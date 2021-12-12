@@ -1,3 +1,13 @@
+wlanpi-fpms (1.2.0) unstable; urgency=medium
+
+  * New splash screen
+  * New navigation logic that uses center button for "action/select" and right
+    button for "next" navigation only
+  * Adds Public IP option for IPv6 and fixes formatting errors when displaying
+    public IPv6 information
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 12 Dec 2021 00:09:37 -0600
+
 wlanpi-fpms (1.1.4) unstable; urgency=medium
 
   * Adds Bluetooth > Pair device which starts pairing of a new device and removes previously paired deviced
