@@ -636,10 +636,10 @@ optional options:
     for image in splash_screen_images:
         img = Image.open(image).convert(DISPLAY_MODE)
         oled.drawImage(img)
-        time.sleep(0.125)
+        time.sleep(0.100)
 
     # Leave logo on screen some more time
-    time.sleep(1.5)
+    time.sleep(2)
 
     ###############################################################################
     # Buttons setup
