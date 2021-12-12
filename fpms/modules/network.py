@@ -12,6 +12,7 @@ from fpms.modules.constants import (
     CDPNEIGH_FILE,
     IPCONFIG_FILE,
     PUBLICIP_CMD,
+    PUBLICIP6_CMD,
     ETHTOOL_FILE,
     IFCONFIG_FILE,
     IWCONFIG_FILE,
@@ -395,16 +396,17 @@ class Network(object):
         #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--CDP Neighbour--')
         self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='CDP Neighbour')
 
-    def show_publicip(self, g_vars):
+    def show_publicip(self, g_vars, ip_version=4):
         '''
         Shows public IP address and related details, works with any interface with internet connectivity
         '''
 
         publicip_info = []
+        cmd = PUBLICIP6_CMD if ip_version == 6 else PUBLICIP_CMD
 
         try:
             publicip_output = subprocess.check_output(
-                PUBLICIP_CMD, shell=True).decode().strip()
+                cmd, shell=True).decode().strip()
             publicip_info = publicip_output.split('\n')
         except subprocess.CalledProcessError:
             self.alert_obj.display_alert_error(g_vars, "Failed to detect public IP address")
@@ -426,4 +428,6 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Public IP')
+        title = "Public IPv6" if ip_version == 6 else "Public IPv4"
+
+        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title=title, justify=False)

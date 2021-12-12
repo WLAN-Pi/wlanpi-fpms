@@ -229,6 +229,10 @@ optional options:
         network_obj = Network(g_vars)
         network_obj.show_publicip(g_vars)
 
+    def show_publicip6():
+        network_obj = Network(g_vars)
+        network_obj.show_publicip(g_vars, ip_version=6)
+
     ###########################
     # Bluetooth menu area
     ###########################
@@ -388,6 +392,10 @@ optional options:
         button_obj = Button(g_vars, menu)
         button_obj.menu_right(g_vars, menu)
 
+    def menu_center():
+        button_obj = Button(g_vars, menu)
+        button_obj.menu_center(g_vars, menu)
+
     #######################
     # menu structure here
     #######################
@@ -401,7 +409,8 @@ optional options:
             {"name": "Eth0 VLAN", "action": show_vlan},
             {"name": "LLDP Neighbour", "action": show_lldp_neighbour},
             {"name": "CDP Neighbour", "action": show_cdp_neighbour},
-            {"name": "Public IP", "action": show_publicip},
+            {"name": "Public IPv4", "action": show_publicip},
+            {"name": "Public IPv6", "action": show_publicip6},
         ]
         },
         {"name": "Bluetooth", "action": [
@@ -582,7 +591,7 @@ optional options:
         # Center key
         if gpio_pin == CENTER_KEY:
             g_vars['sig_fired'] = True
-            pass
+            menu_center()
             g_vars['sig_fired'] = False
             return
 
@@ -593,8 +602,9 @@ optional options:
     ###############################################################################
 
     # First time around (power-up), draw logo on display
+    '''
     rogues_gallery = [
-        IMAGE_DIR + '/wlanprologo.png',
+        IMAGE_DIR + '/wlanprologo',
         IMAGE_DIR + '/wlanprologo.png',
         IMAGE_DIR + '/joshschmelzle.png',
         IMAGE_DIR + '/crv.png',
@@ -606,10 +616,34 @@ optional options:
 
     random_image = random.choice(rogues_gallery)
     image0 = Image.open(random_image).convert(DISPLAY_MODE)
+    oled.drawImage(image0)
+    time.sleep(2.0)
+    '''
 
-    #oled.drawImage(image0)
-    #time.sleep(2)
+    ###############################################################################
+    # Splash screen
+    ###############################################################################
 
+    # First time around (power-up), animate logo on display
+    splash_screen_images = [
+        IMAGE_DIR + '/wlanpi0.png',
+        IMAGE_DIR + '/wlanpi1.png',
+        IMAGE_DIR + '/wlanpi2.png',
+        IMAGE_DIR + '/wlanpi3.png',
+        IMAGE_DIR + '/wlanpi4.png'
+    ]
+
+    for image in splash_screen_images:
+        img = Image.open(image).convert(DISPLAY_MODE)
+        oled.drawImage(img)
+        time.sleep(0.100)
+
+    # Leave logo on screen some more time
+    time.sleep(2)
+
+    ###############################################################################
+    # Buttons setup
+    ###############################################################################
     if emulate:
         Device.pin_factory = MockFactory()
 

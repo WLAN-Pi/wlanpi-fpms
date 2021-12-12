@@ -47,19 +47,21 @@ class Alert(object):
 
         # write title if present
         self.draw.rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background)
-        self.draw.text((x + padding, y + font_offset), title.center(item_length_max, " "),  font=SMART_FONT, fill=title_foreground)
+        title_size = SMART_FONT.getsize(title)
+        self.draw.text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title,  font=SMART_FONT, fill=title_foreground)
         font_offset += font_size + padding
 
         y += font_offset
 
-        item_length_max = 17
+        #item_length_max = 21
 
         for item in item_list:
 
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            self.draw.text((x + padding, y + font_offset), item.center(item_length_max, " "),
+            item_size = font_type.getsize(item)
+            self.draw.text((x + (PAGE_WIDTH - item_size[0])/2, y + font_offset), item,
                             font=font_type, fill=THEME.alert_message_foreground.value)
 
             font_offset += font_size
@@ -116,7 +118,8 @@ class Alert(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            self.draw.text((x, y + font_offset), item.center(item_length_max, " "),
+            text_size = FONT11.getsize(item)
+            self.draw.text((x + (PAGE_WIDTH - text_size[0])/2, y + font_offset), item,
                 font=FONT11, fill=THEME.alert_popup_foreground.value)
             font_offset += font_size
 

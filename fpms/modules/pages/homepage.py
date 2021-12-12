@@ -126,7 +126,7 @@ class HomePage(object):
         self.display_obj.clear_display(g_vars)
 
         if_name = "eth0"
-        mode_name = "WLAN Pi Pro"
+        mode_name = "Classic Mode"
         mode = self.default_mode
 
         if g_vars['current_mode'] == "wconsole":
