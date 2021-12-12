@@ -101,14 +101,15 @@ class Page(object):
             # otherwise show the name of the parent menu item
             page_name = section_name[-2]
 
-        page_title = page_name.center(17, " ").upper()
+        page_title = page_name.upper()
 
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
         # paint the page title
         g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_title_background.value)
-        g_vars['draw'].text((1, 0), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
+        title_size = FONTB12.getsize(page_title)
+        g_vars['draw'].text(((PAGE_WIDTH - title_size[0])/2, 0), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
 
         # vertical starting point for menu (under title) & incremental offset for
         # subsequent items

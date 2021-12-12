@@ -61,8 +61,8 @@ class PagedTable(object):
             title += " ({}/{})".format(g_vars['current_scroll_selection'] + 1, total_pages)
 
         g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_table_title_background.value)
-        g_vars['draw'].text((x + padding, y + font_offset), title.center(item_length_max,
-                                                    " "),  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
+        title_size = SMART_FONT.getsize(title)
+        g_vars['draw'].text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title,  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
 
         font_offset += font_size + padding + padding
 

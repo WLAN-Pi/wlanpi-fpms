@@ -229,6 +229,10 @@ optional options:
         network_obj = Network(g_vars)
         network_obj.show_publicip(g_vars)
 
+    def show_publicip6():
+        network_obj = Network(g_vars)
+        network_obj.show_publicip(g_vars, ip_version=6)
+
     ###########################
     # Bluetooth menu area
     ###########################
@@ -405,7 +409,8 @@ optional options:
             {"name": "Eth0 VLAN", "action": show_vlan},
             {"name": "LLDP Neighbour", "action": show_lldp_neighbour},
             {"name": "CDP Neighbour", "action": show_cdp_neighbour},
-            {"name": "Public IP", "action": show_publicip},
+            {"name": "Public IPv4", "action": show_publicip},
+            {"name": "Public IPv6", "action": show_publicip6},
         ]
         },
         {"name": "Bluetooth", "action": [

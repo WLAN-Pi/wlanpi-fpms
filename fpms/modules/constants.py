@@ -87,6 +87,7 @@ CDPNEIGH_FILE = '/tmp/cdpneigh.txt'
 IPCONFIG_FILE = '/opt/wlanpi-common/networkinfo/ipconfig.sh 2>/dev/null'
 REACHABILITY_FILE = '/opt/wlanpi-common/networkinfo/reachability.sh'
 PUBLICIP_CMD = '/opt/wlanpi-common/networkinfo/publicip.sh'
+PUBLICIP6_CMD = '/opt/wlanpi-common/networkinfo/publicip6.sh'
 BLINKER_FILE = '/opt/wlanpi-common/networkinfo/portblinker.sh'
 
 # Battery status file
