@@ -98,7 +98,7 @@ class PagedTable(object):
                     g_vars['draw'].line([(x, y + font_offset + 2), (PAGE_WIDTH, y + font_offset + 2)], fill=THEME.page_table_row_separator.value)
                     font_offset += 3
                 else:
-                    g_vars['draw'].text((x + padding, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
+                    g_vars['draw'].text((x, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
                     font_offset += font_size
 
         oled.drawImage(g_vars['image'])
@@ -133,6 +133,9 @@ class PagedTable(object):
 
         # adjust max number of lines
         table_display_max = table_display_max + separator_count
+
+        # split long lines
+        item_list = self.string_formatter.split(item_list)
 
         while item_list:
             slice = item_list[:table_display_max]

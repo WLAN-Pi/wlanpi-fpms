@@ -132,14 +132,7 @@ class Bluetooth(object):
                 status.append("Name:" + paired_devices[mac])
                 status.append("Addr:" + mac.replace(":", ""))
 
-        choppedoutput = []
-
-        for item in status:
-            choppedoutput.append(item[0:20])
-            if len(item) > 20:
-                choppedoutput.append(item[20:40])
-
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title="Status")
+        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Status")
 
         g_vars['display_state'] = 'page'
 

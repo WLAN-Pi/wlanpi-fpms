@@ -1,3 +1,4 @@
+from textwrap import wrap
 
 class StringFormatter(object):
 
@@ -16,3 +17,12 @@ class StringFormatter(object):
                 return text[:index] + (' ' * (width - len(text))) + text[index:]
 
         return text
+
+    def split(self, lines, length=21):
+        '''
+        Split lines that are longer than the given length
+        '''
+        new_lines = []
+        for line in lines:
+            new_lines.extend([line[i:i+length] for i in range(0, len(line), length)])
+        return new_lines

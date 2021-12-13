@@ -10,7 +10,6 @@ from fpms.modules.themes import THEME
 from fpms.modules.constants import (
     STATUS_BAR_HEIGHT,
     SMART_FONT,
-    FONT11,
     MAX_TABLE_LINES,
 )
 
@@ -41,7 +40,7 @@ class Alert(object):
         padding = 2
         font_offset = 2
 
-        font_type = FONT11
+        font_type = SMART_FONT
         font_size = 11
         item_length_max = 21
 
@@ -102,7 +101,7 @@ class Alert(object):
 
         font_offset = 2
         margin = 10
-        font_size = FONT11.getsize(msg)[1]
+        font_size = SMART_FONT.getsize(msg)[1]
 
         rect_height = font_size * len(item_list) + (font_offset * 2)
 
@@ -118,9 +117,9 @@ class Alert(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            text_size = FONT11.getsize(item)
+            text_size = SMART_FONT.getsize(item)
             self.draw.text((x + (PAGE_WIDTH - text_size[0])/2, y + font_offset), item,
-                font=FONT11, fill=THEME.alert_popup_foreground.value)
+                font=SMART_FONT, fill=THEME.alert_popup_foreground.value)
             font_offset += font_size
 
         oled.drawImage(g_vars['image'])

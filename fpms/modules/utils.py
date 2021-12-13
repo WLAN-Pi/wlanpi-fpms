@@ -54,14 +54,7 @@ class Utils(object):
             if len(speedtest_info) == 0:
                 speedtest_info.append("No output sorry")
 
-            # chop down output to fit up to 2 lines on display
-            g_vars['speedtest_result_text'] = []
-
-            for n in speedtest_info:
-                g_vars['speedtest_result_text'].append(n[0:20])
-                if len(n) > 20:
-                    g_vars['speedtest_result_text'].append(n[20:40])
-
+            g_vars['speedtest_result_text'] = speedtest_info
             g_vars['speedtest_status'] = True
 
         # re-enable front panel keys
@@ -117,19 +110,11 @@ class Utils(object):
         if len(reachability_info) == 0:
             reachability_info.append("No output sorry")
 
-        # chop down output to fit up to 2 lines on display
-        choppedoutput = []
-
-        for n in reachability_info:
-            choppedoutput.append(n[0:20])
-            if len(n) > 20:
-                choppedoutput.append(n[20:40])
-
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Reachability')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title='Reachability')
 
     def show_wpa_passphrase(self, g_vars):
         '''
@@ -152,15 +137,7 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        # chop down output to fit up to 2 lines on display
-        choppedoutput = []
-
-        for n in wpa_passphrase:
-            choppedoutput.append(n[0:20])
-            if len(n) > 20:
-                choppedoutput.append(n[20:40])
-
-        self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='WPA Passphrase')
+        self.simple_table_obj.display_simple_table(g_vars, wpa_passphrase, title='WPA Passphrase')
 
     def show_usb(self, g_vars):
         '''
@@ -183,10 +160,6 @@ class Utils(object):
         interfaces = []
 
         for result in lsusb_info:
-
-            # chop down the string to fit the display
-            result = result[0:19]
-
             interfaces.append(result)
 
         if len(interfaces) == 0:
