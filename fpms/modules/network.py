@@ -202,15 +202,7 @@ class Network(object):
             except Exception as e:
                 print(e)
 
-            # chop down output to fit up to 2 lines on display
-            choppedoutput = []
-
-            for item in page:
-                choppedoutput.append(item[0:20])
-                if len(item) > 20:
-                    choppedoutput.append(item[20:40])
-
-            pages.append(choppedoutput)
+            pages.append(page)
 
         self.paged_table_obj.display_paged_table(g_vars, { 'title' : "WLAN Interfaces", 'pages': pages })
 
@@ -240,28 +232,20 @@ class Network(object):
             self.simple_table_obj.display_simple_table(g_vars, ipconfigerror)
             return
 
-        if len(ipconfig_info) == 0:
-            eth0_ipconfig_info.append("Nothing to display")
-
         for n in ipconfig_info:
             # do some cleanup
             n = n.replace("DHCP server name", "DHCP")
             n = n.replace("DHCP server address", "DHCP IP")
             eth0_ipconfig_info.append(n)
 
-        # chop down output to fit up to 2 lines on display
-        choppedoutput = []
-
-        for n in eth0_ipconfig_info:
-            choppedoutput.append(n[0:20])
-            if len(n) > 20:
-                choppedoutput.append(n[20:40])
-
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='Eth0 IP Config')
+        if len(ipconfig_info) <= 1:
+            self.alert_obj.display_alert_error(g_vars, "Eth0 is down or not connected.")
+        else:
+            self.paged_table_obj.display_list_as_paged_table(g_vars, eth0_ipconfig_info, title='Eth0 IP Config')
 
         return
 
@@ -287,10 +271,6 @@ class Network(object):
 
                 if len(vlan_info) == 0:
                     vlan_info.append("No VLAN found")
-
-                # final chop down of the string to fit the display
-                for n in vlan_info:
-                    n = n[0:19]
 
             except:
                 vlan_info = ["No VLAN found"]
@@ -327,26 +307,11 @@ class Network(object):
         if len(neighbour_info) == 0:
             neighbour_info.append("No neighbour")
 
-        # chop down output to fit up to 2 lines on display
-        choppedoutput = []
-
-        for n in neighbour_info:
-            choppedoutput.append(n[0:20])
-            if len(n) > 20:
-                choppedoutput.append(n[20:40])
-            if len(n) > 40:
-                choppedoutput.append(n[40:60])
-            if len(n) > 60:
-                choppedoutput.append(n[60:80])
-            if len(n) > 80:
-                choppedoutput.append(n[80:100])
-
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
-        #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--LLDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='LLDP Neighbour')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, neighbour_info, title='LLDP Neighbour')
 
 
     def show_cdp_neighbour(self, g_vars):
@@ -375,26 +340,11 @@ class Network(object):
         if len(neighbour_info) == 0:
             neighbour_info.append("No neighbour")
 
-        # chop down output to fit up to 2 lines on display
-        choppedoutput = []
-
-        for n in neighbour_info:
-            choppedoutput.append(n[0:20])
-            if len(n) > 20:
-                choppedoutput.append(n[20:40])
-            if len(n) > 40:
-                choppedoutput.append(n[40:60])
-            if len(n) > 60:
-                choppedoutput.append(n[60:80])
-            if len(n) > 80:
-                choppedoutput.append(n[80:100])
-
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
-        #self.simple_table_obj.display_simple_table(g_vars, choppedoutput, title='--CDP Neighbour--')
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title='CDP Neighbour')
+        self.paged_table_obj.display_list_as_paged_table(g_vars, neighbour_info, title='CDP Neighbour')
 
     def show_publicip(self, g_vars, ip_version=4):
         '''
@@ -416,18 +366,10 @@ class Network(object):
             self.alert_obj.display_alert_error(g_vars, publicip_info[0])
             return
 
-        # chop down output to fit up to 2 lines on display
-        choppedoutput = []
-
-        for n in publicip_info:
-            choppedoutput.append(n[0:20])
-            if len(n) > 20:
-                choppedoutput.append(n[20:40])
-
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
 
         title = "Public IPv6" if ip_version == 6 else "Public IPv4"
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, choppedoutput, title=title, justify=False)
+        self.paged_table_obj.display_list_as_paged_table(g_vars, publicip_info, title=title, justify=False)

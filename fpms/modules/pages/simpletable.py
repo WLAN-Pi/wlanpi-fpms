@@ -42,7 +42,6 @@ class SimpleTable(object):
         font_offset = 2
         font_type = SMART_FONT
         font_size = 11
-        item_length_max = 21
         table_display_max = MAX_TABLE_LINES + 1
 
         # write title if present
@@ -72,15 +71,15 @@ class SimpleTable(object):
             table_bottom_entry = g_vars['current_scroll_selection'] + table_display_max
             item_list = item_list[g_vars['current_scroll_selection']: table_bottom_entry]
 
+        # split long lines
+        item_list = self.string_formatter.split(item_list)
+
         for item in item_list:
 
-            if len(item) > item_length_max:
-                item = item[0:item_length_max]
-
             if justify:
-                item = self.string_formatter.justify(item, width=item_length_max)
+                item = self.string_formatter.justify(item)
 
-            self.draw.text((x + padding, y + font_offset), item,
+            self.draw.text((x, y + font_offset), item,
                             font=font_type, fill=THEME.simple_table_row_foreground.value)
 
             font_offset += font_size

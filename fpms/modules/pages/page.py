@@ -133,33 +133,48 @@ class Page(object):
         for menu_item in menu_list:
 
             nav = False
+            sel = False
 
             rect_fill = THEME.page_item_background.value
             text_fill = THEME.page_item_foreground.value
-            nav_fill  = THEME.page_nav_indicator_foreground.value
-            font_type = FONT11
+            nav_fill  = THEME.page_item_foreground.value
+            icon_fill = THEME.page_icon_foreground.value
+            font_type = FONTB11
 
             # this is a menu item that has more options: remove > character
             if (menu_item[-1] == '>'):
-                text_fill = THEME.page_nav_item_foreground.value
-                font_type = FONTB11
                 nav = True
                 menu_item = menu_item[:-1]
 
             # this is selected menu item: highlight it and remove * character
             if (menu_item[0] == '*'):
+                sel = True
                 rect_fill = THEME.page_selected_item_background.value
                 text_fill = THEME.page_selected_item_foreground.value
                 nav_fill  = THEME.page_selected_item_foreground.value
+                icon_fill = THEME.page_selected_item_foreground.value
                 menu_item = menu_item[1:len(menu_item)]
 
             g_vars['draw'].rectangle((0, y, PAGE_WIDTH, y+y_offset), fill=rect_fill)
-            g_vars['draw'].text((1, y), menu_item,  font=font_type, fill=text_fill)
+            g_vars['draw'].text((10, y), menu_item,  font=font_type, fill=text_fill)
 
-            # draw navigation indicator
             if nav:
-                g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+3)], fill=nav_fill, width=1)
-                g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+y_offset-3)], fill=nav_fill, width=1)
+                # draw list icon
+                g_vars['draw'].line([(2, y+(y_offset/2)-2), (2, y+(y_offset/2)-2)], fill=icon_fill, width=1)
+                g_vars['draw'].line([(2, y+(y_offset/2)),   (2, y+(y_offset/2))  ], fill=icon_fill, width=1)
+                g_vars['draw'].line([(2, y+(y_offset/2)+2), (2, y+(y_offset/2)+2)], fill=icon_fill, width=1)
+                g_vars['draw'].line([(4, y+(y_offset/2)-2), (7, y+(y_offset/2)-2)], fill=icon_fill, width=1)
+                g_vars['draw'].line([(4, y+(y_offset/2)),   (7, y+(y_offset/2))  ], fill=icon_fill, width=1)
+                g_vars['draw'].line([(4, y+(y_offset/2)+2), (7, y+(y_offset/2)+2)], fill=icon_fill, width=1)
+                # draw nav indicator
+                g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+3)], fill=icon_fill, width=1)
+                g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+y_offset-3)], fill=icon_fill, width=1)
+            else:
+                # draw action icon
+                if sel:
+                    g_vars['draw'].ellipse((2, y+(y_offset/2)-2, 6, y+(y_offset/2)+2), fill=icon_fill)
+                else:
+                    g_vars['draw'].ellipse((2, y+(y_offset/2)-2, 6, y+(y_offset/2)+2), outline=icon_fill)
 
             y += y_offset
 

@@ -183,9 +183,9 @@ class System(object):
                 authors = "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
 
         about = []
-        about.append("")
+        about.append(" ")
         about.append(version.center(20, " "))
-        about.append("")
+        about.append(" ")
 
         if authors != None:
             authors_list = []
