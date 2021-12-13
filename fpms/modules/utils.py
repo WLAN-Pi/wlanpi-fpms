@@ -35,6 +35,7 @@ class Utils(object):
 
             # ignore any more key presses as this could cause us issues
             g_vars['disable_keys'] = True
+            g_vars['speedtest_result_text'] = None
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
@@ -51,16 +52,18 @@ class Utils(object):
                 g_vars['disable_keys'] = False
                 return
 
-            if len(speedtest_info) == 0:
-                speedtest_info.append("No output sorry")
+            if len(speedtest_info) > 1:
+                g_vars['speedtest_result_text'] = speedtest_info
 
-            g_vars['speedtest_result_text'] = speedtest_info
             g_vars['speedtest_status'] = True
 
         # re-enable front panel keys
         g_vars['disable_keys'] = False
 
-        self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='Speedtest')
+        if g_vars['speedtest_result_text'] == None:
+            self.alert_obj.display_alert_error(g_vars, "Failed to run speedtest.")
+        else:
+            self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='Speedtest')
 
     def show_blinker(self, g_vars):
         '''

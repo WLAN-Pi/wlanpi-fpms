@@ -232,9 +232,6 @@ class Network(object):
             self.simple_table_obj.display_simple_table(g_vars, ipconfigerror)
             return
 
-        if len(ipconfig_info) == 0:
-            eth0_ipconfig_info.append("Nothing to display")
-
         for n in ipconfig_info:
             # do some cleanup
             n = n.replace("DHCP server name", "DHCP")
@@ -245,7 +242,10 @@ class Network(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, eth0_ipconfig_info, title='Eth0 IP Config')
+        if len(ipconfig_info) <= 1:
+            self.alert_obj.display_alert_error(g_vars, "Eth0 is down or not connected.")
+        else:
+            self.paged_table_obj.display_list_as_paged_table(g_vars, eth0_ipconfig_info, title='Eth0 IP Config')
 
         return
 
