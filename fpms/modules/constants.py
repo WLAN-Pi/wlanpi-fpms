@@ -34,7 +34,7 @@ PAGE_SLEEP = 300             # Time in secs before sleep
 PAGE_WIDTH = 128             # Pixel size of screen width
 PAGE_HEIGHT = 64 + HEIGHT_OFFSET  # Pixel size of screen height
 NAV_BAR_TOP = 54 + HEIGHT_OFFSET  # Top pixel number of nav bar
-STATUS_BAR_HEIGHT = 15
+STATUS_BAR_HEIGHT = 16
 SYSTEM_BAR_HEIGHT = 15
 MENU_VERSION =  __version__  # fpms version
 
@@ -54,7 +54,7 @@ FONTB11 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 11)
 FONTB12 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 12)
 FONTB13 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 13)
 FONTB14 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 14)
-ICONS = ImageFont.truetype('fonts/ionicons.ttf', 10)
+ICONS = ImageFont.truetype('fonts/ionicons.ttf', 13)
 
 #######################################
 # File name constants

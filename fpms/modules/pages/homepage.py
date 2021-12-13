@@ -315,6 +315,50 @@ class HomePage(object):
     def dhcp_server_mode(self, g_vars, x=0, y=0, padding=2):
         self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
+    def temperature_indicator(self, g_vars, x, y, width, height):
+        '''
+        Displays a system temperature indicator
+        '''
+
+        temp_high  = 80 # thermal throttling kicks in
+        temp_med   = 65 # getting uncomfortable
+        temp_low   = 55 # getting warmer but ok
+
+        try:
+            temp = int(open('/sys/class/thermal/thermal_zone0/temp').read())
+        except:
+            temp = 0
+
+        if temp > 1000:
+            temp = temp/1000
+
+        canvas = g_vars['draw']
+        x = width - 34
+
+        if temp >= temp_high:
+            temp_color = THEME.status_bar_temp_high.value
+        elif temp >= temp_med:
+            temp_color = THEME.status_bar_temp_med.value
+        else:
+            temp_color = THEME.status_bar_temp_low.value
+
+        # draw thermometer
+        canvas.ellipse((x, y + 7, x + 6, y + 13), fill=temp_color)
+        canvas.rounded_rectangle((x + 2, y + 1, x + 4, y + 11), fill=THEME.status_bar_background.value, outline=temp_color, radius=1)
+
+        # draw marks
+        canvas.line((x + 6, y + 2, x + 7, y + 2), fill=temp_color)
+        canvas.line((x + 6, y + 4, x + 7, y + 4), fill=temp_color)
+        canvas.line((x + 6, y + 6, x + 7, y + 6), fill=temp_color)
+
+        # fill thermometer
+        if temp >= temp_high:
+            canvas.rounded_rectangle((x + 2, y + 2, x + 4, y + 11), fill=temp_color, radius=1)
+        elif temp >= temp_med:
+            canvas.rounded_rectangle((x + 2, y + 4, x + 4, y + 11), fill=temp_color, radius=1)
+        elif temp >= temp_low:
+            canvas.rounded_rectangle((x + 2, y + 6, x + 4, y + 11), fill=temp_color, radius=1)
+
     def bluetooth_indicator(self, g_vars, x, y, width, height):
         '''
         Displays a bluetooth icon if bluetooth is on
@@ -322,14 +366,14 @@ class HomePage(object):
         bluetooth = Bluetooth(g_vars)
         canvas = g_vars['draw']
         if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
-            canvas.text((width - 30, y + 1), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
+            canvas.text((width - 44, y), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
 
     def battery_indicator(self, g_vars, x, y, width, height):
         '''
         Displays a battery indicator that shows charge level and power status
         '''
         battery = Battery(g_vars)
-        offset  = 20
+        offset  = 22
 
         # Draw indicator
         canvas = g_vars['draw']
@@ -381,14 +425,16 @@ class HomePage(object):
         canvas = g_vars['draw']
 
         canvas.rectangle((x, y, width, height), fill=THEME.status_bar_background.value)
-        y += 2
-        canvas.text((x + padding + 2, y), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
+        canvas.text((x + padding + 2, y + 2), time.strftime("%I:%M %p"), font=SMART_FONT, fill=THEME.status_bar_foreground.value)
 
         # Battery indicator
-        self.battery_indicator(g_vars, x, y, width, height)
+        self.battery_indicator(g_vars, x, y + 2, width, height)
+
+        # Temperature indicator
+        self.temperature_indicator(g_vars, x, y + 1, width, height)
 
         # Bluetooth indicator
-        self.bluetooth_indicator(g_vars, x, y, width, height)
+        self.bluetooth_indicator(g_vars, x, y + 1, width, height)
 
         return height
 
