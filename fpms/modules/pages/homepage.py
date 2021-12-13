@@ -153,7 +153,7 @@ class HomePage(object):
         y += padding * 2
 
         # Display mode
-        canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name, font=FONTB13, fill=THEME.text_highlighted_color.value)
+        canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name.upper(), font=FONTB13, fill=THEME.text_highlighted_color.value)
         y += 14 + padding * 2
 
         mode(g_vars, x=x, y=y, padding=padding)
@@ -230,7 +230,7 @@ class HomePage(object):
         try:
             ip_addr = subprocess.check_output(ip_addr_cmd, shell=True).decode()
         except Exception as ex:
-            ip_addr = "No IP Addr"
+            ip_addr = "No IP address"
 
         x = 0
         y = 0
@@ -261,7 +261,8 @@ class HomePage(object):
         addr = self.if_address(if_name)
         link_status = self.if_link_status(if_name)
         if addr != None:
-            canvas.text((x + (PAGE_WIDTH - FONTB12.getsize(addr)[0])/2, y + padding + offset), addr, font=FONTB12, fill=THEME.text_color.value)
+            text_color = THEME.text_color.value if addr.lower() != "no ip address" else THEME.text_important_color.value
+            canvas.text((x + (PAGE_WIDTH - FONTB12.getsize(addr)[0])/2, y + padding + offset), addr, font=FONTB12, fill=text_color)
             offset += 13
         if link_status != None:
             canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(link_status)[0])/2, y + padding + offset), link_status, font=SMART_FONT, fill=THEME.text_secondary_color.value)
@@ -280,7 +281,7 @@ class HomePage(object):
             paired_devices = bluetooth.bluetooth_paired_devices()
             if paired_devices != None:
                 pan = self.if_address("pan0")
-                if pan != "No IP address":
+                if pan.lower() != "no ip address":
                     pan_info = f"PAN: {pan}"
                     canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(pan_info)[0])/2, y), pan_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
                     y += 11
@@ -289,7 +290,7 @@ class HomePage(object):
         eth_link_status = self.if_link_status("eth0")
         if eth_link_status == "Link down":
             usb = self.if_address("usb0")
-            if usb != "No IP address":
+            if usb.lower() != "no ip address":
                 usb_info = f"USB: {usb}"
                 canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(usb_info)[0])/2, y), usb_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
                 y += 11
