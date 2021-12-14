@@ -156,25 +156,25 @@ class Page(object):
                 menu_item = menu_item[1:len(menu_item)]
 
             g_vars['draw'].rectangle((0, y, PAGE_WIDTH, y+y_offset), fill=rect_fill)
-            g_vars['draw'].text((10, y), menu_item,  font=font_type, fill=text_fill)
+            g_vars['draw'].text((12, y), menu_item,  font=font_type, fill=text_fill)
 
             if nav:
                 # draw list icon
                 g_vars['draw'].line([(2, y+(y_offset/2)-2), (2, y+(y_offset/2)-2)], fill=icon_fill, width=1)
                 g_vars['draw'].line([(2, y+(y_offset/2)),   (2, y+(y_offset/2))  ], fill=icon_fill, width=1)
                 g_vars['draw'].line([(2, y+(y_offset/2)+2), (2, y+(y_offset/2)+2)], fill=icon_fill, width=1)
-                g_vars['draw'].line([(4, y+(y_offset/2)-2), (7, y+(y_offset/2)-2)], fill=icon_fill, width=1)
-                g_vars['draw'].line([(4, y+(y_offset/2)),   (7, y+(y_offset/2))  ], fill=icon_fill, width=1)
-                g_vars['draw'].line([(4, y+(y_offset/2)+2), (7, y+(y_offset/2)+2)], fill=icon_fill, width=1)
+                g_vars['draw'].line([(4, y+(y_offset/2)-2), (8, y+(y_offset/2)-2)], fill=icon_fill, width=1)
+                g_vars['draw'].line([(4, y+(y_offset/2)),   (8, y+(y_offset/2))  ], fill=icon_fill, width=1)
+                g_vars['draw'].line([(4, y+(y_offset/2)+2), (8, y+(y_offset/2)+2)], fill=icon_fill, width=1)
                 # draw nav indicator
                 g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+3)], fill=icon_fill, width=1)
                 g_vars['draw'].line([(PAGE_WIDTH - 4, y+(y_offset/2)), (PAGE_WIDTH - 8, y+y_offset-3)], fill=icon_fill, width=1)
             else:
                 # draw action icon
                 if sel:
-                    g_vars['draw'].ellipse((2, y+(y_offset/2)-2, 6, y+(y_offset/2)+2), fill=icon_fill)
+                    g_vars['draw'].ellipse((3, y+(y_offset/2)-2, 7, y+(y_offset/2)+2), fill=icon_fill)
                 else:
-                    g_vars['draw'].ellipse((2, y+(y_offset/2)-2, 6, y+(y_offset/2)+2), outline=icon_fill)
+                    g_vars['draw'].ellipse((3, y+(y_offset/2)-2, 7, y+(y_offset/2)+2), outline=icon_fill)
 
             y += y_offset
 

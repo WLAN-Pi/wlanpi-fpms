@@ -1,3 +1,11 @@
+wlanpi-fpms (1.2.2) UNRELEASED; urgency=medium
+
+  * Adds Wi-Fi indicators for wlan0 and wlan1
+  * Hides temperature indicator if temperature < 60C 
+  * Other minor UI tweaks
+
+ -- Adrian Granados <adrian@intuitibits.com>  Tue, 14 Dec 2021 11:58:16 -0600
+
 wlanpi-fpms (1.2.1) unstable; urgency=medium
 
   * Adds a system temperature indicator to the status bar
