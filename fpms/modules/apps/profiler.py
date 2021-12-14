@@ -8,7 +8,6 @@ import fpms.modules.wlanpi_oled as oled
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
 
-
 class Profiler(object):
     def __init__(self, g_vars):
 
@@ -45,6 +44,21 @@ class Profiler(object):
             return True
         except subprocess.CalledProcessError as exc:
             return False
+
+    def profiler_interface(self):
+        """
+        Returns the name of the interface configured to be used with the Profiler
+        """
+        config_file = "/etc/wlanpi-profiler/config.ini"
+        with open(config_file) as f:
+            lines = f.readlines()
+            for line in lines:
+                if not line.strip().startswith("#"):
+                    try:
+                        return re.search("^interface:\s+(.+)", line).group(1)
+                    except AttributeError:
+                        pass
+        return None
 
     def profiler_ctl(self, g_vars, action="status"):
         """

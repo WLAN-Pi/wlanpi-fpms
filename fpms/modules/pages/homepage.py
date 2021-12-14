@@ -11,6 +11,7 @@ from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
 from fpms.modules.battery import *
 from fpms.modules.bluetooth import *
+from fpms.modules.apps.profiler import *
 from fpms.modules.themes import THEME
 from fpms.modules.constants import *
 
@@ -126,7 +127,7 @@ class HomePage(object):
         self.display_obj.clear_display(g_vars)
 
         if_name = "eth0"
-        mode_name = "Classic Mode"
+        mode_name = "WLAN Pi Pro"
         mode = self.default_mode
 
         if g_vars['current_mode'] == "wconsole":
@@ -137,12 +138,10 @@ class HomePage(object):
             if_name = "wlan0"
             mode_name = "Hotspot"
             mode = self.hotspot_mode
-
         elif g_vars['current_mode'] == "wiperf":
             if_name = "wlan0"
             mode_name = "Wiperf"
             mode = self.wiperf_mode
-
         elif g_vars['current_mode'] == "server":
             if_name = "eth0"
             mode_name = "DHCP Server"
@@ -150,10 +149,10 @@ class HomePage(object):
 
         # Display status bar
         y += self.status_bar(g_vars)
-        y += padding * 2
+        y += padding * 4
 
         # Display mode
-        canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name.upper(), font=FONTB13, fill=THEME.text_highlighted_color.value)
+        canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name, font=FONTB13, fill=THEME.text_highlighted_color.value)
         y += 14 + padding * 2
 
         mode(g_vars, x=x, y=y, padding=padding)
@@ -315,63 +314,6 @@ class HomePage(object):
     def dhcp_server_mode(self, g_vars, x=0, y=0, padding=2):
         self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
-    def temperature_indicator(self, g_vars, x, y, width, height):
-        '''
-        Displays a system temperature indicator
-        '''
-
-        temp_high  = 80 # thermal throttling kicks in
-        temp_med   = 65 # getting uncomfortable
-        temp_low   = 55 # getting warmer but ok
-
-        try:
-            temp = int(open('/sys/class/thermal/thermal_zone0/temp').read())
-        except:
-            temp = 0
-
-        if temp > 1000:
-            temp = temp/1000
-
-        canvas = g_vars['draw']
-
-        if temp >= temp_high:
-            temp_color = THEME.status_bar_temp_high.value
-        elif temp >= temp_med:
-            temp_color = THEME.status_bar_temp_med.value
-        else:
-            temp_color = THEME.status_bar_temp_low.value
-
-        # draw thermometer
-        canvas.ellipse((x, y + 7, x + 6, y + 13), fill=temp_color)
-        canvas.rounded_rectangle((x + 2, y + 1, x + 4, y + 11), fill=THEME.status_bar_background.value, outline=temp_color, radius=1)
-
-        # draw marks
-        canvas.line((x + 6, y + 2, x + 7, y + 2), fill=temp_color)
-        canvas.line((x + 6, y + 4, x + 7, y + 4), fill=temp_color)
-        canvas.line((x + 6, y + 6, x + 7, y + 6), fill=temp_color)
-
-        # fill thermometer
-        if temp >= temp_high:
-            canvas.rounded_rectangle((x + 2, y + 2, x + 4, y + 11), fill=temp_color, radius=1)
-        elif temp >= temp_med:
-            canvas.rounded_rectangle((x + 2, y + 4, x + 4, y + 11), fill=temp_color, radius=1)
-        elif temp >= temp_low:
-            canvas.rounded_rectangle((x + 2, y + 6, x + 4, y + 11), fill=temp_color, radius=1)
-
-        return True
-
-    def bluetooth_indicator(self, g_vars, x, y, width, height):
-        '''
-        Displays a bluetooth icon if bluetooth is on
-        '''
-        bluetooth = Bluetooth(g_vars)
-        canvas = g_vars['draw']
-        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
-            canvas.text((x, y), chr(0xf128), font=ICONS, fill=THEME.status_bar_foreground.value)
-            return True
-
-        return False
-
     def battery_indicator(self, g_vars, x, y, width, height):
         '''
         Displays a battery indicator that shows charge level and power status
@@ -380,7 +322,7 @@ class HomePage(object):
 
         # Draw indicator
         canvas = g_vars['draw']
-        bx = x + 2
+        bx = x + 3
         by = y + 2
         status = battery.battery_status()
         charge = battery.battery_charge()
@@ -425,6 +367,151 @@ class HomePage(object):
 
         return True
 
+    def temperature_indicator(self, g_vars, x, y, width, height):
+        '''
+        Displays a system temperature indicator
+        '''
+
+        temp_high  = 80 # thermal throttling kicks in
+        temp_med   = 70 # getting uncomfortable
+        temp_low   = 60 # getting warmer but ok
+
+        try:
+            temp = int(open('/sys/class/thermal/thermal_zone0/temp').read())
+        except:
+            temp = 0
+
+        if temp > 1000:
+            temp = temp/1000
+
+        # do not draw if temperature is ok
+        if temp < temp_low:
+            return False
+
+        canvas = g_vars['draw']
+
+        if temp >= temp_high:
+            temp_color = THEME.status_bar_temp_high.value
+        elif temp >= temp_med:
+            temp_color = THEME.status_bar_temp_med.value
+        elif temp >= temp_low:
+            temp_color = THEME.status_bar_temp_low.value
+        else:
+            temp_color = THEME.status_bar_foreground.value
+
+        x = x + (width - 6) / 2
+
+        # draw thermometer
+        canvas.ellipse((x, y + 7, x + 6, y + 13), fill=temp_color)
+        canvas.rounded_rectangle((x + 2, y + 1, x + 4, y + 11), fill=THEME.status_bar_background.value, outline=temp_color, radius=1)
+
+        # draw marks
+        canvas.line((x + 6, y + 2, x + 7, y + 2), fill=temp_color)
+        canvas.line((x + 6, y + 4, x + 7, y + 4), fill=temp_color)
+        canvas.line((x + 6, y + 6, x + 7, y + 6), fill=temp_color)
+
+        # fill thermometer
+        if temp >= temp_high:
+            canvas.rounded_rectangle((x + 2, y + 2, x + 4, y + 11), fill=temp_color, radius=1)
+        elif temp >= temp_med:
+            canvas.rounded_rectangle((x + 2, y + 4, x + 4, y + 11), fill=temp_color, radius=1)
+        elif temp >= temp_low:
+            canvas.rounded_rectangle((x + 2, y + 6, x + 4, y + 11), fill=temp_color, radius=1)
+
+        return True
+
+    def wifi_indicator(self, g_vars, if_name, x, y, width, height):
+        '''
+        Displays a wifi indicator for the given wifi interface
+        '''
+        canvas = g_vars['draw']
+        tiny_font = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 7)
+        status_up = False
+        monitor_mode = False
+        active = False
+
+        try:
+            interfaces = subprocess.check_output(f"{IWCONFIG_FILE} 2>&1 | grep 802.11" + "| awk '{ print $1 }'", shell=True).decode().strip().split()
+        except Exception as e:
+            print(e)
+
+        for iface in interfaces:
+            if iface == if_name:
+
+                # check if the interface is UP
+                try:
+                    subprocess.check_output(f"{IFCONFIG_FILE} {if_name} 2>&1 | grep UP", shell=True).decode().strip()
+                    status_up = True
+                except Exception as e:
+                    pass
+
+                # check if any inteface on the same phy (including the given interface) is on monitor mode
+                try:
+                    phy_pattern = 'wiphy ([0-9]+)'
+                    phy_info = subprocess.check_output(f"{IW_FILE} dev {if_name} info 2>&1", shell=True).decode().strip()
+                    try:
+                        phy = re.search(phy_pattern, phy_info).group(1)
+                        for other_iface in interfaces:
+                            other_phy_info = subprocess.check_output(f"{IW_FILE} dev {other_iface} info 2>&1", shell=True).decode().strip()
+                            other_phy = re.search(phy_pattern, other_phy_info).group(1)
+                            if phy == other_phy:
+                                if re.search('type monitor', other_phy_info):
+                                    monitor_mode = True
+
+                                    # check if it's being used for capturing with tcpdump
+                                    try:
+                                        output = subprocess.check_output(f"ps aux 2>&1 | grep -v grep | grep tcpdump | grep {other_iface}", shell=True).decode().strip()
+                                        active = True
+                                    except Exception as e:
+                                        pass
+
+                    except AttributeError as e:
+                        print(e)
+
+                    if monitor_mode and not active:
+                        # check if the interface is being used for capturing with Profiler
+                        profiler = Profiler(g_vars)
+                        if profiler.profiler_running() and profiler.profiler_interface() == if_name:
+                            active = True
+
+                except Exception as e:
+                    print(e)
+
+                fill_color = THEME.status_bar_foreground.value
+
+                if active:
+                    fill_color = THEME.status_bar_wifi_active.value
+
+                # draw wifi icon
+                if status_up or monitor_mode:
+                    canvas.pieslice((x, y + 3, x + height, y + height + 3), 225, 315, fill=fill_color)
+                    if monitor_mode:
+                        # draw the monitor mode 'eye'
+                        canvas.ellipse((x + height/2 - 3, y + height/2 - 2, x + height/2 + 3, y + height/2), fill=THEME.status_bar_background.value)
+                        canvas.ellipse((x + height/2 - 1, y + height/2 - 2, x + height/2 + 1, y + height/2), fill=fill_color)
+                else:
+                    canvas.pieslice((x, y + 3, x + height, y + height + 3), 225, 315, outline=fill_color)
+
+                canvas.text((x + width/2 + 3, y + height - 8), if_name[-1], font=tiny_font, fill=fill_color)
+
+                return True
+
+        return False
+
+    def bluetooth_indicator(self, g_vars, x, y, width, height):
+        '''
+        Displays a bluetooth icon if bluetooth is on
+        '''
+        bluetooth = Bluetooth(g_vars)
+        bluetooth_icon = chr(0xf128)
+        canvas = g_vars['draw']
+        x = x + (width - ICONS.getsize(bluetooth_icon)[0])/2 + 4
+        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
+            canvas.text((x, y), bluetooth_icon, font=ICONS, fill=THEME.status_bar_foreground.value)
+            return True
+
+        return False
+
     def status_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=STATUS_BAR_HEIGHT):
 
         canvas = g_vars['draw']
@@ -434,18 +521,30 @@ class HomePage(object):
 
         # We position each indicator starting from the right edge of the status bar
         x = width - 24
+        fixed_indicator_width = 16
 
         # Battery indicator
-        if self.battery_indicator(g_vars, x, y + 2, width, height):
-            x -= 10
+        if self.battery_indicator(g_vars, x, y + 2, 24, height):
+            x -= fixed_indicator_width
+
+        y += 1
+        height -= 2
 
         # Temperature indicator
-        if self.temperature_indicator(g_vars, x, y + 1, width, height):
-            x -= 10
+        if self.temperature_indicator(g_vars, x, y, fixed_indicator_width, height):
+            x -= fixed_indicator_width
+
+        # WiFi indicator (wlan0)
+        if self.wifi_indicator(g_vars, "wlan1", x, y, fixed_indicator_width, height):
+            x -= fixed_indicator_width
+
+        # WiFi indicator (wlan1)
+        if self.wifi_indicator(g_vars, "wlan0", x, y, fixed_indicator_width, height):
+            x -= fixed_indicator_width
 
         # Bluetooth indicator
-        if self.bluetooth_indicator(g_vars, x, y + 1, width, height):
-            x -= 10
+        if self.bluetooth_indicator(g_vars, x, y, fixed_indicator_width, height):
+            x -= fixed_indicator_width
 
         return height
 
