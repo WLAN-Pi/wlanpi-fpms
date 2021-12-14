@@ -103,7 +103,7 @@ class DarkTheme(Enum):
     status_bar_battery_full       = "#94bfa2"
     status_bar_temp_high          = "#b21b21"
     status_bar_temp_med           = "#e5b63c"
-    status_bar_temp_low           = "#dbdbdb"
+    status_bar_temp_low           = "white"
     system_bar_foreground         = "#aeb0b5"
     system_bar_background         = "#323a45"
     page_title_foreground         = "white"
