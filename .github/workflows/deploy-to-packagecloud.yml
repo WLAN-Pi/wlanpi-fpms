@@ -1,4 +1,4 @@
-name: Build and Deploy Debian Package On Push
+name: Deploy to Packagecloud
 
 on:
   # Allow manual runs of workflow from Actions tab
@@ -12,6 +12,8 @@ on:
 
 jobs:
   sbuild:
+    name: sbuild ${{ matrix.distro }}+${{ matrix.arch }}
+
     runs-on: 'ubuntu-20.04'
 
     strategy:
@@ -20,6 +22,8 @@ jobs:
         distro: [buster,bullseye]
         arch: [armhf,arm64]
 
+    environment: PACKAGECLOUD
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v2

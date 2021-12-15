@@ -1,4 +1,4 @@
-name: Build Debian Package On PR
+name: Build and Archive Debian Package
 
 on:
   # Allow manual runs of workflow from Actions tab
@@ -12,6 +12,8 @@ on:
 
 jobs:
   sbuild:
+    name: sbuild ${{ matrix.distro }}+${{ matrix.arch }}
+
     runs-on: 'ubuntu-20.04'
 
     strategy:
@@ -20,8 +22,6 @@ jobs:
         distro: [buster,bullseye]
         arch: [armhf,arm64]
 
-    name: ${{ matrix.distro }} ${{ matrix.arch }}
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -51,5 +51,3 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          channel: '#fpms'
-          name: 'WLAN Pi CI Bot'
