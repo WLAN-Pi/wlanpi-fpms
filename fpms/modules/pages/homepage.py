@@ -276,7 +276,7 @@ class HomePage(object):
 
         # If bluetooth is on and we're paired with a device, show the PAN address
         bluetooth = Bluetooth(g_vars)
-        if bluetooth.bluetooth_power() == True:
+        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
             paired_devices = bluetooth.bluetooth_paired_devices()
             if paired_devices != None:
                 pan = self.if_address("pan0")
