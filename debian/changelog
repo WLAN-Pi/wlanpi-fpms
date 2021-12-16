@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.4) unstable; urgency=medium
+
+  * Fixes missing templates directory in package
+  * Adds new "reboot in progress" image
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 16 Dec 2021 17:35:29 -0600
+
 wlanpi-fpms (1.2.3) unstable; urgency=medium
 
   * Fixes UI hanging when no Bluetooth devices are present
