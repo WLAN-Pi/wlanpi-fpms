@@ -22,15 +22,13 @@ class Bluetooth(object):
         self.alert_obj = Alert(g_vars)
 
     def bluetooth_present(self):
+        '''
+        We want to use hciconfig here as it works OK when no devices are present
+        '''
         try:
-            cmd = "systemctl is-active --quiet bluetooth"
+            cmd = "hciconfig | grep hci*"
             subprocess.check_output(cmd, shell=True)
-            try:
-                cmd = "bt-adapter -l"
-                subprocess.check_output(cmd, shell=True)
-                return True
-            except subprocess.CalledProcessError as exc:
-                return False
+            return True
         except subprocess.CalledProcessError as exc:
             return False
 
@@ -59,13 +57,13 @@ class Bluetooth(object):
             return None
 
     def bluetooth_power(self):
+        '''
+        We want to use hciconfig here as it works OK when no devices are present
+        '''
         try:
-            cmd = "bt-adapter -i | grep Powered | awk '{ print $2 }'"
-            power = subprocess.check_output(cmd, shell=True).decode().strip()
-            if power == "1":
-                return True
-            else:
-                return False
+            cmd = "hciconfig | grep -E '^\s+UP'"
+            subprocess.check_output(cmd, shell=True).decode().strip()
+            return True
         except subprocess.CalledProcessError as exc:
             return False
 
@@ -95,7 +93,7 @@ class Bluetooth(object):
             return None
 
         try:
-            cmd = "bluetoothctl -- paired-devices"
+            cmd = "bluetoothctl -- paired-devices | grep -iv 'no default controller'"
             output = subprocess.check_output(cmd, shell=True).decode().strip()
             if len(output) > 0:
                 output = re.sub("Device *", "", output).split('\n')
@@ -148,17 +146,33 @@ class Bluetooth(object):
         if self.bluetooth_set_power(True):
             if not g_vars['result_cache']:
                 # Unpair existing paired devices
+                g_vars["disable_keys"] = True
                 self.alert_obj.display_popup_alert(g_vars, "Entering pairing mode...")
                 paired_devices = self.bluetooth_paired_devices()
-                if paired_devices != None:
+                '''
+                For some reason removing devices isn't working immediately in Bullseye,
+                so we need to keep trying until all devices are removed.
+                Give up after 30 seconds.
+                '''
+                timeout = 30
+                elapsed_time = 0
+                while paired_devices != None and elapsed_time < timeout:
                     self.alert_obj.display_popup_alert(g_vars, "Unpairing existing device...")
                     for dev in paired_devices:
                         try:
-                            cmd = f"bluetoothctl -- remove {dev}"
+                            cmd = f"bluetoothctl -- remove {dev} 2>&1 > /dev/null"
                             subprocess.run(cmd, shell=True)
                         except:
                             pass
+                    paired_devices = self.bluetooth_paired_devices()
+                    time.sleep(1)
+                    elapsed_time += 1
+
+                g_vars['result_cache'] = True
+                g_vars["disable_keys"] = False
+
             else:
+
                 paired_devices = self.bluetooth_paired_devices()
                 if paired_devices != None:
                     for dev in paired_devices:
@@ -168,12 +182,16 @@ class Bluetooth(object):
                 else:
                     alias = self.bluetooth_alias()
                     try:
+                        g_vars["disable_keys"] = True
                         cmd = "systemctl start bt-timedpair"
                         subprocess.run(cmd, shell=True).check_returncode()
                         alert_msg = "Bluetooth is on. Discoverable as \"" + alias + "\""
                         ok = True
                     except subprocess.CalledProcessError as exc:
                         alert_msg = "Failed to set as discoverable."
+                    finally:
+                        g_vars["disable_keys"] = False
+
         else:
             alert_msg = "Failed to turn on bluetooth."
 
@@ -183,7 +201,6 @@ class Bluetooth(object):
             else:
                 self.alert_obj.display_alert_error(g_vars, alert_msg)
 
-        g_vars['result_cache'] = True
         g_vars['display_state'] = 'page'
 
     def bluetooth_on(self, g_vars):

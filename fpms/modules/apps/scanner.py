@@ -17,7 +17,7 @@ class Scanner(object):
     def __init__(self, g_vars):
         # load textfsm template to parse iw output
         with open(
-            os.path.realpath(os.path.join(os.getcwd(), "modules/apps/iw_scan.textfsm"))
+            os.path.realpath(os.path.join(os.getcwd(), "modules/templates/iw_scan.textfsm"))
         ) as f:
             self.iw_textfsm_template = textfsm.TextFSM(f)
 
@@ -56,7 +56,7 @@ class Scanner(object):
         self.iw_textfsm_template.Reset()
         return self.iw_textfsm_template.ParseText(iw_scan_output)
 
-    def scan(self, g_vars):
+    def scan(self, g_vars, include_hidden):
 
         g_vars["scanner_status"] = True
 
@@ -85,6 +85,8 @@ class Scanner(object):
                 ssid = network[3]
 
                 if len(ssid) == 0:
+                    if not include_hidden:
+                        continue
                     ssid = "Hidden Network"
 
                 ssid = ssid[:17]
@@ -101,7 +103,7 @@ class Scanner(object):
         finally:
             g_vars["scanner_status"] = False
 
-    def scanner_scan(self, g_vars):
+    def scanner_scan(self, g_vars, include_hidden=True):
 
         # Check if this is the first time we run
         if g_vars["result_cache"] == False:
@@ -125,7 +127,7 @@ class Scanner(object):
         else:
             if g_vars["scanner_status"] == False:
                 # Run a scan in the background
-                thread = threading.Thread(target=self.scan, args=(g_vars,), daemon=True)
+                thread = threading.Thread(target=self.scan, args=(g_vars,include_hidden), daemon=True)
                 thread.start()
 
         # Check and display the results
@@ -145,3 +147,6 @@ class Scanner(object):
 
             # Display the results
             self.paged_table_obj.display_paged_table(g_vars, table_data, justify=False)
+
+    def scanner_scan_nohidden(self, g_vars):
+        self.scanner_scan(g_vars, include_hidden=False)

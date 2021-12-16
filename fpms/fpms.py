@@ -341,6 +341,10 @@ optional options:
         app_obj = Scanner(g_vars)
         app_obj.scanner_scan(g_vars)
 
+    def scanner_scan_nohidden():
+        app_obj = Scanner(g_vars)
+        app_obj.scanner_scan_nohidden(g_vars)
+
     ###########################
     # System menu area utils
     ###########################
@@ -476,7 +480,11 @@ optional options:
                 }
             ]
             },
-            {"name": "Scanner", "action": scanner_scan}
+            {"name": "Scanner", "action": [
+                {"name": "Scan", "action": scanner_scan},
+                {"name": "Scan (no hidden)", "action": scanner_scan_nohidden},
+            ]
+            },
         ]
         },
         {"name": "System", "action": [

@@ -354,22 +354,28 @@ class Network(object):
         publicip_info = []
         cmd = PUBLICIP6_CMD if ip_version == 6 else PUBLICIP_CMD
 
-        try:
-            publicip_output = subprocess.check_output(
-                cmd, shell=True).decode().strip()
-            publicip_info = publicip_output.split('\n')
-        except subprocess.CalledProcessError:
-            self.alert_obj.display_alert_error(g_vars, "Failed to detect public IP address")
-            return
+        if g_vars['result_cache'] == False:
+            self.alert_obj.display_popup_alert(g_vars, "Detecting public " + ("IPv6..." if ip_version == 6 else "IPv4..."))
 
-        if len(publicip_info) == 1:
-            self.alert_obj.display_alert_error(g_vars, publicip_info[0])
-            return
+            try:
+                g_vars["disable_keys"] = True
+                publicip_output = subprocess.check_output(
+                    cmd, shell=True).decode().strip()
+                publicip_info = publicip_output.split('\n')
+                g_vars['publicip_info'] = publicip_info
+                g_vars['result_cache'] = True
+            except subprocess.CalledProcessError:
+                self.alert_obj.display_alert_error(g_vars, "Failed to detect public IP address")
+                return
+            finally:
+                g_vars["disable_keys"] = False
 
-        # final check no-one pressed a button before we render page
-        if g_vars['display_state'] == 'menu':
-            return
+        else:
 
-        title = "Public IPv6" if ip_version == 6 else "Public IPv4"
+            publicip_info = g_vars['publicip_info']
+            if len(publicip_info) == 1:
+                self.alert_obj.display_alert_error(g_vars, publicip_info[0])
+                return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, publicip_info, title=title, justify=False)
+            title = "Public IPv6" if ip_version == 6 else "Public IPv4"
+            self.paged_table_obj.display_list_as_paged_table(g_vars, publicip_info, title=title, justify=False)
