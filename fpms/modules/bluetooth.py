@@ -22,15 +22,13 @@ class Bluetooth(object):
         self.alert_obj = Alert(g_vars)
 
     def bluetooth_present(self):
+        '''
+        We want to use hciconfig here as it works OK when no devices are present
+        '''
         try:
-            cmd = "systemctl is-active --quiet bluetooth"
+            cmd = "hciconfig | grep hci*"
             subprocess.check_output(cmd, shell=True)
-            try:
-                cmd = "bt-adapter -l"
-                subprocess.check_output(cmd, shell=True)
-                return True
-            except subprocess.CalledProcessError as exc:
-                return False
+            return True
         except subprocess.CalledProcessError as exc:
             return False
 
@@ -59,13 +57,13 @@ class Bluetooth(object):
             return None
 
     def bluetooth_power(self):
+        '''
+        We want to use hciconfig here as it works OK when no devices are present
+        '''
         try:
-            cmd = "bt-adapter -i | grep Powered | awk '{ print $2 }'"
-            power = subprocess.check_output(cmd, shell=True).decode().strip()
-            if power == "1":
-                return True
-            else:
-                return False
+            cmd = "hciconfig | grep -E '^\s+UP'"
+            subprocess.check_output(cmd, shell=True).decode().strip()
+            return True
         except subprocess.CalledProcessError as exc:
             return False
 
@@ -95,7 +93,7 @@ class Bluetooth(object):
             return None
 
         try:
-            cmd = "bluetoothctl -- paired-devices"
+            cmd = "bluetoothctl -- paired-devices | grep -iv 'no default controller'"
             output = subprocess.check_output(cmd, shell=True).decode().strip()
             if len(output) > 0:
                 output = re.sub("Device *", "", output).split('\n')

@@ -17,7 +17,7 @@ class Scanner(object):
     def __init__(self, g_vars):
         # load textfsm template to parse iw output
         with open(
-            os.path.realpath(os.path.join(os.getcwd(), "modules/apps/iw_scan.textfsm"))
+            os.path.realpath(os.path.join(os.getcwd(), "modules/templates/iw_scan.textfsm"))
         ) as f:
             self.iw_textfsm_template = textfsm.TextFSM(f)
 

@@ -6,6 +6,7 @@ import subprocess
 import re
 import os.path
 import time
+import textfsm
 
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
@@ -18,6 +19,11 @@ from fpms.modules.constants import *
 class HomePage(object):
 
     def __init__(self, g_vars):
+        # load textfsm template to parse iw output
+        with open(
+            os.path.realpath(os.path.join(os.getcwd(), "modules/templates/iw_dev.textfsm"))
+        ) as f:
+            self.iw_textfsm_template = textfsm.TextFSM(f)
 
         # grab a screeb obj
         self.display_obj = Display(g_vars)
@@ -274,22 +280,22 @@ class HomePage(object):
         y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
         y += 12
 
-        # If bluetooth is on and we're paired with a device, show the PAN address
-        bluetooth = Bluetooth(g_vars)
-        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
-            paired_devices = bluetooth.bluetooth_paired_devices()
-            if paired_devices != None:
-                pan = self.if_address("pan0")
-                if pan.lower() != "no ip address":
+        # Show the PAN address if bluetooth is on and we're paired with a device
+        pan = self.if_address("pan0")
+        if pan.lower() != "no ip address":
+            bluetooth = Bluetooth(g_vars)
+            if bluetooth.bluetooth_power():
+                paired_devices = bluetooth.bluetooth_paired_devices()
+                if paired_devices != None:
                     pan_info = f"PAN: {pan}"
                     canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(pan_info)[0])/2, y), pan_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
                     y += 11
 
-        # If the eth0 interface link is down, show the USB (OTG) address
-        eth_link_status = self.if_link_status("eth0")
-        if eth_link_status == "Link down":
-            usb = self.if_address("usb0")
-            if usb.lower() != "no ip address":
+        # Show the USB (OTG) address if the eth0 interface link is down
+        usb = self.if_address("usb0")
+        if usb.lower() != "no ip address":
+            eth_link_status = self.if_link_status("eth0")
+            if eth_link_status == "Link down":
                 usb_info = f"USB: {usb}"
                 canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(usb_info)[0])/2, y), usb_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
                 y += 11
@@ -420,7 +426,7 @@ class HomePage(object):
 
         return True
 
-    def wifi_indicator(self, g_vars, if_name, x, y, width, height):
+    def wifi_indicator(self, g_vars, interfaces, if_name, x, y, width, height):
         '''
         Displays a wifi indicator for the given wifi interface
         '''
@@ -430,13 +436,11 @@ class HomePage(object):
         monitor_mode = False
         active = False
 
-        try:
-            interfaces = subprocess.check_output(f"{IWCONFIG_FILE} 2>&1 | grep 802.11" + "| awk '{ print $1 }'", shell=True).decode().strip().split()
-        except Exception as e:
-            print(e)
-
         for iface in interfaces:
-            if iface == if_name:
+            if iface[1] == if_name:
+
+                # phy index
+                phy = iface[0]
 
                 # check if the interface is UP
                 try:
@@ -445,37 +449,24 @@ class HomePage(object):
                 except Exception as e:
                     pass
 
-                # check if any inteface on the same phy (including the given interface) is on monitor mode
-                try:
-                    phy_pattern = 'wiphy ([0-9]+)'
-                    phy_info = subprocess.check_output(f"{IW_FILE} dev {if_name} info 2>&1", shell=True).decode().strip()
-                    try:
-                        phy = re.search(phy_pattern, phy_info).group(1)
-                        for other_iface in interfaces:
-                            other_phy_info = subprocess.check_output(f"{IW_FILE} dev {other_iface} info 2>&1", shell=True).decode().strip()
-                            other_phy = re.search(phy_pattern, other_phy_info).group(1)
-                            if phy == other_phy:
-                                if re.search('type monitor', other_phy_info):
-                                    monitor_mode = True
+                for other_iface in interfaces:
+                    if phy == other_iface[0]:
+                        if other_iface[2] == "monitor":
+                            monitor_mode = True
 
-                                    # check if it's being used for capturing with tcpdump
-                                    try:
-                                        output = subprocess.check_output(f"ps aux 2>&1 | grep -v grep | grep tcpdump | grep {other_iface}", shell=True).decode().strip()
-                                        active = True
-                                    except Exception as e:
-                                        pass
+                            # check if it's being used for capturing with tcpdump
+                            try:
+                                output = subprocess.check_output(f"ps aux 2>&1 | grep -v grep | grep tcpdump | grep {other_iface[1]}", shell=True).decode().strip()
+                                active = True
+                            except Exception as e:
+                                pass
 
-                    except AttributeError as e:
-                        print(e)
-
-                    if monitor_mode and not active:
-                        # check if the interface is being used for capturing with Profiler
-                        profiler = Profiler(g_vars)
-                        if profiler.profiler_running() and profiler.profiler_interface() == if_name:
+                if monitor_mode and not active:
+                    # check if the interface is being used for capturing with Profiler
+                    profiler = Profiler(g_vars)
+                    if profiler.profiler_interface() == if_name:
+                        if profiler.profiler_running():
                             active = True
-
-                except Exception as e:
-                    print(e)
 
                 fill_color = THEME.status_bar_foreground.value
 
@@ -502,6 +493,7 @@ class HomePage(object):
         '''
         Displays a bluetooth icon if bluetooth is on
         '''
+
         bluetooth = Bluetooth(g_vars)
         bluetooth_icon = chr(0xf128)
         canvas = g_vars['draw']
@@ -534,13 +526,28 @@ class HomePage(object):
         if self.temperature_indicator(g_vars, x, y, fixed_indicator_width, height):
             x -= fixed_indicator_width
 
-        # WiFi indicator (wlan0)
-        if self.wifi_indicator(g_vars, "wlan1", x, y, fixed_indicator_width, height):
-            x -= fixed_indicator_width
+        # WiFi Indicators
+        try:
+            '''
+            Get the list of wireless interfaces from iw and parse it as:
+                [["phy_index", "interface_name", "type"], ...]
+            e.g.
+                [["0", "wlan0", "managed"], ["0", "wlan0mon", "monitor"], ["1", "wlan1", "managed"]]
+            '''
+            iw_dev_output = subprocess.check_output(f"{IW_FILE} dev 2>&1", shell=True).decode().strip()
+            self.iw_textfsm_template.Reset()
+            interfaces = self.iw_textfsm_template.ParseText(iw_dev_output)
 
-        # WiFi indicator (wlan1)
-        if self.wifi_indicator(g_vars, "wlan0", x, y, fixed_indicator_width, height):
-            x -= fixed_indicator_width
+            # WiFi indicator (wlan0)
+            if self.wifi_indicator(g_vars, interfaces, "wlan1", x, y, fixed_indicator_width, height):
+                x -= fixed_indicator_width
+
+            # WiFi indicator (wlan1)
+            if self.wifi_indicator(g_vars, interfaces, "wlan0", x, y, fixed_indicator_width, height):
+                x -= fixed_indicator_width
+
+        except Exception as e:
+            print(e)
 
         # Bluetooth indicator
         if self.bluetooth_indicator(g_vars, x, y, fixed_indicator_width, height):

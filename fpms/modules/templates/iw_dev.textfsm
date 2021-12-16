@@ -1,0 +1,8 @@
+Value Filldown PHY (\d+)
+Value Required IF_NAME (\S+)
+Value Required TYPE (\S+)
+
+Start
+  ^phy#${PHY}
+  ^\s+Interface ${IF_NAME}
+  ^\s+type ${TYPE} -> Record
