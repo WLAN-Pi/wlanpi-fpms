@@ -95,11 +95,10 @@ class EnvUtils(object):
     def get_hostname(self):
 
         try:
-            hostname = subprocess.check_output('hostname -A', shell=True).decode()
+            hostname = subprocess.check_output('hostname -A', shell=True).decode().strip()
+            if hostname == "":
+                hostname = subprocess.check_output('hostname', shell=True).decode().strip()
         except:
             hostname = 'Unknown'
 
         return hostname
-
-    def battery_charge_perc(self):
-        return 0.47
