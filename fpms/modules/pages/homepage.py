@@ -7,6 +7,7 @@ import re
 import os.path
 import time
 import textfsm
+import threading
 
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
@@ -30,6 +31,9 @@ class HomePage(object):
 
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
+
+        thread = threading.Thread(target=self.check_reachability, args=(g_vars,), daemon=True)
+        thread.start()
 
     def wifi_client_count(self):
         '''
@@ -68,6 +72,34 @@ class HomePage(object):
             return " ({})".format(msg)
         else:
             return '15 Mbps/30 Mbps'
+
+    def check_reachability(self, g_vars):
+
+        # Detect changes in the IP address assigned to the Ethernet interface
+        eth0_addr = self.if_address("eth0")
+        if g_vars['eth_last_known_address'] != eth0_addr:
+            g_vars['eth_last_known_address'] = eth0_addr
+            g_vars['eth_last_reachability_test'] = 0
+
+        # If the interface has no address, then we don't even check
+        if eth0_addr.lower() == "no ip address":
+            g_vars['eth_last_reachability_result'] = False
+        else:
+            # Run a reachability test if enough time has passed
+            last_reachability_test = g_vars['eth_last_reachability_test']
+            if last_reachability_test > 0:
+                g_vars['eth_last_reachability_test'] = last_reachability_test - 1
+            else:
+                # check reachability every 30 seconds
+                g_vars['eth_last_reachability_test'] = 30
+
+                reachability_cmd = "sudo " + REACHABILITY_FILE + " | grep -i 'browse google' | grep OK"
+
+                try:
+                    subprocess.check_output(reachability_cmd, shell=True).decode()
+                    g_vars['eth_last_reachability_result'] = True
+                except subprocess.CalledProcessError as exc:
+                    g_vars['eth_last_reachability_result'] = False
 
     def if_address(self, if_name):
         '''
@@ -504,12 +536,29 @@ class HomePage(object):
 
         return False
 
+    def reachability_indicator(self, g_vars, x, y, width, height):
+        '''
+        Displays a 'world' icon if we can reach the Internet via the Ethernet interface
+        '''
+
+        canvas = g_vars['draw']
+        canvas.ellipse((x + 8, y + 2, x + height + 4, y + height - 2), outline=THEME.status_bar_foreground.value)
+        canvas.ellipse((x + 11, y + 2, x + height + 1, y + height - 2), outline=THEME.status_bar_foreground.value)
+        canvas.line((x + 8, y + height/2, x + height + 4, y + height/2), fill=THEME.status_bar_foreground.value)
+
+        if g_vars['eth_last_reachability_result'] != True:
+            canvas.line((x + 7, y + 1, x + height + 4, y + height - 2), fill=THEME.status_bar_foreground.value, width=2)
+
+        return True
+
     def status_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=STATUS_BAR_HEIGHT):
 
         canvas = g_vars['draw']
 
+        current_time = time.strftime("%H:%M")
+        current_time_width = FONTB11.getsize(current_time)[0]
         canvas.rectangle((x, y, width, height), fill=THEME.status_bar_background.value)
-        canvas.text((x + padding + 2, y + 2), time.strftime("%H:%M"), font=FONTB11, fill=THEME.status_bar_foreground.value)
+        canvas.text((x + padding + 2, y + 2), current_time, font=FONTB11, fill=THEME.status_bar_foreground.value)
 
         # We position each indicator starting from the right edge of the status bar
         x = width - 24
@@ -523,8 +572,9 @@ class HomePage(object):
         height -= 2
 
         # Temperature indicator
-        if self.temperature_indicator(g_vars, x, y, fixed_indicator_width, height):
-            x -= fixed_indicator_width
+        if x > current_time_width:
+            if self.temperature_indicator(g_vars, x, y, fixed_indicator_width, height):
+                x -= fixed_indicator_width
 
         # WiFi Indicators
         try:
@@ -538,20 +588,28 @@ class HomePage(object):
             self.iw_textfsm_template.Reset()
             interfaces = self.iw_textfsm_template.ParseText(iw_dev_output)
 
-            # WiFi indicator (wlan0)
-            if self.wifi_indicator(g_vars, interfaces, "wlan1", x, y, fixed_indicator_width, height):
-                x -= fixed_indicator_width
-
             # WiFi indicator (wlan1)
-            if self.wifi_indicator(g_vars, interfaces, "wlan0", x, y, fixed_indicator_width, height):
-                x -= fixed_indicator_width
+            if x > current_time_width:
+                if self.wifi_indicator(g_vars, interfaces, "wlan1", x, y, fixed_indicator_width, height):
+                    x -= fixed_indicator_width
+
+            # WiFi indicator (wlan0)
+            if x > current_time_width:
+                if self.wifi_indicator(g_vars, interfaces, "wlan0", x, y, fixed_indicator_width, height):
+                    x -= fixed_indicator_width
 
         except Exception as e:
             print(e)
 
         # Bluetooth indicator
-        if self.bluetooth_indicator(g_vars, x, y, fixed_indicator_width, height):
-            x -= fixed_indicator_width
+        if x > current_time_width:
+            if self.bluetooth_indicator(g_vars, x, y, fixed_indicator_width, height):
+                x -= fixed_indicator_width
+
+        # Reachability indicator
+        if x > current_time_width:
+            if self.reachability_indicator(g_vars, x, y, fixed_indicator_width, height):
+                x -= fixed_indicator_width
 
         return height
 

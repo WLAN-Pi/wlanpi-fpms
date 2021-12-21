@@ -163,6 +163,9 @@ optional options:
         'home_page_name': "Home",       # Display name for top level menu
         'blinker_status': False,        # Blinker status
         'eth_carrier_status': 0,        # Eth0 physical link status
+        'eth_last_known_address': "",   # Last known eth0 address
+        'eth_last_reachability_test': 0, # Number of seconds elapsed since last reachability test
+        'eth_last_reachability_result' : True, # Last reachability state
     }
 
     ############################
