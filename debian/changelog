@@ -6,7 +6,7 @@ wlanpi-fpms (1.2.5) unstable; urgency=medium
 
  -- Adrian Granados <adrian@intuibits.com>  Wed, 22 Dec 2021 19:23:35 -0600
 
-wlanpi-fpms (1.2.4) unstable; urgency=medium
+wlanpi-fpms (1.2.4-1) unstable; urgency=medium
 
   * Fixes missing templates directory in package
   * Adds new "reboot in progress" image
