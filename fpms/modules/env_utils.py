@@ -51,6 +51,9 @@ class EnvUtils(object):
         if not re.search(r'Compute Module 4', model):
             platform = "community"
 
+        if os.path.exists("/boot/waveshare"):
+            platform = "waveshare"
+
         return platform
 
     def get_mode(self, MODE_FILE):

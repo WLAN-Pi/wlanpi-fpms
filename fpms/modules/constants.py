@@ -23,7 +23,7 @@ MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
 DISPLAY_MODE = '1'
 
-if PLATFORM == "pro":
+if PLATFORM == "pro" or PLATFORM == "waveshare":
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
     MAX_TABLE_LINES = 9
@@ -103,6 +103,15 @@ BUTTONS_WLANPI_PRO = {
     "center": 6,
 }
 
+# Button mapping for the Waveshare 1.44 inch LCD Display HAT
+# https://www.waveshare.com/1.44inch-lcd-hat.htm
+BUTTONS_WAVESHARE = {
+    "up": 6,
+    "down": 19,
+    "left": 5,
+    "right": 26,
+    "center": 13,
+}
 # temp setup to test code using Sapphire HAT
 # (center - middle front panel button, up/down = side wheel up/down)
 BUTTONS_SAPPHIRE = {
@@ -117,5 +126,7 @@ BUTTONS_PINS = {}
 
 if PLATFORM == "pro":
     BUTTONS_PINS = BUTTONS_WLANPI_PRO
+elif PLATFORM == "waveshare":
+    BUTTONS_PINS = BUTTONS_WAVESHARE
 else:
     BUTTONS_PINS = BUTTONS_SAPPHIRE
