@@ -754,10 +754,9 @@ optional options:
         try:
             cmd = "cat /sys/class/net/eth0/carrier"
             carrier = int(subprocess.check_output(cmd, shell=True).decode().strip())
-            if g_vars['eth_carrier_status'] == 0:
-                if carrier == 1:
-                    g_vars['screen_cleared'] = False
-                    g_vars['pageSleepCountdown'] = PAGE_SLEEP
+            if g_vars['eth_carrier_status'] != carrier:
+                g_vars['screen_cleared'] = False
+                g_vars['pageSleepCountdown'] = PAGE_SLEEP
             g_vars['eth_carrier_status'] = carrier
         except subprocess.CalledProcessError as exc:
             pass
