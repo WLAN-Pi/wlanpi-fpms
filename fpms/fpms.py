@@ -158,7 +158,7 @@ optional options:
         'speedtest_status': False,      # Indicates if speedtest has run or is in progress
         'speedtest_result_text': '',    # tablulated speedtest result data
         'button_press_count': 0,        # global count of button pressses
-        'last_button_press_count': 0,   # copy of count of button pressses used in main loop
+        'last_button_press_count': -1,  # copy of count of button pressses used in main loop
         'pageSleepCountdown': PAGE_SLEEP, # Set page sleep control
         'home_page_name': "Home",       # Display name for top level menu
         'blinker_status': False,        # Blinker status
