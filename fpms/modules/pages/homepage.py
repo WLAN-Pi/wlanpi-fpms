@@ -529,7 +529,7 @@ class HomePage(object):
         bluetooth = Bluetooth(g_vars)
         bluetooth_icon = chr(0xf128)
         canvas = g_vars['draw']
-        x = x + (width - ICONS.getsize(bluetooth_icon)[0])/2 + 4
+        x = x + (width - ICONS.getsize(bluetooth_icon)[0])/2 + 1
         if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
             canvas.text((x, y), bluetooth_icon, font=ICONS, fill=THEME.status_bar_foreground.value)
             return True
@@ -542,12 +542,12 @@ class HomePage(object):
         '''
 
         canvas = g_vars['draw']
-        canvas.ellipse((x + 8, y + 2, x + height + 4, y + height - 2), outline=THEME.status_bar_foreground.value)
-        canvas.ellipse((x + 11, y + 2, x + height + 1, y + height - 2), outline=THEME.status_bar_foreground.value)
-        canvas.line((x + 8, y + height/2, x + height + 4, y + height/2), fill=THEME.status_bar_foreground.value)
+        canvas.ellipse((x + 4, y + 2, x + height, y + height - 2), outline=THEME.status_bar_foreground.value)
+        canvas.ellipse((x + 7, y + 2, x + height - 3, y + height - 2), outline=THEME.status_bar_foreground.value)
+        canvas.line((x + 4, y + height/2, x + height, y + height/2), fill=THEME.status_bar_foreground.value)
 
         if g_vars['eth_last_reachability_result'] != True:
-            canvas.line((x + 7, y + 1, x + height + 4, y + height - 2), fill=THEME.status_bar_foreground.value, width=2)
+            canvas.line((x + 3, y + 1, x + height, y + height - 2), fill=THEME.status_bar_foreground.value, width=2)
 
         return True
 
