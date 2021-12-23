@@ -39,10 +39,10 @@ class Mode(object):
         # Resource switcher was detected, so assume it's installed
         if g_vars['current_mode'] == "classic":
             # if in classic mode, switch to the resource
-            alert_msg = 'Switching to {} mode (rebooting...)'.format(resource_title)
+            alert_msg = 'Switching to {} mode...'.format(resource_title)
             switch = "on"
         elif g_vars['current_mode'] == mode_name:
-            alert_msg = 'Switching to Classic mode (rebooting...)'
+            alert_msg = 'Switching to Classic mode...'
             switch = "off"
         else:
             self.alert_obj.display_alert_error(g_vars, 'Unknown mode: {}'.format(g_vars['current_mode']))
@@ -50,30 +50,24 @@ class Mode(object):
             return False
 
         # Flip the mode
-        self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
+        self.alert_obj.display_popup_alert(g_vars, alert_msg, delay=2)
         g_vars['shutdown_in_progress'] = True
         time.sleep(2)
 
         oled.drawImage(g_vars['reboot_image'])
-        g_vars['screen_cleared'] = True
 
         try:
             alert_msg = subprocess.check_output("{} {}".format(resource_switcher_file, switch), shell=True).decode()  # reboots
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
-            alert_msg = exc.output.decode()
+            print(exc)
 
         # We only get to this point if the switch has failed for some reason
         # (Note that the switcher script reboots the WLANPi)
         g_vars['shutdown_in_progress'] = False
         g_vars['screen_cleared'] = False
-        self.alert_obj.display_alert_error(g_vars, alert_msg)
+        self.alert_obj.display_alert_error(g_vars, 'Failed to enable {} mode.'.format(resource_title))
         g_vars['display_state'] = 'menu'
-
-        # allow 5 secs to view failure msg
-        time.sleep(3)
-        # move back up to menu branch
-        g_vars['current_menu_location'].pop()
 
         return False
 
