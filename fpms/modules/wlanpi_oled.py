@@ -16,6 +16,7 @@ WIDTH = None
 HEIGHT = None
 COLOR_ORDER_BGR = False
 GPIO_DATA_COMMAND = None
+GPIO_RESET = None
 H_OFFSET = None
 V_OFFSET = None
 
@@ -34,6 +35,7 @@ elif PLATFORM == "waveshare":
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
     GPIO_DATA_COMMAND = "25"
+    GPIO_RESET = "27"
     H_OFFSET = "1"
     V_OFFSET = "2"
 else:
@@ -148,6 +150,10 @@ if COLOR_ORDER_BGR:
 if GPIO_DATA_COMMAND:
     actual_args.append("--gpio-data-command")
     actual_args.append(GPIO_DATA_COMMAND)
+
+if GPIO_RESET:
+    actual_args.append("--gpio-reset")
+    actual_args.append(GPIO_RESET)
 
 if H_OFFSET:
     actual_args.append("--h-offset")
