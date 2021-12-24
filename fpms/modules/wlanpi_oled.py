@@ -15,6 +15,9 @@ INTERFACE_TYPE = None
 WIDTH = None
 HEIGHT = None
 COLOR_ORDER_BGR = False
+GPIO_DATA_COMMAND = None
+H_OFFSET = None
+V_OFFSET = None
 
 if PLATFORM == "pro":
     # ssd1351 128 x 128
@@ -23,6 +26,16 @@ if PLATFORM == "pro":
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
+elif PLATFORM == "waveshare":
+    # 1.44 in LCD Display HAT settings
+    DISPLAY_TYPE = "st7735"
+    INTERFACE_TYPE = "spi"
+    WIDTH = "128"
+    HEIGHT = "128"
+    COLOR_ORDER_BGR = True
+    GPIO_DATA_COMMAND = "25"
+    H_OFFSET = "1"
+    V_OFFSET = "2"
 else:
     # Sapphire HAT OLED settings
     DISPLAY_TYPE = "sh1106"
@@ -132,11 +145,26 @@ if I2C_PORT:
 if COLOR_ORDER_BGR:
     actual_args.append("--bgr")
 
+if GPIO_DATA_COMMAND:
+    actual_args.append("--gpio-data-command")
+    actual_args.append(GPIO_DATA_COMMAND)
+
+if H_OFFSET:
+    actual_args.append("--h-offset")
+    actual_args.append(H_OFFSET)
+
+if V_OFFSET:
+    actual_args.append("--v-offset")
+    actual_args.append(V_OFFSET)
+
 device = get_device(actual_args=actual_args)
 
 # Init function of the OLED
 def init():
-    device.contrast(128)
+    if PLATFORM == "pro":
+        # Reduce the contrast to also help reduce the noise
+        # that's being produced by the display for some reason
+        device.contrast(128)
     return True
 
 def setNormalDisplay():

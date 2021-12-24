@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.6) unstable; urgency=medium
+
+  * Adds support for the 1.44in LCD Display HAT from Waveshare
+  * Fixes an issue where the very first button press was always ignored
+
+ -- Adrian Granados <adrian@intuibits.com>  Thu, 23 Dec 2021 15:54:30 -0600
+
 wlanpi-fpms (1.2.5-1) unstable; urgency=medium
 
   * Fixes spacing between status bar icons
