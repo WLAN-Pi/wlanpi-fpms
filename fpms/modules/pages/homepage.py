@@ -614,11 +614,10 @@ class HomePage(object):
         return height
 
     @staticmethod
-    def trim_hostname(hostname) -> str:
-        out = ""
+    def trim_lengthy_hostname(hostname) -> str:
         if len(hostname) > 15:
-            out = hostname[0:13] + ".."
-        return out 
+            return hostname[0:13] + ".."
+        return hostname
 
     def system_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=SYSTEM_BAR_HEIGHT):
 
@@ -628,7 +627,7 @@ class HomePage(object):
         canvas.rectangle((x, y, width, y + height), fill=THEME.system_bar_background.value)
 
         # Draw hostname
-        hostname = self.trim_hostname(g_vars['hostname'])
+        hostname = self.trim_lengthy_hostname(g_vars['hostname'])
 
         canvas.text((x + padding, y + padding), hostname, font=SMART_FONT, fill=THEME.system_bar_foreground.value)
 
