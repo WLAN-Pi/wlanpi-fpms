@@ -270,6 +270,10 @@ optional options:
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_mist_cloud(g_vars)
 
+    def show_aruba_test():
+        utils_obj = CloudUtils(g_vars)
+        utils_obj.test_aruba_cloud(g_vars)
+
     def show_blinker():
         utils_obj = Utils(g_vars)
         utils_obj.show_blinker(g_vars)
@@ -433,8 +437,9 @@ optional options:
                 {"name": "Run Test", "action": show_speedtest},
             ]
             },
-            {"name": "Mist Cloud", "action": [
-                {"name": "Run Test", "action": show_mist_test},
+            {"name": "Cloud Tests", "action": [
+                {"name": "Run Aruba Test", "action": show_aruba_test},
+                {"name": "Run Mist Test", "action": show_mist_test},
             ]
             },
             {"name": "Port Blinker", "action": [
