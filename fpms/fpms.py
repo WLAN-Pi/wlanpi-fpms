@@ -188,7 +188,7 @@ optional options:
     #######################################################################
 
     if g_vars['current_mode'] == "server":
-        schedule_server_to_classic = "/etc/wlanpiserver/scripts/schedule-switch-to-classic"
+        schedule_server_to_classic = "/etc/wlanpi-server/scripts/schedule-switch-to-classic"
         subprocess.Popen([schedule_server_to_classic])
 
     ##################################
