@@ -20,7 +20,7 @@ class CloudUtils(object):
 
         1. Is eth0 port up?
         2. Do we get an IP address via DHCP?
-        3a. Can we resolve address activate.arubanetworks.com
+        3a. Can we resolve address common.cloud.hpe.com
         3b. Can we resolve address device.arubanetworks.com
         4. Can we ping the WAN check? pqm.arubanetworks.com
         """
@@ -65,12 +65,12 @@ class CloudUtils(object):
                     test_fail = True
 
             if not test_fail:
-                # Can we resolve address activate.arubanetworks.com?
+                # Can we resolve address common.cloud.hpe.com?
                 # Can we resolve address device.arubanetworks.com?
                 # Can we resolve address images.arubanetworks.com?
 
                 try:
-                    socket.gethostbyname("activate.arubanetworks.com")
+                    socket.gethostbyname("common.cloud.hpe.com")
                     item_list[2] = "DNS (ACTIVATE): OK"
                 except Exception as error:
                     test_fail = True
