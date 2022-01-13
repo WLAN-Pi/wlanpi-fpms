@@ -538,6 +538,8 @@ optional options:
         ]
         }
 
+        menu.pop(4)
+
     # Set up handlers to process key presses
     def button_press(gpio_pin, g_vars=g_vars):
 
