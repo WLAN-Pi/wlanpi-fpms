@@ -126,9 +126,9 @@ class Utils(object):
         swpc = "sudo grep 'wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
 
         try:
-            wpa_passphrase = []
+            wpa_passphrase = [" "]
             wpa_passphrase_output = subprocess.check_output(swpc, shell=True).decode()
-            wpa_passphrase.append(wpa_passphrase_output)
+            wpa_passphrase.append(wpa_passphrase_output.center(21, " "))
 
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
