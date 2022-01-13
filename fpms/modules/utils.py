@@ -123,7 +123,7 @@ class Utils(object):
         '''
         Show WPA passphrase
         '''
-        swpc = "sudo grep 'wpa_passphrase' /etc/hostapd.conf | cut -d '=' -f2"
+        swpc = "sudo grep 'wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
 
         try:
             wpa_passphrase = []
