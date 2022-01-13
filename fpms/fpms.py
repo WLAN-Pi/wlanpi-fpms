@@ -530,7 +530,7 @@ optional options:
         g_vars['home_page_name'] = "Server"
 
     if g_vars['current_mode'] != "classic":
-        menu[2] = {"name": "Mode", "action": [
+        menu[3] = {"name": "Mode", "action": [
             {"name": "Classic Mode",   "action": [
                 {"name": "Confirm", "action": switcher_dispatcher},
             ]
@@ -538,7 +538,7 @@ optional options:
         ]
         }
 
-        menu.pop(3)
+        menu.pop(4)
 
     # Set up handlers to process key presses
     def button_press(gpio_pin, g_vars=g_vars):

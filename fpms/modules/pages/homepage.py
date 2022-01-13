@@ -39,19 +39,13 @@ class HomePage(object):
         '''
         Get a count of connected clients when in hotspot mode
         '''
-        wccc = "sudo /sbin/iw dev wlan0 station dump | grep 'Station' | wc -l"
+        cmd = "sudo /sbin/iw dev wlan0 station dump | grep 'Station' | wc -l"
 
         try:
-            client_count = subprocess.check_output(wccc, shell=True).decode()
-
+            client_count = subprocess.check_output(cmd, shell=True).decode().strip()
+            return int(client_count)
         except subprocess.CalledProcessError as exc:
-            output = exc.output.decode()
-            #error_descr = "Issue getting number of  Wi-Fi clients"
-            wccerror = ["Err: Wi-Fi client count", str(output)]
-            self.simple_table_obj.display_simple_table(g_vars, wccerror)
-            return
-
-        return client_count.strip()
+            return -1
 
     def check_wiperf_status(self):
         '''
@@ -117,10 +111,29 @@ class HomePage(object):
 
         return ip_addr
 
+    def if_wireless(self, if_name):
+        '''
+        Returns True if the interface is a wireless interface, False otherwise.
+        '''
+
+        try:
+            subprocess.check_output("iw dev {} info".format(if_name),
+                shell=True,
+                stderr=subprocess.DEVNULL)
+            return True
+        except Exception as ex:
+            pass
+
+        return False
+
     def if_link_status(self, if_name):
         '''
         Returns the link status for the given interface
         '''
+
+        # Check if the interface is a wireless interface, if so, we skip it
+        if self.if_wireless(if_name):
+            return None
 
         status = None
         try:
@@ -216,7 +229,7 @@ class HomePage(object):
         elif g_vars['current_mode'] == "hotspot":
             # get wlan0 IP
             if_name = "wlan0"
-            mode_name = "Hotspot " + self.wifi_client_count() + " clients"
+            mode_name = "Hotspot " + str(self.wifi_client_count()) + " clients"
 
         elif g_vars['current_mode'] == "wiperf":
             # get wlan0 IP
@@ -336,8 +349,10 @@ class HomePage(object):
         canvas = g_vars['draw']
         y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
         y += 12
-        clients = self.wifi_client_count() + " clients"
-        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(clients)[0])/2, y), clients, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+        client_count = self.wifi_client_count()
+        if client_count >= 0:
+            clients = str(client_count) + (" client" if client_count == 1 else " clients")
+            canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(clients)[0])/2, y), clients, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
 
     def wconsole_mode(self, g_vars, x=0, y=0, padding=2):
         self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
