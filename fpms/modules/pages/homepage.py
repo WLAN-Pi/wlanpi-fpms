@@ -111,10 +111,29 @@ class HomePage(object):
 
         return ip_addr
 
+    def if_wireless(self, if_name):
+        '''
+        Returns True if the interface is a wireless interface, False otherwise.
+        '''
+
+        try:
+            subprocess.check_output("iw dev {} info".format(if_name),
+                shell=True,
+                stderr=subprocess.DEVNULL)
+            return True
+        except Exception as ex:
+            pass
+
+        return False
+
     def if_link_status(self, if_name):
         '''
         Returns the link status for the given interface
         '''
+
+        # Check if the interface is a wireless interface, if so, we skip it
+        if self.if_wireless(if_name):
+            return None
 
         status = None
         try:
