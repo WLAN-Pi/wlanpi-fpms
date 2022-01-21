@@ -82,7 +82,7 @@ class SimpleTable(object):
             self.draw.text((x, y + font_offset), item,
                             font=font_type, fill=THEME.simple_table_row_foreground.value)
 
-            font_offset += font_size
+            font_offset += font_size + 2
 
         oled.drawImage(g_vars['image'])
 

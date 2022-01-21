@@ -139,6 +139,10 @@ class Button(object):
         # make sure we know speedtest is done
         g_vars['speedtest_status'] = False
 
+        if self._at_home_page(g_vars):
+            # switch between normal and alternate home page
+            g_vars['home_page_alternate'] = not g_vars['home_page_alternate']
+
         # Check if the "action" field at the current location is an
         # array or a function. If we have an array, append the current
         # selection and re-draw menu

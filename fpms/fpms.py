@@ -161,6 +161,7 @@ optional options:
         'last_button_press_count': -1,  # copy of count of button pressses used in main loop
         'pageSleepCountdown': PAGE_SLEEP, # Set page sleep control
         'home_page_name': "Home",       # Display name for top level menu
+        'home_page_alternate': False,   # True if in alternate home page state
         'blinker_status': False,        # Blinker status
         'eth_carrier_status': 0,        # Eth0 physical link status
         'eth_last_known_address': "",   # Last known eth0 address
@@ -282,9 +283,9 @@ optional options:
         utils_obj = Utils(g_vars)
         utils_obj.stop_blinker(g_vars)
 
-    def show_wpa_passphrase():
+    def show_ssid_passphrase():
         utils_obj = Utils(g_vars)
-        utils_obj.show_wpa_passphrase(g_vars)
+        utils_obj.show_ssid_passphrase(g_vars)
 
     def show_usb():
         utils_obj = Utils(g_vars)
@@ -447,7 +448,7 @@ optional options:
                 {"name": "Stop", "action": stop_blinker},
             ]
             },
-            {"name": "WPA Passphrase", "action": show_wpa_passphrase},
+            {"name": "SSID/Passphrase", "action": show_ssid_passphrase},
             {"name": "USB Devices", "action": show_usb},
             {"name": "UFW Ports", "action": show_ufw},
         ]
@@ -461,10 +462,10 @@ optional options:
                 {"name": "Confirm", "action": hotspot_switcher},
             ]
             },
-            {"name": "Wiperf",   "action": [
-                {"name": "Confirm", "action": wiperf_switcher},
-            ]
-            },
+            #{"name": "Wiperf",   "action": [
+            #    {"name": "Confirm", "action": wiperf_switcher},
+            #]
+            #},
             {"name": "Server",   "action": [
                 {"name": "Confirm", "action": server_switcher},
             ]
@@ -496,18 +497,18 @@ optional options:
         ]
         },
         {"name": "System", "action": [
-            {"name": "Shutdown", "action": [
-                {"name": "Confirm", "action": shutdown},
-            ]
-            },
+            {"name": "About", "action": show_about},
+            {"name": "Battery", "action": show_battery},
+            {"name": "Date/Time", "action": show_date},
+            {"name": "Summary", "action": show_summary},
             {"name": "Reboot",   "action": [
                 {"name": "Confirm", "action": reboot},
             ]
             },
-            {"name": "Summary", "action": show_summary},
-            {"name": "Battery", "action": show_battery},
-            {"name": "Date/Time", "action": show_date},
-            {"name": "About", "action": show_about},
+            {"name": "Shutdown", "action": [
+                {"name": "Confirm", "action": shutdown},
+            ]
+            },
         ]
         },
     ]
