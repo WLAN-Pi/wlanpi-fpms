@@ -3,9 +3,12 @@ import os.path
 import os
 import time
 
+from PIL import Image
+
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.simpletable import *
 from fpms.modules.pages.pagedtable import *
+from fpms.modules.env_utils import EnvUtils
 from fpms.modules.constants import (
     REACHABILITY_FILE,
     BLINKER_FILE,
@@ -119,17 +122,21 @@ class Utils(object):
 
         self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title='Reachability')
 
-    def show_wpa_passphrase(self, g_vars):
+    def show_ssid_passphrase(self, g_vars):
         '''
-        Show WPA passphrase
+        Show SSID, passphrase and QR code if available
         '''
-        swpc = "sudo grep 'wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
+
+        if g_vars['result_cache'] == True:
+            return
+
+        cmd = "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
 
         try:
-            wpa_passphrase = [" "]
-            wpa_passphrase_output = subprocess.check_output(swpc, shell=True).decode()
-            wpa_passphrase.append(wpa_passphrase_output.center(21, " "))
-
+            data = [" "]
+            ssid, passphrase = subprocess.check_output(cmd, shell=True).decode().strip().split("\n")
+            data.append(ssid.center(21, " "))
+            data.append(passphrase.center(21, " "))
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
             swperror = ["Err: WPA passphrase", output]
@@ -140,7 +147,21 @@ class Utils(object):
         if g_vars['display_state'] == 'menu':
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, wpa_passphrase, title='WPA Passphrase')
+        self.simple_table_obj.display_simple_table(g_vars, data, title='SSID/Passphrase')
+
+        # Display QR code
+        env_utils = EnvUtils()
+
+        # Get path to QR code png (it will be generated if not present)
+        qrcode_path = env_utils.get_wifi_qrcode(ssid, passphrase)
+        if qrcode_path != None:
+            img = Image.open(qrcode_path, 'r')
+            img_w, img_h = img.size
+            offset = ((PAGE_WIDTH - img_w) // 2, PAGE_HEIGHT - img_h - STATUS_BAR_HEIGHT)
+            g_vars['image'].paste(img, offset)
+            oled.drawImage(g_vars['image'])
+
+        g_vars['result_cache'] = True
 
     def show_usb(self, g_vars):
         '''

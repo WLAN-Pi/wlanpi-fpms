@@ -8,6 +8,9 @@
 import subprocess
 import re
 import os
+import hashlib
+import pyqrcode
+import png
 
 class EnvUtils(object):
 
@@ -105,3 +108,29 @@ class EnvUtils(object):
             hostname = 'Unknown'
 
         return hostname
+
+    def get_wifi_qrcode_for_hostapd(self):
+        '''
+        Generates and returns the path to a WiFi QR code for the current Hostapd config.
+        '''
+        cmd = "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
+
+        try:
+            ssid, passphrase = subprocess.check_output(cmd, shell=True).decode().strip().split("\n")
+            return self.get_wifi_qrcode(ssid, passphrase)
+
+        except:
+            pass
+
+        return None
+
+    def get_wifi_qrcode(self, ssid, passphrase):
+        qrcode_spec = "WIFI:S:{};T:WPA;P:{};;".format(ssid, passphrase)
+        qrcode_hash = hashlib.sha1(qrcode_spec.encode()).hexdigest()
+        qrcode_path = "/tmp/{}.png".format(qrcode_hash)
+
+        if not os.path.exists(qrcode_path):
+            url = pyqrcode.create(qrcode_spec)
+            url.png(qrcode_path, scale = 1)
+
+        return qrcode_path

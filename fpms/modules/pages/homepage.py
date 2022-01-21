@@ -9,6 +9,8 @@ import time
 import textfsm
 import threading
 
+from PIL import Image
+
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
 from fpms.modules.battery import *
@@ -16,6 +18,7 @@ from fpms.modules.bluetooth import *
 from fpms.modules.apps.profiler import *
 from fpms.modules.themes import THEME
 from fpms.modules.constants import *
+from fpms.modules.env_utils import EnvUtils
 
 class HomePage(object):
 
@@ -346,16 +349,22 @@ class HomePage(object):
                 y += 11
 
     def hotspot_mode(self, g_vars, x=0, y=0, padding=2):
-        canvas = g_vars['draw']
-        y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
-        y += 12
-        client_count = self.wifi_client_count()
-        if client_count >= 0:
-            clients = str(client_count) + (" client" if client_count == 1 else " clients")
-            canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(clients)[0])/2, y), clients, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+        if g_vars['home_page_alternate']:
+            self.wifi_qrcode(g_vars, x, y)
+        else:
+            canvas = g_vars['draw']
+            y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
+            y += 12
+            client_count = self.wifi_client_count()
+            if client_count >= 0:
+                clients = str(client_count) + (" client" if client_count == 1 else " clients")
+                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(clients)[0])/2, y), clients, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
 
     def wconsole_mode(self, g_vars, x=0, y=0, padding=2):
-        self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
+        if g_vars['home_page_alternate']:
+            self.wifi_qrcode(g_vars, x, y)
+        else:
+            self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
 
     def wiperf_mode(self, g_vars, x=0, y=0, padding=2):
         canvas = g_vars['draw']
@@ -365,7 +374,25 @@ class HomePage(object):
         canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(status)[0])/2, y), status, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
 
     def dhcp_server_mode(self, g_vars, x=0, y=0, padding=2):
-        self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+        if g_vars['home_page_alternate']:
+            self.wifi_qrcode(g_vars, x, y)
+        else:
+            self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+
+    def wifi_qrcode(self, g_vars, x, y):
+        '''
+        Displays the Wi-Fi QR code
+        '''
+        env_utils = EnvUtils()
+
+        # Get path to QR code png (it will be generated if not present)
+        qrcode_path = env_utils.get_wifi_qrcode_for_hostapd()
+        if qrcode_path != None:
+            # Draw QR code centered horizontally
+            img = Image.open(qrcode_path, 'r')
+            img_w, img_h = img.size
+            offset = ((PAGE_WIDTH - img_w) // 2, y + 10)
+            g_vars['image'].paste(img, offset)
 
     def battery_indicator(self, g_vars, x, y, width, height):
         '''
