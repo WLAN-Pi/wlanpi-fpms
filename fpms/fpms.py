@@ -462,10 +462,10 @@ optional options:
                 {"name": "Confirm", "action": hotspot_switcher},
             ]
             },
-            {"name": "Wiperf",   "action": [
-                {"name": "Confirm", "action": wiperf_switcher},
-            ]
-            },
+            #{"name": "Wiperf",   "action": [
+            #    {"name": "Confirm", "action": wiperf_switcher},
+            #]
+            #},
             {"name": "Server",   "action": [
                 {"name": "Confirm", "action": server_switcher},
             ]
