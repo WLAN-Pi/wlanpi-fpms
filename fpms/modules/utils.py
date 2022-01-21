@@ -126,7 +126,7 @@ class Utils(object):
         '''
         Show SSID, passphrase and QR code if available
         '''
-
+        
         if g_vars['result_cache'] == True:
             return
 
