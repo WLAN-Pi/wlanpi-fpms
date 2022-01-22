@@ -9,8 +9,9 @@ import subprocess
 import re
 import os
 import hashlib
-import pyqrcode
-import png
+import qrcode
+
+from PIL import Image
 
 class EnvUtils(object):
 
@@ -119,7 +120,8 @@ class EnvUtils(object):
             ssid, passphrase = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode().strip().split("\n")
             return self.get_wifi_qrcode(ssid, passphrase)
 
-        except:
+        except Exception as e:
+            print(e)
             pass
 
         return None
@@ -130,7 +132,9 @@ class EnvUtils(object):
         qrcode_path = "/tmp/{}.png".format(qrcode_hash)
 
         if not os.path.exists(qrcode_path):
-            url = pyqrcode.create(qrcode_spec)
-            url.png(qrcode_path, scale = 1)
+            qr = qrcode.QRCode(box_size=2, border=3, error_correction=qrcode.constants.ERROR_CORRECT_M)
+            qr.add_data(qrcode_spec)
+            qr.make(fit=True)
+            qr.make_image().save(qrcode_path)
 
         return qrcode_path
