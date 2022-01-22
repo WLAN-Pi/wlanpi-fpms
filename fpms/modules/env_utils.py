@@ -102,7 +102,7 @@ class EnvUtils(object):
     def get_hostname(self):
 
         try:
-            hostname = subprocess.check_output('hostname -A', shell=True).decode().strip()
+            hostname = subprocess.check_output('hostname -A', shell=True).decode().strip().split(" ")[0]
             if hostname == "":
                 hostname = subprocess.check_output('hostname', shell=True).decode().strip()
         except:
