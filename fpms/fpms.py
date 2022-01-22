@@ -530,16 +530,31 @@ optional options:
         switcher_dispatcher = server_switcher
         g_vars['home_page_name'] = "Server"
 
-    if g_vars['current_mode'] != "classic":
-        menu[3] = {"name": "Mode", "action": [
-            {"name": "Classic Mode",   "action": [
-                {"name": "Confirm", "action": switcher_dispatcher},
-            ]
-            },
-        ]
-        }
+    if g_vars['current_mode'] == "classic":
+        # Remove Utils > SSID/Passphrase
+        for item in menu:
+            if item["name"] == "Utils":
+                for action in item["action"]:
+                    if action["name"] == "SSID/Passphrase":
+                        item["action"].remove(action)
+                        break
+    else:
+        # Adjust Modes menu
+        for item in menu:
+            if item["name"] == "Modes":
+                item["name"] = "Mode"
+                item["action"] = [
+                    {"name": "Classic Mode",   "action": [
+                        {"name": "Confirm", "action": switcher_dispatcher},
+                    ]
+                    },
+                ]
+                break
 
-        menu.pop(4)
+        # Remove Apps menu
+        for item in menu:
+            if item["name"] == "Apps":
+                menu.remove(item)
 
     # Set up handlers to process key presses
     def button_press(gpio_pin, g_vars=g_vars):

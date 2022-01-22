@@ -127,6 +127,9 @@ class Utils(object):
         Show SSID, passphrase and QR code if available
         '''
 
+        ssid = None
+        passphrase = None
+
         if g_vars['result_cache'] == True:
             return
 
@@ -134,13 +137,11 @@ class Utils(object):
 
         try:
             data = [" "]
-            ssid, passphrase = subprocess.check_output(cmd, shell=True).decode().strip().split("\n")
+            ssid, passphrase = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode().strip().split("\n")
             data.append(ssid.center(21, " "))
             data.append(passphrase.center(21, " "))
-        except subprocess.CalledProcessError as exc:
-            output = exc.output.decode()
-            swperror = ["Err: WPA passphrase", output]
-            self.simple_table_obj.display_simple_table(g_vars, swperror)
+        except:
+            self.alert_obj.display_alert_error(g_vars, "No SSID/Passphrase is set")
             return
 
         # final check no-one pressed a button before we render page
