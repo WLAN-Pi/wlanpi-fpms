@@ -116,7 +116,7 @@ class EnvUtils(object):
         cmd = "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
 
         try:
-            ssid, passphrase = subprocess.check_output(cmd, shell=True).decode().strip().split("\n")
+            ssid, passphrase = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode().strip().split("\n")
             return self.get_wifi_qrcode(ssid, passphrase)
 
         except:
