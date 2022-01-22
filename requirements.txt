@@ -4,5 +4,4 @@ rpi.gpio==0.7.1a4
 gpiozero==1.6.2
 textfsm==1.1.2
 Pillow==9.0.0
-pyqrcode==1.2.1
-pypng==0.0.21
+qrcode==7.3.1

@@ -136,7 +136,7 @@ class Utils(object):
         cmd = "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
 
         try:
-            data = [" "]
+            data = []
             ssid, passphrase = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode().strip().split("\n")
             data.append(ssid.center(21, " "))
             data.append(passphrase.center(21, " "))
@@ -158,7 +158,7 @@ class Utils(object):
         if qrcode_path != None:
             img = Image.open(qrcode_path, 'r')
             img_w, img_h = img.size
-            offset = ((PAGE_WIDTH - img_w) // 2, PAGE_HEIGHT - img_h - STATUS_BAR_HEIGHT)
+            offset = ((PAGE_WIDTH - img_w) // 2, 48)
             g_vars['image'].paste(img, offset)
             oled.drawImage(g_vars['image'])
 

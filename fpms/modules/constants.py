@@ -46,10 +46,12 @@ os.chdir(SCRIPT_PATH)
 
 # Define display fonts
 SMART_FONT = ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 10)
+FONT10 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 10)
 FONT11 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 11)
 FONT12 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 12)
 FONT13 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 13)
 FONT14 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 14)
+FONTB10 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 10)
 FONTB11 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 11)
 FONTB12 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 12)
 FONTB13 =  ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 13)

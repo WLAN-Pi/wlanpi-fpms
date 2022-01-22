@@ -206,8 +206,12 @@ class HomePage(object):
         y += padding * 4
 
         # Display mode
-        canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name, font=FONTB13, fill=THEME.text_highlighted_color.value)
-        y += 14 + padding * 2
+        if g_vars['home_page_alternate'] == True:
+            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(mode_name)[0])/2, y - padding), mode_name, font=FONTB10, fill=THEME.text_highlighted_color.value)
+            y += 10 + padding * 2
+        else:
+            canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name, font=FONTB13, fill=THEME.text_highlighted_color.value)
+            y += 14 + padding * 2
 
         mode(g_vars, x=x, y=y, padding=padding)
 
@@ -391,7 +395,7 @@ class HomePage(object):
             # Draw QR code centered horizontally
             img = Image.open(qrcode_path, 'r')
             img_w, img_h = img.size
-            offset = ((PAGE_WIDTH - img_w) // 2, y + 10)
+            offset = ((PAGE_WIDTH - img_w) // 2, y)
             g_vars['image'].paste(img, offset)
 
     def battery_indicator(self, g_vars, x, y, width, height):
