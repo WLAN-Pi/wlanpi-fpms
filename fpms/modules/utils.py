@@ -19,6 +19,9 @@ class Utils(object):
 
     def __init__(self, g_vars):
 
+        # create display object
+        self.display_obj = Display(g_vars)
+
         # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
 
@@ -156,11 +159,7 @@ class Utils(object):
         # Get path to QR code png (it will be generated if not present)
         qrcode_path = env_utils.get_wifi_qrcode(ssid, passphrase)
         if qrcode_path != None:
-            img = Image.open(qrcode_path, 'r')
-            img_w, img_h = img.size
-            offset = ((PAGE_WIDTH - img_w) // 2, 48)
-            g_vars['image'].paste(img, offset)
-            oled.drawImage(g_vars['image'])
+            self.display_obj.stamp_qrcode(g_vars, qrcode_path, center_vertically=False, y=48)
 
         g_vars['result_cache'] = True
 
