@@ -48,7 +48,7 @@ class Alert(object):
         self.draw.rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background)
         title_size = SMART_FONT.getsize(title)
         self.draw.text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title,  font=SMART_FONT, fill=title_foreground)
-        font_offset += font_size + padding
+        font_offset += font_size
 
         y += font_offset
 

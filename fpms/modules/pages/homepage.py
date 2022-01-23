@@ -35,6 +35,9 @@ class HomePage(object):
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
+        # create a profiler object
+        self.profiler_obj = Profiler(g_vars)
+
         thread = threading.Thread(target=self.check_reachability, args=(g_vars,), daemon=True)
         thread.start()
 
@@ -182,7 +185,7 @@ class HomePage(object):
 
         if_name = "eth0"
         mode_name = "WLAN Pi Pro"
-        mode = self.default_mode
+        mode = self.classic_mode
 
         if g_vars['current_mode'] == "wconsole":
             if_name = "wlan0"
@@ -206,11 +209,21 @@ class HomePage(object):
         y += padding * 4
 
         # Display mode
+        display_alternate_title = False
+        title = mode_name
         if g_vars['home_page_alternate'] == True:
-            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(mode_name)[0])/2, y - padding), mode_name, font=FONTB10, fill=THEME.text_highlighted_color.value)
+            if g_vars['current_mode'] == "classic":
+                if self.profiler_obj.profiler_running():
+                    display_alternate_title = True
+                    title = "Profiler"
+            else:
+                display_alternate_title = True
+
+        if display_alternate_title:
+            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(title)[0])/2, y), title, font=FONTB10, fill=THEME.text_highlighted_color.value)
             y += 10 + padding * 2
         else:
-            canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(mode_name)[0])/2, y + padding), mode_name, font=FONTB13, fill=THEME.text_highlighted_color.value)
+            canvas.text((x + (PAGE_WIDTH - FONTB13.getsize(title)[0])/2, y + padding), title, font=FONTB13, fill=THEME.text_highlighted_color.value)
             y += 14 + padding * 2
 
         mode(g_vars, x=x, y=y, padding=padding)
@@ -327,27 +340,31 @@ class HomePage(object):
 
         return offset
 
-    def default_mode(self, g_vars, x=0, y=0, padding=2):
-        canvas = g_vars['draw']
-        y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
-        y += 12
+    def classic_mode(self, g_vars, x=0, y=0, padding=2):
+        if not self.profiler_obj.profiler_running():
+            g_vars['home_page_alternate'] = False
 
-        # Show the PAN address if bluetooth is on and we're paired with a device
-        pan = self.if_address("pan0")
-        if pan.lower() != "no ip address":
-            bluetooth = Bluetooth(g_vars)
-            if bluetooth.bluetooth_power():
-                paired_devices = bluetooth.bluetooth_paired_devices()
-                if paired_devices != None:
-                    pan_info = f"PAN: {pan}"
-                    canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(pan_info)[0])/2, y), pan_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
-                    y += 11
+        if g_vars['home_page_alternate']:
+            self.profiler_qrcode(g_vars, x, y)
+        else:
+            canvas = g_vars['draw']
+            y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+            y += 12
 
-        # Show the USB (OTG) address if the eth0 interface link is down
-        usb = self.if_address("usb0")
-        if usb.lower() != "no ip address":
-            eth_link_status = self.if_link_status("eth0")
-            if eth_link_status == "Link down":
+            # Show the PAN address if bluetooth is on and we're paired with a device
+            pan = self.if_address("pan0")
+            if pan.lower() != "no ip address":
+                bluetooth = Bluetooth(g_vars)
+                if bluetooth.bluetooth_power():
+                    paired_devices = bluetooth.bluetooth_paired_devices()
+                    if paired_devices != None:
+                        pan_info = f"PAN: {pan}"
+                        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(pan_info)[0])/2, y), pan_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+                        y += 11
+
+            # Show the USB (OTG) address
+            usb = self.if_address("usb0")
+            if usb.lower() != "no ip address":
                 usb_info = f"USB: {usb}"
                 canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(usb_info)[0])/2, y), usb_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
                 y += 11
@@ -383,20 +400,25 @@ class HomePage(object):
         else:
             self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
+    def profiler_qrcode(self, g_vars, x, y):
+        '''
+        Displays the profiler QR code
+        '''
+        # Get path to QR code png (it will be generated if not present)
+        qrcode_path = self.profiler_obj.profiler_qrcode()
+        if qrcode_path != None:
+            self.display_obj.stamp_qrcode(g_vars, qrcode_path,
+                center_vertically=False, y=y+2, draw_immediately=False)
+
     def wifi_qrcode(self, g_vars, x, y):
         '''
         Displays the Wi-Fi QR code
         '''
-        env_utils = EnvUtils()
-
         # Get path to QR code png (it will be generated if not present)
-        qrcode_path = env_utils.get_wifi_qrcode_for_hostapd()
+        qrcode_path = EnvUtils().get_wifi_qrcode_for_hostapd()
         if qrcode_path != None:
-            # Draw QR code centered horizontally
-            img = Image.open(qrcode_path, 'r')
-            img_w, img_h = img.size
-            offset = ((PAGE_WIDTH - img_w) // 2, y)
-            g_vars['image'].paste(img, offset)
+            self.display_obj.stamp_qrcode(g_vars, qrcode_path,
+                center_vertically=False, y=y+2, draw_immediately=False)
 
     def battery_indicator(self, g_vars, x, y, width, height):
         '''
@@ -541,9 +563,8 @@ class HomePage(object):
 
                 if monitor_mode and not active:
                     # check if the interface is being used for capturing with Profiler
-                    profiler = Profiler(g_vars)
-                    if profiler.profiler_interface() == if_name:
-                        if profiler.profiler_running():
+                    if self.profiler_obj.profiler_interface() == if_name:
+                        if self.profiler_obj.profiler_running():
                             active = True
 
                 fill_color = THEME.status_bar_foreground.value

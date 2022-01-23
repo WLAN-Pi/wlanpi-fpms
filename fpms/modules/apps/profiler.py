@@ -5,11 +5,16 @@ import sys
 import time
 
 import fpms.modules.wlanpi_oled as oled
+from fpms.modules.pages.display import Display
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
+from fpms.modules.env_utils import EnvUtils
 
 class Profiler(object):
     def __init__(self, g_vars):
+
+        # create display object
+        self.display_obj = Display(g_vars)
 
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
@@ -60,6 +65,21 @@ class Profiler(object):
                         pass
         return None
 
+    def profiler_qrcode(self):
+        """
+        Generates and returns the path to a WiFi QR code to be used for profiling
+        """
+        cmd = "grep -E '^ssid' /etc/wlanpi-profiler/config.ini | cut -d ':' -f2"
+
+        try:
+            ssid = subprocess.check_output(cmd, shell=True).decode().strip()
+            env_utils = EnvUtils()
+            return env_utils.get_wifi_qrcode(ssid, "12345678")
+        except:
+            pass
+
+        return None
+
     def profiler_ctl(self, g_vars, action="status"):
         """
         Function to start/stop and get status of Profiler processes
@@ -97,12 +117,7 @@ class Profiler(object):
         if action == "status":
 
             status = []
-
-            # check profiler status & return text
-            if self.profiler_running():
-                status.append("Status: Active")
-            else:
-                status.append("Status: Inactive")
+            active = self.profiler_running()
 
             # read config
             with open(config_file) as f:
@@ -131,8 +146,15 @@ class Profiler(object):
                             pass
 
             self.paged_table_obj.display_list_as_paged_table(
-                g_vars, status, title="Status"
+                g_vars, status, title="Profiler Active" if active else "Profiler Inactive"
             )
+
+            if active:
+                # Stamp QR code to facilitate profiling
+                qrcode_path = self.profiler_qrcode()
+                if qrcode_path != None:
+                    self.display_obj.stamp_qrcode(g_vars, qrcode_path,
+                        center_vertically=False, y=56)
 
             g_vars["display_state"] = "page"
             g_vars["result_cache"] = True
@@ -158,10 +180,12 @@ class Profiler(object):
             else:
                 print("Unknown profiler action: {}".format(action))
 
+            qrcode_offset = 50
             if self.profiler_running():
-                self.alert_obj.display_alert_error(
-                    g_vars, "Profiler is already running."
+                self.alert_obj.display_alert_info(
+                    g_vars, "Profiler already started.", title="Success"
                 )
+                qrcode_offset = qrcode_offset + 4
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Starting...")
                 try:
@@ -174,6 +198,12 @@ class Profiler(object):
                     self.alert_obj.display_alert_error(g_vars, "Start failed.")
                 except subprocess.TimeoutExpired as timeout_exc:
                     self.alert_obj.display_alert_error(g_vars, "Process timed out.")
+
+            # Stamp QR code to facilitate profiling
+            qrcode_path = self.profiler_qrcode()
+            if qrcode_path != None:
+                self.display_obj.stamp_qrcode(g_vars, qrcode_path,
+                    center_vertically=False, y=qrcode_offset)
 
         elif action == "stop":
 

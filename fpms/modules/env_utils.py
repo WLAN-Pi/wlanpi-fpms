@@ -132,7 +132,7 @@ class EnvUtils(object):
         qrcode_path = "/tmp/{}.png".format(qrcode_hash)
 
         if not os.path.exists(qrcode_path):
-            qr = qrcode.QRCode(box_size=2, border=3, error_correction=qrcode.constants.ERROR_CORRECT_M)
+            qr = qrcode.QRCode(box_size=2, border=2, error_correction=qrcode.constants.ERROR_CORRECT_M)
             qr.add_data(qrcode_spec)
             qr.make(fit=True)
             qr.make_image().save(qrcode_path)

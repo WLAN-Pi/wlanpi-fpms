@@ -1,8 +1,17 @@
+wlanpi-fpms (1.2.8-4) unstable; urgency=medium
+
+  * Displays a QR code when starting or checking the status of the profiler,
+    and also when pressing the center button while in the home screen
+  * Fixes issue where OTG (usb0) IP address was being shown only if eth0 link was
+    down
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sat, 22 Jan 2022 21:07:32 -0600
+
 wlanpi-fpms (1.2.8-3) unstable; urgency=medium
 
   * Removes image version from home screen to make room for the hostname (image version can
     still be checked in System > About)
-  * Fixes an error getting the FQDN to display in the home screen.
+  * Fixes an error getting the FQDN to display in the home screen
 
  -- Adrian Granados <adrian@intuitibits.com>  Sat, 22 Jan 2022 12:07:21 -0600
 
