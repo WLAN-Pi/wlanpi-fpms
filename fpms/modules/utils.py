@@ -159,7 +159,7 @@ class Utils(object):
         # Get path to QR code png (it will be generated if not present)
         qrcode_path = env_utils.get_wifi_qrcode(ssid, passphrase)
         if qrcode_path != None:
-            self.display_obj.stamp_qrcode(g_vars, qrcode_path, center_vertically=False, y=48)
+            self.display_obj.stamp_qrcode(g_vars, qrcode_path, center_vertically=False, y=52)
 
         g_vars['result_cache'] = True
 
