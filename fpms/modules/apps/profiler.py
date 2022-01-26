@@ -41,14 +41,23 @@ class Profiler(object):
         with open(filename, "w") as f:
             f.writelines(lines)
 
-    def profiler_running(self):
-        try:
-            # this cmd fails if process not active
-            cmd = "systemctl is-active --quiet wlanpi-profiler"
-            subprocess.check_output(cmd, shell=True)
+    def profiler_beaconing(self):
+        """
+        Checks the presence of /var/run/wlanpi-profiler.ssid to determine whether
+        or not the Profiler is beaconing
+        """
+        ssid_file = "/var/run/wlanpi-profiler.ssid"
+        if os.path.exists(ssid_file):
             return True
-        except subprocess.CalledProcessError as exc:
+        else:
             return False
+
+    def profiler_beaconing_ssid(self):
+        ssid_file = "/var/run/wlanpi-profiler.ssid"
+        if os.path.exists(ssid_file):
+            with open(ssid_file, "r") as f:
+                return f.read()
+        return None
 
     def profiler_interface(self):
         """
@@ -69,14 +78,9 @@ class Profiler(object):
         """
         Generates and returns the path to a WiFi QR code to be used for profiling
         """
-        cmd = "grep -E '^ssid' /etc/wlanpi-profiler/config.ini | cut -d ':' -f2"
-
-        try:
-            ssid = subprocess.check_output(cmd, shell=True).decode().strip()
-            env_utils = EnvUtils()
-            return env_utils.get_wifi_qrcode(ssid, "12345678")
-        except:
-            pass
+        ssid = self.profiler_beaconing_ssid()
+        if ssid != None:
+            return EnvUtils().get_wifi_qrcode(ssid, "12345678")
 
         return None
 
@@ -117,7 +121,7 @@ class Profiler(object):
         if action == "status":
 
             status = []
-            active = self.profiler_running()
+            active = self.profiler_beaconing()
 
             # read config
             with open(config_file) as f:
@@ -131,13 +135,6 @@ class Profiler(object):
                         except AttributeError:
                             pass
 
-                        # SSID
-                        try:
-                            ssid = re.search("^ssid:\s+(.+)", line).group(1)
-                            status.append("SSID: {}".format(ssid))
-                        except AttributeError:
-                            pass
-
                         # Interface
                         try:
                             interface = re.search("^interface:\s+(.+)", line).group(1)
@@ -145,6 +142,11 @@ class Profiler(object):
                         except AttributeError:
                             pass
 
+            if active:
+                # SSID
+                status.append("SSID: {}".format(self.profiler_beaconing_ssid()))
+
+            # Compose table
             self.paged_table_obj.display_list_as_paged_table(
                 g_vars, status, title="Profiler Active" if active else "Profiler Inactive"
             )
@@ -181,7 +183,7 @@ class Profiler(object):
                 print("Unknown profiler action: {}".format(action))
 
             qrcode_offset = 50
-            if self.profiler_running():
+            if self.profiler_beaconing():
                 self.alert_obj.display_alert_info(
                     g_vars, "Profiler already started.", title="Success"
                 )
@@ -191,6 +193,17 @@ class Profiler(object):
                 try:
                     cmd = "/bin/systemctl start wlanpi-profiler"
                     subprocess.run(cmd, shell=True, timeout=2)
+
+                    # We need to wait until Profiler starts beaconing so that
+                    # we can show the QR code. We will wait for 10 seconds and
+                    # if Profiler hasn't started beaconing, then it will just
+                    # tell the user that Profiler has started.
+                    elapsed_time = 0
+                    max_wait = 10 # seconds
+                    while not self.profiler_beaconing() and elapsed_time <= max_wait:
+                        time.sleep(0.5)
+                        elapsed_time = elapsed_time + 0.5
+
                     self.alert_obj.display_alert_info(
                         g_vars, "Profiler started.", title="Success"
                     )
@@ -207,7 +220,7 @@ class Profiler(object):
 
         elif action == "stop":
 
-            if not self.profiler_running():
+            if not self.profiler_beaconing():
                 self.alert_obj.display_alert_error(
                     g_vars, "Profiler is already stopped."
                 )
@@ -216,9 +229,21 @@ class Profiler(object):
                 try:
                     cmd = "/bin/systemctl stop wlanpi-profiler"
                     subprocess.run(cmd, shell=True)
-                    self.alert_obj.display_alert_info(
-                        g_vars, "Profiler stopped.", title="Success"
-                    )
+
+                    # Wait for Profiler to stop beaconing so we can check
+                    # it was successfully stopped.
+                    elapsed_time = 0
+                    max_wait = 3 # seconds
+                    while self.profiler_beaconing() and elapsed_time <= max_wait:
+                        time.sleep(0.5)
+                        elapsed_time = elapsed_time + 0.5
+
+                    if self.profiler_beaconing():
+                        self.alert_obj.display_alert_error(g_vars, "Stop failed.")
+                    else:
+                        self.alert_obj.display_alert_info(
+                            g_vars, "Profiler stopped.", title="Success"
+                            )
                 except subprocess.CalledProcessError as exc:
                     self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 

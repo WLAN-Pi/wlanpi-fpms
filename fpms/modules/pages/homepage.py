@@ -213,11 +213,15 @@ class HomePage(object):
         title = mode_name
         if g_vars['home_page_alternate'] == True:
             if g_vars['current_mode'] == "classic":
-                if self.profiler_obj.profiler_running():
+                if self.profiler_obj.profiler_beaconing():
                     display_alternate_title = True
-                    title = "Profiler"
+                    title = self.profiler_obj.profiler_beaconing_ssid()
             else:
                 display_alternate_title = True
+
+        # Truncate title if too long
+        if len(title) > 21:
+            title = title[0:19] + ".."
 
         if display_alternate_title:
             canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(title)[0])/2, y), title, font=FONTB10, fill=THEME.text_highlighted_color.value)
@@ -341,7 +345,7 @@ class HomePage(object):
         return offset
 
     def classic_mode(self, g_vars, x=0, y=0, padding=2):
-        if not self.profiler_obj.profiler_running():
+        if not self.profiler_obj.profiler_beaconing():
             g_vars['home_page_alternate'] = False
 
         if g_vars['home_page_alternate']:
@@ -564,7 +568,7 @@ class HomePage(object):
                 if monitor_mode and not active:
                     # check if the interface is being used for capturing with Profiler
                     if self.profiler_obj.profiler_interface() == if_name:
-                        if self.profiler_obj.profiler_running():
+                        if self.profiler_obj.profiler_beaconing():
                             active = True
 
                 fill_color = THEME.status_bar_foreground.value
@@ -680,12 +684,6 @@ class HomePage(object):
 
         return height
 
-    @staticmethod
-    def trim_lengthy_hostname(hostname) -> str:
-        if len(hostname) > 21:
-            return hostname[0:19] + ".."
-        return hostname
-
     def system_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=SYSTEM_BAR_HEIGHT):
 
         canvas = g_vars['draw']
@@ -695,6 +693,8 @@ class HomePage(object):
 
         # Draw hostname
         hostname = g_vars['hostname']
+
+        # Truncate hostname if too long
         if len(hostname) > 21:
             hostname = hostname[0:19] + ".."
 

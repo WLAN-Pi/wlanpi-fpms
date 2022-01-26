@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.8-5) unstable; urgency=medium
+
+  * Adds support for displaying Profiler's QR code and status when running
+    Profiler manually from the CLI 
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 26 Jan 2022 17:19:00 -0600
+
 wlanpi-fpms (1.2.8-4) unstable; urgency=medium
 
   * Displays a QR code when starting or checking the status of the profiler,
