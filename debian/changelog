@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.8-6) unstable; urgency=medium
+
+  * Adds a popup alert to indicate device was profiled
+  * Better handling of Profiler status changes
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 27 Jan 2022 15:13:11 -0600
+
 wlanpi-fpms (1.2.8-5) unstable; urgency=medium
 
   * Adds support for displaying Profiler's QR code and status when running

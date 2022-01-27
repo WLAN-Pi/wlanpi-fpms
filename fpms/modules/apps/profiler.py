@@ -53,9 +53,31 @@ class Profiler(object):
             return False
 
     def profiler_beaconing_ssid(self):
+        """
+        Returns the SSID currently in used by the Profiler
+        """
         ssid_file = "/var/run/wlanpi-profiler.ssid"
         if os.path.exists(ssid_file):
             with open(ssid_file, "r") as f:
+                return f.read()
+        return None
+
+    def profiler_last_profile_date(self):
+        """
+        Returns the date when the last profile was done
+        """
+        last_profile_file = "/var/run/wlanpi-profiler.last_profile"
+        if os.path.exists(last_profile_file):
+            return os.path.getmtime(last_profile_file)
+        return None
+
+    def profiler_last_profile(self):
+        """
+        Returns the MAC address of the client from the last profile
+        """
+        last_profile_file = "/var/run/wlanpi-profiler.last_profile"
+        if os.path.exists(last_profile_file):
+            with open(last_profile_file, "r") as f:
                 return f.read()
         return None
 
@@ -84,10 +106,43 @@ class Profiler(object):
 
         return None
 
+    def profiler_check_new_profile(self, g_vars):
+        """
+        Checks if there's a new profile. Returns True if a new profiler is found
+        and notifies the user by displaying a popup alert with the
+        client's MAC address for 5 seconds
+        """
+        last_profile_date = self.profiler_last_profile_date()
+        if last_profile_date != g_vars["profiler_last_profile_date"]:
+            g_vars["profiler_last_profile_date"] = last_profile_date
+            last_profile = self.profiler_last_profile().upper()
+            if len(last_profile) == 12:
+                # Insert ":" to improve readability
+                last_profile = ":".join(last_profile[i:i+2] for i in range(0, len(last_profile), 2))
+            self.alert_obj.display_popup_alert(g_vars, "Device Profiled\n{}".format(last_profile), delay=5)
+            return True
+
+        return False
+
     def profiler_ctl(self, g_vars, action="status"):
         """
         Function to start/stop and get status of Profiler processes
         """
+        # Reset result_cache if the profiler has changed state so that we
+        # can update the status screen
+        beaconing = self.profiler_beaconing()
+        if g_vars["profiler_beaconing"] != beaconing:
+            g_vars["profiler_beaconing"] = beaconing
+            if action == "status":
+                g_vars["result_cache"] = False
+
+        # Check if we need to notify about a new profile. If so, set result_cache
+        # to false to repaint the screen after the alert is presented
+        if action == "status" or action.startswith("start"):
+            if beaconing:
+                if self.profiler_check_new_profile(g_vars):
+                    g_vars["result_cache"] = False
+
         # if we're been round this loop before,
         # results treated as cached to prevent re-evaluating
         # and re-painting
@@ -111,7 +166,7 @@ class Profiler(object):
             self.alert_obj.display_alert_error(g_vars, "wlanpi-profiler not available.")
             g_vars["display_state"] = "page"
             g_vars["result_cache"] = True
-            return
+            return True
 
         config_file = "/etc/wlanpi-profiler/config.ini"
 
@@ -121,7 +176,6 @@ class Profiler(object):
         if action == "status":
 
             status = []
-            active = self.profiler_beaconing()
 
             # read config
             with open(config_file) as f:
@@ -142,27 +196,23 @@ class Profiler(object):
                         except AttributeError:
                             pass
 
-            if active:
+            if beaconing:
                 # SSID
                 status.append("SSID: {}".format(self.profiler_beaconing_ssid()))
 
             # Compose table
             self.paged_table_obj.display_list_as_paged_table(
-                g_vars, status, title="Profiler Active" if active else "Profiler Inactive"
+                g_vars, status, title="Profiler Active" if beaconing else "Profiler Inactive"
             )
 
-            if active:
+            if beaconing:
                 # Stamp QR code to facilitate profiling
                 qrcode_path = self.profiler_qrcode()
                 if qrcode_path != None:
                     self.display_obj.stamp_qrcode(g_vars, qrcode_path,
                         center_vertically=False, y=56)
 
-            g_vars["display_state"] = "page"
-            g_vars["result_cache"] = True
-            return True
-
-        if action.startswith("start"):
+        elif action.startswith("start"):
 
             if action == "start":
                 # set the config file to use params
@@ -222,7 +272,7 @@ class Profiler(object):
 
             if not self.profiler_beaconing():
                 self.alert_obj.display_alert_error(
-                    g_vars, "Profiler is already stopped."
+                    g_vars, "Profiler already stopped."
                 )
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Stopping...")

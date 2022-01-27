@@ -97,7 +97,7 @@ class Alert(object):
         g_vars['display_state'] = 'page'
 
         item_length_max = 17
-        item_list = wrap(msg, 13)
+        item_list = wrap(msg, 17)
 
         font_offset = 2
         margin = 10
@@ -110,7 +110,7 @@ class Alert(object):
         self.draw.rectangle((margin, y - (rect_height / 2), PAGE_WIDTH - margin, y + rect_height),
             outline=THEME.alert_popup_foreground.value, fill=THEME.alert_popup_background.value)
 
-        y -= font_offset * (len(item_list) + 2)
+        y -= font_offset * (len(item_list) + 2) - 1
 
         for item in item_list:
 
