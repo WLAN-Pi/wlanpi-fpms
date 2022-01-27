@@ -140,33 +140,35 @@ optional options:
         # drawing action in already if progress (e.g. by another activity). An activity
         # happens during each cycle of the main while loop or when a button is pressed
         # (This does not appear to be threading or process spawning)
-        'drawing_in_progress': False, # True when page being painted on screen
+        'drawing_in_progress': False,      # True when page being painted on screen
 
-        'shutdown_in_progress': False,  # True when shutdown or reboot started
-        'screen_cleared': False,        # True when display cleared (e.g. screen save)
-        'display_state': 'page',        # current display state: 'page' or 'menu'
-        'sig_fired': False,             # Set to True when button handler fired
-        'option_selected': 0,           # Content of currently selected menu level
-        'current_menu_location': [0],   # Pointer to current location in menu structure
-        'current_scroll_selection': 0,  # where we currently are in scrolling table
-        'current_mode': 'classic',      # Currently selected mode (e.g. wconsole/classic)
-        'start_up': True,               # True if in initial (home page) start-up state
-        'disable_keys': False,          # Set to true when need to ignore key presses
-        'table_list_length': 0,         # Total length of currently displayed table
-        'table_pages': 1,               # pages in current table
-        'result_cache': False,          # used to cache results when paging info
-        'speedtest_status': False,      # Indicates if speedtest has run or is in progress
-        'speedtest_result_text': '',    # tablulated speedtest result data
-        'button_press_count': 0,        # global count of button pressses
-        'last_button_press_count': -1,  # copy of count of button pressses used in main loop
-        'pageSleepCountdown': PAGE_SLEEP, # Set page sleep control
-        'home_page_name': "Home",       # Display name for top level menu
-        'home_page_alternate': False,   # True if in alternate home page state
-        'blinker_status': False,        # Blinker status
-        'eth_carrier_status': 0,        # Eth0 physical link status
-        'eth_last_known_address': "",   # Last known eth0 address
-        'eth_last_reachability_test': 0, # Number of seconds elapsed since last reachability test
+        'shutdown_in_progress': False,     # True when shutdown or reboot started
+        'screen_cleared': False,           # True when display cleared (e.g. screen save)
+        'display_state': 'page',           # current display state: 'page' or 'menu'
+        'sig_fired': False,                # Set to True when button handler fired
+        'option_selected': 0,              # Content of currently selected menu level
+        'current_menu_location': [0],      # Pointer to current location in menu structure
+        'current_scroll_selection': 0,     # where we currently are in scrolling table
+        'current_mode': 'classic',         # Currently selected mode (e.g. wconsole/classic)
+        'start_up': True,                  # True if in initial (home page) start-up state
+        'disable_keys': False,             # Set to true when need to ignore key presses
+        'table_list_length': 0,            # Total length of currently displayed table
+        'table_pages': 1,                  # pages in current table
+        'result_cache': False,             # used to cache results when paging info
+        'speedtest_status': False,         # Indicates if speedtest has run or is in progress
+        'speedtest_result_text': '',       # tablulated speedtest result data
+        'button_press_count': 0,           # global count of button pressses
+        'last_button_press_count': -1,     # copy of count of button pressses used in main loop
+        'pageSleepCountdown': PAGE_SLEEP,  # Set page sleep control
+        'home_page_name': "Home",          # Display name for top level menu
+        'home_page_alternate': False,      # True if in alternate home page state
+        'blinker_status': False,           # Blinker status
+        'eth_carrier_status': 0,           # Eth0 physical link status
+        'eth_last_known_address': "",      # Last known eth0 address
+        'eth_last_reachability_test': 0,   # Number of seconds elapsed since last reachability test
         'eth_last_reachability_result' : True, # Last reachability state
+        'profiler_beaconing' : False,         # Indicates if the profiler is running
+        'profiler_last_profile_date': None # The date of the last profile
     }
 
     ############################
@@ -201,6 +203,13 @@ optional options:
 
     # get hostname
     g_vars['hostname'] = env_utils.get_hostname()
+
+    # ################################
+    # Other state initialization
+    # ################################
+    profiler = Profiler(g_vars)
+    g_vars['profiler_last_profile_date'] = profiler.profiler_last_profile_date()
+    g_vars['profiler_beaconing'] = profiler.profiler_beaconing()
 
     ###########################
     # Network menu area utils

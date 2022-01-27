@@ -235,6 +235,10 @@ class HomePage(object):
         # Display system bar
         self.system_bar(g_vars, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-1)
 
+        # Display any overlay alerts
+        if g_vars['home_page_alternate']:
+            self.profiler_obj.profiler_check_new_profile(g_vars)
+
         oled.drawImage(g_vars['image'])
         g_vars['drawing_in_progress'] = False
 
