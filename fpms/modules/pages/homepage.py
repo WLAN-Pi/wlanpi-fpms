@@ -204,6 +204,8 @@ class HomePage(object):
             mode_name = "DHCP Server"
             mode = self.dhcp_server_mode
 
+        system_bar_contents = g_vars['hostname']
+
         # Display status bar
         y += self.status_bar(g_vars)
         y += padding * 4
@@ -233,7 +235,7 @@ class HomePage(object):
         mode(g_vars, x=x, y=y, padding=padding)
 
         # Display system bar
-        self.system_bar(g_vars, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-1)
+        self.system_bar(g_vars, system_bar_contents, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-1)
 
         # Display any overlay alerts
         if g_vars['home_page_alternate']:
@@ -688,20 +690,17 @@ class HomePage(object):
 
         return height
 
-    def system_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=SYSTEM_BAR_HEIGHT):
+    def system_bar(self, g_vars, contents, x=0, y=0, padding=2, width=PAGE_WIDTH, height=SYSTEM_BAR_HEIGHT):
 
         canvas = g_vars['draw']
 
         # Draw background
         canvas.rectangle((x, y, width, y + height), fill=THEME.system_bar_background.value)
 
-        # Draw hostname
-        hostname = g_vars['hostname']
+        # Truncate contents if too long
+        if len(contents) > 21:
+            contents = contents[0:19] + ".."
 
-        # Truncate hostname if too long
-        if len(hostname) > 21:
-            hostname = hostname[0:19] + ".."
-
-        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(hostname)[0])/2, y + padding), hostname, font=SMART_FONT, fill=THEME.system_bar_foreground.value)
+        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(contents)[0])/2, y + padding), contents, font=SMART_FONT, fill=THEME.system_bar_foreground.value)
 
         return height
