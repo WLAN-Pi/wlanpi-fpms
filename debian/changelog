@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.9) unstable; urgency=medium
+
+  * Adjusts temperature thresholds
+  * Increases wait time before showing QR code when starting the Profiler
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 30 Jan 2022 00:35:34 -0600
+
 wlanpi-fpms (1.2.8-6) unstable; urgency=medium
 
   * Adds a popup alert to indicate device was profiled
