@@ -245,11 +245,11 @@ class Profiler(object):
                     subprocess.run(cmd, shell=True, timeout=2)
 
                     # We need to wait until Profiler starts beaconing so that
-                    # we can show the QR code. We will wait for 10 seconds and
+                    # we can show the QR code. We will wait for 15 seconds and
                     # if Profiler hasn't started beaconing, then it will just
                     # tell the user that Profiler has started.
                     elapsed_time = 0
-                    max_wait = 10 # seconds
+                    max_wait = 15 # seconds
                     while not self.profiler_beaconing() and elapsed_time <= max_wait:
                         time.sleep(0.5)
                         elapsed_time = elapsed_time + 0.5
