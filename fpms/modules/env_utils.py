@@ -94,7 +94,7 @@ class EnvUtils(object):
                 (name, value) = line.split("=")
                 if name=="VERSION":
                     version = value.strip()
-                    wlanpi_ver = "WLAN Pi " + version[1:-1]
+                    wlanpi_ver = "WLAN Pi OS " + version[1:-1]
                     break
 
         return wlanpi_ver
