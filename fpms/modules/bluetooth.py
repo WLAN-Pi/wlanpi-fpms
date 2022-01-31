@@ -11,6 +11,8 @@ from fpms.modules.pages.alert import Alert
 
 from fpms.modules.constants import MAX_TABLE_LINES
 
+BT_ADAPTER = "hci0"
+
 class Bluetooth(object):
 
     def __init__(self, g_vars):
@@ -26,7 +28,7 @@ class Bluetooth(object):
         We want to use hciconfig here as it works OK when no devices are present
         '''
         try:
-            cmd = "hciconfig | grep hci*"
+            cmd = f"hciconfig | grep {BT_ADAPTER}"
             subprocess.check_output(cmd, shell=True)
             return True
         except subprocess.CalledProcessError as exc:
@@ -34,7 +36,7 @@ class Bluetooth(object):
 
     def bluetooth_name(self):
         try:
-            cmd = "bt-adapter -i | grep Name | awk '{ print $2 }'"
+            cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Name | awk '{ print $2 }'"
             name = subprocess.check_output(cmd, shell=True).decode().strip()
             return name
         except subprocess.CalledProcessError as exc:
@@ -42,7 +44,7 @@ class Bluetooth(object):
 
     def bluetooth_alias(self):
         try:
-            cmd = "bt-adapter -i | grep Alias | awk '{ print $2 }'"
+            cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Alias | awk '{ print $2 }'"
             alias = subprocess.check_output(cmd, shell=True).decode().strip()
             return alias
         except subprocess.CalledProcessError as exc:
@@ -50,7 +52,7 @@ class Bluetooth(object):
 
     def bluetooth_address(self):
         try:
-            cmd = "bt-adapter -i | grep Address | awk '{ print $2 }'"
+            cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Address | awk '{ print $2 }'"
             address = subprocess.check_output(cmd, shell=True).decode().strip()
             return address
         except subprocess.CalledProcessError as exc:
@@ -61,7 +63,7 @@ class Bluetooth(object):
         We want to use hciconfig here as it works OK when no devices are present
         '''
         try:
-            cmd = "hciconfig | grep -E '^\s+UP'"
+            cmd = f"hciconfig {BT_ADAPTER} | grep -E '^\s+UP'"
             subprocess.check_output(cmd, shell=True).decode().strip()
             return True
         except subprocess.CalledProcessError as exc:
@@ -74,11 +76,11 @@ class Bluetooth(object):
             if power:
                 if bluetooth_is_on:
                     return True
-                cmd = "bt-adapter --set Powered 1 && echo 1 > /etc/wlanpi-bluetooth/state"
+                cmd = f"bt-adapter -a {BT_ADAPTER} --set Powered 1 && echo 1 > /etc/wlanpi-bluetooth/state"
             else:
                 if not bluetooth_is_on:
                     return True
-                cmd = "bt-adapter --set Powered 0 && echo 0 > /etc/wlanpi-bluetooth/state"
+                cmd = f"bt-adapter -a {BT_ADAPTER} --set Powered 0 && echo 0 > /etc/wlanpi-bluetooth/state"
             subprocess.run(cmd, shell=True)
             return True
         except subprocess.CalledProcessError as exc:

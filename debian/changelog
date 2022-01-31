@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.9-1) unstable; urgency=medium
+
+  * Changes Bluetooth module to refer to hci0 explicitly.
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 30 Jan 2022 22:06:02 -0600
+
 wlanpi-fpms (1.2.9) unstable; urgency=medium
 
   * Adjusts temperature thresholds
