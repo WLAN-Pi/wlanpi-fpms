@@ -38,6 +38,9 @@ class HomePage(object):
         # create a profiler object
         self.profiler_obj = Profiler(g_vars)
 
+        # create env utils object
+        self.env_obj = EnvUtils()
+
         thread = threading.Thread(target=self.check_reachability, args=(g_vars,), daemon=True)
         thread.start()
 
@@ -204,7 +207,7 @@ class HomePage(object):
             mode_name = "DHCP Server"
             mode = self.dhcp_server_mode
 
-        system_bar_contents = g_vars['hostname']
+        system_bar_contents = self.env_obj.get_hostname()
 
         # Display status bar
         y += self.status_bar(g_vars)
@@ -425,7 +428,7 @@ class HomePage(object):
         Displays the Wi-Fi QR code
         '''
         # Get path to QR code png (it will be generated if not present)
-        qrcode_path = EnvUtils().get_wifi_qrcode_for_hostapd()
+        qrcode_path = self.env_obj.get_wifi_qrcode_for_hostapd()
         if qrcode_path != None:
             self.display_obj.stamp_qrcode(g_vars, qrcode_path,
                 center_vertically=False, y=y+2, draw_immediately=False)

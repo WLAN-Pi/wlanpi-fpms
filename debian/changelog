@@ -1,6 +1,12 @@
+wlanpi-fpms (1.2.9-2) unstable; urgency=medium
+
+  * Fixes hostname in home screen not updating after changing system hostname
+
+ -- Adrian Granados <adrian@intuitibits.com>  Mon, 31 Jan 2022 22:29:52 -0600
+
 wlanpi-fpms (1.2.9-1) unstable; urgency=medium
 
-  * Changes Bluetooth module to refer to hci0 explicitly.
+  * Changes Bluetooth module to refer to hci0 explicitly
 
  -- Adrian Granados <adrian@intuitibits.com>  Sun, 30 Jan 2022 22:06:02 -0600
 
