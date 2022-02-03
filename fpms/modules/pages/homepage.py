@@ -321,9 +321,11 @@ class HomePage(object):
 
         self.display_obj.clear_display(g_vars)
 
+        hostname = self.env_obj.get_hostname()
+
         canvas = g_vars['draw']
         canvas.text((x + padding, y + 1), str(g_vars['wlanpi_ver']), font=SMART_FONT, fill=THEME.text_color.value)
-        canvas.text((x + padding, y + 11), str(g_vars['hostname']), font=FONT11, fill=THEME.text_color.value)
+        canvas.text((x + padding, y + 11), hostname, font=FONT11, fill=THEME.text_color.value)
         canvas.text((x + padding + 95, y + 20), if_name, font=SMART_FONT, fill=THEME.text_color.value)
         canvas.text((x + padding, y + 29), str(ip_addr), font=FONT14, fill=THEME.text_color.value)
         canvas.text((x + padding, y + 43), str(mode_name), font=SMART_FONT, fill=THEME.text_color.value)
@@ -700,10 +702,11 @@ class HomePage(object):
         # Draw background
         canvas.rectangle((x, y, width, y + height), fill=THEME.system_bar_background.value)
 
-        # Truncate contents if too long
-        if len(contents) > 21:
-            contents = contents[0:19] + ".."
+        if contents != None:
+            # Truncate contents if too long
+            if len(contents) > 21:
+                contents = contents[0:19] + ".."
 
-        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(contents)[0])/2, y + padding), contents, font=SMART_FONT, fill=THEME.system_bar_foreground.value)
+            canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(contents)[0])/2, y + padding), contents, font=SMART_FONT, fill=THEME.system_bar_foreground.value)
 
         return height

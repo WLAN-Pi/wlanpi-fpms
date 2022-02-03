@@ -201,9 +201,6 @@ optional options:
     # get & the current version of WLANPi image
     g_vars['wlanpi_ver'] = env_utils.get_image_ver(WLANPI_IMAGE_FILE)
 
-    # get hostname
-    g_vars['hostname'] = env_utils.get_hostname()
-
     # ################################
     # Other state initialization
     # ################################

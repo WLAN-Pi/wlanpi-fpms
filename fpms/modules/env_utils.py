@@ -102,13 +102,11 @@ class EnvUtils(object):
     def get_hostname(self):
 
         try:
-            hostname = subprocess.check_output('hostname -A', shell=True).decode().strip().split(" ")[0]
-            if hostname == "":
-                hostname = subprocess.check_output('hostname', shell=True).decode().strip()
+            return subprocess.check_output('/usr/bin/hostname', shell=True).decode().strip()
         except:
-            hostname = 'Unknown'
+            pass
 
-        return hostname
+        return None
 
     def get_wifi_qrcode_for_hostapd(self):
         '''

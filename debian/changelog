@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.9-3) unstable; urgency=medium
+
+  * Fixes home screen lag due to hostname query taking too long
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 02 Feb 2022 21:47:47 -0600
+
 wlanpi-fpms (1.2.9-2) unstable; urgency=medium
 
   * Fixes hostname in home screen not updating after changing system hostname
