@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.10) unstable; urgency=medium
+
+  * Adds "Apps > Profiler > Start 2.4 GHz" option
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 03 Feb 2022 10:57:23 -0600
+
 wlanpi-fpms (1.2.9-3) unstable; urgency=medium
 
   * Fixes home screen lag due to hostname query taking too long

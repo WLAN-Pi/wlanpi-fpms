@@ -216,17 +216,22 @@ class Profiler(object):
 
             if action == "start":
                 # set the config file to use params
-                cfg_dict = {"ft_enabled": "True", "he_enabled": "True"}
+                cfg_dict = {"channel": "36", "ft_enabled": "True", "he_enabled": "True"}
+                self.profiler_ctl_file_update(cfg_dict, config_file)
+
+            elif action == "start_2dot4ghz":
+                # set the config file to use params
+                cfg_dict = {"channel": "11", "ft_enabled": "True", "he_enabled": "True"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11r":
                 # set the config file to use params
-                cfg_dict = {"ft_enabled": "False", "he_enabled": "True"}
+                cfg_dict = {"channel": "36", "ft_enabled": "False", "he_enabled": "True"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11ax":
                 # set the config file to use params
-                cfg_dict = {"ft_enabled": "True", "he_enabled": "False"}
+                cfg_dict = {"channel": "36", "ft_enabled": "True", "he_enabled": "False"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             else:
@@ -345,6 +350,10 @@ class Profiler(object):
 
     def profiler_start(self, g_vars):
         self.profiler_ctl(g_vars, action="start")
+        return
+
+    def profiler_start_2dot4ghz(self, g_vars):
+        self.profiler_ctl(g_vars, action="start_2dot4ghz")
         return
 
     def profiler_start_no11r(self, g_vars):

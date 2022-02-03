@@ -335,6 +335,10 @@ optional options:
         app_obj = Profiler(g_vars)
         app_obj.profiler_start(g_vars)
 
+    def profiler_start_2dot4ghz():
+        app_obj = Profiler(g_vars)
+        app_obj.profiler_start_2dot4ghz(g_vars)
+
     def profiler_start_no11r():
         app_obj = Profiler(g_vars)
         app_obj.profiler_start_no11r(g_vars)
@@ -483,6 +487,7 @@ optional options:
                 {"name": "Status", "action":          profiler_status},
                 {"name": "Stop", "action":            profiler_stop},
                 {"name": "Start", "action":           profiler_start},
+                {"name": "Start 2.4 GHz", "action":   profiler_start_2dot4ghz},
                 {"name": "Start (no 11r)", "action":  profiler_start_no11r},
                 {"name": "Start (no 11ax)", "action": profiler_start_no11ax},
                 {"name": "Purge Reports", "action": [
