@@ -247,14 +247,14 @@ class Profiler(object):
                 self.alert_obj.display_popup_alert(g_vars, "Starting...")
                 try:
                     cmd = "/bin/systemctl start wlanpi-profiler"
-                    subprocess.run(cmd, shell=True, timeout=2)
+                    subprocess.run(cmd, shell=True, timeout=10)
 
                     # We need to wait until Profiler starts beaconing so that
-                    # we can show the QR code. We will wait for 15 seconds and
+                    # we can show the QR code. We will wait for 20 seconds and
                     # if Profiler hasn't started beaconing, then it will just
                     # tell the user that Profiler has started.
                     elapsed_time = 0
-                    max_wait = 15 # seconds
+                    max_wait = 20 # seconds
                     while not self.profiler_beaconing() and elapsed_time <= max_wait:
                         time.sleep(0.5)
                         elapsed_time = elapsed_time + 0.5
