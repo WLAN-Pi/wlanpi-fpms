@@ -78,14 +78,13 @@ class HomePage(object):
 
     def check_reachability(self, g_vars):
 
-        # Detect changes in the IP address assigned to the Ethernet interface
-        eth0_addr = self.if_address("eth0")
-        if g_vars['eth_last_known_address'] != eth0_addr:
-            g_vars['eth_last_known_address'] = eth0_addr
+        # Detect changes in the IP address assigned to the Ethernet interface(s)
+        address_set = { self.if_address("eth0").lower(), self.if_address("eth1").lower() }
+        if g_vars['eth_last_known_address_set'] != address_set:
+            g_vars['eth_last_known_address_set'] = address_set
             g_vars['eth_last_reachability_test'] = 0
 
-        # If the interface has no address, then we don't even check
-        if eth0_addr.lower() == "no ip address":
+        if address_set == { "no ip address" }:
             g_vars['eth_last_reachability_result'] = False
         else:
             # Run a reachability test if enough time has passed
@@ -365,6 +364,13 @@ class HomePage(object):
             canvas = g_vars['draw']
             y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
             y += 12
+
+            # Show the eth1 (tethered) address
+            eth1 = self.if_address("eth1")
+            if eth1.lower() != "no ip address":
+                eth1_info = f"ETH1: {eth1}"
+                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(eth1_info)[0])/2, y), eth1_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+                y += 11
 
             # Show the PAN address if bluetooth is on and we're paired with a device
             pan = self.if_address("pan0")

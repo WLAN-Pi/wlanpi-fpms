@@ -1,3 +1,12 @@
+wlanpi-fpms (1.2.11) unstable; urgency=medium
+
+  * Displays eth1 address when tethered to a device
+  * Fixes reachability indicator to show correct status when tethered to a
+    device
+  * Improves starting of Profiler, including showing QR code
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sat, 05 Feb 2022 00:05:02 -0600
+
 wlanpi-fpms (1.2.10) unstable; urgency=medium
 
   * Adds "Apps > Profiler > Start 2.4 GHz" option

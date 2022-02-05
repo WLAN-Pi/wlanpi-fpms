@@ -164,10 +164,10 @@ optional options:
         'home_page_alternate': False,      # True if in alternate home page state
         'blinker_status': False,           # Blinker status
         'eth_carrier_status': 0,           # Eth0 physical link status
-        'eth_last_known_address': "",      # Last known eth0 address
-        'eth_last_reachability_test': 0,   # Number of seconds elapsed since last reachability test
+        'eth_last_known_address_set': None,# Last known ethernet addresses
+        'eth_last_reachability_test': 0,       # Number of seconds elapsed since last reachability test
         'eth_last_reachability_result' : True, # Last reachability state
-        'profiler_beaconing' : False,         # Indicates if the profiler is running
+        'profiler_beaconing' : False,          # Indicates if the profiler is running
         'profiler_last_profile_date': None # The date of the last profile
     }
 
