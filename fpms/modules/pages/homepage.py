@@ -78,8 +78,10 @@ class HomePage(object):
 
     def check_reachability(self, g_vars):
 
-        # Detect changes in the IP address assigned to the Ethernet interface(s)
-        address_set = { self.if_address("eth0").lower(), self.if_address("eth1").lower() }
+        # Detect changes in the IP address assigned to an Ethernet or tethered ports
+        address_set = { self.if_address("eth0").lower(),
+                        self.if_address("eth1").lower(),
+                        self.if_address("usb1").lower() }
         if g_vars['eth_last_known_address_set'] != address_set:
             g_vars['eth_last_known_address_set'] = address_set
             g_vars['eth_last_reachability_test'] = 0
@@ -363,13 +365,20 @@ class HomePage(object):
         else:
             canvas = g_vars['draw']
             y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
-            y += 12
+            y += 8
 
             # Show the eth1 (tethered) address
             eth1 = self.if_address("eth1")
             if eth1.lower() != "no ip address":
                 eth1_info = f"ETH1: {eth1}"
                 canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(eth1_info)[0])/2, y), eth1_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+                y += 11
+
+            # Show the usb1 (tethered, Android) address
+            usb1 = self.if_address("usb1")
+            if usb1.lower() != "no ip address":
+                usb1_info = f"USB1: {usb1}"
+                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(usb1_info)[0])/2, y), usb1_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
                 y += 11
 
             # Show the PAN address if bluetooth is on and we're paired with a device
@@ -384,10 +393,10 @@ class HomePage(object):
                         y += 11
 
             # Show the USB (OTG) address
-            usb = self.if_address("usb0")
-            if usb.lower() != "no ip address":
-                usb_info = f"USB: {usb}"
-                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(usb_info)[0])/2, y), usb_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+            otg = self.if_address("usb0")
+            if otg.lower() != "no ip address":
+                otg_info = f"OTG: {otg}"
+                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(otg_info)[0])/2, y), otg_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
                 y += 11
 
     def hotspot_mode(self, g_vars, x=0, y=0, padding=2):
