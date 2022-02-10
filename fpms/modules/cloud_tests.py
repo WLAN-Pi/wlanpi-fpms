@@ -28,8 +28,8 @@ class CloudUtils(object):
         # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has speedtest been run already?
-        if g_vars["speedtest_status"] == False:
+        # Has test been run already?
+        if g_vars["result_cache"] == False:
 
             # record test success/fail
             test_fail = False
@@ -125,7 +125,7 @@ class CloudUtils(object):
             )
 
             # set flag to prevent constant refresh of screen
-            g_vars["speedtest_status"] = True
+            g_vars["result_cache"] = True
 
         # re-enable front panel keys
         g_vars["disable_keys"] = False
@@ -144,8 +144,8 @@ class CloudUtils(object):
         # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has speedtest been run already?
-        if g_vars["speedtest_status"] == False:
+        # Has test been run already?
+        if g_vars["result_cache"] == False:
 
             # record test success/fail
             test_fail = False
@@ -206,7 +206,7 @@ class CloudUtils(object):
             )
 
             # set flag to prevent constant refresh of screen
-            g_vars["speedtest_status"] = True
+            g_vars["result_cache"] = True
 
         # re-enable front panel keys
         g_vars["disable_keys"] = False

@@ -155,7 +155,6 @@ optional options:
         'table_list_length': 0,            # Total length of currently displayed table
         'table_pages': 1,                  # pages in current table
         'result_cache': False,             # used to cache results when paging info
-        'speedtest_status': False,         # Indicates if speedtest has run or is in progress
         'speedtest_result_text': '',       # tablulated speedtest result data
         'button_press_count': 0,           # global count of button pressses
         'last_button_press_count': -1,     # copy of count of button pressses used in main loop

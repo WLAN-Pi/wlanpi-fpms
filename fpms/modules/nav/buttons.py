@@ -94,9 +94,6 @@ class Button(object):
 
     def menu_right(self, g_vars, menu):
 
-        # make sure we know speedtest is done
-        g_vars['speedtest_status'] = False
-
         if self._at_home_page(g_vars):
             return self._display_top_menu(g_vars, menu)
 
@@ -135,9 +132,6 @@ class Button(object):
             self.page_obj.draw_page(g_vars, menu)
 
     def menu_center(self, g_vars, menu):
-
-        # make sure we know speedtest is done
-        g_vars['speedtest_status'] = False
 
         if self._at_home_page(g_vars):
             # switch between normal and alternate home page

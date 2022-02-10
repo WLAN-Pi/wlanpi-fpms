@@ -34,10 +34,9 @@ class Utils(object):
     def show_speedtest(self, g_vars):
         '''
         Run speedtest.net speed test and format output to fit the OLED screen
-        ( *** Note that speedtest_status set back to False in menu_right() *** )
         '''
         # Has speedtest been run already?
-        if g_vars['speedtest_status'] == False:
+        if g_vars['result_cache'] == False:
 
             # ignore any more key presses as this could cause us issues
             g_vars['disable_keys'] = True
@@ -61,7 +60,7 @@ class Utils(object):
             if len(speedtest_info) > 1:
                 g_vars['speedtest_result_text'] = speedtest_info
 
-            g_vars['speedtest_status'] = True
+            g_vars['result_cache'] = True
 
         # re-enable front panel keys
         g_vars['disable_keys'] = False
