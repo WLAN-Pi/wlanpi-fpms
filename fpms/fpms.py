@@ -176,6 +176,7 @@ optional options:
     g_vars['image'] = Image.new(DISPLAY_MODE, (PAGE_WIDTH, PAGE_HEIGHT))
     g_vars['draw'] = ImageDraw.Draw(g_vars['image'])
     g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert(DISPLAY_MODE)
+    g_vars['shutdown_image'] = Image.open(IMAGE_DIR + '/shutdown.png').convert(DISPLAY_MODE)
 
     #####################################
     # check our current operating mode

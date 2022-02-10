@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.13-1) unstable; urgency=medium
+
+  * Fixes shutdown splash screen
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 10 Feb 2022 14:13:14 -0600
+
 wlanpi-fpms (1.2.12) unstable; urgency=medium
 
   * Displays usb1 address when tethered to an Android device
