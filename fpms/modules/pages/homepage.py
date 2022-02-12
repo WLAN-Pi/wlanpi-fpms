@@ -336,6 +336,7 @@ class HomePage(object):
         g_vars['drawing_in_progress'] = False
         return
 
+
     def iface_details(self, g_vars, if_name, x=0, y=0, padding=2):
         '''
         Displays the IP address and link status details for the given interface
@@ -354,7 +355,23 @@ class HomePage(object):
             canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(link_status)[0])/2, y + padding + offset), link_status, font=SMART_FONT, fill=THEME.text_secondary_color.value)
             offset += 11
 
-        return offset
+        return offset + 8
+
+
+    def iface_summary(self, g_vars, if_name, label, x=0, y=0, padding=2):
+        '''
+        Displays a custom label and IP address for the given interface
+        '''
+
+        canvas = g_vars['draw']
+        addr = self.if_address(if_name)
+        if addr.lower() != "no ip address":
+            info = f"{label}: {addr}"
+            canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(info)[0])/2, y), info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+            return 11
+
+        return 0
+
 
     def classic_mode(self, g_vars, x=0, y=0, padding=2):
         if not self.profiler_obj.profiler_beaconing():
@@ -365,21 +382,12 @@ class HomePage(object):
         else:
             canvas = g_vars['draw']
             y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
-            y += 8
 
             # Show the eth1 (tethered) address
-            eth1 = self.if_address("eth1")
-            if eth1.lower() != "no ip address":
-                eth1_info = f"ETH1: {eth1}"
-                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(eth1_info)[0])/2, y), eth1_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
-                y += 11
+            y += self.iface_summary(g_vars, "eth1", "ETH1", x=x, y=y)
 
             # Show the usb1 (tethered, Android) address
-            usb1 = self.if_address("usb1")
-            if usb1.lower() != "no ip address":
-                usb1_info = f"USB1: {usb1}"
-                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(usb1_info)[0])/2, y), usb1_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
-                y += 11
+            y += self.iface_summary(g_vars, "usb1", "USB1", x=x, y=y)
 
             # Show the PAN address if bluetooth is on and we're paired with a device
             pan = self.if_address("pan0")
@@ -388,16 +396,11 @@ class HomePage(object):
                 if bluetooth.bluetooth_power():
                     paired_devices = bluetooth.bluetooth_paired_devices()
                     if paired_devices != None:
-                        pan_info = f"PAN: {pan}"
-                        canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(pan_info)[0])/2, y), pan_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
-                        y += 11
+                        y += self.iface_summary(g_vars, "pan0", "PAN", x=x, y=y)
 
             # Show the USB (OTG) address
-            otg = self.if_address("usb0")
-            if otg.lower() != "no ip address":
-                otg_info = f"OTG: {otg}"
-                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(otg_info)[0])/2, y), otg_info, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
-                y += 11
+            y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
+
 
     def hotspot_mode(self, g_vars, x=0, y=0, padding=2):
         if g_vars['home_page_alternate']:
@@ -405,17 +408,32 @@ class HomePage(object):
         else:
             canvas = g_vars['draw']
             y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
-            y += 12
+
             client_count = self.wifi_client_count()
             if client_count >= 0:
                 clients = str(client_count) + (" client" if client_count == 1 else " clients")
-                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(clients)[0])/2, y), clients, font=SMART_FONT, fill=THEME.text_tertiary_color.value)
+                canvas.text((x + (PAGE_WIDTH - SMART_FONT.getsize(clients)[0])/2, y), clients, font=SMART_FONT, fill=THEME.text_secondary_color.value)
+                y += 18
+
+            # Show the eth0 address
+            y += self.iface_summary(g_vars, "eth0", "LAN", x=x, y=y)
+
+            # Show the USB (OTG) address
+            y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
+
 
     def wconsole_mode(self, g_vars, x=0, y=0, padding=2):
         if g_vars['home_page_alternate']:
             self.wifi_qrcode(g_vars, x, y)
         else:
-            self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
+            y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
+
+            # Show the eth0 address
+            y += self.iface_summary(g_vars, "eth0", "LAN", x=x, y=y)
+
+            # Show the USB (OTG) address
+            y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
+
 
     def wiperf_mode(self, g_vars, x=0, y=0, padding=2):
         canvas = g_vars['draw']
@@ -428,7 +446,12 @@ class HomePage(object):
         if g_vars['home_page_alternate']:
             self.wifi_qrcode(g_vars, x, y)
         else:
+            # Show eth0 details
             self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+
+            # Show the USB (OTG) address
+            y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
+
 
     def profiler_qrcode(self, g_vars, x, y):
         '''
@@ -440,6 +463,7 @@ class HomePage(object):
             self.display_obj.stamp_qrcode(g_vars, qrcode_path,
                 center_vertically=False, y=y+2, draw_immediately=False)
 
+
     def wifi_qrcode(self, g_vars, x, y):
         '''
         Displays the Wi-Fi QR code
@@ -449,6 +473,7 @@ class HomePage(object):
         if qrcode_path != None:
             self.display_obj.stamp_qrcode(g_vars, qrcode_path,
                 center_vertically=False, y=y+2, draw_immediately=False)
+
 
     def battery_indicator(self, g_vars, x, y, width, height):
         '''
@@ -503,6 +528,7 @@ class HomePage(object):
 
         return True
 
+
     def temperature_indicator(self, g_vars, x, y, width, height):
         '''
         Displays a system temperature indicator
@@ -555,6 +581,7 @@ class HomePage(object):
             canvas.rounded_rectangle((x + 2, y + 6, x + 4, y + 11), fill=temp_color, radius=1)
 
         return True
+
 
     def wifi_indicator(self, g_vars, interfaces, if_name, x, y, width, height):
         '''
@@ -618,6 +645,7 @@ class HomePage(object):
 
         return False
 
+
     def bluetooth_indicator(self, g_vars, x, y, width, height):
         '''
         Displays a bluetooth icon if bluetooth is on
@@ -633,6 +661,7 @@ class HomePage(object):
 
         return False
 
+
     def reachability_indicator(self, g_vars, x, y, width, height):
         '''
         Displays a 'world' icon if we can reach the Internet via the Ethernet interface
@@ -647,6 +676,7 @@ class HomePage(object):
             canvas.line((x + 3, y + 1, x + height, y + height - 2), fill=THEME.status_bar_foreground.value, width=2)
 
         return True
+
 
     def status_bar(self, g_vars, x=0, y=0, padding=2, width=PAGE_WIDTH, height=STATUS_BAR_HEIGHT):
 
@@ -709,6 +739,7 @@ class HomePage(object):
                 x -= fixed_indicator_width
 
         return height
+
 
     def system_bar(self, g_vars, contents, x=0, y=0, padding=2, width=PAGE_WIDTH, height=SYSTEM_BAR_HEIGHT):
 

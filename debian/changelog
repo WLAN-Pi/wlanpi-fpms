@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.14) unstable; urgency=medium
+
+  * Displays eth0 and usb0 addresses on hotspot, wconsole, and DHCP server
+    mode
+
+ -- Adrian Granados <adrian@intuitibits.com>  Fri, 11 Feb 2022 23:06:44 -0600
+
 wlanpi-fpms (1.2.13-1) unstable; urgency=medium
 
   * Fixes shutdown splash screen
