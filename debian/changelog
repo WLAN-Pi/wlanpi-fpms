@@ -1,3 +1,11 @@
+wlanpi-fpms (1.2.14-1) unstable; urgency=medium
+
+  * Fixes reachability check when Internet access is available via other
+    interfaces
+  * Includes some optimizations for the home screen
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 13 Feb 2022 22:47:41 -0600
+
 wlanpi-fpms (1.2.14) unstable; urgency=medium
 
   * Displays eth0 and usb0 addresses on hotspot, wconsole, and DHCP server

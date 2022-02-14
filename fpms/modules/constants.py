@@ -45,6 +45,7 @@ SCRIPT_PATH = str(pathlib.Path(__file__).parent.parent.absolute())
 os.chdir(SCRIPT_PATH)
 
 # Define display fonts
+TINY_FONT = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 7)
 SMART_FONT = ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 10)
 FONT10 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 10)
 FONT11 = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 11)
