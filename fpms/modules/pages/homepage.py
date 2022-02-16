@@ -95,7 +95,11 @@ class HomePage(object):
             reachability_cmd = "sudo " + REACHABILITY_FILE + " | grep -i 'browse google' | grep OK"
 
             try:
-                subprocess.check_output(reachability_cmd, shell=True).decode()
+                subprocess.run(reachability_cmd,
+                    shell=True,
+                    stderr=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    check=True)
                 g_vars['eth_last_reachability_result'] = True
             except subprocess.CalledProcessError as exc:
                 g_vars['eth_last_reachability_result'] = False
@@ -137,9 +141,11 @@ class HomePage(object):
         '''
 
         try:
-            subprocess.check_output("iw dev {} info".format(if_name),
+            subprocess.run("iw dev {} info".format(if_name),
                 shell=True,
-                stderr=subprocess.DEVNULL)
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                check=True)
             return True
         except:
             pass
@@ -196,7 +202,6 @@ class HomePage(object):
         canvas = g_vars['draw']
 
         self.display_obj.clear_display(g_vars)
-
 
         if_name = "eth0"
         mode_name = "WLAN Pi Pro"
@@ -458,7 +463,7 @@ class HomePage(object):
             self.wifi_qrcode(g_vars, x, y)
         else:
             # Show eth0 details
-            self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+            y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
             # Show the USB (OTG) address
             y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
@@ -612,7 +617,11 @@ class HomePage(object):
 
                 # check if the interface is UP
                 try:
-                    subprocess.check_output(f"{IFCONFIG_FILE} {if_name} 2>&1 | grep UP", shell=True).decode().strip()
+                    subprocess.run(f"{IFCONFIG_FILE} {if_name} | grep UP",
+                        shell=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        check=True)
                     status_up = True
                 except Exception as e:
                     pass
@@ -624,7 +633,11 @@ class HomePage(object):
 
                             # check if it's being used for capturing with tcpdump or dumpcap
                             try:
-                                output = subprocess.check_output(f"ps aux 2>&1 | grep -v grep | grep -E 'tcpdump|dumpcap' | grep {other_iface[1]}", shell=True).decode().strip()
+                                subprocess.run(f"ps aux 2>&1 | grep -v grep | grep -E 'tcpdump|dumpcap' | grep {other_iface[1]}",
+                                    shell=True,
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL,
+                                    check=True)
                                 active = True
                             except Exception as e:
                                 pass
@@ -663,10 +676,10 @@ class HomePage(object):
         '''
 
         bluetooth = Bluetooth(g_vars)
-        bluetooth_icon = chr(0xf128)
-        canvas = g_vars['draw']
-        x = x + (width - ICONS.getsize(bluetooth_icon)[0])/2 + 1
         if bluetooth.bluetooth_power():
+            bluetooth_icon = chr(0xf128)
+            canvas = g_vars['draw']
+            x = x + (width - ICONS.getsize(bluetooth_icon)[0])/2 + 1
             canvas.text((x, y), bluetooth_icon, font=ICONS, fill=THEME.status_bar_foreground.value)
             return True
 
