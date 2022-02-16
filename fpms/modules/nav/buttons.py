@@ -136,14 +136,16 @@ class Button(object):
         if self._at_home_page(g_vars):
             # switch between normal and alternate home page
             g_vars['home_page_alternate'] = not g_vars['home_page_alternate']
-
-        # Check if the "action" field at the current location is an
-        # array or a function. If we have an array, append the current
-        # selection and re-draw menu
-        if (type(g_vars['option_selected']) is list):
-            g_vars['current_menu_location'].append(0)
-            self.page_obj.draw_page(g_vars, menu)
-        elif (isinstance(g_vars['option_selected'], types.FunctionType)):
-            # if we have a function (dispatcher), execute it
-            g_vars['display_state'] = 'page'
-            g_vars['option_selected']()
+            # redraw home page immediately
+            self.homepage_obj.home_page(g_vars, menu)
+        else:
+            # Check if the "action" field at the current location is an
+            # array or a function. If we have an array, append the current
+            # selection and re-draw menu
+            if (type(g_vars['option_selected']) is list):
+                g_vars['current_menu_location'].append(0)
+                self.page_obj.draw_page(g_vars, menu)
+            elif (isinstance(g_vars['option_selected'], types.FunctionType)):
+                # if we have a function (dispatcher), execute it
+                g_vars['display_state'] = 'page'
+                g_vars['option_selected']()
