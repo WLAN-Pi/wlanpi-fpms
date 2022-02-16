@@ -825,7 +825,7 @@ optional options:
 
                 # we don't really want to do anything at the moment, lets
                 # nap and loop around
-                time.sleep(1)
+                time.sleep(2)
                 continue
 
             # Draw a menu or execute current action (dispatcher)
@@ -872,7 +872,7 @@ optional options:
             g_vars['pageSleepCountdown'] = g_vars['pageSleepCountdown'] - 1
 
             # have a nap before we start our next loop
-            time.sleep(1)
+            time.sleep(2)
 
         except KeyboardInterrupt:
             break
