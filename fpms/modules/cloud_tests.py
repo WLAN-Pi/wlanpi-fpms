@@ -16,13 +16,18 @@ class CloudUtils(object):
 
     def test_aruba_cloud(self, g_vars):
         """
-        Perform a series of connectivity tests to see if Aruba Central Cloud available:
+        Perform a series of connectivity tests to check if connection
+          to Aruba Central Cloud is healthy:
 
         1. Is eth0 port up?
         2. Do we get an IP address via DHCP?
-        3a. Can we resolve address common.cloud.hpe.com
-        3b. Can we resolve address device.arubanetworks.com
-        4. Can we ping the WAN check? pqm.arubanetworks.com
+        3. DNS tests:
+        3a. Can we resolve address activate.arubanetworks.com?
+        3b. Can we resolve address common.cloud.hpe.com?
+        3c. Can we resolve address device.arubanetworks.com?
+        3d. Can we resolve address images.arubanetworks.com?
+        4. Can we ping the WAN check at pqm.arubanetworks.com?
+        5. Can we get a response from port 443 on device.arubanetworks.com?
         """
 
         # ignore any more key presses as this could cause us issues
@@ -35,7 +40,7 @@ class CloudUtils(object):
             test_fail = False
 
             # create empty table
-            item_list = ["", "", "", "", "", "", "", ""]
+            item_list = ["", "", "", "", "", "", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
@@ -65,30 +70,53 @@ class CloudUtils(object):
                     test_fail = True
 
             if not test_fail:
+                # https://help.central.arubanetworks.com/latest/documentation/online_help/content/nms/device-mgmt/communication_ports.htm
+                # Can we resolve address activate.arubanetworks.com?
                 # Can we resolve address common.cloud.hpe.com?
                 # Can we resolve address device.arubanetworks.com?
                 # Can we resolve address images.arubanetworks.com?
 
+                dns_fail = False
+
                 try:
-                    socket.gethostbyname("common.cloud.hpe.com")
+                    socket.gethostbyname("activate.arubanetworks.com")
                     item_list[2] = "DNS (ACTIVATE): OK"
                 except Exception as error:
-                    test_fail = True
+                    dns_fail = True
                     item_list[2] = "DNS (ACTIVATE): FAIL"
 
-                try:
-                    socket.gethostbyname("device.arubanetworks.com")
-                    item_list[3] = "DNS (DEVICE): OK"
-                except Exception as error:
-                    test_fail = True
-                    item_list[3] = "DNS (DEVICE): FAIL"
+                if not dns_fail:
+                    try:
+                        socket.gethostbyname("common.cloud.hpe.com")
+                        item_list[3] = "DNS (COMMON): OK"
+                    except Exception as error:
+                        dns_fail = True
+                        item_list[3] = "DNS (COMMON): FAIL"
+                else:
+                    item_list[3] = "DNS (COMMON): SKIP"
 
-                try:
-                    socket.gethostbyname("images.arubanetworks.com")
-                    item_list[4] = "DNS (IMAGES): OK"
-                except Exception as error:
-                    test_fail = True
-                    item_list[4] = "DNS (IMAGES): FAIL"
+                if not dns_fail:
+                    try:
+                        socket.gethostbyname("device.arubanetworks.com")
+                        item_list[4] = "DNS (DEVICE): OK"
+                    except Exception as error:
+                        dns_fail = True
+                        item_list[4] = "DNS (DEVICE): FAIL"
+                else:
+                    item_list[3] = "DNS (DEVICE): SKIP"
+
+                if not dns_fail:
+                    try:
+                        socket.gethostbyname("images.arubanetworks.com")
+                        item_list[6] = "DNS (IMAGES): OK"
+                    except Exception as error:
+                        dns_fail = True
+                        item_list[6] = "DNS (IMAGES): FAIL"
+                else:
+                    item_list[3] = "DNS (IMAGES): SKIP"
+
+            if dns_fail:
+                test_fail = True
 
             if not test_fail:
                 # Can we get an ICMP response from https://pqm.arubanetworks.com?
@@ -100,24 +128,25 @@ class CloudUtils(object):
                     stderr=subprocess.DEVNULL,
                 )
                 if result.returncode == 0:
-                    item_list[5] = "ICMP (PQM): OK"
+                    item_list[7] = "ICMP (PQM): OK"
                 else:
-                    item_list[5] = "ICMP (PQM): FAIL"
+                    item_list[7] = "ICMP (PQM): FAIL"
                     test_fail = True
 
-                try:
-                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    sock.settimeout(2)
-                    result = sock.connect_ex(("device.arubanetworks.com", 443))
-                except:
-                    pass
+                if not test_fail:
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sock.settimeout(2)
+                        result = sock.connect_ex(("device.arubanetworks.com", 443))
+                    except:
+                        pass
 
-                if result == 0:
-                    item_list[7] = "PORT (DEVICE): OK"
-                else:
-                    item_list[7] = "PORT (DEVICE): FAIL"
-                    test_fail = True
-                sock.close()
+                    if result == 0:
+                        item_list[8] = "PORT (DEVICE): OK"
+                    else:
+                        item_list[8] = "PORT (DEVICE): FAIL"
+                        test_fail = True
+                    sock.close()
 
             # show results
             self.simple_table_obj.display_simple_table(
