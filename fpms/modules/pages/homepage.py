@@ -246,6 +246,7 @@ class HomePage(object):
             title = title[0:19] + ".."
 
         if display_alternate_title:
+            y -= 2
             canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(title)[0])/2, y), title, font=FONTB10, fill=THEME.text_highlighted_color.value)
             y += 10 + padding * 2
         else:
@@ -488,7 +489,7 @@ class HomePage(object):
         qrcode_path = self.env_obj.get_wifi_qrcode_for_hostapd()
         if qrcode_path != None:
             self.display_obj.stamp_qrcode(g_vars, qrcode_path,
-                center_vertically=False, y=y+2, draw_immediately=False)
+                center_vertically=False, y=y, draw_immediately=False)
 
 
     def battery_indicator(self, g_vars, x, y, width, height):

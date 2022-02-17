@@ -1,4 +1,11 @@
-wlanpi-fpms (1.2.15) stable; urgency=medium
+wlanpi-fpms (1.2.16) stable; urgency=medium
+
+  * Fixes QR code overlap with system bar in home screen
+  * Fixes reachability indicator state at startup
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 16 Feb 2022 22:16:37 -0600
+
+wlanpi-fpms (1.2.15) unstable; urgency=medium
 
   * Fixes issue in home screen when in server mode
   * Refreshes home screen every 2 seconds to reduce CPU utilization
