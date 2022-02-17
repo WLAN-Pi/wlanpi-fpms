@@ -1,4 +1,3 @@
-from textwrap import wrap
 
 class StringFormatter(object):
 

@@ -78,32 +78,46 @@ class HomePage(object):
 
     def check_reachability(self, g_vars):
 
-        # Detect changes in the IP address assigned to an Ethernet or tethered ports
-        address_set = { self.if_address("eth0").lower(),
-                        self.if_address("eth1").lower(),
-                        self.if_address("usb1").lower() }
+        # Detect changes in the IP address assigned to any interface
+        address_set = self.if_addresses()
         if g_vars['eth_last_known_address_set'] != address_set:
             g_vars['eth_last_known_address_set'] = address_set
             g_vars['eth_last_reachability_test'] = 0
 
-        if address_set == { "no ip address" }:
-            g_vars['eth_last_reachability_result'] = False
+        # Run a reachability test if enough time has passed
+        last_reachability_test = g_vars['eth_last_reachability_test']
+        if last_reachability_test > 0:
+            g_vars['eth_last_reachability_test'] = last_reachability_test - 1
         else:
-            # Run a reachability test if enough time has passed
-            last_reachability_test = g_vars['eth_last_reachability_test']
-            if last_reachability_test > 0:
-                g_vars['eth_last_reachability_test'] = last_reachability_test - 1
-            else:
-                # check reachability every 30 seconds
-                g_vars['eth_last_reachability_test'] = 30
+            # check reachability every 30 seconds
+            g_vars['eth_last_reachability_test'] = 30
 
-                reachability_cmd = "sudo " + REACHABILITY_FILE + " | grep -i 'browse google' | grep OK"
+            reachability_cmd = "sudo " + REACHABILITY_FILE + " | grep -i 'browse google' | grep OK"
 
-                try:
-                    subprocess.check_output(reachability_cmd, shell=True).decode()
-                    g_vars['eth_last_reachability_result'] = True
-                except subprocess.CalledProcessError as exc:
-                    g_vars['eth_last_reachability_result'] = False
+            try:
+                subprocess.run(reachability_cmd,
+                    shell=True,
+                    stderr=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    check=True)
+                g_vars['eth_last_reachability_result'] = True
+            except subprocess.CalledProcessError as exc:
+                g_vars['eth_last_reachability_result'] = False
+
+
+    def if_addresses(self):
+        '''
+        Returns the set of IP addresses set on the device (for all interfaces)
+        '''
+        cmd = "ifconfig | grep -E 'inet[6]?' | awk '{ print $2 }'"
+        try:
+            output = subprocess.check_output(cmd, shell=True).decode().strip().split()
+            return set(output)
+        except:
+            pass
+
+        return {}
+
 
     def if_address(self, if_name):
         '''
@@ -116,7 +130,7 @@ class HomePage(object):
             output = subprocess.check_output(cmd, shell=True).decode().strip()
             if len(output) > 0:
                 ip_addr = output
-        except Exception as ex:
+        except:
             pass
 
         return ip_addr
@@ -127,11 +141,13 @@ class HomePage(object):
         '''
 
         try:
-            subprocess.check_output("iw dev {} info".format(if_name),
+            subprocess.run("iw dev {} info".format(if_name),
                 shell=True,
-                stderr=subprocess.DEVNULL)
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                check=True)
             return True
-        except Exception as ex:
+        except:
             pass
 
         return False
@@ -164,7 +180,7 @@ class HomePage(object):
                 # Report the speed & duplex messages from ethtool
                 status = "{} {}".format(speed_re[0], duplex_re[0])
 
-        except Exception as ex:
+        except:
             # Something went wrong...show nothing
             pass
 
@@ -230,6 +246,7 @@ class HomePage(object):
             title = title[0:19] + ".."
 
         if display_alternate_title:
+            y -= 2
             canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(title)[0])/2, y), title, font=FONTB10, fill=THEME.text_highlighted_color.value)
             y += 10 + padding * 2
         else:
@@ -447,7 +464,7 @@ class HomePage(object):
             self.wifi_qrcode(g_vars, x, y)
         else:
             # Show eth0 details
-            self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+            y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
             # Show the USB (OTG) address
             y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
@@ -472,7 +489,7 @@ class HomePage(object):
         qrcode_path = self.env_obj.get_wifi_qrcode_for_hostapd()
         if qrcode_path != None:
             self.display_obj.stamp_qrcode(g_vars, qrcode_path,
-                center_vertically=False, y=y+2, draw_immediately=False)
+                center_vertically=False, y=y, draw_immediately=False)
 
 
     def battery_indicator(self, g_vars, x, y, width, height):
@@ -485,8 +502,6 @@ class HomePage(object):
         canvas = g_vars['draw']
         bx = x + 3
         by = y + 2
-        status = battery.battery_status()
-        charge = battery.battery_charge()
 
         battery_indicator_width  = 16
         battery_indicator_height = 8
@@ -497,6 +512,9 @@ class HomePage(object):
         canvas.rectangle((bx , by, bx+1, by + 2), fill=THEME.status_bar_foreground.value)
 
         if battery.battery_present():
+
+            status = battery.battery_status()
+            charge = battery.battery_charge()
 
             # Draw current charge level
             if charge > 0:
@@ -588,7 +606,6 @@ class HomePage(object):
         Displays a wifi indicator for the given wifi interface
         '''
         canvas = g_vars['draw']
-        tiny_font = ImageFont.truetype('fonts/DejaVuSansMono.ttf', 7)
         status_up = False
         monitor_mode = False
         active = False
@@ -601,7 +618,11 @@ class HomePage(object):
 
                 # check if the interface is UP
                 try:
-                    subprocess.check_output(f"{IFCONFIG_FILE} {if_name} 2>&1 | grep UP", shell=True).decode().strip()
+                    subprocess.run(f"{IFCONFIG_FILE} {if_name} | grep UP",
+                        shell=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        check=True)
                     status_up = True
                 except Exception as e:
                     pass
@@ -611,9 +632,13 @@ class HomePage(object):
                         if other_iface[2] == "monitor":
                             monitor_mode = True
 
-                            # check if it's being used for capturing with tcpdump
+                            # check if it's being used for capturing with tcpdump or dumpcap
                             try:
-                                output = subprocess.check_output(f"ps aux 2>&1 | grep -v grep | grep tcpdump | grep {other_iface[1]}", shell=True).decode().strip()
+                                subprocess.run(f"ps aux 2>&1 | grep -v grep | grep -E 'tcpdump|dumpcap' | grep {other_iface[1]}",
+                                    shell=True,
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL,
+                                    check=True)
                                 active = True
                             except Exception as e:
                                 pass
@@ -639,7 +664,7 @@ class HomePage(object):
                 else:
                     canvas.pieslice((x, y + 3, x + height, y + height + 3), 225, 315, outline=fill_color)
 
-                canvas.text((x + width/2 + 3, y + height - 8), if_name[-1], font=tiny_font, fill=fill_color)
+                canvas.text((x + width/2 + 3, y + height - 8), if_name[-1], font=TINY_FONT, fill=fill_color)
 
                 return True
 
@@ -652,10 +677,10 @@ class HomePage(object):
         '''
 
         bluetooth = Bluetooth(g_vars)
-        bluetooth_icon = chr(0xf128)
-        canvas = g_vars['draw']
-        x = x + (width - ICONS.getsize(bluetooth_icon)[0])/2 + 1
-        if bluetooth.bluetooth_present() and bluetooth.bluetooth_power():
+        if bluetooth.bluetooth_power():
+            bluetooth_icon = chr(0xf128)
+            canvas = g_vars['draw']
+            x = x + (width - ICONS.getsize(bluetooth_icon)[0])/2 + 1
             canvas.text((x, y), bluetooth_icon, font=ICONS, fill=THEME.status_bar_foreground.value)
             return True
 

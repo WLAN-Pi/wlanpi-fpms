@@ -29,7 +29,10 @@ class Bluetooth(object):
         '''
         try:
             cmd = f"hciconfig | grep {BT_ADAPTER}"
-            subprocess.check_output(cmd, shell=True)
+            subprocess.run(cmd, shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True)
             return True
         except subprocess.CalledProcessError as exc:
             return False
@@ -64,7 +67,10 @@ class Bluetooth(object):
         '''
         try:
             cmd = f"hciconfig {BT_ADAPTER} | grep -E '^\s+UP'"
-            subprocess.check_output(cmd, shell=True).decode().strip()
+            subprocess.run(cmd, shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True)
             return True
         except subprocess.CalledProcessError as exc:
             return False
@@ -162,8 +168,10 @@ class Bluetooth(object):
                     self.alert_obj.display_popup_alert(g_vars, "Unpairing existing device...")
                     for dev in paired_devices:
                         try:
-                            cmd = f"bluetoothctl -- remove {dev} 2>&1 > /dev/null"
-                            subprocess.run(cmd, shell=True)
+                            cmd = f"bluetoothctl -- remove {dev}"
+                            subprocess.run(cmd, shell=True,
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL)
                         except:
                             pass
                     paired_devices = self.bluetooth_paired_devices()
