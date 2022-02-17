@@ -183,6 +183,7 @@ class System(object):
             return None
 
 
+        name = "WLAN Pi OS"
         version = g_vars['wlanpi_ver']
         authors = None
         authors_file = os.path.realpath(os.path.join(os.getcwd(), "AUTHORS.md"))
@@ -192,6 +193,7 @@ class System(object):
 
         about = []
         about.append(" ")
+        about.append(name.center(20, " "))
         about.append(version.center(20, " "))
         about.append(" ")
 

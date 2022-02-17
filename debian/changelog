@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.19) stable; urgency=medium
+
+  * Fixes display of image name and version in System > About
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 17 Feb 2022 13:36:29 -0600
+
 wlanpi-fpms (1.2.18) stable; urgency=medium
 
   * Improve Aruba Central Cloud Test
