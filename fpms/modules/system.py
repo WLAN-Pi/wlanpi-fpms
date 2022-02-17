@@ -75,6 +75,8 @@ class System(object):
         finally:
             s.close()
 
+        ipStr = f"IP: {IP}"
+
         # determine CPU load
         cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
         try:
@@ -106,12 +108,22 @@ class System(object):
             tempI = tempI/1000
         tempStr = "CPU Temp: %sC" % str(round(tempI, 1))
 
+        # determine uptime
+        cmd = "uptime -p | sed -r 's/up|,//g' | sed -r 's/\s*week[s]?/w/g' | sed -r 's/\s*day[s]?/d/g' | sed -r 's/\s*hour[s]?/h/g' | sed -r 's/\s*minute[s]?/m/g'"
+        try:
+            uptime = subprocess.check_output(cmd, shell=True).decode().strip()
+        except:
+            uptime = "unknown"
+
+        uptimeStr = f"Up: {uptime}"
+
         results = [
-            "IP: " + str(IP),
+            ipStr,
             str(CPU),
             str(MemUsage),
             str(Disk),
-            tempStr
+            tempStr,
+            uptimeStr
         ]
 
         # final check no-one pressed a button before we render page
