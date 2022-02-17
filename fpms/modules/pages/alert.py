@@ -30,7 +30,7 @@ class Alert(object):
         g_vars['drawing_in_progress'] = True
         g_vars['display_state'] = 'page'
 
-        item_list = wrap(message, 17)
+        item_list = wrap(message, 17, break_on_hyphens=False)
 
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
@@ -97,7 +97,7 @@ class Alert(object):
         g_vars['display_state'] = 'page'
 
         item_length_max = 17
-        item_list = wrap(msg, 17)
+        item_list = wrap(msg, 17, break_on_hyphens=False)
 
         font_offset = 2
         margin = 10

@@ -2,7 +2,6 @@
 # Create a simpe table object
 #################################
 import fpms.modules.wlanpi_oled as oled
-from textwrap import wrap
 
 from fpms.modules.pages.display import *
 from fpms.modules.pages.utils import *
