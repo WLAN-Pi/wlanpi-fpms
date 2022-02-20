@@ -10,7 +10,6 @@ class Button(object):
 
         self.homepage_obj = HomePage(g_vars)
         self.page_obj = Page(g_vars)
-        self.simple_table_obj = SimpleTable(g_vars)
 
     #######################################
     # Actions taken when butons pressed
@@ -56,6 +55,8 @@ class Button(object):
         if g_vars['display_state'] == 'page':
             if (g_vars['current_scroll_selection'] < (g_vars['table_pages'] -1)):
                 g_vars['current_scroll_selection'] += 1
+                # Re-run current action immediately to display new page
+                g_vars['option_selected']()
                 return
 
         # Menu not currently shown, do nothing
@@ -78,13 +79,15 @@ class Button(object):
         # If we are in a table, scroll up (unless at top of list)
         if g_vars['display_state'] == 'page' and g_vars['current_scroll_selection'] > 0:
             g_vars['current_scroll_selection'] -= 1
+            # Re-run current action immediately to display new page
+            g_vars['option_selected']()
             return
 
         # Menu not currently shown, do nothing
         if g_vars['display_state'] != 'menu':
             return
 
-        # pop the last menu list item, deccrement & push back on
+        # pop the last menu list item, decrement & push back on
         current_selection = g_vars['current_menu_location'].pop()
         if current_selection != 0:
             current_selection = current_selection - 1
