@@ -115,12 +115,11 @@ class Button(object):
             g_vars['current_scroll_selection'] = 0
             g_vars['table_list_length'] = 0
             g_vars['display_state'] = 'menu'
-            self.page_obj.draw_page(g_vars, menu)
             g_vars['result_cache'] = False
+            self.page_obj.draw_page(g_vars, menu)
             return
 
         if g_vars['display_state'] == 'menu':
-
             # check to make sure we aren't at top of menu structure
             if len(g_vars['current_menu_location']) == 1:
                 # If we're at the top and hit exit (back) button, revert to start-up state

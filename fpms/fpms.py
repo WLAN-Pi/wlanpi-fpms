@@ -20,6 +20,7 @@ import termios
 import threading
 import time
 import tty
+import types
 
 from gpiozero import Button as GPIO_Button
 from gpiozero import Device
@@ -846,9 +847,7 @@ optional options:
                 # print(g_vars['option_selected'])
                 # print(type(g_vars['option_selected']))
 
-                if isinstance(g_vars['option_selected'], list):
-                    continue
-                else:
+                if isinstance(g_vars['option_selected'], types.FunctionType):
                     g_vars['option_selected']()
 
             else:
