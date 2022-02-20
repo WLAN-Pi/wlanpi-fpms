@@ -44,42 +44,51 @@ class PagedTable(object):
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
+        # Gather total pages
+        total_pages = len(table_data['pages'])
+        g_vars['table_pages'] = total_pages
+
         y = 0
         x = 0
         padding = 2
         font_offset = 2
         font_size = 11
         item_length_max = 21
+        title_length_max = 17
         table_display_max = MAX_TABLE_LINES
+        multi_page = True if total_pages > 1 else False
 
-        # write title
+        # Write title
         title = table_data['title']
-        total_pages = len(table_data['pages'])
-        g_vars['table_pages'] = total_pages
 
-        if total_pages > 1:
-            title += " ({}/{})".format(g_vars['current_scroll_selection'] + 1, total_pages)
+        # Check if drawing up/down nav indicators
+        if multi_page:
+            title_length_max -= 1
 
-        # draw title
+        # Shorten title if necessary
+        if len(title) > title_length_max:
+            title = title[:title_length_max-2] + ".."
+
+        # Draw title
         g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_table_title_background.value)
         title_size = SMART_FONT.getsize(title)
         g_vars['draw'].text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title,  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
 
-        # draw back nav indicator
-        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, 4)], fill=THEME.page_table_title_foreground.value, width=1)
-        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, STATUS_BAR_HEIGHT-4)], fill=THEME.page_table_title_foreground.value, width=1)
+        # Draw back nav indicator
+        g_vars['draw'].line([(2, (STATUS_BAR_HEIGHT/2)), (6, 4)], fill=THEME.page_table_title_foreground.value, width=1)
+        g_vars['draw'].line([(2, (STATUS_BAR_HEIGHT/2)), (6, STATUS_BAR_HEIGHT-4)], fill=THEME.page_table_title_foreground.value, width=1)
 
-        # draw up/down nav indicators
-        if total_pages > 1:
+        # Draw up/down nav indicators
+        if multi_page:
             current_page = g_vars['current_scroll_selection'] + 1
             up_fill_color = THEME.page_table_disabled_title_foreground.value if current_page == 1 else THEME.page_table_title_foreground.value
             down_fill_color = THEME.page_table_disabled_title_foreground.value if current_page == total_pages else THEME.page_table_title_foreground.value
             # draw up nav indicator
-            g_vars['draw'].line([(PAGE_WIDTH - 8, 2), (PAGE_WIDTH - 4, (STATUS_BAR_HEIGHT/2)-2)], fill=up_fill_color, width=1)
-            g_vars['draw'].line([(PAGE_WIDTH - 8, 2), (PAGE_WIDTH - 12, (STATUS_BAR_HEIGHT/2)-2)], fill=up_fill_color, width=1)
+            g_vars['draw'].line([(PAGE_WIDTH - 7, 2), (PAGE_WIDTH - 3, (STATUS_BAR_HEIGHT/2)-2)], fill=up_fill_color, width=1)
+            g_vars['draw'].line([(PAGE_WIDTH - 7, 2), (PAGE_WIDTH - 11, (STATUS_BAR_HEIGHT/2)-2)], fill=up_fill_color, width=1)
             # draw down nav indicator
-            g_vars['draw'].line([(PAGE_WIDTH - 8, STATUS_BAR_HEIGHT-2), (PAGE_WIDTH - 4, (STATUS_BAR_HEIGHT/2)+2)], fill=down_fill_color, width=1)
-            g_vars['draw'].line([(PAGE_WIDTH - 8, STATUS_BAR_HEIGHT-2), (PAGE_WIDTH - 12, (STATUS_BAR_HEIGHT/2)+2)], fill=down_fill_color, width=1)
+            g_vars['draw'].line([(PAGE_WIDTH - 7, STATUS_BAR_HEIGHT-2), (PAGE_WIDTH - 3, (STATUS_BAR_HEIGHT/2)+2)], fill=down_fill_color, width=1)
+            g_vars['draw'].line([(PAGE_WIDTH - 7, STATUS_BAR_HEIGHT-2), (PAGE_WIDTH - 11, (STATUS_BAR_HEIGHT/2)+2)], fill=down_fill_color, width=1)
 
         font_offset += font_size + padding + padding
 
@@ -117,6 +126,14 @@ class PagedTable(object):
                 else:
                     g_vars['draw'].text((x, y + font_offset), item,  font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
                     font_offset += font_size
+
+
+        # Draw scroll bars
+        if multi_page:
+            scroll_bar_length = (PAGE_HEIGHT - STATUS_BAR_HEIGHT - 4) / total_pages
+            x = PAGE_WIDTH - 1
+            y = STATUS_BAR_HEIGHT + 2 + (scroll_bar_length * (current_page - 1))
+            g_vars['draw'].line([(x, y), (x, y+scroll_bar_length)], fill=THEME.page_table_scrollbar.value, joint="curve")
 
         oled.drawImage(g_vars['image'])
 

@@ -43,6 +43,11 @@ class Alert(object):
         font_type = SMART_FONT
         font_size = 11
         item_length_max = 21
+        title_length_max = 17
+
+        # shorten title if necessary
+        if len(title) > title_length_max:
+            title = title[:title_length_max-2] + ".."
 
         # write title
         self.draw.rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background)

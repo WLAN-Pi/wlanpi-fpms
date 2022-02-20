@@ -41,10 +41,16 @@ class SimpleTable(object):
         font_offset = 2
         font_type = SMART_FONT
         font_size = 11
+        title_length_max = 17
         table_display_max = MAX_TABLE_LINES + 1
 
         # write title if present
         if title != '':
+
+            # shorten title if necessary
+            if len(title) > title_length_max:
+                title = title[:title_length_max-2] + ".."
+
             g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.simple_table_title_background.value)
             title_size = font_type.getsize(title)
             g_vars['draw'].text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title, font=font_type, fill=THEME.simple_table_title_foreground.value)

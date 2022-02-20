@@ -1,3 +1,12 @@
+wlanpi-fpms (1.2.21) stable; urgency=medium
+
+  * Fixes title overlapping issues in status bar by shortening titles if
+    necessary
+  * Uses "scroll bars" instead of current-page/total-pages counter in status
+    bar
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 20 Feb 2022 16:37:39 -0600
+
 wlanpi-fpms (1.2.20) stable; urgency=medium
 
   * Adds "back", "up", and "down" navigation icons to status bar
