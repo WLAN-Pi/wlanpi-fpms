@@ -1,3 +1,13 @@
+wlanpi-fpms (1.2.20) stable; urgency=medium
+
+  * Adds "back", "up", and "down" navigation icons to status bar
+  * Fixes home screen not refreshing and 100% CPU util that may occurr with
+    certain combination of button presses
+  * Fixes responsiveness when scrolling up/down on multi-page screens
+  * Rounds voltage value in System > Battery to two decimals
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 20 Feb 2022 13:40:39 -0600
+
 wlanpi-fpms (1.2.19) stable; urgency=medium
 
   * Fixes display of image name and version in System > About
