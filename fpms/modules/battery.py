@@ -82,7 +82,7 @@ class Battery(object):
 
         status.append(f"Status: {self.battery_status().capitalize()}")
         status.append(f"Charge: {int(self.battery_charge())}%")
-        status.append(f"Voltage: {self.battery_voltage() / 1000000}V")
+        status.append(f"Voltage: {round(self.battery_voltage() / 1000000, 2)}V")
         status.append(f"Cycle Count: {self.battery_cycle_count()}")
 
         self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Battery")
