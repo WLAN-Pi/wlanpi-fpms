@@ -111,6 +111,10 @@ class Page(object):
         title_size = FONTB12.getsize(page_title)
         g_vars['draw'].text(((PAGE_WIDTH - title_size[0])/2, 0), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
 
+        # draw back nav indicator
+        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, 4)], fill=THEME.page_title_foreground.value, width=1)
+        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, STATUS_BAR_HEIGHT-4)], fill=THEME.page_title_foreground.value, width=1)
+
         # vertical starting point for menu (under title) & incremental offset for
         # subsequent items
         y = STATUS_BAR_HEIGHT + 1

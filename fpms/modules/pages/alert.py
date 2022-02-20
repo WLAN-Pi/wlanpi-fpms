@@ -44,11 +44,15 @@ class Alert(object):
         font_size = 11
         item_length_max = 21
 
-        # write title if present
+        # write title
         self.draw.rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background)
         title_size = SMART_FONT.getsize(title)
         self.draw.text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title,  font=SMART_FONT, fill=title_foreground)
         font_offset += font_size
+
+        # draw back nav indicator
+        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, 4)], fill=title_foreground, width=1)
+        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, STATUS_BAR_HEIGHT-4)], fill=title_foreground, width=1)
 
         y += font_offset
 

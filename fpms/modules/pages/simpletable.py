@@ -51,6 +51,10 @@ class SimpleTable(object):
             font_offset += font_size + padding * 4
             table_display_max -= 1
 
+            # draw back nav indicator
+            g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, 4)], fill=THEME.simple_table_title_foreground.value, width=1)
+            g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, STATUS_BAR_HEIGHT-4)], fill=THEME.simple_table_title_foreground.value, width=1)
+
         previous_table_list_length = g_vars['table_list_length']
         g_vars['table_list_length'] = len(item_list)
 

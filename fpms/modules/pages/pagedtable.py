@@ -60,9 +60,26 @@ class PagedTable(object):
         if total_pages > 1:
             title += " ({}/{})".format(g_vars['current_scroll_selection'] + 1, total_pages)
 
+        # draw title
         g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_table_title_background.value)
         title_size = SMART_FONT.getsize(title)
         g_vars['draw'].text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title,  font=SMART_FONT, fill=THEME.page_table_title_foreground.value)
+
+        # draw back nav indicator
+        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, 4)], fill=THEME.page_table_title_foreground.value, width=1)
+        g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, STATUS_BAR_HEIGHT-4)], fill=THEME.page_table_title_foreground.value, width=1)
+
+        # draw up/down nav indicators
+        if total_pages > 1:
+            current_page = g_vars['current_scroll_selection'] + 1
+            up_fill_color = THEME.page_table_disabled_title_foreground.value if current_page == 1 else THEME.page_table_title_foreground.value
+            down_fill_color = THEME.page_table_disabled_title_foreground.value if current_page == total_pages else THEME.page_table_title_foreground.value
+            # draw up nav indicator
+            g_vars['draw'].line([(PAGE_WIDTH - 8, 2), (PAGE_WIDTH - 4, (STATUS_BAR_HEIGHT/2)-2)], fill=up_fill_color, width=1)
+            g_vars['draw'].line([(PAGE_WIDTH - 8, 2), (PAGE_WIDTH - 12, (STATUS_BAR_HEIGHT/2)-2)], fill=up_fill_color, width=1)
+            # draw down nav indicator
+            g_vars['draw'].line([(PAGE_WIDTH - 8, STATUS_BAR_HEIGHT-2), (PAGE_WIDTH - 4, (STATUS_BAR_HEIGHT/2)+2)], fill=down_fill_color, width=1)
+            g_vars['draw'].line([(PAGE_WIDTH - 8, STATUS_BAR_HEIGHT-2), (PAGE_WIDTH - 12, (STATUS_BAR_HEIGHT/2)+2)], fill=down_fill_color, width=1)
 
         font_offset += font_size + padding + padding
 
