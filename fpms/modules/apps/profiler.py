@@ -214,24 +214,26 @@ class Profiler(object):
 
         elif action.startswith("start"):
 
+            print(action)
+
             if action == "start":
                 # set the config file to use params
-                cfg_dict = {"channel": "36", "ft_enabled": "True", "he_enabled": "True"}
+                cfg_dict = {"channel": "36", "ft_disabled": "False", "he_disabled": "False"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_2dot4ghz":
                 # set the config file to use params
-                cfg_dict = {"channel": "11", "ft_enabled": "True", "he_enabled": "True"}
+                cfg_dict = {"channel": "11", "": "False", "he_disabled": "False"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11r":
                 # set the config file to use params
-                cfg_dict = {"channel": "36", "ft_enabled": "False", "he_enabled": "True"}
+                cfg_dict = {"channel": "36", "ft_disabled": "True", "he_disabled": "False"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11ax":
                 # set the config file to use params
-                cfg_dict = {"channel": "36", "ft_enabled": "True", "he_enabled": "False"}
+                cfg_dict = {"channel": "36", "ft_disabled": "False", "he_disabled": "True"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             else:
