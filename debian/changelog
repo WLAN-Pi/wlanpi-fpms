@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.22) stable; urgency=medium
+
+  * Fixes "no 11r" and "no 11ax" Profiler start options 
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 03 Mar 2022 21:44:24 -0600
+
 wlanpi-fpms (1.2.21) stable; urgency=medium
 
   * Fixes title overlapping issues in status bar by shortening titles if
