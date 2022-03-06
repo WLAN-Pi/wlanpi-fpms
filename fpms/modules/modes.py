@@ -10,6 +10,7 @@ from fpms.modules.constants import (
     HOTSPOT_SWITCHER_FILE,
     WIPERF_SWITCHER_FILE,
     SERVER_SWITCHER_FILE,
+    BRIDGE_SWITCHER_FILE,
 )
 
 class Mode(object):
@@ -115,6 +116,17 @@ class Mode(object):
         resource_title = "Server"
         mode_name = "server"
         resource_switcher_file = server_switcher_file
+
+        self.switcher(g_vars, resource_title, resource_switcher_file, mode_name)
+        return True
+    
+    def bridge_switcher(self, g_vars):
+
+        bridge_switcher_file = BRIDGE_SWITCHER_FILE
+
+        resource_title = "Bridge"
+        mode_name = "bridge"
+        resource_switcher_file = bridge_switcher_file
 
         self.switcher(g_vars, resource_title, resource_switcher_file, mode_name)
         return True
