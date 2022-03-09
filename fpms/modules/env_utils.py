@@ -7,6 +7,7 @@
 
 import subprocess
 import re
+import sys
 import os
 import hashlib
 import qrcode
@@ -62,7 +63,7 @@ class EnvUtils(object):
 
     def get_mode(self, MODE_FILE):
 
-        valid_modes = ['classic', 'wconsole', 'hotspot', 'wiperf', 'server']
+        valid_modes = ['classic', 'wconsole', 'hotspot', 'wiperf', 'server', 'bridge']
 
         # check mode file exists and read mode...create with classic mode if not
         if os.path.isfile(MODE_FILE):
