@@ -81,6 +81,7 @@ WCONSOLE_SWITCHER_FILE ='/opt/wlanpi-wconsole/wconsole_switcher'
 HOTSPOT_SWITCHER_FILE = '/opt/wlanpi-hotspot/hotspot_switcher'
 WIPERF_SWITCHER_FILE = '/opt/wlanpi-wiperf/wiperf_switcher'
 SERVER_SWITCHER_FILE = '/opt/wlanpi-server/server_switcher'
+BRIDGE_SWITCHER_FILE = '/opt/wlanpi-bridge/bridge_switcher'
 
 #### Paths below here are relative to script dir or /tmp fixed paths ###
 

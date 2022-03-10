@@ -320,6 +320,10 @@ optional options:
     def server_switcher():
         mode_obj = Mode(g_vars)
         mode_obj.server_switcher(g_vars)
+    
+    def bridge_switcher():
+        mode_obj = Mode(g_vars)
+        mode_obj.bridge_switcher(g_vars)
 
     ###########################
     # Apps area
@@ -481,6 +485,10 @@ optional options:
                 {"name": "Confirm", "action": server_switcher},
             ]
             },
+            {"name": "Bridge",   "action": [
+                {"name": "Confirm", "action": bridge_switcher},
+            ]
+            },
         ]
         },
         {"name": "Apps", "action": [
@@ -541,6 +549,14 @@ optional options:
     if g_vars['current_mode'] == "server":
         switcher_dispatcher = server_switcher
         g_vars['home_page_name'] = "Server"
+    
+    if g_vars['current_mode'] == "bridge":
+        switcher_dispatcher = bridge_switcher
+        g_vars['home_page_name'] = "Bridge"
+    
+    if g_vars['current_mode'] == "bridge":
+        switcher_dispatcher = bridge_switcher
+        g_vars['home_page_name'] = "Bridge"
 
     if g_vars['current_mode'] == "classic":
         # Remove Utils > SSID/Passphrase
