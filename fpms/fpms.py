@@ -320,7 +320,7 @@ optional options:
     def server_switcher():
         mode_obj = Mode(g_vars)
         mode_obj.server_switcher(g_vars)
-    
+
     def bridge_switcher():
         mode_obj = Mode(g_vars)
         mode_obj.bridge_switcher(g_vars)
@@ -395,6 +395,14 @@ optional options:
     def show_about():
         system_obj = System(g_vars)
         system_obj.show_about(g_vars)
+
+    def check_for_updates():
+        system_obj = System(g_vars)
+        system_obj.check_for_updates(g_vars)
+
+    def install_updates():
+        system_obj = System(g_vars)
+        system_obj.install_updates(g_vars)
 
     #############################
     # Button presses & home page
@@ -521,6 +529,13 @@ optional options:
             {"name": "Battery", "action": show_battery},
             {"name": "Date/Time", "action": show_date},
             {"name": "Summary", "action": show_summary},
+            {"name": "Software Update", "action": [
+                {"name": "Check for Updates", "action": check_for_updates},
+                {"name": "Install Updates", "action": [
+                    { "name": "Confirm", "action": install_updates}
+                ]},
+            ]
+            },
             {"name": "Reboot",   "action": [
                 {"name": "Confirm", "action": reboot},
             ]
@@ -549,11 +564,11 @@ optional options:
     if g_vars['current_mode'] == "server":
         switcher_dispatcher = server_switcher
         g_vars['home_page_name'] = "Server"
-    
+
     if g_vars['current_mode'] == "bridge":
         switcher_dispatcher = bridge_switcher
         g_vars['home_page_name'] = "Bridge"
-    
+
     if g_vars['current_mode'] == "bridge":
         switcher_dispatcher = bridge_switcher
         g_vars['home_page_name'] = "Bridge"

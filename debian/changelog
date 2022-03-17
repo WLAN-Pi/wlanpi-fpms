@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.24) stable; urgency=medium
+
+  * Adds System > Software Update > Check for Updates and Install Updates options
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 16 Mar 2022 19:03:59 -0500
+
 wlanpi-fpms (1.2.23) stable; urgency=medium
 
   * Add bridge mode

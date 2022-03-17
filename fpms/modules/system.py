@@ -178,32 +178,85 @@ class System(object):
 
     def show_about(self, g_vars):
 
-        if g_vars['result_cache'] == True:
-            self.paged_table_obj.display_list_as_paged_table(g_vars, g_vars['about'], title="About")
-            return None
+        if g_vars['result_cache'] == False:
+            g_vars["disable_keys"] = True
 
+            name = "WLAN Pi OS"
+            version = g_vars['wlanpi_ver']
+            authors = None
+            authors_file = os.path.realpath(os.path.join(os.getcwd(), "AUTHORS.md"))
+            if os.path.isfile(authors_file):
+                with open(authors_file) as f:
+                    authors = "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
 
-        name = "WLAN Pi OS"
-        version = g_vars['wlanpi_ver']
-        authors = None
-        authors_file = os.path.realpath(os.path.join(os.getcwd(), "AUTHORS.md"))
-        if os.path.isfile(authors_file):
-            with open(authors_file) as f:
-                authors = "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
+            about = []
+            about.append(" ")
+            about.append(name.center(20, " "))
+            about.append(version.center(20, " "))
+            about.append(" ")
 
-        about = []
-        about.append(" ")
-        about.append(name.center(20, " "))
-        about.append(version.center(20, " "))
-        about.append(" ")
+            if authors != None:
+                authors_list = []
+                for author in authors.split("\n"):
+                    author = author.replace("*", "").strip()
+                    authors_list.append(author.split(",")[0].strip().center(20, " "))
+                random.shuffle(authors_list)
+                about.extend(authors_list)
 
-        if authors != None:
-            authors_list = []
-            for author in authors.split("\n"):
-                author = author.replace("*", "").strip()
-                authors_list.append(author.split(",")[0].strip().center(20, " "))
-            random.shuffle(authors_list)
-            about.extend(authors_list)
+            g_vars['about'] = about
+            g_vars['result_cache'] = True
+            g_vars["disable_keys"] = False
 
-        g_vars['about'] = about
-        g_vars['result_cache'] = True
+        self.paged_table_obj.display_list_as_paged_table(g_vars, g_vars['about'], title="About")
+
+    def check_for_updates(self, g_vars):
+
+        if g_vars['result_cache'] == False:
+
+            self.alert_obj.display_popup_alert(g_vars, "Checking for updates, please wait...")
+
+            updates = ""
+            try:
+                g_vars["disable_keys"] = True
+                output = subprocess.check_output("/usr/bin/wlanpi-update", shell=True).decode()
+                new_packages = subprocess.check_output("echo '" + output + "' | grep ^wlanpi- | awk '{ print $1\":\"$2 }' | sed 's/\/.*:/:/g'", shell=True).decode().strip()
+                if len(new_packages) > 0:
+                    updates = new_packages.split('\n')
+            except:
+                updates = None
+            finally:
+                g_vars["disable_keys"] = False
+
+            g_vars['updates'] = updates
+            g_vars['result_cache'] = True
+
+        updates = g_vars['updates']
+
+        if updates == None:
+            self.alert_obj.display_alert_error(g_vars, "Failed to check for updates.", title="Error")
+        elif len(updates) > 0:
+            self.simple_table_obj.display_simple_table(g_vars, g_vars['updates'], title="Updates found")
+        else:
+            self.alert_obj.display_alert_error(g_vars, "All WLAN Pi packages are up-to-date.", title="No updates found")
+
+    def install_updates(self, g_vars):
+
+        if g_vars['result_cache'] == False:
+
+            self.alert_obj.display_popup_alert(g_vars, "Checking for updates, please wait...")
+
+            try:
+                output = subprocess.check_output("/usr/bin/wlanpi-update", shell=True).decode()
+                new_packages = subprocess.check_output("echo '" + output + "' | grep ^wlanpi- | awk '{ print $1\":\"$2 }' | sed 's/\/.*:/:/g'", shell=True).decode().strip()
+                if len(new_packages) > 0:
+                    self.alert_obj.display_popup_alert(g_vars, "Installing updates, please wait...")
+                    subprocess.check_output("/usr/bin/wlanpi-update -u", shell=True).decode().strip()
+                    self.alert_obj.display_alert_info(g_vars, "Packages updated successfully.", title="Success")
+                else:
+                    self.alert_obj.display_alert_error(g_vars, "Nothing to update.", title="Install updates")
+            except:
+                self.alert_obj.display_alert_error(g_vars, "Failed to install updates.", title="Error")
+            finally:
+                g_vars["disable_keys"] = False
+
+            g_vars['result_cache'] = True
