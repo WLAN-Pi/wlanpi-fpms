@@ -139,7 +139,7 @@ class DarkTheme(Enum):
     alert_popup_foreground        = "white"
     alert_popup_background        = "#5b616b"
 
-if PLATFORM == "pro" or PLATFORM == "waveshare":
+if PLATFORM == "pro" or PLATFORM == "community" or PLATFORM == "waveshare":
     THEME = DarkTheme
 else:
     THEME = BlackAndWhiteTheme
