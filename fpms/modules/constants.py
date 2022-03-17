@@ -9,7 +9,7 @@ import os
 import pathlib
 from fpms.modules.env_utils import EnvUtils
 
-__version__ = "2.0.2"
+__version__ = "2.0.3"
 __author__ = "wifinigel@gmail.com"
 
 
@@ -23,7 +23,7 @@ MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
 DISPLAY_MODE = '1'
 
-if PLATFORM == "pro" or PLATFORM == "waveshare":
+if PLATFORM == "pro" or PLATFORM == "community" or PLATFORM == "waveshare":
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
     MAX_TABLE_LINES = 9
@@ -130,6 +130,8 @@ BUTTONS_PINS = {}
 
 if PLATFORM == "pro":
     BUTTONS_PINS = BUTTONS_WLANPI_PRO
+elif PLATFORM == "community":
+    BUTTONS_PINS = BUTTONS_WAVESHARE
 elif PLATFORM == "waveshare":
     BUTTONS_PINS = BUTTONS_WAVESHARE
 else:
