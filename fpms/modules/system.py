@@ -237,7 +237,7 @@ class System(object):
         elif len(updates) > 0:
             self.simple_table_obj.display_simple_table(g_vars, g_vars['updates'], title="Updates found")
         else:
-            self.alert_obj.display_alert_error(g_vars, "All WLAN Pi packages are up-to-date.", title="No updates found")
+            self.alert_obj.display_alert_info(g_vars, "All WLAN Pi packages are up-to-date.", title="No updates found")
 
     def install_updates(self, g_vars):
 
@@ -248,14 +248,17 @@ class System(object):
             try:
                 output = subprocess.check_output("/usr/bin/wlanpi-update", shell=True).decode()
                 new_packages = subprocess.check_output("echo '" + output + "' | grep ^wlanpi- | awk '{ print $1\":\"$2 }' | sed 's/\/.*:/:/g'", shell=True).decode().strip()
-                if len(new_packages) > 0:
-                    self.alert_obj.display_popup_alert(g_vars, "Installing updates, please wait...")
-                    subprocess.check_output("/usr/bin/wlanpi-update -u", shell=True).decode().strip()
-                    self.alert_obj.display_alert_info(g_vars, "Packages updated successfully.", title="Success")
-                else:
-                    self.alert_obj.display_alert_error(g_vars, "Nothing to update.", title="Install updates")
+                try:
+                    if len(new_packages) > 0:
+                        self.alert_obj.display_popup_alert(g_vars, "Installing updates, please wait...")
+                        subprocess.check_output("/usr/bin/wlanpi-update -u", shell=True).decode().strip()
+                        self.alert_obj.display_alert_info(g_vars, "Packages updated successfully.", title="Success")
+                    else:
+                        self.alert_obj.display_alert_error(g_vars, "Nothing to update.", title="Install updates")
+                except:
+                    self.alert_obj.display_alert_error(g_vars, "Failed to install updates.", title="Error")
             except:
-                self.alert_obj.display_alert_error(g_vars, "Failed to install updates.", title="Error")
+                self.alert_obj.display_alert_error(g_vars, "Failed to check for updates.", title="Error")
             finally:
                 g_vars["disable_keys"] = False
 
