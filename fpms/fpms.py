@@ -569,10 +569,6 @@ optional options:
         switcher_dispatcher = bridge_switcher
         g_vars['home_page_name'] = "Bridge"
 
-    if g_vars['current_mode'] == "bridge":
-        switcher_dispatcher = bridge_switcher
-        g_vars['home_page_name'] = "Bridge"
-
     if g_vars['current_mode'] == "classic":
         # Remove Utils > SSID/Passphrase
         for item in menu:

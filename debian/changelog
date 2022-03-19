@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.29) stable; urgency=medium
+
+  * Displays eth0 address in Bridge mode
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sat, 19 Mar 2022 11:24:29 -0500
+
 wlanpi-fpms (1.2.28) stable; urgency=medium
 
   * Better error handling for software update options

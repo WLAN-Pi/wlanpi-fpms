@@ -225,7 +225,7 @@ class HomePage(object):
             mode = self.dhcp_server_mode
         elif g_vars['current_mode'] == "bridge":
             if_name = "usb0"
-            mode_name = "Bridge Mode"
+            mode_name = "Bridge"
             mode = self.bridge_mode
 
         system_bar_contents = self.env_obj.get_hostname()
@@ -295,11 +295,11 @@ class HomePage(object):
             # get eth0 IP
             if_name = "eth0"
             mode_name = "DHCP Server Enabled!"
-        
+
         elif g_vars['current_mode'] == "bridge":
             # get usb0 IP
             if_name = "usb0"
-            mode_name = "Bridge Mode"
+            mode_name = "Bridge"
 
         else:
             # get eth0 IP
@@ -459,11 +459,12 @@ class HomePage(object):
 
             # Show the USB (OTG) address
             y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
-    
+
     def bridge_mode(self, g_vars, x=0, y=0, padding=2):
+        y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
+
         # Show the USB (OTG) address
         y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
-
 
     def wiperf_mode(self, g_vars, x=0, y=0, padding=2):
         canvas = g_vars['draw']
