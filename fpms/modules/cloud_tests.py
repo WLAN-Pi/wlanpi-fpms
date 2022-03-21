@@ -69,14 +69,14 @@ class CloudUtils(object):
                     item_list[1] = "MyIP: None"
                     test_fail = True
 
+            dns_fail = False
+            
             if not test_fail:
                 # https://help.central.arubanetworks.com/latest/documentation/online_help/content/nms/device-mgmt/communication_ports.htm
                 # Can we resolve address activate.arubanetworks.com?
                 # Can we resolve address common.cloud.hpe.com?
                 # Can we resolve address device.arubanetworks.com?
                 # Can we resolve address images.arubanetworks.com?
-
-                dns_fail = False
 
                 try:
                     socket.gethostbyname("activate.arubanetworks.com")
