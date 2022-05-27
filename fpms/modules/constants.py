@@ -115,6 +115,9 @@ BUTTONS_WAVESHARE = {
     "left": 5,
     "right": 26,
     "center": 13,
+    "key1": 21,
+    "key2": 20,
+    "key3": 16
 }
 # temp setup to test code using Sapphire HAT
 # (center - middle front panel button, up/down = side wheel up/down)
@@ -123,7 +126,7 @@ BUTTONS_SAPPHIRE = {
     "down": 22,
     "left": 4,
     "right": 27,
-    "center": 17,
+    "center": 17
 }
 
 BUTTONS_PINS = {}

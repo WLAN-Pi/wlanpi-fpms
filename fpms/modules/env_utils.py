@@ -61,6 +61,17 @@ class EnvUtils(object):
 
         return platform
 
+    def get_platform_name(self):
+
+        platform = self.get_platform()
+
+        if platform == "pro":
+            return "WLAN Pi Pro"
+        elif platform == "community" or platform == "waveshare":
+            return "WLAN Pi CE"
+        else:
+            return "WLAN Pi"
+
     def get_mode(self, MODE_FILE):
 
         valid_modes = ['classic', 'wconsole', 'hotspot', 'wiperf', 'server', 'bridge']

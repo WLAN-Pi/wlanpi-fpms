@@ -431,6 +431,15 @@ optional options:
         button_obj = Button(g_vars, menu)
         button_obj.menu_center(g_vars, menu)
 
+    def menu_key1():
+        print("key1: not implemented")
+
+    def menu_key2():
+        print("key2: not implemented")
+
+    def menu_key3():
+        print("key3: not implemented")
+
     #######################
     # menu structure here
     #######################
@@ -603,6 +612,18 @@ optional options:
         RIGHT_KEY = BUTTONS_PINS['right']
         LEFT_KEY = BUTTONS_PINS['left']
         CENTER_KEY = BUTTONS_PINS['center']
+        KEY1 = None
+        KEY2 = None
+        KEY3 = None
+
+        if 'key1' in BUTTONS_PINS:
+            KEY1 = BUTTONS_PINS['key1']
+
+        if 'key2' in BUTTONS_PINS:
+            KEY2 = BUTTONS_PINS['key2']
+
+        if 'key3' in BUTTONS_PINS:
+            KEY3 = BUTTONS_PINS['key3']
 
         if g_vars['disable_keys'] == True:
             # someone disabled the front panel keys as they don't want to be interrupted
@@ -620,7 +641,6 @@ optional options:
         if g_vars['drawing_in_progress'] or g_vars['shutdown_in_progress']:
             return
 
-        # If we get this far, an action wil be taken as a result of the button press
         # increment the button press counter to indicate the something has been done
         # and a page refresh is required
         g_vars['button_press_count'] += 1
@@ -663,6 +683,27 @@ optional options:
         if gpio_pin == CENTER_KEY:
             g_vars['sig_fired'] = True
             menu_center()
+            g_vars['sig_fired'] = False
+            return
+
+        # Key 1
+        if gpio_pin == KEY1:
+            g_vars['sig_fired'] = True
+            menu_key1()
+            g_vars['sig_fired'] = False
+            return
+
+        # Key 2
+        if gpio_pin == KEY2:
+            g_vars['sig_fired'] = True
+            menu_key2()
+            g_vars['sig_fired'] = False
+            return
+
+        # Key 3
+        if gpio_pin == KEY3:
+            g_vars['sig_fired'] = True
+            menu_key3()
             g_vars['sig_fired'] = False
             return
 
@@ -735,17 +776,45 @@ optional options:
     def center_key():
         button_press(BUTTONS_PINS['center'], g_vars)
 
-    button_down = GPIO_Button(BUTTONS_PINS['down'])
-    button_up = GPIO_Button(BUTTONS_PINS['up'])
-    button_left = GPIO_Button(BUTTONS_PINS['left'])
-    button_right = GPIO_Button(BUTTONS_PINS['right'])
-    button_center = GPIO_Button(BUTTONS_PINS['center'])
+    def key_1():
+        button_press(BUTTONS_PINS['key1'], g_vars)
 
+    def key_2():
+        button_press(BUTTONS_PINS['key2'], g_vars)
+
+    def key_3():
+        button_press(BUTTONS_PINS['key3'], g_vars)
+
+    button_down = GPIO_Button(BUTTONS_PINS['down'])
     button_down.when_pressed = down_key
+
+    button_up = GPIO_Button(BUTTONS_PINS['up'])
     button_up.when_pressed = up_key
+
+    button_left = GPIO_Button(BUTTONS_PINS['left'])
     button_left.when_pressed = left_key
+
+    button_right = GPIO_Button(BUTTONS_PINS['right'])
     button_right.when_pressed = right_key
+
+    button_center = GPIO_Button(BUTTONS_PINS['center'])
     button_center.when_pressed = center_key
+
+    button_key1 = None
+    button_key2 = None
+    button_key3 = None
+
+    if 'key1' in BUTTONS_PINS:
+        button_key1 = GPIO_Button(BUTTONS_PINS['key1'])
+        button_key1.when_pressed = key_1
+
+    if 'key2' in BUTTONS_PINS:
+        button_key2 = GPIO_Button(BUTTONS_PINS['key2'])
+        button_key2.when_pressed = key_2
+
+    if 'key3' in BUTTONS_PINS:
+        button_key3 = GPIO_Button(BUTTONS_PINS['key3'])
+        button_key3.when_pressed = key_3
 
     running = True
 
@@ -795,9 +864,25 @@ optional options:
                 button_center.pin.drive_low()
                 button_center.pin.drive_high()
 
+            if button_key1:
+                if (char == "*" or char == "i"):
+                    button_key1.pin.drive_low()
+                    button_key1.pin.drive_high()
+
+            if button_key2:
+                if (char == "-" or char == "o"):
+                    button_key2.pin.drive_low()
+                    button_key2.pin.drive_high()
+
+            if button_key3:
+                if (char == "+" or char == "p"):
+                    button_key3.pin.drive_low()
+                    button_key3.pin.drive_high()
 
     if emulate:
         print("UP = 'w', DOWN = 'x', LEFT = 'a', RIGHT = 'd', CENTER = 's'")
+        if button_key1 and button_key2 and button_key3:
+            print("KEY1 = 'i', KEY2 = 'o', KEY3 = 'p'")
         print("Press 'k' to terminate.")
         e = threading.Thread(name="button-emulator", target=emulate_buttons)
         e.start()

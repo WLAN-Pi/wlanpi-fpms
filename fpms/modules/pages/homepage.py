@@ -204,7 +204,7 @@ class HomePage(object):
         self.display_obj.clear_display(g_vars)
 
         if_name = "eth0"
-        mode_name = "WLAN Pi Pro"
+        mode_name = self.env_obj.get_platform_name()
         mode = self.classic_mode
 
         if g_vars['current_mode'] == "wconsole":
@@ -512,6 +512,9 @@ class HomePage(object):
         '''
         battery = Battery(g_vars)
 
+        if not battery.battery_present():
+            return False
+
         # Draw indicator
         canvas = g_vars['draw']
         bx = x + 3
@@ -525,38 +528,36 @@ class HomePage(object):
         by = by + 3
         canvas.rectangle((bx , by, bx+1, by + 2), fill=THEME.status_bar_foreground.value)
 
-        if battery.battery_present():
+        status = battery.battery_status()
+        charge = battery.battery_charge()
 
-            status = battery.battery_status()
-            charge = battery.battery_charge()
+        # Draw current charge level
+        if charge > 0:
+            bx = x + 2
+            by = y + 2
+            fill_color = THEME.status_bar_foreground.value
 
-            # Draw current charge level
-            if charge > 0:
-                bx = x + 2
-                by = y + 2
-                fill_color = THEME.status_bar_foreground.value
-
-                if status == "charging":
-                    fill_color = THEME.status_bar_battery_full.value
-                elif charge <= 25:
-                    fill_color = THEME.status_bar_battery_low.value
-                elif charge >= 100:
-                    if status == "not charging":
-                        fill_color = THEME.status_bar_battery_full.value
-
-                canvas.rectangle((bx+2, by+2, bx + ((battery_indicator_width - 2) * charge / 100), by + battery_indicator_height-2), fill=fill_color)
-
-            # Draw charging indicator (aka lighting bolt)
             if status == "charging":
-                xy = [
-                (bx + battery_indicator_width/2 + 1, by - 2),
-                (bx + battery_indicator_width/2 - 4, by + battery_indicator_height/2 + 1),
-                (bx + battery_indicator_width/2 - 1, by + battery_indicator_height/2 + 1),
-                (bx + battery_indicator_width/2 - 1, by + battery_indicator_height + 2),
-                (bx + battery_indicator_width/2 + 4, by + battery_indicator_height/2 - 1),
-                (bx + battery_indicator_width/2 + 1, by + battery_indicator_height/2 - 1)
-                ]
-                canvas.polygon(xy, fill=THEME.status_bar_foreground.value, outline=THEME.status_bar_background.value)
+                fill_color = THEME.status_bar_battery_full.value
+            elif charge <= 25:
+                fill_color = THEME.status_bar_battery_low.value
+            elif charge >= 100:
+                if status == "not charging":
+                    fill_color = THEME.status_bar_battery_full.value
+
+            canvas.rectangle((bx+2, by+2, bx + ((battery_indicator_width - 2) * charge / 100), by + battery_indicator_height-2), fill=fill_color)
+
+        # Draw charging indicator (aka lighting bolt)
+        if status == "charging":
+            xy = [
+            (bx + battery_indicator_width/2 + 1, by - 2),
+            (bx + battery_indicator_width/2 - 4, by + battery_indicator_height/2 + 1),
+            (bx + battery_indicator_width/2 - 1, by + battery_indicator_height/2 + 1),
+            (bx + battery_indicator_width/2 - 1, by + battery_indicator_height + 2),
+            (bx + battery_indicator_width/2 + 4, by + battery_indicator_height/2 - 1),
+            (bx + battery_indicator_width/2 + 1, by + battery_indicator_height/2 - 1)
+            ]
+            canvas.polygon(xy, fill=THEME.status_bar_foreground.value, outline=THEME.status_bar_background.value)
 
         return True
 
@@ -727,12 +728,12 @@ class HomePage(object):
         canvas.text((x + padding + 2, y + 2), current_time, font=FONTB11, fill=THEME.status_bar_foreground.value)
 
         # We position each indicator starting from the right edge of the status bar
-        x = width - 24
+        x = width - 20
         fixed_indicator_width = 16
 
         # Battery indicator
-        if self.battery_indicator(g_vars, x, y + 2, 24, height):
-            x -= fixed_indicator_width
+        if self.battery_indicator(g_vars, x - 4, y + 2, 24, height):
+            x -= (fixed_indicator_width + 4)
 
         y += 1
         height -= 2
