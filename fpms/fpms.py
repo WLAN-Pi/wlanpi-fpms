@@ -392,13 +392,29 @@ optional options:
         system_obj = RegDomain(g_vars)
         system_obj.show_reg_domain(g_vars)
 
+    def set_reg_domain_us():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_us(g_vars)
+
     def set_reg_domain_gb():
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_gb(g_vars)
 
-    def set_reg_domain_us():
+    def set_reg_domain_br():
         system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_us(g_vars)
+        system_obj.set_reg_domain_br(g_vars)
+
+    def set_reg_domain_fr():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_fr(g_vars)
+
+    def set_reg_domain_cz():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_cz(g_vars)
+
+    def set_reg_domain_de():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_de(g_vars)
 
     def show_date():
         system_obj = System(g_vars)
@@ -551,6 +567,10 @@ optional options:
                 {"name": "Show Domain", "action": show_reg_domain},
                 {"name": "Set Domain US", "action": set_reg_domain_us},
                 {"name": "Set Domain GB", "action": set_reg_domain_gb},
+                {"name": "Set Domain BR", "action": set_reg_domain_br},
+                {"name": "Set Domain FR", "action": set_reg_domain_fr},
+                {"name": "Set Domain CZ", "action": set_reg_domain_cz},
+                {"name": "Set Domain DE", "action": set_reg_domain_de},
                 ]},
             {"name": "Battery", "action": show_battery},
             {"name": "Date/Time", "action": show_date},
