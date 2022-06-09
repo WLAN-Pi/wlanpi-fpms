@@ -62,7 +62,7 @@ from .modules.pages.simpletable import SimpleTable
 from .modules.system import *
 from .modules.battery import *
 from .modules.utils import *
-
+from .modules.reg_domain import *
 
 def main():
 
@@ -388,6 +388,18 @@ optional options:
         system_obj = Battery(g_vars)
         system_obj.show_battery(g_vars)
 
+    def show_reg_domain():
+        system_obj = RegDomain(g_vars)
+        system_obj.show_reg_domain(g_vars)
+
+    def set_reg_domain_gb():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_gb(g_vars)
+
+    def set_reg_domain_us():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_us(g_vars)
+
     def show_date():
         system_obj = System(g_vars)
         system_obj.show_date(g_vars)
@@ -535,6 +547,11 @@ optional options:
         },
         {"name": "System", "action": [
             {"name": "About", "action": show_about},
+            {"name": "RF Domain", "action": [
+                {"name": "Show Domain", "action": show_reg_domain},
+                {"name": "Set Domain US", "action": set_reg_domain_us},
+                {"name": "Set Domain GB", "action": set_reg_domain_gb},
+                ]},
             {"name": "Battery", "action": show_battery},
             {"name": "Date/Time", "action": show_date},
             {"name": "Summary", "action": show_summary},

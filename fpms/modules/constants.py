@@ -83,6 +83,8 @@ WIPERF_SWITCHER_FILE = '/opt/wlanpi-wiperf/wiperf_switcher'
 SERVER_SWITCHER_FILE = '/opt/wlanpi-server/server_switcher'
 BRIDGE_SWITCHER_FILE = '/opt/wlanpi-bridge/bridge_switcher'
 
+REG_DOMAIN_FILE = '/usr/bin/wlanpi-reg-domain'
+
 #### Paths below here are relative to script dir or /tmp fixed paths ###
 
 # Networkinfo data file names
