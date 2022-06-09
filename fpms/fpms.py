@@ -563,18 +563,24 @@ optional options:
         },
         {"name": "System", "action": [
             {"name": "About", "action": show_about},
-            {"name": "RF Domain", "action": [
-                {"name": "Show Domain", "action": show_reg_domain},
-                {"name": "Set Domain US", "action": set_reg_domain_us},
-                {"name": "Set Domain GB", "action": set_reg_domain_gb},
-                {"name": "Set Domain BR", "action": set_reg_domain_br},
-                {"name": "Set Domain FR", "action": set_reg_domain_fr},
-                {"name": "Set Domain CZ", "action": set_reg_domain_cz},
-                {"name": "Set Domain DE", "action": set_reg_domain_de},
-                ]},
             {"name": "Battery", "action": show_battery},
             {"name": "Date/Time", "action": show_date},
             {"name": "Summary", "action": show_summary},
+            {"name": "RF Domain", "action": [
+                {"name": "Show Domain", "action": show_reg_domain},
+                {"name": "Set Domain US", "action": [
+                    {"name": "Confirm & Reboot", "action": set_reg_domain_us},]},
+                {"name": "Set Domain GB", "action": [
+                    {"name": "Confirm & Reboot", "action": set_reg_domain_gb},]},
+                {"name": "Set Domain BR", "action": [
+                    {"name": "Confirm & Reboot", "action": set_reg_domain_br},]},
+                {"name": "Set Domain FR", "action": [
+                    {"name": "Confirm & Reboot", "action": set_reg_domain_fr},]},
+                {"name": "Set Domain CZ", "action": [
+                    {"name": "Confirm & Reboot", "action": set_reg_domain_cz},]},
+                {"name": "Set Domain DE", "action": [
+                    {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
+                ]},
             {"name": "Software Update", "action": [
                 {"name": "Check for Updates", "action": check_for_updates},
                 {"name": "Install Updates", "action": [
