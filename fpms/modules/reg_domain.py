@@ -27,7 +27,7 @@ class RegDomain(object):
             output = subprocess.check_output(f"{REG_DOMAIN_FILE} get", shell=True).decode().strip().split("\n")
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to get domain')
+            self.alert_obj.display_alert_error(g_vars, 'Failed to get domain or no domain configured')
             g_vars['display_state'] = 'menu'
             return
         self.paged_table_obj.display_list_as_paged_table(g_vars, output, title="Show Domain")

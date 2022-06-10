@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.35) unstable; urgency=medium
+
+  * Improve error message when no RF domain is set
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Fri, 10 Jun 2022 10:47:00 +0000
+
 wlanpi-fpms (1.2.34) unstable; urgency=medium
 
   * Automatically reboots after setting new RF domain, asks user for confirmation
