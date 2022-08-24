@@ -568,8 +568,8 @@ class HomePage(object):
         '''
 
         temp_high  = 80 # thermal throttling kicks in
-        temp_med   = 74 # getting uncomfortable
-        temp_low   = 68 # getting warmer but ok
+        temp_med   = 75 # getting uncomfortable
+        temp_low   = 70 # getting warmer but ok
 
         try:
             temp = int(open('/sys/class/thermal/thermal_zone0/temp').read())
