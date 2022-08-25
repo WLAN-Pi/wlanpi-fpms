@@ -84,6 +84,7 @@ SERVER_SWITCHER_FILE = '/opt/wlanpi-server/server_switcher'
 BRIDGE_SWITCHER_FILE = '/opt/wlanpi-bridge/bridge_switcher'
 
 REG_DOMAIN_FILE = '/usr/bin/wlanpi-reg-domain'
+TIME_ZONE_FILE = '/usr/bin/wlanpi-timezone'
 
 #### Paths below here are relative to script dir or /tmp fixed paths ###
 

@@ -63,6 +63,7 @@ from .modules.system import *
 from .modules.battery import *
 from .modules.utils import *
 from .modules.reg_domain import *
+from .modules.time_zone import *
 
 def main():
 
@@ -420,6 +421,14 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_date(g_vars)
 
+    def set_time_zone_london():
+        system_obj = TimeZone(g_vars)
+        system_obj.set_time_zone_london(g_vars)
+
+    def set_time_zone_prague():
+        system_obj = TimeZone(g_vars)
+        system_obj.set_time_zone_prague(g_vars)
+
     def show_about():
         system_obj = System(g_vars)
         system_obj.show_about(g_vars)
@@ -564,7 +573,13 @@ optional options:
         {"name": "System", "action": [
             {"name": "About", "action": show_about},
             {"name": "Battery", "action": show_battery},
-            {"name": "Date/Time", "action": show_date},
+            {"name": "Date & Time", "action": [
+                {"name": "Show Time & Zone", "action": show_date},
+                {"name": "Set Zone UK", "action": [
+                    {"name": "Confirm & Reboot", "action": set_time_zone_london},]},
+                {"name": "Set Zone CZ", "action": [
+                    {"name": "Confirm & Reboot", "action": set_time_zone_prague},]},
+                ]},
             {"name": "Summary", "action": show_summary},
             {"name": "RF Domain", "action": [
                 {"name": "Show Domain", "action": show_reg_domain},
