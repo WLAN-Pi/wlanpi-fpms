@@ -23,7 +23,7 @@ MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
 DISPLAY_MODE = '1'
 
-if PLATFORM == "pro" or PLATFORM == "community" or PLATFORM == "waveshare":
+if PLATFORM == "R4" or PLATFORM == "M4" or PLATFORM == "Pro":
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
     MAX_TABLE_LINES = 9
@@ -84,7 +84,6 @@ SERVER_SWITCHER_FILE = '/opt/wlanpi-server/server_switcher'
 BRIDGE_SWITCHER_FILE = '/opt/wlanpi-bridge/bridge_switcher'
 
 REG_DOMAIN_FILE = '/usr/bin/wlanpi-reg-domain'
-TIME_ZONE_FILE = '/usr/bin/wlanpi-timezone'
 
 #### Paths below here are relative to script dir or /tmp fixed paths ###
 
@@ -134,11 +133,11 @@ BUTTONS_SAPPHIRE = {
 
 BUTTONS_PINS = {}
 
-if PLATFORM == "pro":
+if PLATFORM == "Pro":
     BUTTONS_PINS = BUTTONS_WLANPI_PRO
-elif PLATFORM == "community":
+elif PLATFORM == "R4":
     BUTTONS_PINS = BUTTONS_WAVESHARE
-elif PLATFORM == "waveshare":
+elif PLATFORM == "M4":
     BUTTONS_PINS = BUTTONS_WAVESHARE
 else:
     BUTTONS_PINS = BUTTONS_SAPPHIRE

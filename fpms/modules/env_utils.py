@@ -34,30 +34,25 @@ class EnvUtils(object):
         Errors sent to stdout, but will not exit on error
         '''
 
-        platform = "pro"
+        platform = "Unknown"
 
-        # get output of cpuinfo
-        cpuinfo_cmd = "cat /proc/cpuinfo"
+        # get output of wlanpi-model
+        model_cmd = "wlanpi-model -b"
         try:
-            cmd_output = subprocess.check_output(cpuinfo_cmd, shell=True).decode()
-            cmd_output_list = cmd_output.split('\n')
-
+            model = subprocess.check_output(model_cmd, shell=True).decode()
         except subprocess.CalledProcessError as exc:
-            output = exc.output.decode()
-            print("Err: issue running 'cat /proc/cpuinfo' : ", output)
+            output = exc.model.decode()
+            print("Err: issue running 'wlanpi-model -b' : ", model)
             return "Unknown"
 
-        model = cmd_output_list[-2]
+        if re.search(r'R4', model):
+            platform = "R4"
 
-        if not re.search(r'Raspberry', model):
-            print("Error in get_platform(): no Raspberry model detected")
-            return "Unknown"
+        if re.search(r'M4', model):
+            platform = "M4"
 
-        if not re.search(r'Compute Module 4', model):
-            platform = "community"
-
-        if os.path.exists("/boot/waveshare"):
-            platform = "waveshare"
+        if re.search(r'Pro', model):
+            platform = "Pro"
 
         return platform
 
@@ -65,12 +60,14 @@ class EnvUtils(object):
 
         platform = self.get_platform()
 
-        if platform == "pro":
+        if platform == "R4":
+            return "WLAN Pi R4"
+        elif platform == "M4":
+            return "WLAN Pi M4"
+        elif platform == "Pro":
             return "WLAN Pi Pro"
-        elif platform == "community" or platform == "waveshare":
-            return "WLAN Pi CE"
         else:
-            return "WLAN Pi"
+            return "WLAN Pi ?"
 
     def get_mode(self, MODE_FILE):
 

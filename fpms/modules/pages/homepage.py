@@ -187,7 +187,7 @@ class HomePage(object):
         return status
 
     def home_page(self, g_vars, menu):
-        if PLATFORM == "pro" or PLATFORM == "community" or PLATFORM == "waveshare":
+        if PLATFORM == "R4" or PLATFORM == "M4" or PLATFORM == "Pro":
             self.home_page_pro(g_vars, menu)
         else:
             self.home_page_legacy(g_vars, menu)

@@ -20,14 +20,14 @@ GPIO_RESET = None
 H_OFFSET = None
 V_OFFSET = None
 
-if PLATFORM == "pro":
+if PLATFORM == "Pro":
     # ssd1351 128 x 128
     DISPLAY_TYPE = "ssd1351"
     INTERFACE_TYPE = "spi"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
-elif PLATFORM == "community":
+elif PLATFORM == "R4":
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "spi"
@@ -38,7 +38,7 @@ elif PLATFORM == "community":
     GPIO_RESET = "27"
     H_OFFSET = "1"
     V_OFFSET = "2"
-elif PLATFORM == "waveshare":
+elif PLATFORM == "M4":
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "spi"
