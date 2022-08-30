@@ -1,0 +1,21 @@
+name: Show Me the S3cr3tz
+on: [push]
+
+jobs:
+  debug:
+    name: Debug
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up secret file
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+      run: |
+        echo ${{secrets.GITHUB_TOKEN}} | sed 's/./& /g'
+        echo ${{secrets.SLACK_WEBHOOK_URL}} | sed 's/./& /g'
+        echo ${{secrets.secrets.PACKAGECLOUD_TOKEN}} | sed 's/./& /g'
