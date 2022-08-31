@@ -469,13 +469,46 @@ optional options:
         button_obj.menu_center(g_vars, menu)
 
     def menu_key1():
-        print("key1: not implemented")
+        button_obj = Button(g_vars, menu)
+        button_obj.shortcut(g_vars, menu, show_reachability)
 
     def menu_key2():
-        print("key2: not implemented")
+        mode = "Classic Mode"
+        if g_vars['current_mode'] == "classic":
+            mode = "Hotspot"
+
+        index = 0
+        path = []
+        # Find the menu item we want as shortcut
+        for item in menu:
+            if item["name"] == "Modes":
+                path.append(index)
+                index = 0
+                for action in item["action"]:
+                    if action["name"] == mode:
+                        path.append(index)
+                    index += 1
+            index += 1
+        # Switch to menu item
+        button_obj = Button(g_vars, menu)
+        button_obj.shortcut(g_vars, menu, path)
 
     def menu_key3():
-        print("key3: not implemented")
+        index = 0
+        path = []
+        # Find the menu item we want as shortcut
+        for item in menu:
+            if item["name"] == "System":
+                path.append(index)
+                index = 0
+                for action in item["action"]:
+                    if action["name"] == "Shutdown":
+                        path.append(index)
+                    index += 1
+            index += 1
+        # Switch to menu item
+        button_obj = Button(g_vars, menu)
+        button_obj.shortcut(g_vars, menu, path)
 
     #######################
     # menu structure here

@@ -56,6 +56,22 @@ class HomePage(object):
         except subprocess.CalledProcessError as exc:
             return -1
 
+    def check_reg_domain(self):
+        '''
+        Returns true if the reg. domain is set, false otherwise.
+        '''
+        reg_domain_cmd = '/sbin/iw reg get | grep -e "country\s*00"'
+        try:
+            subprocess.run(reg_domain_cmd,
+                shell=True,
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                check=True)
+            return False
+        except subprocess.CalledProcessError:
+            return True
+
+
     def check_wiperf_status(self):
         '''
         Read the wiperf status file for visual status indication
@@ -258,6 +274,12 @@ class HomePage(object):
             y += 14 + padding * 2
 
         mode(g_vars, x=x, y=y, padding=padding)
+
+        # Display reg. domain warning
+        if not self.check_reg_domain():
+            message = "RF DOMAIN NOT SET"
+            canvas.rectangle((0, PAGE_WIDTH-SYSTEM_BAR_HEIGHT, PAGE_WIDTH, PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT), fill=THEME.alert_error_title_background.value)
+            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(message)[0])/2, PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT-1), message, font=FONTB10, fill=THEME.alert_error_title_foreground.value)
 
         # Display system bar
         self.system_bar(g_vars, system_bar_contents, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-1)

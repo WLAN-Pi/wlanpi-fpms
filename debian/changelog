@@ -1,3 +1,11 @@
+wlanpi-fpms (1.2.41) unstable; urgency=medium
+
+  * Add warning in home screen when reg. domain is not set
+  * Shortcuts for buttons key1 (show reachability), key2 (switch mode), and
+    key3 (shutdown)
+
+ -- Adrian Granados <adrian@intuitibits.com>  Tue, 30 Aug 2022 23:50:38 -0500
+
 wlanpi-fpms (1.2.40) unstable; urgency=medium
 
   * Add missing variable

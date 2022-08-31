@@ -11,6 +11,7 @@ class Button(object):
         self.homepage_obj = HomePage(g_vars)
         self.page_obj = Page(g_vars)
 
+
     #######################################
     # Actions taken when butons pressed
     #######################################
@@ -19,6 +20,7 @@ class Button(object):
             return True
         else:
             return False
+
 
     def _bottom_of_list(self, current_location, menu):
 
@@ -71,6 +73,7 @@ class Button(object):
 
         self.page_obj.draw_page(g_vars, menu)
 
+
     def menu_up(self, g_vars, menu):
 
         if self._at_home_page(g_vars):
@@ -95,6 +98,7 @@ class Button(object):
 
         self.page_obj.draw_page(g_vars, menu)
 
+
     def menu_right(self, g_vars, menu):
 
         if self._at_home_page(g_vars):
@@ -106,6 +110,7 @@ class Button(object):
         if (type(g_vars['option_selected']) is list):
             g_vars['current_menu_location'].append(0)
             self.page_obj.draw_page(g_vars, menu)
+
 
     def menu_left(self, g_vars, menu):
 
@@ -133,6 +138,7 @@ class Button(object):
             g_vars['display_state'] = 'menu'
             self.page_obj.draw_page(g_vars, menu)
 
+
     def menu_center(self, g_vars, menu):
 
         if self._at_home_page(g_vars):
@@ -144,10 +150,25 @@ class Button(object):
             # Check if the "action" field at the current location is an
             # array or a function. If we have an array, append the current
             # selection and re-draw menu
-            if (type(g_vars['option_selected']) is list):
+            if type(g_vars['option_selected']) is list:
                 g_vars['current_menu_location'].append(0)
                 self.page_obj.draw_page(g_vars, menu)
-            elif (isinstance(g_vars['option_selected'], types.FunctionType)):
+            elif isinstance(g_vars['option_selected'], types.FunctionType):
                 # if we have a function (dispatcher), execute it
                 g_vars['display_state'] = 'page'
                 g_vars['option_selected']()
+
+
+    def shortcut(self, g_vars, menu, item):
+
+        if type(item) is list:
+            # change current menu location as defined by path
+            g_vars['current_menu_location'] = item
+            g_vars['current_menu_location'].append(0)
+            g_vars['display_state'] = 'menu'
+            self.page_obj.draw_page(g_vars, menu)
+        if isinstance(item, types.FunctionType):
+            # force function as option selected and execute it
+            g_vars['display_state'] = 'page'
+            g_vars['option_selected'] = item
+            g_vars['option_selected']()
