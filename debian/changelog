@@ -1,3 +1,11 @@
+wlanpi-fpms (1.2.42) unstable; urgency=medium
+
+  * Fix button key2 shortcut
+  * Buttons key1 and key3 now loop between multiple options
+  * Add no wi-fi adapter warning to home screen 
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 31 Aug 2022 11:27:35 -0500
+
 wlanpi-fpms (1.2.41) unstable; urgency=medium
 
   * Add warning in home screen when reg. domain is not set
