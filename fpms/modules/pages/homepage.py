@@ -56,6 +56,22 @@ class HomePage(object):
         except subprocess.CalledProcessError as exc:
             return -1
 
+
+    def check_wlan(self):
+        '''
+        Returns true if there's at least one WLAN interface present.
+        '''
+        interfaces = []
+        try:
+            interfaces = subprocess.check_output(f"{IWCONFIG_FILE} 2>&1 | grep 802.11" + "| awk '{ print $1 }'", shell=True).decode().strip().split()
+            if len(interfaces) > 0:
+                return True
+        except Exception as e:
+            print(e)
+
+        return False
+
+
     def check_reg_domain(self):
         '''
         Returns true if the reg. domain is set, false otherwise.
@@ -275,11 +291,16 @@ class HomePage(object):
 
         mode(g_vars, x=x, y=y, padding=padding)
 
-        # Display reg. domain warning
-        if not self.check_reg_domain():
-            message = "RF DOMAIN NOT SET"
+        # Display warning if no Wi-Fi adapter or reg. domain is not set
+        warning_message = None
+        if not self.check_wlan():
+            warning_message = "NO WI-FI ADAPTER"
+        elif not self.check_reg_domain():
+            warning_message = "REG. DOMAIN NOT SET"
+
+        if warning_message != None:
             canvas.rectangle((0, PAGE_WIDTH-SYSTEM_BAR_HEIGHT, PAGE_WIDTH, PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT), fill=THEME.alert_error_title_background.value)
-            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(message)[0])/2, PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT-1), message, font=FONTB10, fill=THEME.alert_error_title_foreground.value)
+            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(warning_message)[0])/2, PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT), warning_message, font=FONTB10, fill=THEME.alert_error_title_foreground.value)
 
         # Display system bar
         self.system_bar(g_vars, system_bar_contents, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-1)

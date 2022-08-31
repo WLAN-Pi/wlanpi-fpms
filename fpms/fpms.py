@@ -469,8 +469,16 @@ optional options:
         button_obj.menu_center(g_vars, menu)
 
     def menu_key1():
+        options = [show_reachability, show_lldp_neighbour, show_eth0_ipconfig]
+        option_selected = g_vars['option_selected']
+
+        next_index = 0
+        if option_selected in options:
+            next_index = (options.index(option_selected) + 1) % len(options)
+
+        next_option = options[next_index]
         button_obj = Button(g_vars, menu)
-        button_obj.shortcut(g_vars, menu, show_reachability)
+        button_obj.shortcut(g_vars, menu, next_option)
 
     def menu_key2():
         mode = "Classic Mode"
