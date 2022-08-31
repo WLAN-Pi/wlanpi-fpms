@@ -489,7 +489,7 @@ optional options:
         path = []
         # Find the menu item we want as shortcut
         for item in menu:
-            if item["name"] == "Modes":
+            if item["name"] == "Modes" or item["name"] == "Mode":
                 path.append(index)
                 index = 0
                 for action in item["action"]:
@@ -503,20 +503,32 @@ optional options:
 
     def menu_key3():
         index = 0
-        path = []
-        # Find the menu item we want as shortcut
+        reboot_path = []
+        shutdown_path = []
+
+        # Determine paths to restart and shutdown options
         for item in menu:
             if item["name"] == "System":
-                path.append(index)
+                reboot_path.append(index)
+                shutdown_path.append(index)
                 index = 0
                 for action in item["action"]:
-                    if action["name"] == "Shutdown":
-                        path.append(index)
+                    if action["name"] == "Reboot":
+                        reboot_path.append(index)
+                    elif action["name"] == "Shutdown":
+                        shutdown_path.append(index)
                     index += 1
             index += 1
-        # Switch to menu item
+
+        # Select the next path
+        path = reboot_path
+        if g_vars['current_menu_location'][:-1] == reboot_path:
+            path = shutdown_path
+
+        # Switch to menu
         button_obj = Button(g_vars, menu)
         button_obj.shortcut(g_vars, menu, path)
+
 
     #######################
     # menu structure here
