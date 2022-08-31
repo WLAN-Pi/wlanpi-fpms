@@ -164,6 +164,7 @@ optional options:
         'home_page_name': "Home",          # Display name for top level menu
         'home_page_alternate': False,      # True if in alternate home page state
         'blinker_status': False,           # Blinker status
+        'reachability_check': False,       # Indicates if a reachability check is running
         'eth_carrier_status': 0,           # Eth0 physical link status
         'eth_last_known_address_set': None,# Last known ethernet addresses
         'eth_last_reachability_test': 0,       # Number of seconds elapsed since last reachability test

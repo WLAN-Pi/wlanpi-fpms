@@ -101,28 +101,39 @@ class Utils(object):
         '''
         Check if default gateway, internet and DNS are reachable and working
         '''
+
+        if g_vars['reachability_check'] == True:
+            return
+
+        g_vars['reachability_check'] = True
+
         reachability_info = []
-        reachability_cmd = "sudo " + REACHABILITY_FILE
 
         try:
+            g_vars['disable_keys'] = True
+
             reachability_output = subprocess.check_output(
-                reachability_cmd, shell=True).decode()
+                REACHABILITY_FILE, shell=True).decode()
             reachability_info = reachability_output.split('\n')
+
+            if len(reachability_info) == 0:
+                reachability_info.append("Not available.")
+
+            # final check no-one pressed a button before we render page
+            if g_vars['display_state'] == 'menu':
+                return
+
+            self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title='Reachability')
 
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
-            error = ["Err: Reachability command error", output]
-            self.simple_table_obj.display_simple_table(g_vars, error)
-            return
+            error = ["Error: ", output]
+            self.simple_table_obj.display_simple_table(g_vars, error, title='Reachability')
 
-        if len(reachability_info) == 0:
-            reachability_info.append("No output sorry")
+        finally:
+            g_vars['reachability_check'] = False
+            g_vars['disable_keys'] = False
 
-        # final check no-one pressed a button before we render page
-        if g_vars['display_state'] == 'menu':
-            return
-
-        self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title='Reachability')
 
     def show_ssid_passphrase(self, g_vars):
         '''

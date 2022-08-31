@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.43) unstable; urgency=medium
+
+  * Fix some refresh issues when running reachability checks
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 31 Aug 2022 18:16:27 -0500
+
 wlanpi-fpms (1.2.42) unstable; urgency=medium
 
   * Fix button key2 shortcut
