@@ -102,12 +102,12 @@ class Utils(object):
         Check if default gateway, internet and DNS are reachable and working
         '''
 
-        if g_vars['reachability_check'] == True:
-            return
-
-        g_vars['reachability_check'] = True
-
+        title = 'Reachability'
         reachability_info = []
+
+        if g_vars['result_cache'] == False:
+            self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title=title)
+            self.alert_obj.display_popup_alert(g_vars, "Checking...")
 
         try:
             g_vars['disable_keys'] = True
@@ -123,15 +123,15 @@ class Utils(object):
             if g_vars['display_state'] == 'menu':
                 return
 
-            self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title='Reachability')
+            self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title=title)
 
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
             error = ["Error: ", output]
-            self.simple_table_obj.display_simple_table(g_vars, error, title='Reachability')
+            self.simple_table_obj.display_simple_table(g_vars, error, title=title)
 
         finally:
-            g_vars['reachability_check'] = False
+            g_vars['result_cache'] = True
             g_vars['disable_keys'] = False
 
 

@@ -159,16 +159,20 @@ class Button(object):
                 g_vars['option_selected']()
 
 
-    def shortcut(self, g_vars, menu, item):
+    def shortcut(self, g_vars, menu, shortcut):
 
-        if type(item) is list:
-            # change current menu location as defined by path
-            g_vars['current_menu_location'] = item
+        g_vars['result_cache'] = False
+
+        if len(shortcut) == 0:
+            return
+
+        if isinstance(shortcut[-1], types.FunctionType):
+            g_vars['current_menu_location'] = shortcut[:-1]
+            g_vars['display_state'] = 'page'
+            g_vars['option_selected'] = shortcut[-1]
+            g_vars['option_selected']()
+        else:
+            g_vars['current_menu_location'] = shortcut
             g_vars['current_menu_location'].append(0)
             g_vars['display_state'] = 'menu'
             self.page_obj.draw_page(g_vars, menu)
-        if isinstance(item, types.FunctionType):
-            # force function as option selected and execute it
-            g_vars['display_state'] = 'page'
-            g_vars['option_selected'] = item
-            g_vars['option_selected']()

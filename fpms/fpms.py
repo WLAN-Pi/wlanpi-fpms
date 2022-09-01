@@ -164,7 +164,6 @@ optional options:
         'home_page_name': "Home",          # Display name for top level menu
         'home_page_alternate': False,      # True if in alternate home page state
         'blinker_status': False,           # Blinker status
-        'reachability_check': False,       # Indicates if a reachability check is running
         'eth_carrier_status': 0,           # Eth0 physical link status
         'eth_last_known_address_set': None,# Last known ethernet addresses
         'eth_last_reachability_test': 0,       # Number of seconds elapsed since last reachability test
@@ -470,66 +469,70 @@ optional options:
         button_obj.menu_center(g_vars, menu)
 
     def menu_key1():
-        options = [show_reachability, show_lldp_neighbour, show_eth0_ipconfig]
+        shortcuts = [
+            create_shortcut(menu, ["Utils",   "Reachability"]),
+            create_shortcut(menu, ["Network", "LLDP Neighbour"]),
+            create_shortcut(menu, ["Network", "Eth0 IP Config"])
+        ]
+
         option_selected = g_vars['option_selected']
 
-        next_index = 0
-        if option_selected in options:
-            next_index = (options.index(option_selected) + 1) % len(options)
+        option_index = 0
+        option_found = False
 
-        next_option = options[next_index]
+        if g_vars['display_state'] == 'page':
+            for shortcut in shortcuts:
+                if option_selected == shortcut[-1]:
+                    option_found = True
+                    break
+                option_index += 1
+
+        next_index = 0
+        if option_found:
+            next_index = (option_index + 1) % len(shortcuts)
+
+        next_shortcut = shortcuts[next_index]
         button_obj = Button(g_vars, menu)
-        button_obj.shortcut(g_vars, menu, next_option)
+        button_obj.shortcut(g_vars, menu, next_shortcut)
 
     def menu_key2():
-        mode = "Classic Mode"
+        shortcut = create_shortcut(menu, ["Mode", "Classic Mode"])
         if g_vars['current_mode'] == "classic":
-            mode = "Hotspot"
+            shortcut = create_shortcut(menu, ["Modes", "Hotspot"])
 
-        index = 0
-        path = []
-        # Find the menu item we want as shortcut
-        for item in menu:
-            if item["name"] == "Modes" or item["name"] == "Mode":
-                path.append(index)
-                index = 0
-                for action in item["action"]:
-                    if action["name"] == mode:
-                        path.append(index)
-                    index += 1
-            index += 1
         # Switch to menu item
         button_obj = Button(g_vars, menu)
-        button_obj.shortcut(g_vars, menu, path)
+        button_obj.shortcut(g_vars, menu, shortcut)
 
     def menu_key3():
         index = 0
-        reboot_path = []
-        shutdown_path = []
-
-        # Determine paths to restart and shutdown options
-        for item in menu:
-            if item["name"] == "System":
-                reboot_path.append(index)
-                shutdown_path.append(index)
-                index = 0
-                for action in item["action"]:
-                    if action["name"] == "Reboot":
-                        reboot_path.append(index)
-                    elif action["name"] == "Shutdown":
-                        shutdown_path.append(index)
-                    index += 1
-            index += 1
+        reboot_shortcut = create_shortcut(menu, ["System", "Reboot"])
+        shutdown_shortcut = create_shortcut(menu, ["System", "Shutdown"])
 
         # Select the next path
-        path = reboot_path
-        if g_vars['current_menu_location'][:-1] == reboot_path:
-            path = shutdown_path
+        next_shortcut = reboot_shortcut
+        if g_vars['current_menu_location'][:-1] == reboot_shortcut:
+            next_shortcut = shutdown_shortcut
 
         # Switch to menu
         button_obj = Button(g_vars, menu)
-        button_obj.shortcut(g_vars, menu, path)
+        button_obj.shortcut(g_vars, menu, next_shortcut)
 
+    def create_shortcut(menu, path, location=[]):
+
+        if isinstance(menu, types.FunctionType):
+            if len(path) > 0:
+                raise Exception("invalid path")
+            return [menu]
+
+        if len(path) > 0:
+            index = 0
+            for item in menu:
+                if item["name"] == path[0]:
+                    return [index] + create_shortcut(item["action"], path[1:], location)
+                index += 1
+
+        return []
 
     #######################
     # menu structure here
