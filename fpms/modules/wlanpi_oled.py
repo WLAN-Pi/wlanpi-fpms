@@ -36,6 +36,8 @@ elif PLATFORM == "R4":
     COLOR_ORDER_BGR = True
     GPIO_DATA_COMMAND = "25"
     GPIO_RESET = "27"
+    GPIO_BACKLIGHT = "24"
+    BACKLIGHT_ACTIVE = "high"
     H_OFFSET = "1"
     V_OFFSET = "2"
 elif PLATFORM == "M4":
@@ -47,6 +49,8 @@ elif PLATFORM == "M4":
     COLOR_ORDER_BGR = True
     GPIO_DATA_COMMAND = "25"
     GPIO_RESET = "27"
+    GPIO_BACKLIGHT = "24"
+    BACKLIGHT_ACTIVE = "high"
     H_OFFSET = "1"
     V_OFFSET = "2"
 else:
@@ -166,6 +170,14 @@ if GPIO_RESET:
     actual_args.append("--gpio-reset")
     actual_args.append(GPIO_RESET)
 
+if GPIO_BACKLIGHT:
+    actual_args.append("--gpio-backlight")
+    actual_args.append(GPIO_BACKLIGHT)
+
+if BACKLIGHT_ACTIVE:
+    actual_args.append("--backlight-active")
+    actual_args.append(BACKLIGHT_ACTIVE)
+
 if H_OFFSET:
     actual_args.append("--h-offset")
     actual_args.append(H_OFFSET)
@@ -190,11 +202,20 @@ def setNormalDisplay():
 def setHorizontalMode():
     return True
 
-def clearDisplay():
+def drawImage(image):
+    device.display(image.convert(device.mode))
+    #device.display(image)
+
+def clear():
     #blank = Image.new("RGBA", device.size, "black")
     #device.display(blank.convert(device.mode))
     device.clear()
 
-def drawImage(image):
-    device.display(image.convert(device.mode))
-    #device.display(image)
+def sleep():
+    device.clear()
+    if PLATFORM != "pro":
+        device.backlight(False)
+
+def wakeup():
+    if PLATFORM != "pro":
+        device.backlight(True)

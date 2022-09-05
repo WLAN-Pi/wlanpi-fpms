@@ -762,8 +762,7 @@ optional options:
 
         # if display has been switched off to save screen, power back on and show home menu
         if g_vars['screen_cleared']:
-            g_vars['screen_cleared'] = False
-            g_vars['pageSleepCountdown'] = PAGE_SLEEP
+            wakeup_screen()
             return
 
         # Down key pressed
@@ -1005,6 +1004,14 @@ optional options:
     ##############################################################################
     # Helper functions
     ##############################################################################
+    def sleep_screen():
+        oled.sleep()
+        g_vars['screen_cleared'] = True
+
+    def wakeup_screen():
+        oled.wakeup()
+        g_vars['screen_cleared'] = False
+        g_vars['pageSleepCountdown'] = PAGE_SLEEP
 
     def check_eth():
         '''
@@ -1015,8 +1022,7 @@ optional options:
             cmd = "cat /sys/class/net/eth0/carrier"
             carrier = int(subprocess.check_output(cmd, shell=True).decode().strip())
             if g_vars['eth_carrier_status'] != carrier:
-                g_vars['screen_cleared'] = False
-                g_vars['pageSleepCountdown'] = PAGE_SLEEP
+                wakeup_screen()
             g_vars['eth_carrier_status'] = carrier
         except subprocess.CalledProcessError as exc:
             pass
@@ -1092,8 +1098,7 @@ optional options:
             # if screen timeout is zero, clear it if not already done (blank the
             # display to reduce screenburn)
             if g_vars['pageSleepCountdown'] == 0 and g_vars['screen_cleared'] == False:
-                oled.clearDisplay()
-                g_vars['screen_cleared'] = True
+                sleep_screen()
 
             g_vars['pageSleepCountdown'] = g_vars['pageSleepCountdown'] - 1
 
