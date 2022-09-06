@@ -108,6 +108,7 @@ class HomePage(object):
         else:
             return '15 Mbps/30 Mbps'
 
+
     def check_reachability(self, g_vars):
 
         # Detect changes in the IP address assigned to any interface
@@ -291,16 +292,22 @@ class HomePage(object):
 
         mode(g_vars, x=x, y=y, padding=padding)
 
-        # Display warning if no Wi-Fi adapter or reg. domain is not set
-        warning_message = None
+        # Display alert bar if no Wi-Fi adapter or reg. domain is not set,
+        # or if profiler is active
+        alert_bar_contents = None
+        alert_bar_error = False
         if not self.check_wlan():
-            warning_message = "NO WI-FI ADAPTER"
+            alert_bar_contents = "NO WI-FI ADAPTER"
+            alert_bar_error = True
         elif not self.check_reg_domain():
-            warning_message = "REG. DOMAIN NOT SET"
+            alert_bar_contents = "REG. DOMAIN NOT SET"
+            alert_bar_error = True
+        elif self.profiler_obj.profiler_beaconing():
+            if not display_alternate_title:
+                alert_bar_contents = "PROFILER ACTIVE"
 
-        if warning_message != None:
-            canvas.rectangle((0, PAGE_WIDTH-SYSTEM_BAR_HEIGHT, PAGE_WIDTH, PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT), fill=THEME.alert_error_title_background.value)
-            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(warning_message)[0])/2, PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT), warning_message, font=FONTB10, fill=THEME.alert_error_title_foreground.value)
+        # Display alert bar
+        self.alert_bar(g_vars, alert_bar_contents, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-SYSTEM_BAR_HEIGHT, error=alert_bar_error)
 
         # Display system bar
         self.system_bar(g_vars, system_bar_contents, x=0, y=PAGE_WIDTH-SYSTEM_BAR_HEIGHT-1)
@@ -820,6 +827,29 @@ class HomePage(object):
         if x > current_time_width:
             if self.reachability_indicator(g_vars, x, y, fixed_indicator_width, height):
                 x -= fixed_indicator_width
+
+        return height
+
+
+    def alert_bar(self, g_vars, contents, x=0, y=0, padding=0, width=PAGE_WIDTH, height=SYSTEM_BAR_HEIGHT, error=False):
+
+        if contents != None:
+            canvas = g_vars['draw']
+
+            foreground = THEME.alert_info_title_foreground.value
+            background = THEME.alert_info_title_background.value
+            if error:
+                foreground = THEME.alert_error_title_foreground.value
+                background = THEME.alert_error_title_background.value
+
+            # Draw background
+            canvas.rectangle((x, y, width, y + height), fill=background)
+
+            # Truncate contents if too long
+            if len(contents) > 21:
+                contents = contents[0:19] + ".."
+
+            canvas.text((x + (PAGE_WIDTH - FONTB10.getsize(contents)[0])/2, y + padding), contents, font=FONTB10, fill=foreground)
 
         return height
 
