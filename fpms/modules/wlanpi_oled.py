@@ -6,6 +6,7 @@ from PIL import Image
 import sys
 import logging
 from fpms.modules.constants import PLATFORM
+from fpms.modules.platform import *
 
 # set possible vars to None
 DISPLAY_TYPE = None
@@ -17,17 +18,19 @@ HEIGHT = None
 COLOR_ORDER_BGR = False
 GPIO_DATA_COMMAND = None
 GPIO_RESET = None
+GPIO_BACKLIGHT = None
+BACKLIGHT_ACTIVE = None
 H_OFFSET = None
 V_OFFSET = None
 
-if PLATFORM == "Pro":
+if PLATFORM == PLATFORM_PRO:
     # ssd1351 128 x 128
     DISPLAY_TYPE = "ssd1351"
     INTERFACE_TYPE = "spi"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
-elif PLATFORM == "R4":
+elif PLATFORM == PLATFORM_R4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "spi"
@@ -40,7 +43,7 @@ elif PLATFORM == "R4":
     BACKLIGHT_ACTIVE = "high"
     H_OFFSET = "1"
     V_OFFSET = "2"
-elif PLATFORM == "M4":
+elif PLATFORM == PLATFORM_M4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "spi"
@@ -190,7 +193,7 @@ device = get_device(actual_args=actual_args)
 
 # Init function of the OLED
 def init():
-    if PLATFORM == "pro":
+    if PLATFORM == PLATFORM_PRO:
         # Reduce the contrast to also help reduce the noise
         # that's being produced by the display for some reason
         device.contrast(128)
@@ -213,9 +216,9 @@ def clear():
 
 def sleep():
     device.clear()
-    if PLATFORM != "pro":
+    if PLATFORM != PLATFORM_PRO:
         device.backlight(False)
 
 def wakeup():
-    if PLATFORM != "pro":
+    if PLATFORM != PLATFORM_PRO:
         device.backlight(True)

@@ -13,6 +13,7 @@ import hashlib
 import qrcode
 
 from PIL import Image
+from fpms.modules.platform import *
 
 class EnvUtils(object):
 
@@ -34,7 +35,7 @@ class EnvUtils(object):
         Errors sent to stdout, but will not exit on error
         '''
 
-        platform = "Unknown"
+        platform = PLATFORM_UNKNOWN
 
         # get output of wlanpi-model
         model_cmd = "wlanpi-model -b"
@@ -46,13 +47,13 @@ class EnvUtils(object):
             return "Unknown"
 
         if re.search(r'R4', model):
-            platform = "R4"
+            platform = PLATFORM_R4
 
         if re.search(r'M4', model):
-            platform = "M4"
+            platform = PLATFORM_M4
 
         if re.search(r'Pro', model):
-            platform = "Pro"
+            platform = PLATFORM_PRO
 
         return platform
 
@@ -60,14 +61,14 @@ class EnvUtils(object):
 
         platform = self.get_platform()
 
-        if platform == "R4":
-            return "WLAN Pi R4"
-        elif platform == "M4":
-            return "WLAN Pi M4"
-        elif platform == "Pro":
-            return "WLAN Pi Pro"
+        if platform == PLATFORM_R4:
+            return PLATFORM_NAME_R4
+        elif platform == PLATFORM_M4:
+            return PLATFORM_NAME_M4
+        elif platform == PLATFORM_PRO:
+            return PLATFORM_NAME_PRO
         else:
-            return "WLAN Pi ?"
+            return PLATFORM_NAME_UNKNOWN
 
     def get_mode(self, MODE_FILE):
 

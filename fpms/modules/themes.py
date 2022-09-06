@@ -6,9 +6,8 @@ themes.py - display themes
 
 from enum import Enum
 from fpms.modules.env_utils import EnvUtils
-
-env_util = EnvUtils()
-PLATFORM = env_util.get_platform()
+from fpms.modules.constants import PLATFORM
+from fpms.modules.platform import *
 
 class BlackAndWhiteTheme(Enum):
     display_background            = "black"
@@ -139,7 +138,7 @@ class DarkTheme(Enum):
     alert_popup_foreground        = "white"
     alert_popup_background        = "#5b616b"
 
-if PLATFORM == "R4" or PLATFORM == "M4" or PLATFORM == "Pro":
+if PLATFORM == PLATFORM_R4 or PLATFORM == PLATFORM_M4 or PLATFORM == PLATFORM_PRO:
     THEME = DarkTheme
 else:
     THEME = BlackAndWhiteTheme

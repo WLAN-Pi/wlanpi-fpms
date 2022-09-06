@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.46) unstable; urgency=medium
+
+  * Use constants for platform type and name
+
+ -- Adrian Granados <adrian@intuitibits.com>  Mon, 05 Sep 2022 20:43:12 -0500
+
 wlanpi-fpms (1.2.45) unstable; urgency=medium
 
   * Turn off screen backlight when sleeping

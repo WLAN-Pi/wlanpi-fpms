@@ -19,6 +19,7 @@ from fpms.modules.apps.profiler import *
 from fpms.modules.themes import THEME
 from fpms.modules.constants import *
 from fpms.modules.env_utils import EnvUtils
+from fpms.modules.platform import *
 
 class HomePage(object):
 
@@ -220,7 +221,7 @@ class HomePage(object):
         return status
 
     def home_page(self, g_vars, menu):
-        if PLATFORM == "R4" or PLATFORM == "M4" or PLATFORM == "Pro":
+        if PLATFORM == PLATFORM_R4 or PLATFORM == PLATFORM_M4 or PLATFORM == PLATFORM_PRO:
             self.home_page_pro(g_vars, menu)
         else:
             self.home_page_legacy(g_vars, menu)

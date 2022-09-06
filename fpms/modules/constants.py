@@ -8,10 +8,10 @@ from PIL import ImageFont
 import os
 import pathlib
 from fpms.modules.env_utils import EnvUtils
+from fpms.modules.platform import *
 
 __version__ = "2.0.3"
 __author__ = "wifinigel@gmail.com"
-
 
 env_util = EnvUtils()
 PLATFORM = env_util.get_platform()
@@ -23,7 +23,7 @@ MAX_TABLE_LINES = 4
 MAX_PAGE_LINES = 3
 DISPLAY_MODE = '1'
 
-if PLATFORM == "R4" or PLATFORM == "M4" or PLATFORM == "Pro":
+if PLATFORM == PLATFORM_R4 or PLATFORM == PLATFORM_M4 or PLATFORM == PLATFORM_PRO:
     HEIGHT_OFFSET = 64
     IMAGE_DIR = "images/128x128"
     MAX_TABLE_LINES = 9
@@ -134,11 +134,11 @@ BUTTONS_SAPPHIRE = {
 
 BUTTONS_PINS = {}
 
-if PLATFORM == "Pro":
+if PLATFORM == PLATFORM_PRO:
     BUTTONS_PINS = BUTTONS_WLANPI_PRO
-elif PLATFORM == "R4":
+elif PLATFORM == PLATFORM_R4:
     BUTTONS_PINS = BUTTONS_WAVESHARE
-elif PLATFORM == "M4":
+elif PLATFORM == PLATFORM_M4:
     BUTTONS_PINS = BUTTONS_WAVESHARE
 else:
     BUTTONS_PINS = BUTTONS_SAPPHIRE
