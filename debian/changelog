@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.45) unstable; urgency=medium
+
+  * Turn off screen backlight when sleeping
+  * Show alert bar when profiler is active
+
+ -- Adrian Granados <adrian@intuitibits.com>  Mon, 05 Sep 2022 19:08:52 -0500
+
 wlanpi-fpms (1.2.44) unstable; urgency=medium
 
   * Redo shortcuts to fix various issues
