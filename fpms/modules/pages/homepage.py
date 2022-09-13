@@ -77,7 +77,7 @@ class HomePage(object):
         '''
         Returns true if the reg. domain is set, false otherwise.
         '''
-        reg_domain_cmd = '/sbin/iw reg get | grep -e "country\s*00"'
+        reg_domain_cmd = '/usr/bin/wlanpi-reg-domain get | grep "XX"'
         try:
             subprocess.run(reg_domain_cmd,
                 shell=True,
