@@ -2,6 +2,7 @@ import os
 import subprocess
 import threading
 from typing import List
+from datetime import datetime, timedelta
 
 import textfsm
 
@@ -56,7 +57,7 @@ class Scanner(object):
         self.iw_textfsm_template.Reset()
         return self.iw_textfsm_template.ParseText(iw_scan_output)
 
-    def scan(self, g_vars, include_hidden):
+    def scan(self, g_vars, include_hidden, write_file):
 
         g_vars["scanner_status"] = True
 
@@ -81,29 +82,38 @@ class Scanner(object):
                 # RSSI
                 rssi = int(network[2])
 
+                # LAST SEEN
+                lastseen = network[3]
+
                 # SSID
-                ssid = network[3]
+                ssid = network[4]
 
                 if len(ssid) == 0:
                     if not include_hidden:
                         continue
                     ssid = "Hidden Network"
 
-                ssid = ssid[:17]
+                if write_file != True:
+                    ssid = ssid[:17]
 
-                results.append("{} {}".format("{0: <17}".format(ssid), rssi))
-                results.append(
-                    "{} {}".format("{0: <17}".format(bssid), "{0: >3}".format(channel))
-                )
-                results.append("---")
-
+                    results.append("{} {}".format("{0: <17}".format(ssid), rssi))
+                    results.append(
+                        "{} {}".format("{0: <17}".format(bssid), "{0: >3}".format(channel))
+                    )
+                    results.append("---")
+                else:
+                    datetime_string = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
+                    time_now_value = datetime.now()
+                    time_measure_value = time_now_value - timedelta(seconds=int(lastseen))
+                    time_string = time_measure_value.strftime("%H:%M:%S")
+                    results.append("\"{}\", \"{}\", \"{}\", \"{}\", \"{}\"\n".format(ssid, bssid, rssi, channel, time_string))
             g_vars["scanner_results"] = results
         except Exception as e:
             print(e)
         finally:
             g_vars["scanner_status"] = False
 
-    def scanner_scan(self, g_vars, include_hidden=True):
+    def scanner_scan(self, g_vars, include_hidden=True, write_file=False):
 
         # Check if this is the first time we run
         if g_vars["result_cache"] == False:
@@ -117,6 +127,16 @@ class Scanner(object):
             )
             self.alert_obj.display_popup_alert(g_vars, "Scanning...")
 
+            # create a timestamped save location in case that option is chosen
+            scandir = "/home/wlanpi/scanlogs"
+            if not os.path.exists(scandir):
+                os.makedirs(scandir)
+            timestr = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
+            save_file = scandir + "/scan_" + timestr + ".csv"
+            g_vars["scan_file"] = save_file
+            with open(save_file, "a+") as f:
+                f.writelines("SSID, BSS, RSSI, Channel, Time\n")
+ 
             # Configure interface
             try:
                 cmd = f"{IP_FILE} link set {IFACE} down && {IWCONFIG_FILE} {IFACE} mode managed && {IP_FILE} link set {IFACE} up"
@@ -127,18 +147,23 @@ class Scanner(object):
         else:
             if g_vars["scanner_status"] == False:
                 # Run a scan in the background
-                thread = threading.Thread(target=self.scan, args=(g_vars,include_hidden), daemon=True)
+                thread = threading.Thread(target=self.scan, args=(g_vars,include_hidden, write_file), daemon=True)
                 thread.start()
 
         # Check and display the results
         results = g_vars["scanner_results"]
 
         if len(results) > 0:
-
             # Build the table that will display the results
             table_display_max = MAX_TABLE_LINES + int(MAX_TABLE_LINES / 3)
             pages = []
             while results:
+                if write_file == True:
+                    save_file = g_vars["scan_file"]
+                    if len(save_file) > 0:
+                        # write to scan file
+                        with open(save_file, "a+") as f:
+                            f.writelines(results)
                 slice = results[:table_display_max]
                 pages.append(slice)
                 results = results[table_display_max:]
@@ -148,5 +173,9 @@ class Scanner(object):
             # Display the results
             self.paged_table_obj.display_paged_table(g_vars, table_data, justify=False)
 
+
     def scanner_scan_nohidden(self, g_vars):
-        self.scanner_scan(g_vars, include_hidden=False)
+        self.scanner_scan(g_vars, include_hidden=False, write_file=False)
+
+    def scanner_scan_tofile(self, g_vars):
+        self.scanner_scan(g_vars, include_hidden=True, write_file=True)

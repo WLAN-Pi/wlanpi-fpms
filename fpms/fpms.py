@@ -168,6 +168,7 @@ optional options:
         'eth_last_known_address_set': None,# Last known ethernet addresses
         'eth_last_reachability_test': 0,       # Number of seconds elapsed since last reachability test
         'eth_last_reachability_result' : False,# Last reachability state
+        'scan_file' : '',                  # Location to save scans
         'profiler_beaconing' : False,          # Indicates if the profiler is running
         'profiler_last_profile_date': None # The date of the last profile
     }
@@ -368,6 +369,10 @@ optional options:
     def scanner_scan_nohidden():
         app_obj = Scanner(g_vars)
         app_obj.scanner_scan_nohidden(g_vars)
+
+    def scanner_scan_tofile():
+        app_obj = Scanner(g_vars)
+        app_obj.scanner_scan_tofile(g_vars)
 
     ###########################
     # System menu area utils
@@ -623,6 +628,7 @@ optional options:
             {"name": "Scanner", "action": [
                 {"name": "Scan", "action": scanner_scan},
                 {"name": "Scan (no hidden)", "action": scanner_scan_nohidden},
+                {"name": "Scan to file", "action": scanner_scan_tofile},
             ]
             },
         ]
