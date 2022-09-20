@@ -121,6 +121,7 @@ class Button(object):
             g_vars['table_list_length'] = 0
             g_vars['display_state'] = 'menu'
             g_vars['result_cache'] = False
+            g_vars['scan_file'] = ''
             self.page_obj.draw_page(g_vars, menu)
             return
 
