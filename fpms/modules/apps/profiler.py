@@ -223,7 +223,7 @@ class Profiler(object):
 
             elif action == "start_2dot4ghz":
                 # set the config file to use params
-                cfg_dict = {"channel": "11", "": "False", "he_disabled": "False"}
+                cfg_dict = {"channel": "11", "ft_disabled": "False", "he_disabled": "False"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11r":

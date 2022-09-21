@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.48) unstable; urgency=medium
+
+  * [profiler] Fix logic corrupting /etc/wlanpi-profiler/config.ini
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Wed, 21 Sep 2022 13:54:07 -0400
+
 wlanpi-fpms (1.2.47) unstable; urgency=medium
 
   * Uses wlanpi-reg-domain to check if reg. domain is set 
