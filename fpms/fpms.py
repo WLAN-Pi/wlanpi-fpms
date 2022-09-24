@@ -964,6 +964,9 @@ optional options:
                 running = False
                 break
 
+            if (char == "g" or char == "G"):
+                capture_screen()
+
             if (char == "8" or char == "w"):
                 button_up.pin.drive_low()
                 button_up.pin.drive_high()
@@ -1003,6 +1006,7 @@ optional options:
         print("UP = 'w', DOWN = 'x', LEFT = 'a', RIGHT = 'd', CENTER = 's'")
         if button_key1 and button_key2 and button_key3:
             print("KEY1 = 'i', KEY2 = 'o', KEY3 = 'p'")
+        print("Press 'g' to capture the screen.")
         print("Press 'k' to terminate.")
         e = threading.Thread(name="button-emulator", target=emulate_buttons)
         e.start()
@@ -1010,6 +1014,17 @@ optional options:
     ##############################################################################
     # Helper functions
     ##############################################################################
+    def capture_screen():
+        g_vars['sig_fired'] = True
+        screenshots_dir = "/home/wlanpi/screenshots"
+        if not os.path.exists(screenshots_dir):
+            os.makedirs(screenshots_dir)
+        timestr = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
+        save_file = screenshots_dir + "/screenshot_" + timestr + ".png"
+        g_vars['image'].save(save_file)
+        print(save_file)
+        g_vars['sig_fired'] = False
+
     def sleep_screen():
         oled.sleep()
         g_vars['screen_cleared'] = True
