@@ -170,7 +170,9 @@ optional options:
         'eth_last_reachability_result' : False,# Last reachability state
         'scan_file' : '',                  # Location to save scans
         'profiler_beaconing' : False,          # Indicates if the profiler is running
-        'profiler_last_profile_date': None # The date of the last profile
+        'profiler_last_profile_date': None, # The date of the last profile
+        'timezones_available' : [],         # The list of Timezones the system can support
+        'timezone_selected' : None          # The timezone selected from the menu for use in other functions
     }
 
     ############################
@@ -210,6 +212,9 @@ optional options:
     profiler = Profiler(g_vars)
     g_vars['profiler_last_profile_date'] = profiler.profiler_last_profile_date()
     g_vars['profiler_beaconing'] = profiler.profiler_beaconing()
+
+    timezone = TimeZone(g_vars)
+    timezones_available = timezone.get_timezones_menu_format()
 
     ###########################
     # Network menu area utils
@@ -426,6 +431,11 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_date(g_vars)
 
+    def set_time_zone():
+        g_vars['timezone_selected'] = timezones_available[g_vars['current_menu_location'][3]]['timezones'][g_vars['current_menu_location'][4]]
+        system_obj = TimeZone(g_vars)
+        system_obj.set_time_zone_from_gvars(g_vars)
+
     def set_time_zone_london():
         system_obj = TimeZone(g_vars)
         system_obj.set_time_zone_london(g_vars)
@@ -543,6 +553,13 @@ optional options:
     # menu structure here
     #######################
 
+
+    # translate the timezone list into menu items (needs to be after definition of set_time_zone)
+    for timezones_country in timezones_available:
+        g_vars['timezones_available'].append({"name": timezones_country['country'], "action": []})
+        for timezone in timezones_country['timezones']:
+            g_vars['timezones_available'][-1]['action'].append({"name": timezone, "action": [{"name": "Confirm & Reboot", "action": set_time_zone}]})
+
     # assume classic mode menu initially...
     menu = [
         {"name": "Network", "action": [
@@ -636,12 +653,16 @@ optional options:
         {"name": "System", "action": [
             {"name": "About", "action": show_about},
             {"name": "Battery", "action": show_battery},
+            # {"name": "Date & Time", "action": [
+            #     {"name": "Show Time & Zone", "action": show_date},
+            #     {"name": "Set Zone UK", "action": [
+            #         {"name": "Confirm & Reboot", "action": set_time_zone_london},]},
+            #     {"name": "Set Zone CZ", "action": [
+            #         {"name": "Confirm & Reboot", "action": set_time_zone_prague},]},
+            #     ]},
             {"name": "Date & Time", "action": [
                 {"name": "Show Time & Zone", "action": show_date},
-                {"name": "Set Zone UK", "action": [
-                    {"name": "Confirm & Reboot", "action": set_time_zone_london},]},
-                {"name": "Set Zone CZ", "action": [
-                    {"name": "Confirm & Reboot", "action": set_time_zone_prague},]},
+                {"name": "Set Timezone", "action": g_vars['timezones_available']},
                 ]},
             {"name": "Summary", "action": show_summary},
             {"name": "RF Domain", "action": [
