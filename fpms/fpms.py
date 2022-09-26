@@ -432,7 +432,10 @@ optional options:
         system_obj.show_date(g_vars)
 
     def set_time_zone():
-        g_vars['timezone_selected'] = timezones_available[g_vars['current_menu_location'][3]]['timezones'][g_vars['current_menu_location'][4]]
+        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][3]]['country'] + 
+        "/" + 
+        timezones_available[g_vars['current_menu_location'][3]]['timezones'][g_vars['current_menu_location'][4]])
+
         system_obj = TimeZone(g_vars)
         system_obj.set_time_zone_from_gvars(g_vars)
 

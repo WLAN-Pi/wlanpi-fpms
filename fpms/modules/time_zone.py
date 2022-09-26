@@ -39,7 +39,7 @@ class TimeZone(object):
             for country in countries:
                 timezone_menu_list.append({"country": country, "timezones": []})
                 for timezone in filter(lambda c: c.startswith(country), timezones_available):
-                    timezone_menu_list[-1]['timezones'].append(timezone)
+                    timezone_menu_list[-1]['timezones'].append(timezone.split('/', 1)[-1])
 
             return timezone_menu_list
 
