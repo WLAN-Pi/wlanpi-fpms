@@ -80,6 +80,8 @@ class Page(object):
 
                 # this item contains a list of options, append name with '>'
                 if (type(menu_item['action']) is list):
+                    if len(item_name) > 16:
+                        item_name = item_name[:14] + ".."
                     item_name = item_name + ">"
 
                 menu_list.append((item_name))
@@ -102,6 +104,10 @@ class Page(object):
             page_name = section_name[-2]
 
         page_title = page_name.upper()
+
+        # shorten title if necessary
+        if len(page_title) > 15:
+            page_title = page_title[:13] + ".."
 
         # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
