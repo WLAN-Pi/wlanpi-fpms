@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.51) unstable; urgency=medium
+
+  * Dynamic timezone menu changes from Ben.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Fri, 30 Sep 2022 16:33:16 -0400
+
 wlanpi-fpms (1.2.50) unstable; urgency=medium
 
   * Shortens menu items and page titles when necessary
