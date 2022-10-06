@@ -45,7 +45,7 @@ class Utils(object):
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
             speedtest_info = []
-            speedtest_cmd = "speedtest | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\(/My IP: /g; s/\)\.\.\.//g; s/Download/D/g; s/Upload/U/g; s/bit\/s/bps/g'"
+            speedtest_cmd = "speedtest-cli --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\(/My IP: /g; s/\)\.\.\.//g; s/Download/D/g; s/Upload/U/g; s/bit\/s/bps/g'"
 
             try:
                 speedtest_output = subprocess.check_output(speedtest_cmd, shell=True).decode().strip()

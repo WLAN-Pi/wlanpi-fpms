@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.52) unstable; urgency=medium
+
+  * Enforce https speedtest-cli connection to avoid occasional test failures
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Thu, 06 Oct 2022 11:46:00 +0000
+
 wlanpi-fpms (1.2.51) unstable; urgency=medium
 
   * Dynamic timezone menu changes from Ben.
