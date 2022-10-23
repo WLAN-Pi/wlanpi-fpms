@@ -289,6 +289,10 @@ optional options:
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_aruba_cloud(g_vars)
 
+    def show_extreme_test():
+        utils_obj = CloudUtils(g_vars)
+        utils_obj.test_extreme_cloud(g_vars)
+
     def show_blinker():
         utils_obj = Utils(g_vars)
         utils_obj.show_blinker(g_vars)
@@ -432,8 +436,8 @@ optional options:
         system_obj.show_date(g_vars)
 
     def set_time_zone():
-        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][3]]['country'] + 
-        "/" + 
+        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][3]]['country'] +
+        "/" +
         timezones_available[g_vars['current_menu_location'][3]]['timezones'][g_vars['current_menu_location'][4]])
 
         system_obj = TimeZone(g_vars)
@@ -592,7 +596,9 @@ optional options:
             {"name": "Cloud Tests", "action": [
                 {"name": "Run Aruba Test", "action": show_aruba_test},
                 {"name": "Run Mist Test", "action": show_mist_test},
-            ]
+                {"name": "Extreme Tests", "action": [
+                	{"name": "Run CloudIQ Frankfurt", "action": show_extreme_test},]
+                    }]
             },
             {"name": "Port Blinker", "action": [
                 {"name": "Start", "action": show_blinker},
