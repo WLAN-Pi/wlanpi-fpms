@@ -41,8 +41,8 @@ setup(
         "luma.oled==3.8.1",
         "rpi.gpio==0.7.1",
         "gpiozero==1.6.2",
-        "textfsm==1.1.2",
-        "Pillow==9.0.1", 
+        "textfsm==1.1.3",
+        "Pillow==9.2.0", 
     ],
     extras_require=extras,
     project_urls={
