@@ -42,7 +42,7 @@ setup(
         "rpi.gpio==0.7.1",
         "gpiozero==1.6.2",
         "textfsm==1.1.3",
-        "Pillow==9.2.0", 
+        "Pillow==9.3.0", 
     ],
     extras_require=extras,
     project_urls={
