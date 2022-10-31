@@ -1,4 +1,4 @@
-luma.oled==3.8.1
+luma.oled==3.9.0
 luma.lcd==2.9.0
 rpi.gpio==0.7.1
 gpiozero==1.6.2

@@ -38,7 +38,7 @@ setup(
     platforms=["linux"],
     packages=find_packages(),
     install_requires=[
-        "luma.oled==3.8.1",
+        "luma.oled==3.9.0",
         "rpi.gpio==0.7.1",
         "gpiozero==1.6.2",
         "textfsm==1.1.3",
