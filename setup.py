@@ -13,18 +13,30 @@ here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "fpms", "__version__.py"), "r", "utf-8") as f:
     exec(f.read(), metadata)
 
-extras = {
-    "development": [
-        "black",
-        "isort",
-        "mypy",
-        "flake8",
-        "pytest",
-    ],
-}
 
-# fmt: off
-# Pillow must be on its own line otherwise Debian packaging will fail
+def parse_requires(_list):
+    requires = list()
+    trims = ["#", "piwheels.org"]
+    for require in _list:
+        if any(match in require for match in trims):
+            continue
+        requires.append(require)
+    requires = list(filter(None, requires))  # remove "" from list
+    return requires
+
+
+with open("extras.txt") as f:
+    testing = f.read().splitlines()
+
+testing = parse_requires(testing)
+
+extras = {"testing": testing}
+
+with open("requirements.txt") as f:
+    requires = f.read().splitlines()
+
+requires = parse_requires(requires)
+
 setup(
     name=metadata["__title__"],
     version=metadata["__version__"],
@@ -33,17 +45,11 @@ setup(
     author=metadata["__author__"],
     author_email=metadata["__author_email__"],
     url=metadata["__url__"],
-    python_requires="~=3.7,",
+    python_requires="~=3.9,",
     license=metadata["__license__"],
     platforms=["linux"],
     packages=find_packages(),
-    install_requires=[
-        "luma.oled==3.8.1",
-        "rpi.gpio==0.7.1",
-        "gpiozero==1.6.2",
-        "textfsm==1.1.3",
-        "Pillow==9.2.0", 
-    ],
+    install_requires=requires,
     extras_require=extras,
     project_urls={
         "Documentation": "https://docs.wlanpi.com",
@@ -52,7 +58,7 @@ setup(
     classifiers=[
         "Natural Language :: English",
         "Development Status :: 3 - Alpha",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.9",
         "Intended Audience :: System Administrators",
         "Topic :: Utilities",
     ],

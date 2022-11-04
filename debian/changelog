@@ -1,5 +1,6 @@
-wlanpi-fpms (1.2.53) unstable; urgency=medium
+wlanpi-fpms (1.2.53-1) unstable; urgency=medium
 
+  * Add Ruckus Cloud Tests (thanks @iamk3)
   * Update pillow from 9.0.1 to 9.3.0
   * Update luma.oled from 3.8.1 to 3.9.0
   * Update luma.lcd from 2.9.0 to 2.10.0
