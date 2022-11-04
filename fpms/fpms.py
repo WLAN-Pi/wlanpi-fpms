@@ -283,7 +283,7 @@ optional options:
 
     def show_ruckus_test():
         utils_obj = CloudUtils(g_vars)
-        utils_obj.test_ruckus_cloud
+        utils_obj.test_ruckus_cloud(g_vars)
 
     def show_mist_test():
         utils_obj = CloudUtils(g_vars)
