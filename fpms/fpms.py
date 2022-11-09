@@ -598,13 +598,13 @@ optional options:
             ]
             },
             {"name": "Cloud Tests", "action": [
-                {"name": "Run Aruba Test", "action": show_aruba_test},
+                {"name": "Run Aruba Tests", "action": show_aruba_test},
                 {"name": "Extreme Tests", "action": [
                 	{"name": "Run CloudIQ Frankfurt", "action": show_extreme_test},
                  ]
                  },
-                {"name": "Run Mist Test", "action": show_mist_test},
-                {"name": "Run Ruckus Test", "action": show_ruckus_test},
+                {"name": "Run Mist Tests", "action": show_mist_test},
+                {"name": "Run Ruckus Tests", "action": show_ruckus_test},
             ]
             },
             {"name": "Port Blinker", "action": [
