@@ -1,12 +1,13 @@
-wlanpi-fpms (1.2.53-1) unstable; urgency=medium
+wlanpi-fpms (1.2.53-2) unstable; urgency=medium
 
+  * Add Extreme Cloud Tests (thanks @niklasmato)
   * Add Ruckus Cloud Tests (thanks @iamk3)
   * Update pillow from 9.0.1 to 9.3.0
   * Update luma.oled from 3.8.1 to 3.9.0
   * Update luma.lcd from 2.9.0 to 2.10.0
   * Upgrade textfsm from 1.1.2 to 1.1.3
 
- -- Josh Schmelzle <josh@joshschmelzle.com>  Wed, 02 Nov 2022 00:27:38 -0400
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Tue, 08 Nov 2022 21:16:07 -0500
 
 wlanpi-fpms (1.2.52) unstable; urgency=medium
 

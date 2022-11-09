@@ -13,3 +13,4 @@ Alphabetical order:
 * Josh Schmelzle, @joshschmelzle, <https://github.com/joshschmelzle>
 * Nick Turner, @nickjvturner, <https://github.com/nickjvturner>
 * Nigel Bowden, @wifinigel, <https://github.com/wifinigel>
+* Niklas Mato, @niklasmato, <https://github.com/niklasmato>
