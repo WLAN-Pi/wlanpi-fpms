@@ -281,6 +281,10 @@ optional options:
         utils_obj = Utils(g_vars)
         utils_obj.show_speedtest(g_vars)
 
+    def show_ruckus_test():
+        utils_obj = CloudUtils(g_vars)
+        utils_obj.test_ruckus_cloud(g_vars)
+
     def show_mist_test():
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_mist_cloud(g_vars)
@@ -595,10 +599,13 @@ optional options:
             },
             {"name": "Cloud Tests", "action": [
                 {"name": "Run Aruba Test", "action": show_aruba_test},
-                {"name": "Run Mist Test", "action": show_mist_test},
                 {"name": "Extreme Tests", "action": [
-                	{"name": "Run CloudIQ Frankfurt", "action": show_extreme_test},]
-                    }]
+                	{"name": "Run CloudIQ Frankfurt", "action": show_extreme_test},
+                 ]
+                 },
+                {"name": "Run Mist Test", "action": show_mist_test},
+                {"name": "Run Ruckus Test", "action": show_ruckus_test},
+            ]
             },
             {"name": "Port Blinker", "action": [
                 {"name": "Start", "action": show_blinker},
