@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.54) unstable; urgency=medium
+
+  * Update pip from pip-22.3 to pip-22.3.1
+
+ -- Jerry Olla <jerryolla@gmail.com>  Wed, 28 Dec 2022 10:30:07 -0600
+
 wlanpi-fpms (1.2.53-2) unstable; urgency=medium
 
   * Add Extreme Cloud Tests (thanks @niklasmato)
