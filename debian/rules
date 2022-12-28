@@ -45,7 +45,7 @@ override_dh_virtualenv:
 		--install-suffix "wlanpi-fpms" \
 		--builtin-venv \
 		--python ${SNAKE} \
-		--upgrade-pip-to=22.3 \
+		--upgrade-pip-to=22.3.1 \
 		--preinstall="setuptools==65.5.0" \
 		--preinstall="wheel==0.37.1"
 		--preinstall="mock" \
