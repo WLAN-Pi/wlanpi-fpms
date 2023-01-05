@@ -1,3 +1,10 @@
+wlanpi-fpms (1.2.55) unstable; urgency=medium
+
+  * Add Kismet start/stop options (Apps > Kismet)
+  * Show alert bar when port blinker is active
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 05 Jan 2023 17:39:19 -0600
+
 wlanpi-fpms (1.2.54) unstable; urgency=medium
 
   * Update pip from pip-22.3 to pip-22.3.1

@@ -34,6 +34,7 @@ if not os.geteuid()==0:
 
 from .__version__ import __title__, __version__
 from .modules import wlanpi_oled as oled
+from .modules.apps.kismet import *
 from .modules.apps.profiler import *
 from .modules.apps.scanner import *
 from .modules.bluetooth import *
@@ -343,6 +344,14 @@ optional options:
     ###########################
     # Apps area
     ###########################
+    def kismet_start():
+        app_obj = Kismet(g_vars)
+        app_obj.kismet_start(g_vars)
+
+    def kismet_stop():
+        app_obj = Kismet(g_vars)
+        app_obj.kismet_stop(g_vars)
+
     def profiler_status():
         app_obj = Profiler(g_vars)
         app_obj.profiler_status(g_vars)
@@ -641,6 +650,11 @@ optional options:
         ]
         },
         {"name": "Apps", "action": [
+            {"name": "Kismet", "action": [
+                {"name": "Start", "action": kismet_start},
+                {"name": "Stop", "action": kismet_stop},
+            ]
+            },
             {"name": "Profiler",   "action": [
                 {"name": "Status", "action":          profiler_status},
                 {"name": "Stop", "action":            profiler_stop},
