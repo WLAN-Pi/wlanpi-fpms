@@ -34,6 +34,7 @@ if not os.geteuid()==0:
 
 from .__version__ import __title__, __version__
 from .modules import wlanpi_oled as oled
+from .modules.apps.kismet import *
 from .modules.apps.profiler import *
 from .modules.apps.scanner import *
 from .modules.bluetooth import *
@@ -281,6 +282,10 @@ optional options:
         utils_obj = Utils(g_vars)
         utils_obj.show_speedtest(g_vars)
 
+    def show_ruckus_test():
+        utils_obj = CloudUtils(g_vars)
+        utils_obj.test_ruckus_cloud(g_vars)
+
     def show_mist_test():
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_mist_cloud(g_vars)
@@ -288,6 +293,10 @@ optional options:
     def show_aruba_test():
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_aruba_cloud(g_vars)
+
+    def show_extreme_test():
+        utils_obj = CloudUtils(g_vars)
+        utils_obj.test_extreme_cloud(g_vars)
 
     def show_blinker():
         utils_obj = Utils(g_vars)
@@ -335,6 +344,14 @@ optional options:
     ###########################
     # Apps area
     ###########################
+    def kismet_start():
+        app_obj = Kismet(g_vars)
+        app_obj.kismet_start(g_vars)
+
+    def kismet_stop():
+        app_obj = Kismet(g_vars)
+        app_obj.kismet_stop(g_vars)
+
     def profiler_status():
         app_obj = Profiler(g_vars)
         app_obj.profiler_status(g_vars)
@@ -432,8 +449,8 @@ optional options:
         system_obj.show_date(g_vars)
 
     def set_time_zone():
-        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][3]]['country'] + 
-        "/" + 
+        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][3]]['country'] +
+        "/" +
         timezones_available[g_vars['current_menu_location'][3]]['timezones'][g_vars['current_menu_location'][4]])
 
         system_obj = TimeZone(g_vars)
@@ -590,8 +607,13 @@ optional options:
             ]
             },
             {"name": "Cloud Tests", "action": [
-                {"name": "Run Aruba Test", "action": show_aruba_test},
-                {"name": "Run Mist Test", "action": show_mist_test},
+                {"name": "Run Aruba Tests", "action": show_aruba_test},
+                {"name": "Extreme Tests", "action": [
+                	{"name": "Run CloudIQ Frankfurt", "action": show_extreme_test},
+                 ]
+                 },
+                {"name": "Run Mist Tests", "action": show_mist_test},
+                {"name": "Run Ruckus Tests", "action": show_ruckus_test},
             ]
             },
             {"name": "Port Blinker", "action": [
@@ -628,6 +650,11 @@ optional options:
         ]
         },
         {"name": "Apps", "action": [
+            {"name": "Kismet", "action": [
+                {"name": "Start", "action": kismet_start},
+                {"name": "Stop", "action": kismet_stop},
+            ]
+            },
             {"name": "Profiler",   "action": [
                 {"name": "Status", "action":          profiler_status},
                 {"name": "Stop", "action":            profiler_stop},

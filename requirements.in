@@ -1,0 +1,7 @@
+luma.oled
+luma.lcd
+rpi.gpio
+gpiozero
+textfsm
+Pillow
+qrcode

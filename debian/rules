@@ -1,4 +1,5 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
 #
 # Build Debian package using https://github.com/spotify/dh-virtualenv
 #
@@ -15,26 +16,44 @@
 
 export DH_VIRTUALENV_INSTALL_ROOT=/opt
 export PYBUILD_NAME=wlanpi-fpms
+
 SNAKE=/usr/bin/python3
-EXTRA_REQUIREMENTS=--upgrade-pip --preinstall "setuptools>=38" --preinstall "wheel" --extras=default
+
 PACKAGE=$(shell dh_listpackages)
 VERSION=$(shell parsechangelog | grep ^Version: | sed -re 's/[^0-9]+([^-]+).*/\1/')
 
-DH_VENV_ARGS=--builtin-venv --python=$(SNAKE) $(EXTRA_REQUIREMENTS) \
-            --extra-pip-arg=--progress-bar=on
 DH_VENV_DIR=debian/$(PACKAGE)$(DH_VIRTUALENV_INSTALL_ROOT)/$(PACKAGE)
-PILLOW_SPEC=$(shell grep Pillow== setup.py | cut -f1 -d ",")
+
+PILLOW_SPEC=$(shell grep pillow== requirements.txt)
+
 SDIST_DIR=debian/$(PACKAGE)-$(VERSION)
 PKG_PREFIX=debian/wlanpi-fpms
 
 %:
-	dh $@ --with python3,python-virtualenv --buildsystem=pybuild
+	dh $@ --with python-virtualenv --buildsystem=pybuild
 
 .PHONY: override_dh_virtualenv override_dh_strip override_dh_shlibdeps
 
+# we don't really want dwz to do anything to our files.
+override_dh_dwz:
+
+override_dh_installexamples:
+	dh_installexamples -A -X__pycache__
+
 override_dh_virtualenv:
-	dh_virtualenv $(DH_VENV_ARGS)
-	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install -I --no-binary Pillow $(PILLOW_SPEC)
+	dh_virtualenv \
+		--install-suffix "wlanpi-fpms" \
+		--builtin-venv \
+		--python ${SNAKE} \
+		--upgrade-pip-to=22.3.1 \
+		--preinstall="setuptools==65.5.0" \
+		--preinstall="wheel==0.37.1"
+		--preinstall="mock" \
+		--extra-pip-arg="--compile" \
+		--extras="all,systemd,test"
+
+	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip cache purge --verbose
+	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install -I --no-binary Pillow $(PILLOW_SPEC) --verbose
 
 override_dh_strip:
 	dh_strip --exclude=cffi --exclude=_imaging --exclude=libtiff

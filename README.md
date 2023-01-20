@@ -70,6 +70,7 @@ Thank you to all the creators and maintainers of the following open source softw
 * [GPIO Zero](https://gpiozero.readthedocs.io/en/stable)
 * [Luma.OLED](https://luma-oled.readthedocs.io/en/latest)
 * [Pillow](https://python-pillow.org)
+* [pip-tools](https://github.com/jazzband/pip-tools)
 * [Python](https://www.python.org)
 * [RPi.GPIO](https://pypi.org/project/RPi.GPIO)
 * [python-qrcode](https://github.com/lincolnloop/python-qrcode)
