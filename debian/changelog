@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.57) unstable; urgency=medium
+
+  * Fix for issues with st7735 display on 6.x kernels
+
+ -- Jerry Olla <jerryolla@gmail.com>  Wed, 28 Dec 2022 10:30:07 -0600
+
 wlanpi-fpms (1.2.56) unstable; urgency=medium
 
   * Fix scantofile time interval
