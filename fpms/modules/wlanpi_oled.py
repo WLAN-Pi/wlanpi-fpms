@@ -34,14 +34,13 @@ if PLATFORM == PLATFORM_PRO:
 elif PLATFORM == PLATFORM_R4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
-    INTERFACE_TYPE = "gpio_cs_spi"
+    INTERFACE_TYPE = "spi"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
     GPIO_DATA_COMMAND = "25"
     GPIO_RESET = "27"
     GPIO_BACKLIGHT = "24"
-    GPIO_CS = "8"
     BACKLIGHT_ACTIVE = "high"
     H_OFFSET = "1"
     V_OFFSET = "2"

@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.58) unstable; urgency=medium
+
+  * Fix R4 WSOD display issue
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Thu, 26 Jan 2023 22:02:00 +0000
+
 wlanpi-fpms (1.2.57) unstable; urgency=medium
 
   * Fix for issues with st7735 display on 6.x kernels
