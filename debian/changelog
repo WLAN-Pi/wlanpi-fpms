@@ -1,7 +1,7 @@
 wlanpi-fpms (1.2.63) unstable; urgency=medium
 
   * Change service to wait for the SPI device(s) to be created
-  * Remove reset hold and release delays
+  * Remove SPI speed bus, reset hold and release delays
 
  -- Adrian Granados <adrian@intuitibits.com> Fri, 27 Jan 2023 17:00:00 +0000
 
