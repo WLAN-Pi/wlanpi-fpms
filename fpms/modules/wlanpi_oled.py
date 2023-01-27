@@ -12,12 +12,15 @@ from fpms.modules.platform import *
 DISPLAY_TYPE = None
 I2C_PORT = None
 I2C_ADDRESS = None
+SPI_BUS_SPEED = None
 INTERFACE_TYPE = None
 WIDTH = None
 HEIGHT = None
 COLOR_ORDER_BGR = False
 GPIO_DATA_COMMAND = None
 GPIO_RESET = None
+GPIO_RESET_HOLD = None
+GPIO_RESET_RELEASE = None
 GPIO_BACKLIGHT = None
 GPIO_CS = None
 BACKLIGHT_ACTIVE = None
@@ -35,11 +38,14 @@ elif PLATFORM == PLATFORM_R4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "gpio_cs_spi"
+    SPI_BUS_SPEED = "4000000"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
     GPIO_DATA_COMMAND = "25"
     GPIO_RESET = "27"
+    GPIO_RESET_HOLD = "1"
+    GPIO_RESET_RELEASE = "2"
     GPIO_BACKLIGHT = "24"
     GPIO_CS = "8"
     BACKLIGHT_ACTIVE = "high"
@@ -49,11 +55,14 @@ elif PLATFORM == PLATFORM_M4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "gpio_cs_spi"
+    SPI_BUS_SPEED = "4000000"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
     GPIO_DATA_COMMAND = "25"
     GPIO_RESET = "27"
+    GPIO_RESET_HOLD = "1"
+    GPIO_RESET_RELEASE = "2"
     GPIO_BACKLIGHT = "24"
     GPIO_CS = "8"
     BACKLIGHT_ACTIVE = "high"
@@ -168,6 +177,10 @@ if I2C_PORT:
 if COLOR_ORDER_BGR:
     actual_args.append("--bgr")
 
+if SPI_BUS_SPEED:
+    actual_args.append("--spi-bus-speed")
+    actual_args.append(SPI_BUS_SPEED)
+
 if GPIO_DATA_COMMAND:
     actual_args.append("--gpio-data-command")
     actual_args.append(GPIO_DATA_COMMAND)
@@ -176,6 +189,14 @@ if GPIO_RESET:
     actual_args.append("--gpio-reset")
     actual_args.append(GPIO_RESET)
 
+if GPIO_RESET_HOLD:
+    actual_args.append("--gpio-reset-hold-time")
+    actual_args.append(GPIO_RESET_HOLD)
+
+if GPIO_RESET_RELEASE:
+    actual_args.append("--gpio-reset-release-time")
+    actual_args.append(GPIO_RESET_RELEASE)
+
 if GPIO_BACKLIGHT:
     actual_args.append("--gpio-backlight")
     actual_args.append(GPIO_BACKLIGHT)
@@ -183,7 +204,7 @@ if GPIO_BACKLIGHT:
 if GPIO_CS:
     actual_args.append("--gpio-chip-select")
     actual_args.append(GPIO_CS)
-    
+
 if BACKLIGHT_ACTIVE:
     actual_args.append("--backlight-active")
     actual_args.append(BACKLIGHT_ACTIVE)
