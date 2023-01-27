@@ -1,5 +1,6 @@
 [Unit]
 Description=Front Panel Menu System for the WLAN Pi OLED display
+RequiresMountsFor=/dev/spidev
 
 [Service]
 ExecStart=/usr/sbin/fpms
