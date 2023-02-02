@@ -603,10 +603,10 @@ optional options:
             ]
             },
             {"name": "Cloud Tests", "action": [
-                {"name": "Run Aruba Tests", "action": show_aruba_test},
-                {"name": "Run Extreme Tests", "action": show_extreme_test},
-                {"name": "Run Mist Tests", "action": show_mist_test},
-                {"name": "Run Ruckus Tests", "action": show_ruckus_test},
+                {"name": "Aruba Central", "action": show_aruba_test},
+                {"name": "ExtremeCloud IQ", "action": show_extreme_test},
+                {"name": "Mist Cloud", "action": show_mist_test},
+                {"name": "RUCKUS Cloud", "action": show_ruckus_test},
             ]
             },
             {"name": "Port Blinker", "action": [

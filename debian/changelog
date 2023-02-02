@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.66) unstable; urgency=medium
+
+  * Rename Cloud Tests menu options.
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 02 Feb 2023 15:53:11 -0500
+
 wlanpi-fpms (1.2.65) unstable; urgency=medium
 
   * Fixes Extreme Cloud Tests option name.
