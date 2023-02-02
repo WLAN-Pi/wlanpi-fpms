@@ -1,3 +1,12 @@
+wlanpi-fpms (1.2.64) unstable; urgency=medium
+
+  * Allow to loop through menu options with up & down keys
+  * Add option to set timezone automatically
+  * Setting timezone doesn't require reboot anymore
+  * Improve display of time & zone in System > Date & Time
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 01 Feb 2023 22:46:50 -0500
+
 wlanpi-fpms (1.2.63) unstable; urgency=medium
 
   * Change service to wait for the SPI device(s) to be created
