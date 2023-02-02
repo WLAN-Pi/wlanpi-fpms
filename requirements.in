@@ -3,5 +3,6 @@ luma.lcd
 rpi.gpio
 gpiozero
 textfsm
+tzupdate
 Pillow
 qrcode
