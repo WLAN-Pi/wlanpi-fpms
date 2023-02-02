@@ -43,6 +43,28 @@ class Button(object):
         # we shouldn't hit this point, but just in case
         return True
 
+
+    def _length_of_list(self, current_location, menu):
+
+        # pull apart current menu location (e.g. [0, 1, 1])
+        menu_selection = menu
+        leaf = current_location[-1]
+        branch = current_location[0:-1]
+
+        # trim off the branch to reach leaf
+        for choice in branch:
+            menu_selection = menu_selection[choice]['action']
+
+        # check if the next leaf exists, or whether we are at end of the structure
+        try:
+            return len(menu_selection)
+        except IndexError:
+            return 0
+
+        # we shouldn't hit this point, but just in case
+        return 0
+
+
     def _display_top_menu(self, g_vars, menu):
         g_vars['display_state'] = 'menu'
         return self.page_obj.draw_page(g_vars, menu)
@@ -65,11 +87,11 @@ class Button(object):
         if g_vars['display_state'] != 'menu':
             return
 
-        if not self._bottom_of_list(g_vars['current_menu_location'], menu):
-            # pop the last menu list item, increment & push back on
-            current_selection = g_vars['current_menu_location'].pop()
-            current_selection = current_selection + 1
-            g_vars['current_menu_location'].append(current_selection)
+        is_last = self._bottom_of_list(g_vars['current_menu_location'], menu)
+        # pop the last menu list item, increment & push back on
+        current_selection = g_vars['current_menu_location'].pop()
+        current_selection = 0 if is_last else current_selection + 1
+        g_vars['current_menu_location'].append(current_selection)
 
         self.page_obj.draw_page(g_vars, menu)
 
@@ -91,8 +113,11 @@ class Button(object):
             return
 
         # pop the last menu list item, decrement & push back on
+        index_last_item = self._length_of_list(g_vars['current_menu_location'], menu) - 1
         current_selection = g_vars['current_menu_location'].pop()
-        if current_selection != 0:
+        if current_selection == 0:
+            current_selection = index_last_item
+        else:
             current_selection = current_selection - 1
         g_vars['current_menu_location'].append(current_selection)
 
