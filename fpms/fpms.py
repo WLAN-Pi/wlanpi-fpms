@@ -604,10 +604,7 @@ optional options:
             },
             {"name": "Cloud Tests", "action": [
                 {"name": "Run Aruba Tests", "action": show_aruba_test},
-                {"name": "Extreme Tests", "action": [
-                	{"name": "Run CloudIQ Frankfurt", "action": show_extreme_test},
-                 ]
-                 },
+                {"name": "Run Extreme Tests", "action": show_extreme_test},
                 {"name": "Run Mist Tests", "action": show_mist_test},
                 {"name": "Run Ruckus Tests", "action": show_ruckus_test},
             ]
