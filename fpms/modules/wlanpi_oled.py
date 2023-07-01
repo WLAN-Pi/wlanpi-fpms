@@ -11,6 +11,7 @@ from fpms.modules.platform import *
 # set possible vars to None
 DISPLAY_TYPE = None
 I2C_PORT = None
+SPI_BUS_SPEED = None
 I2C_ADDRESS = None
 INTERFACE_TYPE = None
 WIDTH = None
@@ -35,6 +36,7 @@ elif PLATFORM == PLATFORM_R4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "gpio_cs_spi"
+    SPI_BUS_SPEED = "2000000"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
@@ -49,6 +51,7 @@ elif PLATFORM == PLATFORM_M4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "gpio_cs_spi"
+    SPI_BUS_SPEED = "2000000"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
@@ -164,6 +167,10 @@ if HEIGHT:
 if I2C_PORT:
     actual_args.append("--i2c-port")
     actual_args.append(I2C_PORT)
+
+if SPI_BUS_SPEED:
+    actual_args.append("--spi-bus-speed")
+    actual_args.append(SPI_BUS_SPEED)
 
 if COLOR_ORDER_BGR:
     actual_args.append("--bgr")
