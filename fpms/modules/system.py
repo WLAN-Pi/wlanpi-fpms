@@ -1,9 +1,10 @@
 import fpms.modules.wlanpi_oled as oled
-import time
 import os
 import subprocess
 import socket
 import random
+import tzupdate
+import time
 
 from PIL import ImageFont
 from fpms.modules.pages.alert import *
@@ -16,6 +17,7 @@ from fpms.modules.constants import (
     FONT12,
     FONT13,
     FONTB14,
+    TIME_ZONE_FILE,
 )
 
 class System(object):
@@ -140,6 +142,19 @@ class System(object):
         Date page - taken from original bakebit script & modified to add TZ
         '''
 
+        # Get timezone and cache it
+        timezone = ""
+        if g_vars['result_cache'] == False:
+            try:
+                time.tzset()
+                timezone = subprocess.check_output(f"{TIME_ZONE_FILE} get", shell=True).decode()
+                g_vars['timezone_selected'] = timezone
+            except:
+                pass
+
+            g_vars['result_cache'] = True
+
+        # Print date, time and timezone
         g_vars['drawing_in_progress'] = True
 
         # Clear display prior to painting new item
@@ -164,12 +179,19 @@ class System(object):
         g_vars['draw'].text((x, y), text, font=FONT13, fill=THEME.text_color.value)
         y = y + text_size[1] + margin
 
-        # Draw timezone
-        text = "Timezone: " + time.strftime("%Z")
+        # Draw city
+        text = g_vars['timezone_selected'].split("/")[-1].replace("_", " ")
         text_size = FONT11.getsize(text)
         x = (PAGE_WIDTH - text_size[0])/2
         y = y + margin * 3
         g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_secondary_color.value)
+
+        # Draw timezone
+        text = time.strftime("%Z")
+        text_size = FONT11.getsize(text)
+        x = (PAGE_WIDTH - text_size[0])/2
+        y = y + margin * 8
+        g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_color.value)
 
         oled.drawImage(g_vars['image'])
 

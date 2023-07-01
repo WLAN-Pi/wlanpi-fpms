@@ -104,7 +104,7 @@ class Scanner(object):
                 else:
                     datetime_string = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
                     time_now_value = datetime.now()
-                    time_measure_value = time_now_value - timedelta(seconds=int(lastseen))
+                    time_measure_value = time_now_value - timedelta(milliseconds=int(lastseen))
                     time_string = time_measure_value.strftime("%H:%M:%S")
                     results.append("\"{}\", \"{}\", \"{}\", \"{}\", \"{}\"\n".format(ssid, bssid, rssi, channel, time_string))
             g_vars["scanner_results"] = results

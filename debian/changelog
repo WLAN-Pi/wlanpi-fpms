@@ -1,3 +1,61 @@
+wlanpi-fpms (1.2.66) unstable; urgency=medium
+
+  * Rename Cloud Tests menu options.
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 02 Feb 2023 15:53:11 -0500
+
+wlanpi-fpms (1.2.65) unstable; urgency=medium
+
+  * Fixes Extreme Cloud Tests option name.
+
+ -- Adrian Granados <adrian@intuitibits.com>  Thu, 02 Feb 2023 13:03:44 -0500
+
+wlanpi-fpms (1.2.64) unstable; urgency=medium
+
+  * Allow to loop through menu options with up & down keys
+  * Add option to set timezone automatically
+  * Setting timezone doesn't require reboot anymore
+  * Improve display of time & zone in System > Date & Time
+
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 01 Feb 2023 22:46:50 -0500
+
+wlanpi-fpms (1.2.63) unstable; urgency=medium
+
+  * Change service to wait for the SPI device(s) to be created
+  * Remove SPI speed bus, reset hold and release delays
+
+ -- Adrian Granados <adrian@intuitibits.com> Fri, 27 Jan 2023 17:00:00 +0000
+
+wlanpi-fpms (1.2.62) unstable; urgency=medium
+
+  * Setting SPI bus speed, reset hold and release delays
+
+ -- Adrian Granados <adrian@intuitibits.com> Fri, 27 Jan 2023 16:00:00 +0000
+
+wlanpi-fpms (1.2.61) unstable; urgency=medium
+
+  * Fix R4 WSOD display issue
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Fri, 27 Jan 2023 14:16:00 +0000
+
+wlanpi-fpms (1.2.59) unstable; urgency=medium
+
+  * Fix R4 WSOD display issue
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Thu, 26 Jan 2023 22:37:00 +0000
+
+wlanpi-fpms (1.2.57) unstable; urgency=medium
+
+  * Fix for issues with st7735 display on 6.x kernels
+
+ -- Jerry Olla <jerryolla@gmail.com>  Wed, 28 Dec 2022 10:30:07 -0600
+
+wlanpi-fpms (1.2.56) unstable; urgency=medium
+
+  * Fix scantofile time interval
+
+ -- Jiri Brejcha <jirka@jiribrejcha.net>  Mon, 22 Jan 2023 12:41:00 +0000
+
 wlanpi-fpms (1.2.55) unstable; urgency=medium
 
   * Add Kismet start/stop options (Apps > Kismet)

@@ -448,21 +448,17 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_date(g_vars)
 
+    def set_time_zone_auto():
+        system_obj = TimeZone(g_vars)
+        system_obj.set_time_zone_auto(g_vars)
+
     def set_time_zone():
-        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][3]]['country'] +
+        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][4]]['country'] +
         "/" +
-        timezones_available[g_vars['current_menu_location'][3]]['timezones'][g_vars['current_menu_location'][4]])
+        timezones_available[g_vars['current_menu_location'][4]]['timezones'][g_vars['current_menu_location'][5]])
 
         system_obj = TimeZone(g_vars)
         system_obj.set_time_zone_from_gvars(g_vars)
-
-    def set_time_zone_london():
-        system_obj = TimeZone(g_vars)
-        system_obj.set_time_zone_london(g_vars)
-
-    def set_time_zone_prague():
-        system_obj = TimeZone(g_vars)
-        system_obj.set_time_zone_prague(g_vars)
 
     def show_about():
         system_obj = System(g_vars)
@@ -578,7 +574,7 @@ optional options:
     for timezones_country in timezones_available:
         g_vars['timezones_available'].append({"name": timezones_country['country'], "action": []})
         for timezone in timezones_country['timezones']:
-            g_vars['timezones_available'][-1]['action'].append({"name": timezone, "action": [{"name": "Confirm & Reboot", "action": set_time_zone}]})
+            g_vars['timezones_available'][-1]['action'].append({"name": timezone, "action": set_time_zone})
 
     # assume classic mode menu initially...
     menu = [
@@ -607,13 +603,10 @@ optional options:
             ]
             },
             {"name": "Cloud Tests", "action": [
-                {"name": "Run Aruba Tests", "action": show_aruba_test},
-                {"name": "Extreme Tests", "action": [
-                	{"name": "Run CloudIQ Frankfurt", "action": show_extreme_test},
-                 ]
-                 },
-                {"name": "Run Mist Tests", "action": show_mist_test},
-                {"name": "Run Ruckus Tests", "action": show_ruckus_test},
+                {"name": "Aruba Central", "action": show_aruba_test},
+                {"name": "ExtremeCloud IQ", "action": show_extreme_test},
+                {"name": "Mist Cloud", "action": show_mist_test},
+                {"name": "RUCKUS Cloud", "action": show_ruckus_test},
             ]
             },
             {"name": "Port Blinker", "action": [
@@ -692,7 +685,10 @@ optional options:
             #     ]},
             {"name": "Date & Time", "action": [
                 {"name": "Show Time & Zone", "action": show_date},
-                {"name": "Set Timezone", "action": g_vars['timezones_available']},
+                {"name": "Set Timezone", "action": [
+                    {"name": "Auto", "action" : set_time_zone_auto},
+                    {"name": "Manual", "action": g_vars['timezones_available']}
+                ]},
                 ]},
             {"name": "Summary", "action": show_summary},
             {"name": "RF Domain", "action": [

@@ -3,7 +3,7 @@ import os
 import subprocess
 import fpms.modules.wlanpi_oled as oled
 import sys
-
+import tzupdate
 
 from fpms.modules.pages.simpletable import SimpleTable
 from fpms.modules.pages.pagedtable import PagedTable
@@ -21,7 +21,7 @@ class TimeZone(object):
 
         # create alert
         self.alert_obj = Alert(g_vars)
-    
+
     def get_timezones_menu_format(self):
         """
         Returns a dictionary of supported Timezones as {country, [timezones]}, the timezones are filtered into country menus
@@ -33,7 +33,7 @@ class TimeZone(object):
             time.sleep(1)
 
             # create a set of countries defined as the first part of the text split with '/'
-            countries = sorted(set([c.split('/', 1)[0] for c in timezones_available])) 
+            countries = sorted(set([c.split('/', 1)[0] for c in timezones_available]))
 
             # Iterate the countries and then create array of timezones for that country
             for country in countries:
@@ -47,62 +47,37 @@ class TimeZone(object):
             return None
 
     def set_time_zone_from_gvars(self, g_vars):
-        timezone_selected = g_vars['timezone_selected']
-        self.alert_obj.display_popup_alert(g_vars, 'Setting TZ: {0}'.format(timezone_selected), delay=2)
 
-        try:
-            alert_msg = subprocess.check_output(f"{TIME_ZONE_FILE} set {timezone_selected}", shell=True).decode()
-            time.sleep(1)
-        except subprocess.CalledProcessError as exc:
-            print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set time zone')
-            g_vars['display_state'] = 'menu'
-            return
+        if g_vars['result_cache'] == False:
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
-        g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
+            self.alert_obj.display_popup_alert(g_vars, "Setting timezone, please wait...")
+            timezone_selected = g_vars['timezone_selected']
+
+            try:
+                alert_msg = subprocess.check_output(f"{TIME_ZONE_FILE} set {timezone_selected}", shell=True).decode()
+                self.alert_obj.display_alert_info(g_vars, timezone_selected, title="Success")
+            except subprocess.CalledProcessError as exc:
+                print(exc)
+                self.alert_obj.display_alert_error(g_vars, "Failed to set timezone.", title="Error")
+                return
+
+            time.tzset()
+            g_vars['result_cache'] = True
+
         return
 
-    # def set_time_zone_london(self, g_vars):
-    #     self.alert_obj.display_popup_alert(g_vars, 'Setting time zone', delay=2)
+    def set_time_zone_auto(self, g_vars):
 
-    #     try:
-    #         alert_msg = subprocess.check_output(f"{TIME_ZONE_FILE} set Europe/London", shell=True).decode()
-    #         time.sleep(1)
-    #     except subprocess.CalledProcessError as exc:
-    #         print(exc)
-    #         self.alert_obj.display_alert_error(g_vars, 'Failed to set time zone')
-    #         g_vars['display_state'] = 'menu'
-    #         return
+        if g_vars['result_cache'] == False:
 
-    #     self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
-    #     g_vars['display_state'] = 'menu'
-    #     g_vars['shutdown_in_progress'] = True
-    #     oled.drawImage(g_vars['reboot_image'])
-    #     time.sleep(1)
-    #     os.system('reboot')
-    #     return
+            self.alert_obj.display_popup_alert(g_vars, "Setting timezone, please wait...")
 
-    # def set_time_zone_prague(self, g_vars):
-    #     self.alert_obj.display_popup_alert(g_vars, 'Setting time zone', delay=2)
+            try:
+                timezone = tzupdate.get_timezone("")
+                subprocess.check_output(f"{TIME_ZONE_FILE} set {timezone}", shell=True).decode()
+                self.alert_obj.display_alert_info(g_vars, timezone, title="Success")
+            except:
+                self.alert_obj.display_alert_error(g_vars, "Failed to set timezone.", title="Error")
 
-    #     try:
-    #         alert_msg = subprocess.check_output(f"{TIME_ZONE_FILE} set Europe/Prague", shell=True).decode()
-    #         time.sleep(1)
-    #     except subprocess.CalledProcessError as exc:
-    #         print(exc)
-    #         self.alert_obj.display_alert_error(g_vars, 'Failed to set time zone')
-    #         g_vars['display_state'] = 'menu'
-    #         return
-
-    #     self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
-    #     g_vars['display_state'] = 'menu'
-    #     g_vars['shutdown_in_progress'] = True
-    #     oled.drawImage(g_vars['reboot_image'])
-    #     time.sleep(1)
-    #     os.system('reboot')
-    #     return
+            time.tzset()
+            g_vars['result_cache'] = True
