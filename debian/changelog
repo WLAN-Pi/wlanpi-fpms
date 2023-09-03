@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.68) unstable; urgency=medium
+
+  * Add "Scan to PCAP" option (uses scandump). 
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 03 Sep 2023 14:08:38 -0500
+
 wlanpi-fpms (1.2.67) unstable; urgency=medium
 
   * Slow down SPI interface to eliminate WSOD display issue

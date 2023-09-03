@@ -1,8 +1,10 @@
 import os
 import subprocess
 import threading
+import signal
 from typing import List
 from datetime import datetime, timedelta
+from os import kill
 
 import textfsm
 
@@ -12,7 +14,6 @@ from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
 
 IFACE = "wlan0"
-
 
 class Scanner(object):
     def __init__(self, g_vars):
@@ -114,9 +115,14 @@ class Scanner(object):
             g_vars["scanner_status"] = False
 
     def scanner_scan(self, g_vars, include_hidden=True, write_file=False):
-
         # Check if this is the first time we run
         if g_vars["result_cache"] == False:
+
+            # Check if an instance of scandump is already running (saving to PCAP).
+            # If running, terminate it, then start the scanner with the given options.
+            if self.scanner_active(g_vars):
+                self.scanner_terminate(g_vars)
+
             # Mark results as cached (but we will keep updating in the background)
             g_vars["result_cache"] = True
             g_vars["scanner_results"] = []
@@ -127,16 +133,15 @@ class Scanner(object):
             )
             self.alert_obj.display_popup_alert(g_vars, "Scanning...")
 
-            # create a timestamped save location in case that option is chosen
-            scandir = "/home/wlanpi/scanlogs"
-            if not os.path.exists(scandir):
-                os.makedirs(scandir)
-            timestr = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
-            save_file = scandir + "/scan_" + timestr + ".csv"
-            g_vars["scan_file"] = save_file
-            with open(save_file, "a+") as f:
-                f.writelines("SSID, BSS, RSSI, Channel, Time\n")
- 
+            if write_file:
+                # create a timestamped save location in case that option is chosen
+                scandir = self.scanner_output_dir()
+                timestr = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
+                save_file = scandir + "/scan_" + timestr + ".csv"
+                g_vars["scan_file"] = save_file
+                with open(save_file, "a+") as f:
+                    f.writelines("SSID, BSS, RSSI, Channel, Time\n")
+
             # Configure interface
             try:
                 cmd = f"{IP_FILE} link set {IFACE} down && {IWCONFIG_FILE} {IFACE} mode managed && {IP_FILE} link set {IFACE} up"
@@ -177,5 +182,111 @@ class Scanner(object):
     def scanner_scan_nohidden(self, g_vars):
         self.scanner_scan(g_vars, include_hidden=False, write_file=False)
 
-    def scanner_scan_tofile(self, g_vars):
+
+    def scanner_scan_tofile_csv(self, g_vars):
         self.scanner_scan(g_vars, include_hidden=True, write_file=True)
+
+
+    def scanner_scan_tofile_pcap_start(self, g_vars):
+        # if we're been round this loop before,
+        # results treated as cached to prevent re-evaluating
+        # and re-painting
+        if g_vars["result_cache"] == True:
+            # re-enable keys
+            g_vars["disable_keys"] = False
+            return True
+
+        g_vars["drawing_in_progress"] = True
+
+        # disable keys while we react to the key press that got us here
+        g_vars["disable_keys"] = True
+
+        if self.scanner_active(g_vars):
+            self.alert_obj.display_alert_info(
+                g_vars, "Scanner already started.", title="Success"
+            )
+        else:
+            self.alert_obj.display_popup_alert(g_vars, "Starting...")
+
+            scandir = self.scanner_output_dir()
+            timestr = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
+            save_file = scandir + "/scan_" + timestr + ".pcap"
+
+            try:
+                p = subprocess.Popen(["/usr/bin/scandump", IFACE, save_file])
+                g_vars["scanner_scandump_pid"] = p.pid;
+                self.alert_obj.display_alert_info(
+                    g_vars, "Scanner started.", title="Success"
+                )
+            except:
+                self.alert_obj.display_alert_error(g_vars, "Start failed.")
+
+        # signal that result is cached (stops re-painting screen)
+        g_vars["result_cache"] = True
+        g_vars["display_state"] = "page"
+        g_vars["drawing_in_progress"] = False
+        return
+
+
+    def scanner_scan_tofile_pcap_stop(self, g_vars):
+        # if we're been round this loop before,
+        # results treated as cached to prevent re-evaluating
+        # and re-painting
+        if g_vars["result_cache"] == True:
+            # re-enable keys
+            g_vars["disable_keys"] = False
+            return True
+
+        g_vars["drawing_in_progress"] = True
+
+        # disable keys while we react to the key press that got us here
+        g_vars["disable_keys"] = True
+
+        if not self.scanner_active(g_vars):
+            self.alert_obj.display_alert_info(
+                g_vars, "Scanner already stopped.", title="Success"
+            )
+        else:
+            self.alert_obj.display_popup_alert(g_vars, "Stopping...")
+            self.scanner_terminate(g_vars)
+            self.alert_obj.display_alert_info(
+                g_vars, "Scanner stopped.", title="Success"
+            )
+
+        # signal that result is cached (stops re-painting screen)
+        g_vars["result_cache"] = True
+        g_vars["display_state"] = "page"
+        g_vars["drawing_in_progress"] = False
+        return
+
+
+    def scanner_active(self, g_vars):
+        '''
+        Checks if the scandump process started by this object
+        is still running in the background.
+        '''
+        if "scanner_scandump_pid" in g_vars:
+            try:
+                subprocess.check_output("/usr/bin/ps -p {}".format(g_vars["scanner_scandump_pid"]), shell=True)
+                return True
+            except subprocess.CalledProcessError:
+                return False
+
+        return False
+
+
+    def scanner_terminate(self, g_vars):
+        '''
+        Terminate the scandump instance started by this object.
+        '''
+        if "scanner_scandump_pid" in g_vars:
+            pid = g_vars["scanner_scandump_pid"]
+            kill(pid, signal.SIGTERM)
+            del g_vars["scanner_scandump_pid"]
+
+
+    def scanner_output_dir(self):
+        scandir = "/home/wlanpi/scanfiles"
+        if not os.path.exists(scandir):
+            os.makedirs(scandir)
+        return scandir

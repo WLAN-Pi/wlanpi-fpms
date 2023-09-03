@@ -17,6 +17,7 @@ from fpms.modules.battery import *
 from fpms.modules.bluetooth import *
 from fpms.modules.apps.kismet import *
 from fpms.modules.apps.profiler import *
+from fpms.modules.apps.scanner import *
 from fpms.modules.themes import THEME
 from fpms.modules.constants import *
 from fpms.modules.env_utils import EnvUtils
@@ -36,6 +37,9 @@ class HomePage(object):
 
         # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
+
+        # create a scanner object
+        self.scanner_obj = Scanner(g_vars)
 
         # create a profiler object
         self.profiler_obj = Profiler(g_vars)
@@ -320,6 +324,9 @@ class HomePage(object):
         elif self.check_port_blinker(g_vars):
             if not display_alternate_title:
                 alert_bar_contents = "PORT BLINKER ACTIVE"
+        elif self.scanner_obj.scanner_active(g_vars):
+            if not display_alternate_title:
+                alert_bar_contents = "SCANNER ACTIVE"
         elif self.profiler_obj.profiler_beaconing():
             if not display_alternate_title:
                 alert_bar_contents = "PROFILER ACTIVE"

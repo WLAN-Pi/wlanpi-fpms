@@ -392,9 +392,17 @@ optional options:
         app_obj = Scanner(g_vars)
         app_obj.scanner_scan_nohidden(g_vars)
 
-    def scanner_scan_tofile():
+    def scanner_scan_tofile_csv():
         app_obj = Scanner(g_vars)
-        app_obj.scanner_scan_tofile(g_vars)
+        app_obj.scanner_scan_tofile_csv(g_vars)
+
+    def scanner_scan_tofile_pcap_start():
+        app_obj = Scanner(g_vars)
+        app_obj.scanner_scan_tofile_pcap_start(g_vars)
+
+    def scanner_scan_tofile_pcap_stop():
+        app_obj = Scanner(g_vars)
+        app_obj.scanner_scan_tofile_pcap_stop(g_vars)
 
     ###########################
     # System menu area utils
@@ -668,7 +676,11 @@ optional options:
             {"name": "Scanner", "action": [
                 {"name": "Scan", "action": scanner_scan},
                 {"name": "Scan (no hidden)", "action": scanner_scan_nohidden},
-                {"name": "Scan to file", "action": scanner_scan_tofile},
+                {"name": "Scan to CSV", "action": scanner_scan_tofile_csv},
+                {"name": "Scan to PCAP", "action": [
+                    {"name": "Start", "action" : scanner_scan_tofile_pcap_start},
+                    {"name": "Stop", "action" : scanner_scan_tofile_pcap_stop}
+                ]}
             ]
             },
         ]
