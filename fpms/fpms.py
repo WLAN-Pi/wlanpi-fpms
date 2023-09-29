@@ -718,13 +718,6 @@ optional options:
                 {"name": "Set Domain DE", "action": [
                     {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
                 ]},
-            {"name": "Software Update", "action": [
-                {"name": "Check for Updates", "action": check_for_updates},
-                {"name": "Install Updates", "action": [
-                    { "name": "Confirm", "action": install_updates}
-                ]},
-            ]
-            },
             {"name": "Reboot",   "action": [
                 {"name": "Confirm", "action": reboot},
             ]

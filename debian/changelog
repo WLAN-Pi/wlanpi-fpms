@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.69) unstable; urgency=medium
+
+  * Remove "Software Update" from System menu.
+
+ -- Adrian Granados <adrian@intuitibits.com>  Fri, 29 Sep 2023 08:45:17 -0500
+
 wlanpi-fpms (1.2.68) unstable; urgency=medium
 
   * Add "Scan to PCAP" option (uses scandump). 
