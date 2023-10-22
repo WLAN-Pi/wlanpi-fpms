@@ -38,7 +38,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set US", shell=True).decode()
+            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set US --no-prompt", shell=True).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
@@ -58,7 +58,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set GB", shell=True).decode()
+            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set GB --no-prompt", shell=True).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
@@ -78,7 +78,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set BR", shell=True).decode()
+            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set BR --no-prompt", shell=True).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
@@ -98,7 +98,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set FR", shell=True).decode()
+            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set FR --no-prompt", shell=True).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
@@ -118,7 +118,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set CZ", shell=True).decode()
+            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set CZ --no-prompt", shell=True).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
@@ -138,7 +138,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set DE", shell=True).decode()
+            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set DE --no-prompt", shell=True).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)

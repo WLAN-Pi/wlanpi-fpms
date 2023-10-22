@@ -1,3 +1,9 @@
+wlanpi-fpms (1.2.71) unstable; urgency=medium
+
+  * Runs wlanpi-reg-domain in non-interactive mode to fix "Failed to set domain" issue
+
+  -- Jiri Brejcha <jirka@jiribrejcha.net>  Sun, 22 Oct 2023 18:25:00 +0100
+
 wlanpi-fpms (1.2.70) unstable; urgency=medium
 
   * Fix FPMS speedtest-cli error: Failed to run speedtest
