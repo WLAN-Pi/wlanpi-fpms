@@ -51,8 +51,8 @@ class Alert(object):
 
         # write title
         self.draw.rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background)
-        title_size = SMART_FONT.getsize(title)
-        self.draw.text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title,  font=SMART_FONT, fill=title_foreground)
+        title_size = SMART_FONT.getbbox(title)
+        self.draw.text((x + (PAGE_WIDTH - title_size[2])/2, y + font_offset), title,  font=SMART_FONT, fill=title_foreground)
         font_offset += font_size
 
         # draw back nav indicator
@@ -68,8 +68,8 @@ class Alert(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            item_size = font_type.getsize(item)
-            self.draw.text((x + (PAGE_WIDTH - item_size[0])/2, y + font_offset), item,
+            item_size = font_type.getbbox(item)
+            self.draw.text((x + (PAGE_WIDTH - item_size[2])/2, y + font_offset), item,
                             font=font_type, fill=THEME.alert_message_foreground.value)
 
             font_offset += font_size
@@ -110,7 +110,7 @@ class Alert(object):
 
         font_offset = 2
         margin = 10
-        font_size = SMART_FONT.getsize(msg)[1]
+        font_size = SMART_FONT.getbbox(msg)[3]
 
         rect_height = font_size * len(item_list) + (font_offset * 2)
 
@@ -126,8 +126,8 @@ class Alert(object):
             if len(item) > item_length_max:
                 item = item[0:item_length_max]
 
-            text_size = SMART_FONT.getsize(item)
-            self.draw.text((x + (PAGE_WIDTH - text_size[0])/2, y + font_offset), item,
+            text_size = SMART_FONT.getbbox(item)
+            self.draw.text((x + (PAGE_WIDTH - text_size[2])/2, y + font_offset), item,
                 font=SMART_FONT, fill=THEME.alert_popup_foreground.value)
             font_offset += font_size
 

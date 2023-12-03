@@ -52,8 +52,8 @@ class SimpleTable(object):
                 title = title[:title_length_max-2] + ".."
 
             g_vars['draw'].rectangle((x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.simple_table_title_background.value)
-            title_size = font_type.getsize(title)
-            g_vars['draw'].text((x + (PAGE_WIDTH - title_size[0])/2, y + font_offset), title, font=font_type, fill=THEME.simple_table_title_foreground.value)
+            title_size = font_type.getbbox(title)
+            g_vars['draw'].text((x + (PAGE_WIDTH - title_size[2])/2, y + font_offset), title, font=font_type, fill=THEME.simple_table_title_foreground.value)
             font_offset += font_size + padding * 4
             table_display_max -= 1
 

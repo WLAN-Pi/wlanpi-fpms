@@ -1,7 +1,6 @@
+gpiod
 luma.oled
 luma.lcd
-rpi.gpio
-gpiozero
 textfsm
 tzupdate
 Pillow

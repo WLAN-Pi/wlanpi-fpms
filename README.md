@@ -67,7 +67,6 @@ sudo raspi-config
 Thank you to all the creators and maintainers of the following open source software used by `wlanpi-fpms`:
 
 * [dh-virtualenv](https://github.com/spotify/dh-virtualenv)
-* [GPIO Zero](https://gpiozero.readthedocs.io/en/stable)
 * [Luma.OLED](https://luma-oled.readthedocs.io/en/latest)
 * [Pillow](https://python-pillow.org)
 * [pip-tools](https://github.com/jazzband/pip-tools)

@@ -114,8 +114,8 @@ class Page(object):
 
         # paint the page title
         g_vars['draw'].rectangle((0, 0, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=THEME.page_title_background.value)
-        title_size = FONTB12.getsize(page_title)
-        g_vars['draw'].text(((PAGE_WIDTH - title_size[0])/2, 0), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
+        title_size = FONTB12.getbbox(page_title)
+        g_vars['draw'].text(((PAGE_WIDTH - title_size[2])/2, 0), page_title,  font=FONTB12, fill=THEME.page_title_foreground.value)
 
         # draw back nav indicator
         g_vars['draw'].line([(4, (STATUS_BAR_HEIGHT/2)), (8, 4)], fill=THEME.page_title_foreground.value, width=1)

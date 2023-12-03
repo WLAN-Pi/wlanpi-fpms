@@ -165,31 +165,31 @@ class System(object):
 
         # Draw time
         text = time.strftime("%X")
-        text_size = clock_font.getsize(text)
-        x = (PAGE_WIDTH - text_size[0])/2
+        text_size = clock_font.getbbox(text)
+        x = (PAGE_WIDTH - text_size[2])/2
         y = PAGE_HEIGHT/4
         g_vars['draw'].text((x, y), text, font=clock_font, fill=THEME.text_important_color.value)
         y = PAGE_HEIGHT/4 + text_size[1]
 
         # Draw date
         text = time.strftime("%e %b. %Y")
-        text_size = FONT13.getsize(text)
-        x = (PAGE_WIDTH - text_size[0])/2
+        text_size = FONT13.getbbox(text)
+        x = (PAGE_WIDTH - text_size[2])/2
         y = y + margin * 2
         g_vars['draw'].text((x, y), text, font=FONT13, fill=THEME.text_color.value)
         y = y + text_size[1] + margin
 
         # Draw city
         text = g_vars['timezone_selected'].split("/")[-1].replace("_", " ")
-        text_size = FONT11.getsize(text)
-        x = (PAGE_WIDTH - text_size[0])/2
+        text_size = FONT11.getbbox(text)
+        x = (PAGE_WIDTH - text_size[2])/2
         y = y + margin * 3
         g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_secondary_color.value)
 
         # Draw timezone
         text = time.strftime("%Z")
-        text_size = FONT11.getsize(text)
-        x = (PAGE_WIDTH - text_size[0])/2
+        text_size = FONT11.getbbox(text)
+        x = (PAGE_WIDTH - text_size[2])/2
         y = y + margin * 8
         g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_color.value)
 
