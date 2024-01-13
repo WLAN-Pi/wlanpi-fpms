@@ -15,7 +15,6 @@ from fpms.modules.constants import (
     PUBLICIP6_CMD,
     ETHTOOL_FILE,
     IFCONFIG_FILE,
-    IWCONFIG_FILE,
     IW_FILE,
 )
 
@@ -149,7 +148,7 @@ class Network(object):
         pages = []
 
         try:
-            interfaces = subprocess.check_output(f"{IWCONFIG_FILE} 2>&1 | grep 802.11" + "| awk '{ print $1 }'", shell=True).decode().strip().split()
+            interfaces = subprocess.check_output(f"{IW_FILE} dev 2>&1 | grep -i interface" + "| awk '{ print $2 }'", shell=True).decode().strip().split()
         except Exception as e:
             print(e)
 

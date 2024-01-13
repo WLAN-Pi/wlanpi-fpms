@@ -9,7 +9,7 @@ from os import kill
 import textfsm
 
 import fpms.modules.wlanpi_oled as oled
-from fpms.modules.constants import IP_FILE, IW_FILE, IWCONFIG_FILE, MAX_TABLE_LINES
+from fpms.modules.constants import IP_FILE, IW_FILE, MAX_TABLE_LINES
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
 
@@ -144,7 +144,7 @@ class Scanner(object):
 
             # Configure interface
             try:
-                cmd = f"{IP_FILE} link set {IFACE} down && {IWCONFIG_FILE} {IFACE} mode managed && {IP_FILE} link set {IFACE} up"
+                cmd = f"{IP_FILE} link set {IFACE} down && {IW_FILE} {IFACE} set type managed && {IP_FILE} link set {IFACE} up"
                 subprocess.run(cmd, shell=True)
             except Exception as e:
                 print(e)
