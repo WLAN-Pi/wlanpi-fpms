@@ -36,7 +36,7 @@ elif PLATFORM == PLATFORM_R4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "gpio_cs_spi"
-    SPI_BUS_SPEED = "2000000"
+    #SPI_BUS_SPEED = "2000000"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
@@ -51,7 +51,7 @@ elif PLATFORM == PLATFORM_M4:
     # 1.44 in LCD Display HAT settings
     DISPLAY_TYPE = "st7735"
     INTERFACE_TYPE = "gpio_cs_spi"
-    SPI_BUS_SPEED = "2000000"
+    #SPI_BUS_SPEED = "2000000"
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
