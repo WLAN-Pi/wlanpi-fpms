@@ -32,42 +32,27 @@ if PLATFORM == PLATFORM_PRO:
     WIDTH = "128"
     HEIGHT = "128"
     COLOR_ORDER_BGR = True
-elif PLATFORM == PLATFORM_R4:
-    # 1.44 in LCD Display HAT settings
-    DISPLAY_TYPE = "st7735"
-    INTERFACE_TYPE = "gpio_cs_spi"
-    SPI_BUS_SPEED = "2000000"
-    WIDTH = "128"
-    HEIGHT = "128"
-    COLOR_ORDER_BGR = True
-    GPIO_DATA_COMMAND = "25"
-    GPIO_RESET = "27"
-    GPIO_BACKLIGHT = "24"
-    GPIO_CS = "8"
-    BACKLIGHT_ACTIVE = "high"
-    H_OFFSET = "1"
-    V_OFFSET = "2"
-elif PLATFORM == PLATFORM_M4:
-    # 1.44 in LCD Display HAT settings
-    DISPLAY_TYPE = "st7735"
-    INTERFACE_TYPE = "gpio_cs_spi"
-    SPI_BUS_SPEED = "2000000"
-    WIDTH = "128"
-    HEIGHT = "128"
-    COLOR_ORDER_BGR = True
-    GPIO_DATA_COMMAND = "25"
-    GPIO_RESET = "27"
-    GPIO_BACKLIGHT = "24"
-    GPIO_CS = "8"
-    BACKLIGHT_ACTIVE = "high"
-    H_OFFSET = "1"
-    V_OFFSET = "2"
 else:
-    # Sapphire HAT OLED settings
-    DISPLAY_TYPE = "sh1106"
-    I2C_PORT = "0"
+    # 1.44 in LCD Display HAT settings
+    DISPLAY_TYPE = "st7735"
+    INTERFACE_TYPE = "gpio_cs_spi"
+    SPI_BUS_SPEED = "2000000"
     WIDTH = "128"
-    HEIGHT = "64"
+    HEIGHT = "128"
+    COLOR_ORDER_BGR = True
+    GPIO_DATA_COMMAND = "25"
+    GPIO_RESET = "27"
+    GPIO_BACKLIGHT = "24"
+    GPIO_CS = "8"
+    BACKLIGHT_ACTIVE = "high"
+    H_OFFSET = "1"
+    V_OFFSET = "2"
+
+# Sapphire HAT OLED settings
+#DISPLAY_TYPE = "sh1106"
+#I2C_PORT = "0"
+#WIDTH = "128"
+#HEIGHT = "64"
 
 ### Legacy settings here for other displays ###
 # Neo 2 OLED settings

@@ -40,23 +40,14 @@ class EnvUtils(object):
         # get output of wlanpi-model
         model_cmd = "wlanpi-model -b"
         try:
-            model = subprocess.check_output(model_cmd, shell=True).decode().strip()
+            platform = subprocess.check_output(model_cmd, shell=True).decode().strip()
         except subprocess.CalledProcessError as exc:
             output = exc.model.decode()
             print("Err: issue running 'wlanpi-model -b' : ", model)
             return "Unknown"
 
-        if model.endswith('R4'):
-            platform = PLATFORM_R4
-
-        if model.endswith('M4'):
-            platform = PLATFORM_M4
-
-        if model.endswith('M4+'):
-            platform = PLATFORM_M4_PLUS
-
-        if model.endswith('Pro'):
-            platform = PLATFORM_PRO
+        if platform.endswith('?'):
+            platform = PLATFORM_UNKNOWN
 
         return platform
 
@@ -64,16 +55,10 @@ class EnvUtils(object):
 
         platform = self.get_platform()
 
-        if platform == PLATFORM_R4:
-            return PLATFORM_NAME_R4
-        elif platform == PLATFORM_M4:
-            return PLATFORM_NAME_M4
-        elif platform == PLATFORM_M4_PLUS:
-            return PLATFORM_NAME_M4_PLUS
-        elif platform == PLATFORM_PRO:
-            return PLATFORM_NAME_PRO
+        if platform == PLATFORM_UNKNOWN:
+            return PLATFORM_NAME_GENERIC
         else:
-            return PLATFORM_NAME_UNKNOWN
+            return PLATFORM_NAME_GENERIC + " " + platform
 
     def get_mode(self, MODE_FILE):
 
