@@ -7,11 +7,13 @@ import tzupdate
 import time
 
 from PIL import ImageFont
+from fpms.modules.env_utils import EnvUtils
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
 from fpms.modules.pages.pagedtable import *
 from fpms.modules.constants import (
+    IMAGE_DIR,
     SMART_FONT,
     FONT11,
     FONT12,
@@ -230,6 +232,28 @@ class System(object):
             g_vars["disable_keys"] = False
 
         self.paged_table_obj.display_list_as_paged_table(g_vars, g_vars['about'], title="About")
+
+
+    def show_help(self, g_vars):
+        '''
+        Displays a QR code pointing to http://userguide.wlanpi.com/
+        '''
+
+        if g_vars['result_cache'] == False:
+            g_vars["disable_keys"] = True
+
+            self.display_obj.clear_display(g_vars)
+            self.paged_table_obj.display_empty_page(g_vars, title="Help", footer="userguide.wlanpi.com")
+
+            watermark = IMAGE_DIR + '/wlanpi.png'
+            qrcode_path = EnvUtils().get_help_qrcode(watermark)
+            if qrcode_path != None:
+                self.display_obj.stamp_qrcode(g_vars, qrcode_path,
+                    center_vertically=True)
+
+        g_vars['result_cache'] = True
+        g_vars["disable_keys"] = False
+
 
     def check_for_updates(self, g_vars):
 

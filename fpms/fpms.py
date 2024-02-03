@@ -472,6 +472,10 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_about(g_vars)
 
+    def show_help():
+        system_obj = System(g_vars)
+        system_obj.show_help(g_vars)
+
     def check_for_updates():
         system_obj = System(g_vars)
         system_obj.check_for_updates(g_vars)
@@ -687,37 +691,33 @@ optional options:
         },
         {"name": "System", "action": [
             {"name": "About", "action": show_about},
-            {"name": "Battery", "action": show_battery},
-            # {"name": "Date & Time", "action": [
-            #     {"name": "Show Time & Zone", "action": show_date},
-            #     {"name": "Set Zone UK", "action": [
-            #         {"name": "Confirm & Reboot", "action": set_time_zone_london},]},
-            #     {"name": "Set Zone CZ", "action": [
-            #         {"name": "Confirm & Reboot", "action": set_time_zone_prague},]},
-            #     ]},
-            {"name": "Date & Time", "action": [
-                {"name": "Show Time & Zone", "action": show_date},
-                {"name": "Set Timezone", "action": [
-                    {"name": "Auto", "action" : set_time_zone_auto},
-                    {"name": "Manual", "action": g_vars['timezones_available']}
-                ]},
-                ]},
+            {"name": "Help", "action": show_help},
             {"name": "Summary", "action": show_summary},
-            {"name": "RF Domain", "action": [
-                {"name": "Show Domain", "action": show_reg_domain},
-                {"name": "Set Domain US", "action": [
-                    {"name": "Confirm & Reboot", "action": set_reg_domain_us},]},
-                {"name": "Set Domain GB", "action": [
-                    {"name": "Confirm & Reboot", "action": set_reg_domain_gb},]},
-                {"name": "Set Domain BR", "action": [
-                    {"name": "Confirm & Reboot", "action": set_reg_domain_br},]},
-                {"name": "Set Domain FR", "action": [
-                    {"name": "Confirm & Reboot", "action": set_reg_domain_fr},]},
-                {"name": "Set Domain CZ", "action": [
-                    {"name": "Confirm & Reboot", "action": set_reg_domain_cz},]},
-                {"name": "Set Domain DE", "action": [
-                    {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
+            {"name": "Battery", "action": show_battery},
+            {"name": "Settings", "action": [
+                {"name": "Date & Time", "action": [
+                    {"name": "Show Time & Zone", "action": show_date},
+                    {"name": "Set Timezone", "action": [
+                        {"name": "Auto", "action" : set_time_zone_auto},
+                        {"name": "Manual", "action": g_vars['timezones_available']}
+                    ]},
                 ]},
+                {"name": "RF Domain", "action": [
+                    {"name": "Show Domain", "action": show_reg_domain},
+                    {"name": "Set Domain US", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_us},]},
+                    {"name": "Set Domain GB", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_gb},]},
+                    {"name": "Set Domain BR", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_br},]},
+                    {"name": "Set Domain FR", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_fr},]},
+                    {"name": "Set Domain CZ", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_cz},]},
+                    {"name": "Set Domain DE", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
+                ]},
+            ]},
             {"name": "Reboot",   "action": [
                 {"name": "Confirm", "action": reboot},
             ]
