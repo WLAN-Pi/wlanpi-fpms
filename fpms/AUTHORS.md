@@ -4,6 +4,7 @@ Alphabetical order:
 
 * Adrian Granados, @adriangranados, <https://github.com/adriangranados>
 * Ben Toner, @ben__toner, <https://github.com/bentumbler>
+* Bryan Ward, @_bryan_ward_, <https://github.com/bryanward-net>
 * Colin Vallance, @_crv, <https://github.com/crvallance>
 * Daniel Finimundi, @danielmundi, <https://github.com/danielmundi>
 * Jerry Olla, @jolla, <https://github.com/jolla>
@@ -14,3 +15,4 @@ Alphabetical order:
 * Nick Turner, @nickjvturner, <https://github.com/nickjvturner>
 * Nigel Bowden, @wifinigel, <https://github.com/wifinigel>
 * Niklas Mato, @niklasmato, <https://github.com/niklasmato>
+* Matt Lee, ,
