@@ -8,6 +8,7 @@ from fpms.modules.pages.utils import *
 from fpms.modules.themes import THEME
 from fpms.modules.constants import (
     STATUS_BAR_HEIGHT,
+    TINY_FONT,
     SMART_FONT,
     MAX_TABLE_LINES,
 )
@@ -177,5 +178,19 @@ class PagedTable(object):
             item_list = item_list[table_display_max:]
 
         self.display_paged_table(g_vars, data, justify=justify)
+
+        return
+
+    def display_empty_page(self, g_vars, title='', footer=''):
+        '''
+        This function displays an empty page with a title (optional)
+        '''
+        data = {}
+        data['title'] = title
+        data['pages'] = []
+        self.display_paged_table(g_vars, data)
+
+        footer_size = SMART_FONT.getbbox(footer)
+        g_vars['draw'].text(((PAGE_WIDTH - footer_size[2])/2, PAGE_HEIGHT - 20), footer, font=SMART_FONT, fill=THEME.page_table_row_foreground.value)
 
         return
