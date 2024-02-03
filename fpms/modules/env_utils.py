@@ -40,19 +40,22 @@ class EnvUtils(object):
         # get output of wlanpi-model
         model_cmd = "wlanpi-model -b"
         try:
-            model = subprocess.check_output(model_cmd, shell=True).decode()
+            model = subprocess.check_output(model_cmd, shell=True).decode().strip()
         except subprocess.CalledProcessError as exc:
             output = exc.model.decode()
             print("Err: issue running 'wlanpi-model -b' : ", model)
             return "Unknown"
 
-        if re.search(r'R4', model):
+        if model.endswith('R4'):
             platform = PLATFORM_R4
 
-        if re.search(r'M4', model):
+        if model.endswith('M4'):
             platform = PLATFORM_M4
 
-        if re.search(r'Pro', model):
+        if model.endswith('M4+'):
+            platform = PLATFORM_M4_PLUS
+
+        if model.endswith('Pro'):
             platform = PLATFORM_PRO
 
         return platform
@@ -65,6 +68,8 @@ class EnvUtils(object):
             return PLATFORM_NAME_R4
         elif platform == PLATFORM_M4:
             return PLATFORM_NAME_M4
+        elif platform == PLATFORM_M4_PLUS:
+            return PLATFORM_NAME_M4_PLUS
         elif platform == PLATFORM_PRO:
             return PLATFORM_NAME_PRO
         else:
@@ -153,5 +158,40 @@ class EnvUtils(object):
             qr.add_data(qrcode_spec)
             qr.make(fit=True)
             qr.make_image().save(qrcode_path)
+
+        return qrcode_path
+
+
+    def get_help_qrcode(self, watermark=''):
+        qrcode_spec = "http://userguide.wlanpi.com/"
+        qrcode_hash = hashlib.sha1(qrcode_spec.encode()).hexdigest()
+        qrcode_path = "/tmp/{}.png".format(qrcode_hash)
+
+        if not os.path.exists(qrcode_path):
+            qr = qrcode.QRCode(box_size=2, border=2, error_correction=qrcode.constants.ERROR_CORRECT_M)
+            qr.add_data(qrcode_spec)
+            qr.make(fit=True)
+            img = qr.make_image()
+
+            # Paste watermark
+            if os.path.exists(watermark):
+                wmark = Image.open(watermark)
+
+                if wmark is not None:
+                    # Convert to RGB
+                    img = img.convert("RGB")
+
+                    # Calculate size of watermark
+                    qr_width, qr_height = img.size
+                    max_size = min(qr_width, qr_height) // 5
+                    wmark = wmark.resize((max_size, max_size))
+                    wmark_width, wmark_height = wmark.size
+
+                    # Calculate position and paste watermark
+                    position = ((qr_width - wmark_width) // 2, (qr_height - wmark_height) // 2)
+                    img.paste(wmark, position)
+
+            # Cache QR code
+            img.save(qrcode_path)
 
         return qrcode_path
