@@ -166,18 +166,18 @@ class System(object):
         margin = 2
 
         # Draw time
-        text = time.strftime("%X")
+        text = time.strftime("%I:%M %p")
         text_size = clock_font.getbbox(text)
         x = (PAGE_WIDTH - text_size[2])/2
-        y = PAGE_HEIGHT/4
+        y = PAGE_HEIGHT/8
         g_vars['draw'].text((x, y), text, font=clock_font, fill=THEME.text_important_color.value)
-        y = PAGE_HEIGHT/4 + text_size[1]
+        y = y + text_size[1] + margin
 
         # Draw date
         text = time.strftime("%e %b. %Y")
         text_size = FONT13.getbbox(text)
         x = (PAGE_WIDTH - text_size[2])/2
-        y = y + margin * 2
+        y = y + margin * 7
         g_vars['draw'].text((x, y), text, font=FONT13, fill=THEME.text_color.value)
         y = y + text_size[1] + margin
 
@@ -185,14 +185,15 @@ class System(object):
         text = g_vars['timezone_selected'].split("/")[-1].replace("_", " ")
         text_size = FONT11.getbbox(text)
         x = (PAGE_WIDTH - text_size[2])/2
-        y = y + margin * 3
+        y = y + margin * 8
         g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_secondary_color.value)
+        y = y + text_size[1] + margin
 
         # Draw timezone
         text = time.strftime("%Z")
         text_size = FONT11.getbbox(text)
         x = (PAGE_WIDTH - text_size[2])/2
-        y = y + margin * 8
+        y = y + margin * 6
         g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_color.value)
 
         oled.drawImage(g_vars['image'])

@@ -461,9 +461,9 @@ optional options:
         system_obj.set_time_zone_auto(g_vars)
 
     def set_time_zone():
-        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][4]]['country'] +
+        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][5]]['country'] +
         "/" +
-        timezones_available[g_vars['current_menu_location'][4]]['timezones'][g_vars['current_menu_location'][5]])
+        timezones_available[g_vars['current_menu_location'][5]]['timezones'][g_vars['current_menu_location'][6]])
 
         system_obj = TimeZone(g_vars)
         system_obj.set_time_zone_from_gvars(g_vars)
