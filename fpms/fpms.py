@@ -452,6 +452,10 @@ optional options:
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_cz(g_vars)
 
+    def set_reg_domain_nl():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_nl(g_vars)
+
     def set_reg_domain_de():
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_de(g_vars)
@@ -720,6 +724,8 @@ optional options:
                         {"name": "Confirm & Reboot", "action": set_reg_domain_fr},]},
                     {"name": "Set Domain CZ", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_cz},]},
+                    {"name": "Set Domain NL", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_nl},]},
                     {"name": "Set Domain DE", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
                 ]},
