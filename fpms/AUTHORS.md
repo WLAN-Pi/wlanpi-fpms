@@ -7,6 +7,7 @@ Alphabetical order:
 * Bryan Ward, @_bryan_ward_, <https://github.com/bryanward-net>
 * Colin Vallance, @_crv, <https://github.com/crvallance>
 * Daniel Finimundi, @danielmundi, <https://github.com/danielmundi>
+* Dylan Toner, , <https://github.com/Orbitix>
 * Jerry Olla, @jolla, <https://github.com/jolla>
 * Jiri Brejcha, @jiribrejcha, <https://github.com/jiribrejcha>
 * Joel Crane, @potato_fi
