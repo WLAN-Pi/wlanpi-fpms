@@ -15,5 +15,5 @@ updates:
       - dependency-name: "luma.lcd"
       - dependency-name: "textfsm"
       - dependency-name: "tzupdate"
-      - dependency-name: "Pillow
+      - dependency-name: "Pillow"
       - dependency-name: "qrcode"
