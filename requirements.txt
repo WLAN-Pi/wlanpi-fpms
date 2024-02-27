@@ -4,8 +4,6 @@
 #
 #    pip-compile requirements.in
 #
---extra-index-url https://www.piwheels.org/simple
-
 cbor2==5.5.1
     # via luma-core
 future==0.18.3
@@ -20,7 +18,7 @@ luma-lcd==2.11.0
     # via -r requirements.in
 luma-oled==3.13.0
     # via -r requirements.in
-pillow==10.1.0
+pillow==10.2.0
     # via
     #   -r requirements.in
     #   luma-core
