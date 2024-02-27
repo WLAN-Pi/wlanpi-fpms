@@ -9,3 +9,11 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-name: "gpiod"
+      - dependency-name: "luma.oled"
+      - dependency-name: "luma.lcd"
+      - dependency-name: "textfsm"
+      - dependency-name: "tzupdate"
+      - dependency-name: "Pillow
+      - dependency-name: "qrcode"
