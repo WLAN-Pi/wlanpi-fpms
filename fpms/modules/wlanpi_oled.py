@@ -5,18 +5,18 @@ from luma.core import cmdline, error
 from PIL import Image
 import sys
 import logging
-from fpms.modules.constants import PLATFORM
+from fpms.modules.constants import PLATFORM, DISPLAY_TYPE
+from fpms.modules.display import *
 from fpms.modules.platform import *
 
 # set possible vars to None
-DISPLAY_TYPE = None
 I2C_PORT = None
 SPI_BUS_SPEED = None
 I2C_ADDRESS = None
 INTERFACE_TYPE = None
 WIDTH = None
 HEIGHT = None
-COLOR_ORDER_BGR = False
+COLOR_ORDER_BGR = True
 GPIO_DATA_COMMAND = None
 GPIO_RESET = None
 GPIO_BACKLIGHT = None
@@ -25,21 +25,17 @@ BACKLIGHT_ACTIVE = None
 H_OFFSET = None
 V_OFFSET = None
 
-if PLATFORM == PLATFORM_PRO:
+if DISPLAY_TYPE == DISPLAY_TYPE_SSD1351:
     # ssd1351 128 x 128
-    DISPLAY_TYPE = "ssd1351"
     INTERFACE_TYPE = "spi"
     WIDTH = "128"
     HEIGHT = "128"
-    COLOR_ORDER_BGR = True
-else:
-    # 1.44 in LCD Display HAT settings
-    DISPLAY_TYPE = "st7735"
+elif DISPLAY_TYPE == DISPLAY_TYPE_ST7735:
+    # 128x128 1.44 in LCD Display HAT
     INTERFACE_TYPE = "gpio_cs_spi"
     SPI_BUS_SPEED = "2000000"
     WIDTH = "128"
     HEIGHT = "128"
-    COLOR_ORDER_BGR = True
     GPIO_DATA_COMMAND = "25"
     GPIO_RESET = "27"
     GPIO_BACKLIGHT = "24"
@@ -47,24 +43,17 @@ else:
     BACKLIGHT_ACTIVE = "high"
     H_OFFSET = "1"
     V_OFFSET = "2"
-
-# Sapphire HAT OLED settings
-#DISPLAY_TYPE = "sh1106"
-#I2C_PORT = "0"
-#WIDTH = "128"
-#HEIGHT = "64"
-
-### Legacy settings here for other displays ###
-# Neo 2 OLED settings
-#DISPLAY_TYPE = "ssd1306"
-#I2C_PORT = 0
-
-# ssd1327 128 x 128
-#DISPLAY_TYPE = "ssd1327"
-#I2C_ADDRESS = "0x3d"
-#WIDTH = "128"
-#HEIGHT = "128"
-
+elif DISPLAY_TYPE == DISPLAY_TYPE_ST7789:
+    # 240x240 1.3 in LCD Display HAT
+    INTERFACE_TYPE = "gpio_cs_spi"
+    SPI_BUS_SPEED = "52000000"
+    WIDTH = "240"
+    HEIGHT = "240"
+    GPIO_DATA_COMMAND = "25"
+    GPIO_RESET = "27"
+    GPIO_BACKLIGHT = "24"
+    GPIO_CS = "8"
+    BACKLIGHT_ACTIVE = "high"
 
 '''
 ### This code is borrowed from https://github.com/rm-hull/luma.examples/blob/master/examples/demo_opts.py
@@ -77,6 +66,9 @@ logging.basicConfig(
 )
 # ignore PIL debug messages
 logging.getLogger('PIL').setLevel(logging.ERROR)
+
+DISPLAY_WIDTH = int(WIDTH)
+DISPLAY_HEIGHT = int(HEIGHT)
 
 def display_settings(device, args):
     """
@@ -205,8 +197,12 @@ def setHorizontalMode():
     return True
 
 def drawImage(image):
-    device.display(image.convert(device.mode))
-    #device.display(image)
+    img = image.convert(device.mode)
+    width, height = img.size
+    if DISPLAY_WIDTH != width or DISPLAY_HEIGHT != height:
+        img = img.resize((DISPLAY_WIDTH, DISPLAY_HEIGHT), Image.LANCZOS)
+
+    device.display(img)
 
 def clear():
     #blank = Image.new("RGBA", device.size, "black")

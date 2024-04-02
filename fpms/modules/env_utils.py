@@ -14,11 +14,11 @@ import qrcode
 
 from PIL import Image
 from fpms.modules.platform import *
+from fpms.modules.display import *
 
 class EnvUtils(object):
 
     def __init__(self):
-
         pass
 
     def get_platform(self):
@@ -51,6 +51,7 @@ class EnvUtils(object):
 
         return platform
 
+
     def get_platform_name(self):
 
         platform = self.get_platform()
@@ -59,6 +60,17 @@ class EnvUtils(object):
             return PLATFORM_NAME_GENERIC
         else:
             return PLATFORM_NAME_GENERIC + " " + platform
+
+
+    def get_display_type(self):
+
+         platform = self.get_platform()
+
+         if platform == PLATFORM_PRO:
+             return DISPLAY_TYPE_SSD1351
+         else:
+             return DISPLAY_TYPE_ST7735
+
 
     def get_mode(self, MODE_FILE):
 
@@ -81,6 +93,7 @@ class EnvUtils(object):
 
         return current_mode
 
+
     def get_image_ver(self, WLANPI_IMAGE_FILE):
 
         wlanpi_ver = "unknown"
@@ -97,6 +110,7 @@ class EnvUtils(object):
                     break
 
         return wlanpi_ver
+
 
     def get_hostname(self):
 
@@ -117,6 +131,7 @@ class EnvUtils(object):
 
         return None
 
+
     def get_wifi_qrcode_for_hostapd(self):
         '''
         Generates and returns the path to a WiFi QR code for the current Hostapd config.
@@ -132,6 +147,7 @@ class EnvUtils(object):
             pass
 
         return None
+
 
     def get_wifi_qrcode(self, ssid, passphrase):
         qrcode_spec = "WIFI:S:{};T:WPA;P:{};;".format(ssid, passphrase)
