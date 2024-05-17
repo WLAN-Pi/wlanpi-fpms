@@ -1190,7 +1190,8 @@ optional options:
             if g_vars['pageSleepCountdown'] == 0 and g_vars['screen_cleared'] == False:
                 sleep_screen()
 
-            g_vars['pageSleepCountdown'] = g_vars['pageSleepCountdown'] - 1
+            if g_vars['pageSleepCountdown'] > 0:
+                g_vars['pageSleepCountdown'] = g_vars['pageSleepCountdown'] - 1
 
             # have a nap before we start our next loop
             time.sleep(2)

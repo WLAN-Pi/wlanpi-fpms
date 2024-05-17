@@ -25,7 +25,7 @@ MAX_TABLE_LINES = 9
 MAX_PAGE_LINES = 8
 DISPLAY_MODE = 'RGB'
 
-PAGE_SLEEP = 300 # Time in secs before sleep
+PAGE_SLEEP = 300 # Time in secs before sleep, Set to -1 to disable sleep, default 300
 PAGE_WIDTH = 128 # Pixel size of screen width
 PAGE_HEIGHT = 128 # Pixel size of screen height
 NAV_BAR_TOP = PAGE_HEIGHT - 10 # Top pixel number of nav bar
