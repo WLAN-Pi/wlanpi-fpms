@@ -1,193 +1,216 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from luma.core import cmdline, error
-from PIL import Image
-import sys
-import logging
-from fpms.modules.constants import PLATFORM, DISPLAY_TYPE
-from fpms.modules.display import *
+import spidev
+import time
+import numpy as np
+
+from gpiozero import *
+from fpms.modules.constants import PLATFORM
 from fpms.modules.platform import *
 
-# set possible vars to None
-I2C_PORT = None
-SPI_BUS_SPEED = None
-I2C_ADDRESS = None
-INTERFACE_TYPE = None
-WIDTH = None
-HEIGHT = None
-COLOR_ORDER_BGR = True
-GPIO_DATA_COMMAND = None
-GPIO_RESET = None
-GPIO_BACKLIGHT = None
-GPIO_CS = None
-BACKLIGHT_ACTIVE = None
-H_OFFSET = None
-V_OFFSET = None
+LCD_WIDTH, LCD_HEIGHT, LCD_X, LCD_Y = 128, 128, 2, 1
 
-if DISPLAY_TYPE == DISPLAY_TYPE_SSD1351:
-    # ssd1351 128 x 128
-    INTERFACE_TYPE = "spi"
-    WIDTH = "128"
-    HEIGHT = "128"
-elif DISPLAY_TYPE == DISPLAY_TYPE_ST7735:
-    # 128x128 1.44 in LCD Display HAT
-    INTERFACE_TYPE = "gpio_cs_spi"
-    SPI_BUS_SPEED = "2000000"
-    WIDTH = "128"
-    HEIGHT = "128"
-    GPIO_DATA_COMMAND = "25"
-    GPIO_RESET = "27"
-    GPIO_BACKLIGHT = "24"
-    GPIO_CS = "8"
-    BACKLIGHT_ACTIVE = "high"
-    H_OFFSET = "1"
-    V_OFFSET = "2"
-elif DISPLAY_TYPE == DISPLAY_TYPE_ST7789:
-    # 240x240 1.3 in LCD Display HAT
-    INTERFACE_TYPE = "gpio_cs_spi"
-    SPI_BUS_SPEED = "52000000"
-    WIDTH = "240"
-    HEIGHT = "240"
-    GPIO_DATA_COMMAND = "25"
-    GPIO_RESET = "27"
-    GPIO_BACKLIGHT = "24"
-    GPIO_CS = "8"
-    BACKLIGHT_ACTIVE = "high"
+LCD_X_MAXPIXEL = 132  # LCD width maximum memory
+LCD_Y_MAXPIXEL = 162  # LCD height maximum memory
 
-'''
-### This code is borrowed from https://github.com/rm-hull/luma.examples/blob/master/examples/demo_opts.py
-(MIT License)
-'''
-# logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)-15s - %(message)s'
-)
-# ignore PIL debug messages
-logging.getLogger('PIL').setLevel(logging.ERROR)
+# scanning method
+SCAN_DIR_DFT = 6  # U2D_R2L
 
-DISPLAY_WIDTH = int(WIDTH)
-DISPLAY_HEIGHT = int(HEIGHT)
+class RaspberryPi:
+    def __init__(self, spi=spidev.SpiDev(0, 0), spi_freq=40000000, rst=27, dc=25, bl=24, bl_freq=1000, i2c=None, i2c_freq=100000):
+        self.np = np
+        self.INPUT = False
+        self.OUTPUT = True
 
-def display_settings(device, args):
-    """
-    Display a short summary of the settings.
+        self.SPEED = spi_freq
+        self.BL_freq = bl_freq
 
-    :rtype: str
-    """
-    iface = ''
-    display_types = cmdline.get_display_types()
-    if args.display not in display_types['emulator']:
-        iface = 'Interface: {}\n'.format(args.interface)
+        self.GPIO_RST_PIN = self.gpio_mode(rst, self.OUTPUT)
+        self.GPIO_DC_PIN = self.gpio_mode(dc, self.OUTPUT)
+        self.GPIO_BL_PIN = self.gpio_pwm(bl)
+        self.bl_DutyCycle(0)
 
-    lib_name = cmdline.get_library_for_display_type(args.display)
-    if lib_name is not None:
-        lib_version = cmdline.get_library_version(lib_name)
-    else:
-        lib_name = lib_version = 'unknown'
+        # Initialize SPI
+        self.SPI = spi
+        if self.SPI:
+            self.SPI.max_speed_hz = spi_freq
+            self.SPI.mode = 0b00
 
-    import luma.core
-    version = 'luma.{} {} (luma.core {})'.format(
-        lib_name, lib_version, luma.core.__version__)
+    def gpio_mode(self, Pin, Mode, pull_up=None, active_state=True):
+        if Mode:
+            return DigitalOutputDevice(Pin, active_high=True, initial_value=False)
+        else:
+            return DigitalInputDevice(Pin, pull_up=pull_up, active_state=active_state)
 
-    return '{0}\nVersion: {1}\nDisplay: {2}\n{3}Dimensions: {4} x {5}\nMode: {6}\n{7}'.format(
-        '-' * 50, version, args.display, iface, device.width, device.height, device.mode, '-' * 50)
+    def digital_write(self, Pin, value):
+        if value:
+            Pin.on()
+        else:
+            Pin.off()
 
+    def digital_read(self, Pin):
+        return Pin.value
 
-def get_device(actual_args=None):
-    """
-    Create device from command-line arguments and return it.
-    """
-    if actual_args is None:
-        actual_args = sys.argv[1:]
-    parser = cmdline.create_parser(description='luma.examples arguments')
-    args = parser.parse_args(actual_args)
+    def delay_ms(self, delaytime):
+        time.sleep(delaytime / 1000.0)
 
-    if args.config:
-        # load config from file
-        config = cmdline.load_config(args.config)
-        args = parser.parse_args(config + actual_args)
+    def gpio_pwm(self, Pin):
+        return PWMOutputDevice(Pin, frequency=self.BL_freq)
 
-    # create device
-    try:
-        device = cmdline.create_device(args)
-        print(display_settings(device, args))
-        return device
+    def spi_writebyte(self, data):
+        if self.SPI:
+            self.SPI.writebytes(data)
 
-    except error.Error as e:
-        parser.error(e)
-        return None
+    def bl_DutyCycle(self, duty):
+        self.GPIO_BL_PIN.value = duty / 100
 
-'''
-### End of borrowed code
-'''
+    def bl_Frequency(self, freq):
+        self.GPIO_BL_PIN.frequency = freq
 
-actual_args = []
+    def module_init(self):
+        if self.SPI:
+            self.SPI.max_speed_hz = self.SPEED
+            self.SPI.mode = 0b00
+        return 0
 
-if DISPLAY_TYPE:
-    actual_args.append("-d")
-    actual_args.append(DISPLAY_TYPE)
+    def module_exit(self):
+        if self.SPI:
+            self.SPI.close()
 
-if INTERFACE_TYPE:
-    actual_args.append("--interface")
-    actual_args.append(INTERFACE_TYPE)
+        self.digital_write(self.GPIO_RST_PIN, 1)
+        self.digital_write(self.GPIO_DC_PIN, 0)
+        self.GPIO_BL_PIN.close()
+        time.sleep(0.001)
 
-if WIDTH:
-    actual_args.append("--width")
-    actual_args.append(WIDTH)
+class LCD(RaspberryPi):
+    width, height = LCD_WIDTH, LCD_HEIGHT
+    LCD_Scan_Dir = SCAN_DIR_DFT
+    LCD_X_Adjust, LCD_Y_Adjust = LCD_X, LCD_Y
 
-if HEIGHT:
-    actual_args.append("--height")
-    actual_args.append(HEIGHT)
+    def LCD_Reset(self):
+        self.digital_write(self.GPIO_RST_PIN, True)
+        time.sleep(0.01)
+        self.digital_write(self.GPIO_RST_PIN, False)
+        time.sleep(0.01)
+        self.digital_write(self.GPIO_RST_PIN, True)
+        time.sleep(0.01)
 
-if I2C_PORT:
-    actual_args.append("--i2c-port")
-    actual_args.append(I2C_PORT)
+    def LCD_WriteReg(self, Reg):
+        self.digital_write(self.GPIO_DC_PIN, False)
+        self.spi_writebyte([Reg])
 
-if SPI_BUS_SPEED:
-    actual_args.append("--spi-bus-speed")
-    actual_args.append(SPI_BUS_SPEED)
+    def LCD_WriteData_8bit(self, Data):
+        self.digital_write(self.GPIO_DC_PIN, True)
+        self.spi_writebyte([Data])
 
-if COLOR_ORDER_BGR:
-    actual_args.append("--bgr")
+    def LCD_WriteData_NLen16Bit(self, Data, DataLen):
+        self.digital_write(self.GPIO_DC_PIN, True)
+        for _ in range(DataLen):
+            self.spi_writebyte([Data >> 8, Data & 0xff])
 
-if GPIO_DATA_COMMAND:
-    actual_args.append("--gpio-data-command")
-    actual_args.append(GPIO_DATA_COMMAND)
+    def LCD_InitReg(self):
+        init_sequence = [
+            (0xB1, [0x01, 0x2C, 0x2D]),
+            (0xB2, [0x01, 0x2C, 0x2D]),
+            (0xB3, [0x01, 0x2C, 0x2D, 0x01, 0x2C, 0x2D]),
+            (0xB4, [0x07]),
+            (0xC0, [0xA2, 0x02, 0x84]),
+            (0xC1, [0xC5]),
+            (0xC2, [0x0A, 0x00]),
+            (0xC3, [0x8A, 0x2A]),
+            (0xC4, [0x8A, 0xEE]),
+            (0xC5, [0x0E]),
+            (0xe0, [0x0f, 0x1a, 0x0f, 0x18, 0x2f, 0x28, 0x20, 0x22, 0x1f, 0x1b, 0x23, 0x37, 0x00, 0x07, 0x02, 0x10]),
+            (0xe1, [0x0f, 0x1b, 0x0f, 0x17, 0x33, 0x2c, 0x29, 0x2e, 0x30, 0x30, 0x39, 0x3f, 0x00, 0x07, 0x03, 0x10]),
+            (0xF0, [0x01]),
+            (0xF6, [0x00]),
+            (0x3A, [0x05])
+        ]
+        for reg, data in init_sequence:
+            self.LCD_WriteReg(reg)
+            for d in data:
+                self.LCD_WriteData_8bit(d)
 
-if GPIO_RESET:
-    actual_args.append("--gpio-reset")
-    actual_args.append(GPIO_RESET)
+    def LCD_SetGramScanWay(self, Scan_dir):
+        self.LCD_Scan_Dir = Scan_dir
+        self.width, self.height = (LCD_HEIGHT, LCD_WIDTH) if Scan_dir in [1, 2, 3, 4] else (LCD_WIDTH, LCD_HEIGHT)
+        MemoryAccessReg_Data = {
+            1: 0x00, 2: 0x80, 3: 0x40, 4: 0xC0,
+            5: 0x20, 6: 0x60, 7: 0xA0, 8: 0xE0
+        }[Scan_dir]
 
-if GPIO_BACKLIGHT:
-    actual_args.append("--gpio-backlight")
-    actual_args.append(GPIO_BACKLIGHT)
+        if MemoryAccessReg_Data & 0x10 != 1:
+            self.LCD_X_Adjust, self.LCD_Y_Adjust = LCD_Y, LCD_X
+        else:
+            self.LCD_X_Adjust, self.LCD_Y_Adjust = LCD_X, LCD_Y
 
-if GPIO_CS:
-    actual_args.append("--gpio-chip-select")
-    actual_args.append(GPIO_CS)
+        self.LCD_WriteReg(0x36)
+        self.LCD_WriteData_8bit(MemoryAccessReg_Data | 0x08)
 
-if BACKLIGHT_ACTIVE:
-    actual_args.append("--backlight-active")
-    actual_args.append(BACKLIGHT_ACTIVE)
+    def LCD_Init(self, Lcd_ScanDir):
+        if self.module_init() != 0:
+            return -1
+        self.bl_DutyCycle(100)
+        self.LCD_Reset()
+        self.LCD_InitReg()
+        self.LCD_SetGramScanWay(Lcd_ScanDir)
+        self.delay_ms(200)
+        self.LCD_WriteReg(0x11)
+        self.delay_ms(120)
+        self.LCD_WriteReg(0x29)
 
-if H_OFFSET:
-    actual_args.append("--h-offset")
-    actual_args.append(H_OFFSET)
+    def LCD_SetWindows(self, Xstart, Ystart, Xend, Yend):
+        self.LCD_WriteReg(0x2A)
+        self.LCD_WriteData_8bit(0x00)
+        self.LCD_WriteData_8bit((Xstart & 0xff) + self.LCD_X_Adjust)
+        self.LCD_WriteData_8bit(0x00)
+        self.LCD_WriteData_8bit(((Xend - 1) & 0xff) + self.LCD_X_Adjust)
 
-if V_OFFSET:
-    actual_args.append("--v-offset")
-    actual_args.append(V_OFFSET)
+        self.LCD_WriteReg(0x2B)
+        self.LCD_WriteData_8bit(0x00)
+        self.LCD_WriteData_8bit((Ystart & 0xff) + self.LCD_Y_Adjust)
+        self.LCD_WriteData_8bit(0x00)
+        self.LCD_WriteData_8bit(((Yend - 1) & 0xff) + self.LCD_Y_Adjust)
 
-device = get_device(actual_args=actual_args)
+        self.LCD_WriteReg(0x2C)
+
+    def LCD_Clear(self):
+        _buffer = [0x00, 0x00] * (self.width * self.height)
+        self.LCD_SetWindows(0, 0, self.width, self.height)
+        self.digital_write(self.GPIO_DC_PIN, True)
+        for i in range(0, len(_buffer), 4096):
+            self.spi_writebyte(_buffer[i:i + 4096])
+
+    def LCD_ShowImage(self, Image, Xstart, Ystart):
+	    if Image is None:
+	        return
+	    imwidth, imheight = Image.size
+	    if imwidth != self.width or imheight != self.height:
+	        raise ValueError(f'Image must be same dimensions as display ({self.width}x{self.height}).')
+	    img = np.asarray(Image)
+	    pix = np.zeros((self.width, self.height, 2), dtype=np.uint8)
+	    pix[..., 0] = np.add(np.bitwise_and(img[..., 0], 0xF8), np.right_shift(img[..., 1], 5))
+	    pix[..., 1] = np.add(np.bitwise_and(np.left_shift(img[..., 1], 3), 0xE0), np.right_shift(img[..., 2], 3))
+	    pix = pix.flatten().tolist()
+	    self.LCD_SetWindows(0, 0, self.width, self.height)
+	    self.digital_write(self.GPIO_DC_PIN, True)
+	    for i in range(0, len(pix), 4096):
+	        self.spi_writebyte(pix[i:i+4096])
+
+    def LCD_Backlight(self, onOff):
+        if onOff == True:
+            self.bl_DutyCycle(100)
+        else:
+            self.bl_DutyCycle(0)
+
+device = LCD()
 
 # Init function of the OLED
 def init():
-    if PLATFORM == PLATFORM_PRO:
-        # Reduce the contrast to also help reduce the noise
-        # that's being produced by the display for some reason
-        device.contrast(128)
+    Lcd_ScanDir = SCAN_DIR_DFT  #SCAN_DIR_DFT = D2U_L2R
+    device.LCD_Init(Lcd_ScanDir)
+    device.LCD_Clear()
     return True
 
 def setNormalDisplay():
@@ -197,23 +220,19 @@ def setHorizontalMode():
     return True
 
 def drawImage(image):
-    img = image.convert(device.mode)
-    width, height = img.size
-    if DISPLAY_WIDTH != width or DISPLAY_HEIGHT != height:
-        img = img.resize((DISPLAY_WIDTH, DISPLAY_HEIGHT), Image.LANCZOS)
+    img = image
+    width, height = image.size
+    if LCD_WIDTH != width or LCD_HEIGHT != height:
+        img = img.resize((LCD_WIDTH, LCD_HEIGHT), Image.LANCZOS)
 
-    device.display(img)
+    device.LCD_ShowImage(img, 0, 0)
 
 def clear():
-    #blank = Image.new("RGBA", device.size, "black")
-    #device.display(blank.convert(device.mode))
-    device.clear()
+    device.LCD_Clear()
 
 def sleep():
-    device.clear()
-    if PLATFORM != PLATFORM_PRO:
-        device.backlight(False)
+    device.LCD_Clear()
+    device.LCD_Backlight(False)
 
 def wakeup():
-    if PLATFORM != PLATFORM_PRO:
-        device.backlight(True)
+    device.LCD_Backlight(True)
