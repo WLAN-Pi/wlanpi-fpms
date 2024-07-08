@@ -126,9 +126,6 @@ optional options:
     # Initialize the SEED OLED display
     ####################################
     oled.init()
-    # Set display to normal mode (i.e non-inverse mode)
-    oled.setNormalDisplay()
-    oled.setHorizontalMode()
 
     #######################################
     # Initialize various global variables

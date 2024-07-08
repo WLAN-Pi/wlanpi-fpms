@@ -1,7 +1,12 @@
 gpiod
+gpiozero
 luma.oled
 luma.lcd
+lgpio
+numpy
 textfsm
 tzupdate
 Pillow
 qrcode
+rpi-gpio
+spidev
