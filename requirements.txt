@@ -20,8 +20,6 @@ importlib-metadata==4.13.0
     # via gpiozero
 importlib-resources==5.13.0
     # via gpiozero
-lgpio==0.2.2.0
-    # via -r requirements.in
 luma-core==2.4.1
     # via
     #   luma-lcd
