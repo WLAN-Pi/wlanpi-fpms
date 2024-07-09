@@ -3,7 +3,6 @@
 
 import spidev
 import time
-import numpy as np
 
 from gpiozero import *
 from fpms.modules.screen.screen import AbstractScreen
@@ -18,7 +17,6 @@ SCAN_DIR_DFT = 6  # U2D_R2L
 
 class RaspberryPi:
     def __init__(self, spi=spidev.SpiDev(0, 0), spi_freq=40000000, rst=27, dc=25, bl=24, bl_freq=1000, i2c=None, i2c_freq=100000):
-        self.np = np
         self.INPUT = False
         self.OUTPUT = True
 
@@ -182,20 +180,28 @@ class LCD(RaspberryPi):
             self.spi_writebyte(_buffer[i:i + 4096])
 
     def LCD_ShowImage(self, Image, Xstart, Ystart):
-	    if Image is None:
-	        return
-	    imwidth, imheight = Image.size
-	    if imwidth != self.width or imheight != self.height:
-	        raise ValueError(f'Image must be same dimensions as display ({self.width}x{self.height}).')
-	    img = np.asarray(Image)
-	    pix = np.zeros((self.width, self.height, 2), dtype=np.uint8)
-	    pix[..., 0] = np.add(np.bitwise_and(img[..., 0], 0xF8), np.right_shift(img[..., 1], 5))
-	    pix[..., 1] = np.add(np.bitwise_and(np.left_shift(img[..., 1], 3), 0xE0), np.right_shift(img[..., 2], 3))
-	    pix = pix.flatten().tolist()
-	    self.LCD_SetWindows(0, 0, self.width, self.height)
-	    self.digital_write(self.GPIO_DC_PIN, True)
-	    for i in range(0, len(pix), 4096):
-	        self.spi_writebyte(pix[i:i+4096])
+        if Image is None:
+            return
+        imwidth, imheight = Image.size
+        if imwidth != self.width or imheight != self.height:
+            raise ValueError(f'Image must be same dimensions as display ({self.width}x{self.height}).')
+
+        img = Image.load()
+        pix = []
+
+        for y in range(self.height):
+            for x in range(self.width):
+                r, g, b = img[x, y]
+                pix1 = (r & 0xF8) | (g >> 5)
+                pix2 = ((g << 3) & 0xE0) | (b >> 3)
+                pix.append(pix1)
+                pix.append(pix2)
+
+        self.LCD_SetWindows(0, 0, self.width, self.height)
+        self.digital_write(self.GPIO_DC_PIN, True)
+
+        for i in range(0, len(pix), 4096):
+            self.spi_writebyte(pix[i:i+4096])
 
     def LCD_Backlight(self, onOff):
         if onOff == True:

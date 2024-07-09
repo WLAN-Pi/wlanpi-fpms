@@ -28,8 +28,6 @@ luma-lcd==2.11.0
     # via -r requirements.in
 luma-oled==3.13.0
     # via -r requirements.in
-numpy==2.0.0
-    # via -r requirements.in
 pillow==10.1.0
     # via
     #   -r requirements.in
