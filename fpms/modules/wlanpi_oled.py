@@ -1,23 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 from fpms.modules.constants import PLATFORM, DISPLAY_TYPE
 from fpms.modules.display import *
 from fpms.modules.platform import *
 
+# Initialize device to None
 device = None
 
-if DISPLAY_TYPE == DISPLAY_TYPE_ST7735:
-    # Let's use Waveshare's proprietary code to drive the ST7735 screen module
+# Path to GPIO sysfs
+gpio_sysfs_path = "/sys/class/gpio"
+
+# Check if GPIO sysfs path exists and if the display type is ST7735
+if os.path.exists(gpio_sysfs_path) and DISPLAY_TYPE == DISPLAY_TYPE_ST7735:
+    # Use Waveshare's proprietary code to drive the ST7735 screen module
     from fpms.modules.screen.st7735 import ST7735
     device = ST7735()
-
-# Default to Luma for driving the screen if not using a different implementation
-if device is None:
+else:
+    # Default to Luma for driving the screen if not using a different implementation
     from fpms.modules.screen.luma import Luma
     device = Luma()
 
-# Init function of the OLED
 def init():
     device.init()
 

@@ -1,9 +1,14 @@
+wlanpi-fpms (1.4~beta-3) unstable; urgency=medium
+
+  * Uses ST7735 proprietary driver only if GPIO sysfs is enabled in the kernel
+
+ -- Adrian Granados <adrian@intuitibits.com>  Tue, 09 Jul 2024 00:00:00 -0500
 
 wlanpi-fpms (1.4~beta-2) unstable; urgency=medium
 
-  * Removes lgpio as a requirement (requires a kernel with GPIO SYSFS enabled)
+  * Removes lgpio as a requirement (requires a kernel with GPIO sysfs enabled)
 
- -- Adrian Granados <adrian@intuitibits.com>  Mon, 09 Jul 2024 00:00:00 -0500
+ -- Adrian Granados <adrian@intuitibits.com>  Tue, 09 Jul 2024 00:00:00 -0500
 
 wlanpi-fpms (1.4~beta-1) unstable; urgency=medium
 
