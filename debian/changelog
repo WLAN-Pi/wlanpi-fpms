@@ -1,4 +1,4 @@
-wlanpi-fpms (1.4~beta-1) unstable; urgency=medium
+wlanpi-fpms (1.4) unstable; urgency=medium
 
   * Using ST7735 proprietary driver to prevent WSOD
 
