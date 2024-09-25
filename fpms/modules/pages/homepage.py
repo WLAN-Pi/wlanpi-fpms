@@ -253,7 +253,7 @@ class HomePage(object):
         self.display_obj.clear_display(g_vars)
 
         if_name = "eth0"
-        mode_name = self.env_obj.get_platform_name()
+        mode_name = PLATFORM
         mode = self.classic_mode
 
         if g_vars['current_mode'] == "wconsole":

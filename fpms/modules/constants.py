@@ -14,9 +14,15 @@ from fpms.modules.display import *
 __version__ = "2.0.3"
 __author__ = "wifinigel@gmail.com"
 
+# Model file for WLAN Pi
+WLANPI_MODEL_FILE = '/etc/wlanpi-model'
+
+# Version file for WLAN Pi image
+WLANPI_IMAGE_FILE = '/etc/wlanpi-release'
+
 env_util = EnvUtils()
-PLATFORM = env_util.get_platform()
-DISPLAY_TYPE = env_util.get_display_type()
+PLATFORM = env_util.get_platform(WLANPI_MODEL_FILE)
+DISPLAY_TYPE = env_util.get_display_type(PLATFORM)
 # Uncomment the line below to force a display type
 #DISPLAY_TYPE = DISPLAY_TYPE_ST7789
 
@@ -68,9 +74,6 @@ ETHTOOL_FILE = '/sbin/ethtool'
 
 # Mode changer scripts
 MODE_FILE = '/etc/wlanpi-state'
-
-# Version file for WLAN Pi image
-WLANPI_IMAGE_FILE = '/etc/wlanpi-release'
 
 WCONSOLE_SWITCHER_FILE ='/opt/wlanpi-wconsole/wconsole_switcher'
 HOTSPOT_SWITCHER_FILE = '/opt/wlanpi-hotspot/hotspot_switcher'

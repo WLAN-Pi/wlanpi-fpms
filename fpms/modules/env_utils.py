@@ -21,7 +21,7 @@ class EnvUtils(object):
     def __init__(self):
         pass
 
-    def get_platform(self):
+    def get_platform(self, WLANPI_MODEL_FILE):
         '''
         Method to determine which platform we're running on.
         Uses output of "cat /proc/cpuinfo"
@@ -37,14 +37,17 @@ class EnvUtils(object):
 
         platform = PLATFORM_UNKNOWN
 
-        # get output of wlanpi-model
-        model_cmd = "wlanpi-model -b"
-        try:
-            platform = subprocess.check_output(model_cmd, shell=True).decode().strip()
-        except subprocess.CalledProcessError as exc:
-            output = exc.model.decode()
-            print("Err: issue running 'wlanpi-model -b' : ", model)
-            return "Unknown"
+        if os.path.isfile(WLANPI_MODEL_FILE):
+            with open(WLANPI_MODEL_FILE, 'r') as f:
+                platform = f.readline().strip()
+
+        if platform == PLATFORM_UNKNOWN:
+            # get output of wlanpi-model
+            model_cmd = "wlanpi-model | grep \"Model:\" | cut -d \":\" -f2 | xargs"
+            try:
+                platform = subprocess.check_output(model_cmd, shell=True).decode().strip()
+            except subprocess.CalledProcessError as exc:
+                return PLATFORM_UNKNOWN
 
         if platform.endswith('?'):
             platform = PLATFORM_UNKNOWN
@@ -52,19 +55,7 @@ class EnvUtils(object):
         return platform
 
 
-    def get_platform_name(self):
-
-        platform = self.get_platform()
-
-        if platform == PLATFORM_UNKNOWN:
-            return PLATFORM_NAME_GENERIC
-        else:
-            return PLATFORM_NAME_GENERIC + " " + platform
-
-
-    def get_display_type(self):
-
-         platform = self.get_platform()
+    def get_display_type(self, platform):
 
          if platform == PLATFORM_PRO:
              return DISPLAY_TYPE_SSD1351
