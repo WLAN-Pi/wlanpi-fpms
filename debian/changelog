@@ -2,7 +2,7 @@ wlanpi-fpms (1.4.1) unstable; urgency=medium
 
   * Fixes a delay that may occur when returning to the home page
 
- -- Adrian Granados <adrian@intuitibits.com>  Mon, 08 Jul 2024 00:00:00 -0500
+ -- Adrian Granados <adrian@intuitibits.com>  Wed, 25 Sep 2024 00:00:00 -0500
 
 wlanpi-fpms (1.4) unstable; urgency=medium
 
