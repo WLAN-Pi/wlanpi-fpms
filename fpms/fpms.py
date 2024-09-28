@@ -11,6 +11,7 @@ Front Panel Menu System
 import dbus
 import dbus.mainloop.glib
 from gi.repository import GLib
+import syslog
 
 import getopt
 import gpiod
@@ -117,15 +118,63 @@ g_vars = {
 }
 
 
-def handle_prepare_for_shutdown(reboot_arg):
+def log_to_syslog(message, level=syslog.LOG_INFO):
+    syslog.openlog(ident="fpms", logoption=syslog.LOG_PID, facility=syslog.LOG_USER)
+    syslog.syslog(level, message)
+    syslog.closelog()
+
+
+# Central function to detect reboot signals
+def detect_reboot_target(args):
+    """
+    This function checks if reboot.target or related unit paths are in the signal arguments.
+    If detected, it triggers the shutdown handler.
+    """
+    # log_to_syslog(f"Checking arguments for reboot.target: {args}")
+    
+    for arg in args:
+        # Check for reboot.target or its systemd path
+        if isinstance(arg, str) and ("reboot" in arg):
+            handle_shutdown()
+            return True  # Stop further processing if reboot is detected
+    return False  # No reboot detected
+
+
+def handle_shutdown():
     global g_vars
-    if g_vars['shutdown_in_progress'] == False:
+    log_to_syslog(f"shutdown_in_progress: {g_vars['shutdown_in_progress']}")
+    if not g_vars['shutdown_in_progress']:
         g_vars['shutdown_in_progress'] = True
+        log_to_syslog("Drawing reboot image")
         oled.drawImage(Image.open(IMAGE_DIR + '/reboot.png').convert(DISPLAY_MODE))
+        log_to_syslog("Reboot image drawn")
+        
+
+# Handler for PrepareForShutdown signal
+def handle_prepare_for_shutdown(reboot_arg):
+    log_to_syslog("PrepareForShutdown signal received")
+    handle_shutdown()
+
+
+# # Handler for Manager signals
+# def handle_systemd_manager_signal(*args):
+#     log_to_syslog("Systemd Manager signal received")
+#     detect_reboot_target(args)
+
+
+# # Handler for unit-specific signals
+# def handle_systemd_unit_signal(*args):
+#     log_to_syslog("Systemd unit signal received")
+#     detect_reboot_target(args)
+
+
+# Generic handler for all signals
+def handle_any_signal(*args):
+    # log_to_syslog("Generic D-Bus signal received")
+    detect_reboot_target(args)
 
 
 def run_dbus_loop():
-    # Set up the D-Bus main loop
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
     # Connect to the system bus
@@ -138,23 +187,64 @@ def run_dbus_loop():
     # Take an inhibitor lock to receive the PrepareForShutdown signal
     fd = login1.Inhibit("shutdown", "fpms", "Delaying shutdown", "delay")
 
-    # Add the signal receiver for shutdown/reboot
-    bus.add_signal_receiver(handle_prepare_for_shutdown,
-                            signal_name="PrepareForShutdown",
-                            dbus_interface="org.freedesktop.login1.Manager")
+    # Add a signal receiver for the "PrepareForShutdown" signal
+    bus.add_signal_receiver(
+        handle_prepare_for_shutdown,
+        signal_name="PrepareForShutdown",
+        dbus_interface="org.freedesktop.login1.Manager",
+        bus_name="org.freedesktop.login1",
+        path="/org/freedesktop/login1"
+    )
 
-    # Start the GLib main loop to listen for D-Bus signals
+    # # Add signal receiver for high-level systemd Manager signals (JobNew, UnitNew, etc.)
+    # bus.add_signal_receiver(
+    #     handle_systemd_manager_signal,
+    #     dbus_interface="org.freedesktop.systemd1.Manager",  # Systemd Manager interface
+    #     signal_name=None,  # Capture any signal (JobNew, JobRemoved, etc.)
+    #     bus_name="org.freedesktop.systemd1",  # Systemd bus name
+    #     path="/org/freedesktop/systemd1",  # Path to the Manager interface
+    # )
+
+    # # Add signal receiver for specific unit signals from reboot.target
+    # bus.add_signal_receiver(
+    #     handle_systemd_unit_signal,
+    #     dbus_interface="org.freedesktop.systemd1.Unit",  # Unit interface
+    #     signal_name=None,  # Capture any signal related to the unit
+    #     bus_name="org.freedesktop.systemd1", 
+    #     path="/org/freedesktop/systemd1/unit/reboot_2etarget"  # Path to reboot.target unit
+    # )
+
+    # # Add signal receiver for specific unit signals from systemd-reboot.service
+    # bus.add_signal_receiver(
+    #     handle_systemd_unit_signal,
+    #     dbus_interface="org.freedesktop.systemd1.Unit",  # Unit interface
+    #     signal_name=None,  # Capture any signal related to the unit
+    #     bus_name="org.freedesktop.systemd1", 
+    #     path="/org/freedesktop/systemd1/unit/systemd_2dreboot_2eservice"  # Path to systemd-reboot.service
+    # )
+
+    # Add a generic handler for all signals
+    bus.add_signal_receiver(
+        handle_any_signal,     # Callback for any signal
+        None,                  # Signal name (None = all signals)
+        None,                  # dbus_interface (None = all interfaces)
+        None,                  # bus_name (None = any sender)
+        None                   # path (None = all paths)
+    )
+    log_to_syslog(f"event handlers added")
+
+    # Run indefinitely to handle D-Bus signals   
     loop = GLib.MainLoop()
     loop.run()
 
 
 def main():
-
     # Run D-Bus main loop in a separate thread
     dbus_thread = threading.Thread(target=run_dbus_loop)
     dbus_thread.daemon = True
     dbus_thread.start()
-
+    log_to_syslog(f"fpms starting after dbus thread setup")
+    
     global g_vars
     global running
 

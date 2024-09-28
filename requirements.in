@@ -8,3 +8,5 @@ Pillow
 qrcode
 rpi-gpio
 spidev
+dbus-python
+PyGObject
