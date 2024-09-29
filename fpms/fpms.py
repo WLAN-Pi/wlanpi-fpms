@@ -8,6 +8,11 @@ FPMS
 Front Panel Menu System
 """
 
+import dbus
+import dbus.mainloop.glib
+from gi.repository import GLib
+import syslog
+
 import getopt
 import gpiod
 import os
@@ -66,8 +71,181 @@ from .modules.utils import *
 from .modules.reg_domain import *
 from .modules.time_zone import *
 
-def main():
+#######################################
+# Initialize various global variables
+#######################################
+g_vars = {
 
+    ##################################################
+    # Shared status signals (may be changed anywhere)
+    ##################################################
+
+    # This variable is shared between activities and is set to True if a
+    # drawing action in already if progress (e.g. by another activity). An activity
+    # happens during each cycle of the main while loop or when a button is pressed
+    # (This does not appear to be threading or process spawning)
+    'drawing_in_progress': False,      # True when page being painted on screen
+
+    'shutdown_in_progress': False,     # True when shutdown or reboot started
+    'screen_cleared': False,           # True when display cleared (e.g. screen save)
+    'display_state': 'page',           # current display state: 'page' or 'menu'
+    'sig_fired': False,                # Set to True when button handler fired
+    'option_selected': 0,              # Content of currently selected menu level
+    'current_menu_location': [0],      # Pointer to current location in menu structure
+    'current_scroll_selection': 0,     # where we currently are in scrolling table
+    'current_mode': 'classic',         # Currently selected mode (e.g. wconsole/classic)
+    'start_up': True,                  # True if in initial (home page) start-up state
+    'disable_keys': False,             # Set to true when need to ignore key presses
+    'table_list_length': 0,            # Total length of currently displayed table
+    'table_pages': 1,                  # pages in current table
+    'result_cache': False,             # used to cache results when paging info
+    'speedtest_result_text': '',       # tablulated speedtest result data
+    'button_press_count': 0,           # global count of button pressses
+    'last_button_press_count': -1,     # copy of count of button pressses used in main loop
+    'pageSleepCountdown': PAGE_SLEEP,  # Set page sleep control
+    'home_page_name': "Home",          # Display name for top level menu
+    'home_page_alternate': False,      # True if in alternate home page state
+    'blinker_status': False,           # Blinker status
+    'eth_carrier_status': 0,           # Eth0 physical link status
+    'eth_last_known_address_set': None,# Last known ethernet addresses
+    'eth_last_reachability_test': 0,       # Number of seconds elapsed since last reachability test
+    'eth_last_reachability_result' : False,# Last reachability state
+    'scan_file' : '',                  # Location to save scans
+    'profiler_beaconing' : False,          # Indicates if the profiler is running
+    'profiler_last_profile_date': None, # The date of the last profile
+    'timezones_available' : [],         # The list of Timezones the system can support
+    'timezone_selected' : None          # The timezone selected from the menu for use in other functions
+}
+
+
+def log_to_syslog(message, level=syslog.LOG_INFO):
+    syslog.openlog(ident="fpms", logoption=syslog.LOG_PID, facility=syslog.LOG_USER)
+    syslog.syslog(level, message)
+    syslog.closelog()
+
+
+# Central function to detect reboot signals
+def detect_reboot_target(args):
+    """
+    This function checks if reboot.target or related unit paths are in the signal arguments.
+    If detected, it triggers the shutdown handler.
+    """
+    # log_to_syslog(f"Checking arguments for reboot.target: {args}")
+    
+    for arg in args:
+        # Check for reboot.target or its systemd path
+        if isinstance(arg, str) and ("reboot" in arg):
+            handle_shutdown()
+            return True  # Stop further processing if reboot is detected
+    return False  # No reboot detected
+
+
+def handle_shutdown():
+    global g_vars
+    log_to_syslog(f"shutdown_in_progress: {g_vars['shutdown_in_progress']}")
+    if not g_vars['shutdown_in_progress']:
+        g_vars['shutdown_in_progress'] = True
+        log_to_syslog("Drawing reboot image")
+        oled.drawImage(Image.open(IMAGE_DIR + '/reboot.png').convert(DISPLAY_MODE))
+        log_to_syslog("Reboot image drawn")
+        
+
+# Handler for PrepareForShutdown signal
+def handle_prepare_for_shutdown(reboot_arg):
+    log_to_syslog("PrepareForShutdown signal received")
+    handle_shutdown()
+
+
+# # Handler for Manager signals
+# def handle_systemd_manager_signal(*args):
+#     log_to_syslog("Systemd Manager signal received")
+#     detect_reboot_target(args)
+
+
+# # Handler for unit-specific signals
+# def handle_systemd_unit_signal(*args):
+#     log_to_syslog("Systemd unit signal received")
+#     detect_reboot_target(args)
+
+
+# Generic handler for all signals
+def handle_any_signal(*args):
+    # log_to_syslog("Generic D-Bus signal received")
+    detect_reboot_target(args)
+
+
+def run_dbus_loop():
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
+    # Connect to the system bus
+    bus = dbus.SystemBus()
+
+    # Get the org.freedesktop.login1.Manager interface
+    login1_proxy = bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
+    login1 = dbus.Interface(login1_proxy, 'org.freedesktop.login1.Manager')
+
+    # Take an inhibitor lock to receive the PrepareForShutdown signal
+    fd = login1.Inhibit("shutdown", "fpms", "Delaying shutdown", "delay")
+
+    # Add a signal receiver for the "PrepareForShutdown" signal
+    bus.add_signal_receiver(
+        handle_prepare_for_shutdown,
+        signal_name="PrepareForShutdown",
+        dbus_interface="org.freedesktop.login1.Manager",
+        bus_name="org.freedesktop.login1",
+        path="/org/freedesktop/login1"
+    )
+
+    # # Add signal receiver for high-level systemd Manager signals (JobNew, UnitNew, etc.)
+    # bus.add_signal_receiver(
+    #     handle_systemd_manager_signal,
+    #     dbus_interface="org.freedesktop.systemd1.Manager",  # Systemd Manager interface
+    #     signal_name=None,  # Capture any signal (JobNew, JobRemoved, etc.)
+    #     bus_name="org.freedesktop.systemd1",  # Systemd bus name
+    #     path="/org/freedesktop/systemd1",  # Path to the Manager interface
+    # )
+
+    # # Add signal receiver for specific unit signals from reboot.target
+    # bus.add_signal_receiver(
+    #     handle_systemd_unit_signal,
+    #     dbus_interface="org.freedesktop.systemd1.Unit",  # Unit interface
+    #     signal_name=None,  # Capture any signal related to the unit
+    #     bus_name="org.freedesktop.systemd1", 
+    #     path="/org/freedesktop/systemd1/unit/reboot_2etarget"  # Path to reboot.target unit
+    # )
+
+    # # Add signal receiver for specific unit signals from systemd-reboot.service
+    # bus.add_signal_receiver(
+    #     handle_systemd_unit_signal,
+    #     dbus_interface="org.freedesktop.systemd1.Unit",  # Unit interface
+    #     signal_name=None,  # Capture any signal related to the unit
+    #     bus_name="org.freedesktop.systemd1", 
+    #     path="/org/freedesktop/systemd1/unit/systemd_2dreboot_2eservice"  # Path to systemd-reboot.service
+    # )
+
+    # Add a generic handler for all signals
+    bus.add_signal_receiver(
+        handle_any_signal,     # Callback for any signal
+        None,                  # Signal name (None = all signals)
+        None,                  # dbus_interface (None = all interfaces)
+        None,                  # bus_name (None = any sender)
+        None                   # path (None = all paths)
+    )
+    log_to_syslog(f"event handlers added")
+
+    # Run indefinitely to handle D-Bus signals   
+    loop = GLib.MainLoop()
+    loop.run()
+
+
+def main():
+    # Run D-Bus main loop in a separate thread
+    dbus_thread = threading.Thread(target=run_dbus_loop)
+    dbus_thread.daemon = True
+    dbus_thread.start()
+    log_to_syslog(f"fpms starting after dbus thread setup")
+    
+    global g_vars
     global running
 
     ####################################
@@ -126,52 +304,6 @@ optional options:
     # Initialize the SEED OLED display
     ####################################
     oled.init()
-
-    #######################################
-    # Initialize various global variables
-    #######################################
-    g_vars = {
-
-        ##################################################
-        # Shared status signals (may be changed anywhere)
-        ##################################################
-
-        # This variable is shared between activities and is set to True if a
-        # drawing action in already if progress (e.g. by another activity). An activity
-        # happens during each cycle of the main while loop or when a button is pressed
-        # (This does not appear to be threading or process spawning)
-        'drawing_in_progress': False,      # True when page being painted on screen
-
-        'shutdown_in_progress': False,     # True when shutdown or reboot started
-        'screen_cleared': False,           # True when display cleared (e.g. screen save)
-        'display_state': 'page',           # current display state: 'page' or 'menu'
-        'sig_fired': False,                # Set to True when button handler fired
-        'option_selected': 0,              # Content of currently selected menu level
-        'current_menu_location': [0],      # Pointer to current location in menu structure
-        'current_scroll_selection': 0,     # where we currently are in scrolling table
-        'current_mode': 'classic',         # Currently selected mode (e.g. wconsole/classic)
-        'start_up': True,                  # True if in initial (home page) start-up state
-        'disable_keys': False,             # Set to true when need to ignore key presses
-        'table_list_length': 0,            # Total length of currently displayed table
-        'table_pages': 1,                  # pages in current table
-        'result_cache': False,             # used to cache results when paging info
-        'speedtest_result_text': '',       # tablulated speedtest result data
-        'button_press_count': 0,           # global count of button pressses
-        'last_button_press_count': -1,     # copy of count of button pressses used in main loop
-        'pageSleepCountdown': PAGE_SLEEP,  # Set page sleep control
-        'home_page_name': "Home",          # Display name for top level menu
-        'home_page_alternate': False,      # True if in alternate home page state
-        'blinker_status': False,           # Blinker status
-        'eth_carrier_status': 0,           # Eth0 physical link status
-        'eth_last_known_address_set': None,# Last known ethernet addresses
-        'eth_last_reachability_test': 0,       # Number of seconds elapsed since last reachability test
-        'eth_last_reachability_result' : False,# Last reachability state
-        'scan_file' : '',                  # Location to save scans
-        'profiler_beaconing' : False,          # Indicates if the profiler is running
-        'profiler_last_profile_date': None, # The date of the last profile
-        'timezones_available' : [],         # The list of Timezones the system can support
-        'timezone_selected' : None          # The timezone selected from the menu for use in other functions
-    }
 
     ############################
     # shared objects

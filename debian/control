@@ -24,7 +24,16 @@ Build-Depends: debhelper (>= 11),
                tk8.6-dev,
                libharfbuzz-dev,
                libfribidi-dev,
-               libxcb1-dev
+               libxcb1-dev,
+               python3-gi,
+               pkg-config,
+               dbus,
+               libdbus-1-dev,
+               libdbus-glib-1-dev,
+               libglib2.0-dev,
+               libcairo2-dev,
+               libgirepository1.0-dev,
+               libffi-dev
 Standards-Version: 4.6.0
 X-Python3-Version: >= 3.9
 Homepage: https://github.com/WLAN-Pi/wlanpi-fpms
@@ -44,6 +53,7 @@ Depends: libopenjp2-7,
          wlanpi-wconsole,
          wlanpi-profiler,
          ${misc:Depends},
+         ${shlibs:Depends}
 Description: WLAN Pi - Front Panel Management System (FPMS)
     .
     This project enables the display of WLAN Pi based RBPi4 and CM4 hardware.
