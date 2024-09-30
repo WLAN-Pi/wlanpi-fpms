@@ -226,6 +226,16 @@ class Profiler(object):
                 cfg_dict = {"channel": "11", "ft_disabled": "False", "he_disabled": "False"}
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
+            elif action == "start_5ghz_unii1":
+                # set the config file to use params
+                cfg_dict = {"channel": "36", "ft_disabled": "False", "he_disabled": "False"}
+                self.profiler_ctl_file_update(cfg_dict, config_file)
+
+            elif action == "start_5ghz_unii3":
+                # set the config file to use params
+                cfg_dict = {"channel": "149", "ft_disabled": "False", "he_disabled": "False"}
+                self.profiler_ctl_file_update(cfg_dict, config_file)
+
             elif action == "start_no11r":
                 # set the config file to use params
                 cfg_dict = {"channel": "36", "ft_disabled": "True", "he_disabled": "False"}
@@ -261,9 +271,13 @@ class Profiler(object):
                         time.sleep(0.5)
                         elapsed_time = elapsed_time + 0.5
 
-                    self.alert_obj.display_alert_info(
-                        g_vars, "Profiler started.", title="Success"
-                    )
+                    if self.profiler_beaconing():
+                        self.alert_obj.display_alert_info(
+                            g_vars, "Profiler started.", title="Success"
+                        )
+                    else:
+                        self.alert_obj.display_alert_error(g_vars, "Start failed.")
+
                 except subprocess.CalledProcessError as proc_exc:
                     self.alert_obj.display_alert_error(g_vars, "Start failed.")
                 except subprocess.TimeoutExpired as timeout_exc:
@@ -300,7 +314,8 @@ class Profiler(object):
                     else:
                         self.alert_obj.display_alert_info(
                             g_vars, "Profiler stopped.", title="Success"
-                            )
+                        )
+
                 except subprocess.CalledProcessError as exc:
                     self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 
@@ -356,6 +371,14 @@ class Profiler(object):
 
     def profiler_start_2dot4ghz(self, g_vars):
         self.profiler_ctl(g_vars, action="start_2dot4ghz")
+        return
+
+    def profiler_start_5ghz_unii1(self, g_vars):
+        self.profiler_ctl(g_vars, action="start_5ghz_unii1")
+        return
+
+    def profiler_start_5ghz_unii3(self, g_vars):
+        self.profiler_ctl(g_vars, action="start_5ghz_unii3")
         return
 
     def profiler_start_no11r(self, g_vars):

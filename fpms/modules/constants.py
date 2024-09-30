@@ -26,6 +26,9 @@ DISPLAY_TYPE = env_util.get_display_type(PLATFORM)
 # Uncomment the line below to force a display type
 #DISPLAY_TYPE = DISPLAY_TYPE_ST7789
 
+DISPLAY_ORIENTATION_NORMAL  = "normal"
+DISPLAY_ORIENTATION_FLIPPED = "flipped"
+
 IMAGE_DIR = "images/128x128"
 MAX_TABLE_LINES = 9
 MAX_PAGE_LINES = 8
@@ -120,6 +123,7 @@ BUTTONS_WAVESHARE = {
     "key2": 20,
     "key3": 16
 }
+
 # temp setup to test code using Sapphire HAT
 # (center - middle front panel button, up/down = side wheel up/down)
 BUTTONS_SAPPHIRE = {

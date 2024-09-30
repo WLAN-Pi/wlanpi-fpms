@@ -12,6 +12,7 @@ import dbus
 import dbus.mainloop.glib
 from gi.repository import GLib
 import syslog
+import configparser
 
 import getopt
 import gpiod
@@ -44,18 +45,7 @@ from .modules.apps.profiler import *
 from .modules.apps.scanner import *
 from .modules.bluetooth import *
 from .modules.cloud_tests import CloudUtils
-from .modules.constants import (
-    BUTTONS_PINS,
-    DISPLAY_MODE,
-    IMAGE_DIR,
-    MODE_FILE,
-    NAV_BAR_TOP,
-    PAGE_HEIGHT,
-    PAGE_SLEEP,
-    PAGE_WIDTH,
-    SCRIPT_PATH,
-    WLANPI_IMAGE_FILE,
-)
+from .modules.constants import *
 from .modules.env_utils import EnvUtils
 from .modules.modes import *
 from .modules.nav.buttons import Button
@@ -71,6 +61,8 @@ from .modules.utils import *
 from .modules.reg_domain import *
 from .modules.time_zone import *
 
+FPMS_CONF_FILE = "/etc/wlanpi-fpms.conf"
+
 #######################################
 # Initialize various global variables
 #######################################
@@ -84,8 +76,8 @@ g_vars = {
     # drawing action in already if progress (e.g. by another activity). An activity
     # happens during each cycle of the main while loop or when a button is pressed
     # (This does not appear to be threading or process spawning)
+    'display_orientation': DISPLAY_ORIENTATION_NORMAL, # Display module orientation
     'drawing_in_progress': False,      # True when page being painted on screen
-
     'shutdown_in_progress': False,     # True when shutdown or reboot started
     'screen_cleared': False,           # True when display cleared (e.g. screen save)
     'display_state': 'page',           # current display state: 'page' or 'menu'
@@ -131,7 +123,7 @@ def detect_reboot_target(args):
     If detected, it triggers the shutdown handler.
     """
     # log_to_syslog(f"Checking arguments for reboot.target: {args}")
-    
+
     for arg in args:
         # Check for reboot.target or its systemd path
         if isinstance(arg, str) and ("reboot" in arg):
@@ -148,7 +140,7 @@ def handle_shutdown():
         log_to_syslog("Drawing reboot image")
         oled.drawImage(Image.open(IMAGE_DIR + '/reboot.png').convert(DISPLAY_MODE))
         log_to_syslog("Reboot image drawn")
-        
+
 
 # Handler for PrepareForShutdown signal
 def handle_prepare_for_shutdown(reboot_arg):
@@ -210,7 +202,7 @@ def run_dbus_loop():
     #     handle_systemd_unit_signal,
     #     dbus_interface="org.freedesktop.systemd1.Unit",  # Unit interface
     #     signal_name=None,  # Capture any signal related to the unit
-    #     bus_name="org.freedesktop.systemd1", 
+    #     bus_name="org.freedesktop.systemd1",
     #     path="/org/freedesktop/systemd1/unit/reboot_2etarget"  # Path to reboot.target unit
     # )
 
@@ -219,7 +211,7 @@ def run_dbus_loop():
     #     handle_systemd_unit_signal,
     #     dbus_interface="org.freedesktop.systemd1.Unit",  # Unit interface
     #     signal_name=None,  # Capture any signal related to the unit
-    #     bus_name="org.freedesktop.systemd1", 
+    #     bus_name="org.freedesktop.systemd1",
     #     path="/org/freedesktop/systemd1/unit/systemd_2dreboot_2eservice"  # Path to systemd-reboot.service
     # )
 
@@ -233,10 +225,37 @@ def run_dbus_loop():
     )
     log_to_syslog(f"event handlers added")
 
-    # Run indefinitely to handle D-Bus signals   
+    # Run indefinitely to handle D-Bus signals
     loop = GLib.MainLoop()
     loop.run()
 
+# Function to read a value from a section in the .conf file
+def read_value(section, key, default_value):
+    config = configparser.ConfigParser()
+    config.read(FPMS_CONF_FILE)
+
+    # Read the value from the specified section and key
+    if config.has_section(section) and config.has_option(section, key):
+        value = config.get(section, key)
+        return value
+    else:
+        return default_value
+
+# Function to modify and save a value in the specified section and key
+def save_value(section, key, new_value):
+    config = configparser.ConfigParser()
+    config.read(FPMS_CONF_FILE)
+
+    # Check if the section exists, if not, create it
+    if not config.has_section(section):
+        config.add_section(section)
+
+    # Modify or add the value
+    config.set(section, key, new_value)
+
+    # Write the updated config back to the file
+    with open(FPMS_CONF_FILE, 'w') as f:
+        config.write(f)
 
 def main():
     # Run D-Bus main loop in a separate thread
@@ -244,7 +263,7 @@ def main():
     dbus_thread.daemon = True
     dbus_thread.start()
     log_to_syslog(f"fpms starting after dbus thread setup")
-    
+
     global g_vars
     global running
 
@@ -304,6 +323,9 @@ optional options:
     # Initialize the SEED OLED display
     ####################################
     oled.init()
+
+    g_vars['display_orientation'] = read_value("display", "orientation", DISPLAY_ORIENTATION_NORMAL)
+    oled.orientation = g_vars['display_orientation']
 
     ############################
     # shared objects
@@ -497,6 +519,14 @@ optional options:
         app_obj = Profiler(g_vars)
         app_obj.profiler_start_2dot4ghz(g_vars)
 
+    def profiler_start_5ghz_unii1():
+        app_obj = Profiler(g_vars)
+        app_obj.profiler_start_5ghz_unii1(g_vars)
+
+    def profiler_start_5ghz_unii3():
+        app_obj = Profiler(g_vars)
+        app_obj.profiler_start_5ghz_unii3(g_vars)
+
     def profiler_start_no11r():
         app_obj = Profiler(g_vars)
         app_obj.profiler_start_no11r(g_vars)
@@ -588,6 +618,17 @@ optional options:
     def set_reg_domain_de():
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_de(g_vars)
+
+    def rotate_display():
+        if g_vars['display_orientation'] == DISPLAY_ORIENTATION_NORMAL:
+            g_vars['display_orientation'] = DISPLAY_ORIENTATION_FLIPPED
+        else:
+            g_vars['display_orientation'] = DISPLAY_ORIENTATION_NORMAL
+        oled.orientation = g_vars['display_orientation']
+        save_value("display", "orientation", g_vars['display_orientation'])
+        g_vars['sig_fired'] = True
+        menu_left()
+        g_vars['sig_fired'] = False
 
     def show_date():
         system_obj = System(g_vars)
@@ -801,9 +842,14 @@ optional options:
                 {"name": "Status", "action":          profiler_status},
                 {"name": "Stop", "action":            profiler_stop},
                 {"name": "Start", "action":           profiler_start},
-                {"name": "Start 2.4 GHz", "action":   profiler_start_2dot4ghz},
-                {"name": "Start (no 11r)", "action":  profiler_start_no11r},
-                {"name": "Start (no 11ax)", "action": profiler_start_no11ax},
+                {"name": "Start Other", "action": [
+                    {"name": "Start 2.4 GHz", "action": profiler_start_2dot4ghz},
+                    {"name": "Start 5 GHz 36", "action": profiler_start_5ghz_unii1},
+                    {"name": "Start 5 GHz 149", "action": profiler_start_5ghz_unii3},
+                    {"name": "Start (no 11r)", "action":  profiler_start_no11r},
+                    {"name": "Start (no 11ax)", "action": profiler_start_no11ax}
+                ]
+                },
                 {"name": "Purge Reports", "action": [
                     {"name": "Confirm", "action": profiler_purge_reports},
                 ]
@@ -858,6 +904,7 @@ optional options:
                     {"name": "Set Domain DE", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
                 ]},
+                {"name": "Rotate Display", "action": rotate_display}
             ]},
             {"name": "Reboot",   "action": [
                 {"name": "Confirm", "action": reboot},
@@ -1115,23 +1162,40 @@ optional options:
                 events = request.read_edge_events()
 
                 for event in events:
-                    if event.line_offset == BUTTONS_PINS['up']:
-                        up_key()
-                    elif event.line_offset == BUTTONS_PINS['down']:
-                        down_key()
-                    elif event.line_offset == BUTTONS_PINS['left']:
-                        left_key()
-                    elif event.line_offset == BUTTONS_PINS['right']:
-                        right_key()
-                    elif event.line_offset == BUTTONS_PINS['center']:
-                        center_key()
-                    elif event.line_offset == BUTTONS_PINS['key1']:
-                        key_1()
-                    elif event.line_offset == BUTTONS_PINS['key2']:
-                        key_2()
-                    elif event.line_offset == BUTTONS_PINS['key3']:
-                        key_3()
-
+                    if g_vars['display_orientation'] == DISPLAY_ORIENTATION_FLIPPED:
+                        if event.line_offset == BUTTONS_PINS['up']:
+                            down_key()
+                        elif event.line_offset == BUTTONS_PINS['down']:
+                            up_key()
+                        elif event.line_offset == BUTTONS_PINS['left']:
+                            right_key()
+                        elif event.line_offset == BUTTONS_PINS['right']:
+                            left_key()
+                        elif event.line_offset == BUTTONS_PINS['center']:
+                            center_key()
+                        elif event.line_offset == BUTTONS_PINS['key1']:
+                            key_3()
+                        elif event.line_offset == BUTTONS_PINS['key2']:
+                            key_2()
+                        elif event.line_offset == BUTTONS_PINS['key3']:
+                            key_1()
+                    else:
+                        if event.line_offset == BUTTONS_PINS['up']:
+                            up_key()
+                        elif event.line_offset == BUTTONS_PINS['down']:
+                            down_key()
+                        elif event.line_offset == BUTTONS_PINS['left']:
+                            left_key()
+                        elif event.line_offset == BUTTONS_PINS['right']:
+                            right_key()
+                        elif event.line_offset == BUTTONS_PINS['center']:
+                            center_key()
+                        elif event.line_offset == BUTTONS_PINS['key1']:
+                            key_1()
+                        elif event.line_offset == BUTTONS_PINS['key2']:
+                            key_2()
+                        elif event.line_offset == BUTTONS_PINS['key3']:
+                            key_3()
 
     m = threading.Thread(name="button-monitor", target=monitor_buttons)
     m.daemon = True
