@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.4-2) UNRELEASED; urgency=medium
+
+  * Adds CONTRIBUTORS.md to MANIFEST.in
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 06 Oct 2024 10:12:02 -0500
+
 wlanpi-fpms (1.4.4-1) UNRELEASED; urgency=medium
 
   * Improves reboot/shutdown detection by making signal handlers even more specific

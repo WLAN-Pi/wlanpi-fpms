@@ -1,5 +1,6 @@
 include LICENSE
 include fpms/AUTHORS.md
+include fpms/CONTRIBUTORS.md
 graft fpms/modules/templates
 graft fpms/fonts
 graft fpms/images
