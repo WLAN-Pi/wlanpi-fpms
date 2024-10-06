@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.4-1) UNRELEASED; urgency=medium
+
+  * Improves reboot/shutdown detection by making signal handlers even more specific
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 06 Oct 2024 09:15:51 -0500
+
 wlanpi-fpms (1.4.4) unstable; urgency=medium
 
   * Fixes "Reboot in progress" message shown when not rebooting

@@ -135,9 +135,9 @@ def handle_prepare_for_shutdown(arg):
     handle_reboot_or_shutdown()
 
 
-# Handler for UnitNew signal
-def handle_unitnew(*args):
-    log_to_syslog("UnitNew signal received")
+# Handler for JobNew signal
+def handle_jobnew(*args):
+    log_to_syslog("JobNew signal received")
     for arg in args:
         if isinstance(arg, str):
             if ("reboot.target" in arg):
@@ -169,12 +169,12 @@ def run_dbus_loop():
         path="/org/freedesktop/login1"
     )
 
-    # Add a signal receiver for UnitNew signal from systemd1.Manager
+    # Add a signal receiver for JobNew signal from systemd1.Manager
     # Handles (legacy) reboot
     bus.add_signal_receiver(
-        handle_unitnew,
+        handle_jobnew,
         dbus_interface="org.freedesktop.systemd1.Manager",
-        signal_name="UnitNew"
+        signal_name="JobNew"
     )
 
     log_to_syslog(f"event handlers added")
