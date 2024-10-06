@@ -1,3 +1,10 @@
+wlanpi-fpms (1.4.4) unstable; urgency=medium
+
+  * Fixes "Reboot in progress" message shown when not rebooting
+  * Shows "Shutdown in progress" message when shutdown is triggered outside FPMS
+
+ -- Adrian Granados <adrian@intuitibits.com>  Sun, 06 Oct 2024 00:00:00 -0500
+
 wlanpi-fpms (1.4.3) unstable; urgency=medium
 
   * Adds option System > Settings > Rotate Display
