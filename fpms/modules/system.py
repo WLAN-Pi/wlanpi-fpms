@@ -214,6 +214,13 @@ class System(object):
                 with open(authors_file) as f:
                     authors = "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
 
+            contributors = None
+            contributors_file = os.path.realpath(os.path.join(os.getcwd(), "CONTRIBUTORS.md"))
+            if os.path.isfile(contributors_file):
+                with open(contributors_file) as f:
+                    contributors = "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
+
+
             about = []
             about.append(" ")
             about.append(name.center(20, " "))
@@ -227,6 +234,17 @@ class System(object):
                     authors_list.append(author.split(",")[0].strip().center(20, " "))
                 random.shuffle(authors_list)
                 about.extend(authors_list)
+
+            if contributors != None:
+                about.append(" ")
+                about.append("Contributors".center(20, " "))
+                about.append(" ")
+                contributors_list = []
+                for contributor in contributors.split("\n"):
+                    contributor = contributor.replace("*", "").strip()
+                    contributors_list.append(contributor.split(",")[0].strip().center(20, " "))
+                random.shuffle(contributors_list)
+                about.extend(contributors_list)
 
             g_vars['about'] = about
             g_vars['result_cache'] = True
