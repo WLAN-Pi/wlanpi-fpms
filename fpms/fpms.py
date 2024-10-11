@@ -862,7 +862,8 @@ optional options:
                     {"name": "Set Domain DE", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
                     {"name": "Set Domain RU", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_ru},]},                ]},
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_ru},]},
+                ]},
                 {"name": "Rotate Display", "action": rotate_display}
             ]},
             {"name": "Reboot",   "action": [
