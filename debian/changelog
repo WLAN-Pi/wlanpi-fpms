@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.5) unstable; urgency=medium
+
+  * Server mode nonpersistence is now handled by wlanpi-server-nonpersistence.service shipped in wlanpi-server package
+
+  -- Jiri Brejcha <jirka@jiribrejcha.net>  Sat, 12 Oct 2024 22:18:00 +0100
+
 wlanpi-fpms (1.4.4-2) UNRELEASED; urgency=medium
 
   * Adds CONTRIBUTORS.md to MANIFEST.in

@@ -296,15 +296,6 @@ optional options:
     env_utils = EnvUtils()
     g_vars['current_mode'] = env_utils.get_mode(MODE_FILE)
 
-    #######################################################################
-    # Server mode non-persistence
-    # If the Pi is in Server schedule mode switch to Classic for next boot
-    #######################################################################
-
-    if g_vars['current_mode'] == "server":
-        schedule_server_to_classic = "/etc/wlanpi-server/scripts/schedule-switch-to-classic"
-        subprocess.Popen([schedule_server_to_classic])
-
     ##################################
     # Static info we want to get once
     ##################################
