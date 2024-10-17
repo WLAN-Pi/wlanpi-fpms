@@ -188,7 +188,7 @@ class Luma(AbstractScreen):
         if PLATFORM == PLATFORM_PRO:
             # Reduce the contrast to also help reduce the noise
             # that's being produced by the display for some reason
-            device.contrast(128)
+            self.device.contrast(128)
         return True
 
     def drawImage(self, image):
