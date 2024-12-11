@@ -159,6 +159,144 @@ class CloudUtils(object):
         # re-enable front panel keys
         g_vars["disable_keys"] = False
 
+    def test_meraki_cloud(self, g_vars):
+        """
+        Perform a series of connectivity tests to check if connection
+          to Cisco Meraki Cloud is healthy:
+
+        1. Is eth0 port up?
+        2. Do we get an IP address via DHCP?
+        3. Can we resolve address?
+        4. Can we ping the WAN?
+        5. Can we get a response from port 443?
+        """
+
+        # ignore any more key presses as this could cause us issues
+        g_vars["disable_keys"] = True
+
+        # Has test been run already?
+        if g_vars["result_cache"] == False:
+
+            # record test success/fail
+            test_fail = False
+
+            # create empty table
+            item_list = ["", "", "", "", "", "", "", "", ""]
+
+            self.alert_obj.display_popup_alert(g_vars, "Running...")
+
+            # Is eth0 up?
+            cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
+            result = subprocess.check_output(cmd, shell=True).decode().strip()
+
+            if result == "yes":
+                item_list[0] = "Eth0 Port Up: YES"
+            elif result == "no":
+                item_list[0] = "Eth0 Port Up: NO"
+                test_fail = True
+            else:
+                item_list[0] = "Eth0 Port Up: Unknown"
+                test_fail = True
+
+            # we're done if test failed
+            if not test_fail:
+                # Have we got an IP address?
+                cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
+                result = subprocess.check_output(cmd, shell=True).decode().strip()
+
+                if result:
+                    item_list[1] = "MyIP: {}".format(result)
+                else:
+                    item_list[1] = "MyIP: None"
+                    test_fail = True
+
+            dns_fail = False
+
+            if not test_fail:
+                # https://help.central.arubanetworks.com/latest/documentation/online_help/content/nms/device-mgmt/communication_ports.htm
+                # Can we resolve address activate.arubanetworks.com?
+
+                try:
+                    socket.gethostbyname("activate.arubanetworks.com")
+                    item_list[2] = "DNS (ACTIVATE): OK"
+                except Exception as error:
+                    dns_fail = True
+                    item_list[2] = "DNS (ACTIVATE): FAIL"
+
+                if not dns_fail:
+                    try:
+                        socket.gethostbyname("common.cloud.hpe.com")
+                        item_list[3] = "DNS (COMMON): OK"
+                    except Exception as error:
+                        dns_fail = True
+                        item_list[3] = "DNS (COMMON): FAIL"
+                else:
+                    item_list[3] = "DNS (COMMON): SKIP"
+
+                if not dns_fail:
+                    try:
+                        socket.gethostbyname("device.arubanetworks.com")
+                        item_list[4] = "DNS (DEVICE): OK"
+                    except Exception as error:
+                        dns_fail = True
+                        item_list[4] = "DNS (DEVICE): FAIL"
+                else:
+                    item_list[3] = "DNS (DEVICE): SKIP"
+
+                if not dns_fail:
+                    try:
+                        socket.gethostbyname("images.arubanetworks.com")
+                        item_list[6] = "DNS (IMAGES): OK"
+                    except Exception as error:
+                        dns_fail = True
+                        item_list[6] = "DNS (IMAGES): FAIL"
+                else:
+                    item_list[3] = "DNS (IMAGES): SKIP"
+
+            if dns_fail:
+                test_fail = True
+
+            if not test_fail:
+                # Can we get an ICMP response from https://pqm.arubanetworks.com?
+                cmd = ["ping", "-c", "2", "-W", "2", "pqm.arubanetworks.com"]
+                result = subprocess.run(
+                    cmd,
+                    shell=False,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                if result.returncode == 0:
+                    item_list[7] = "ICMP (PQM): OK"
+                else:
+                    item_list[7] = "ICMP (PQM): FAIL"
+                    test_fail = True
+
+                if not test_fail:
+                    try:
+                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        sock.settimeout(2)
+                        result = sock.connect_ex(("device.arubanetworks.com", 443))
+                    except:
+                        pass
+
+                    if result == 0:
+                        item_list[8] = "PORT (DEVICE): OK"
+                    else:
+                        item_list[8] = "PORT (DEVICE): FAIL"
+                        test_fail = True
+                    sock.close()
+
+            # show results
+            self.simple_table_obj.display_simple_table(
+                g_vars, item_list, title="Cisco Meraki Cloud"
+            )
+
+            # set flag to prevent constant refresh of screen
+            g_vars["result_cache"] = True
+
+        # re-enable front panel keys
+        g_vars["disable_keys"] = False
+
     def test_mist_cloud(self, g_vars):
         """
         Perform a series of connectivity tests to see if Mist cloud available:
