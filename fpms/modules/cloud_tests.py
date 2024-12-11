@@ -169,6 +169,16 @@ class CloudUtils(object):
         3. Can we resolve address?
         4. Can we ping the WAN?
         5. Can we get a response from port 443?
+
+        Docs: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
+        
+        Primary connection uses UDP port 7351 for the tunnel. APs will attempt to use HTTP/HTTPS if unable to connect over port 7351.
+
+        APs perform connnection tests:
+        - ping 8.8.8.8
+        - ARP gateway 
+        - DNS resolution
+
         """
 
         # ignore any more key presses as this could cause us issues
