@@ -298,7 +298,7 @@ class CloudUtils(object):
 
             # show results
             self.simple_table_obj.display_simple_table(
-                g_vars, item_list, title="Cisco Meraki Cloud"
+                g_vars, item_list, title="Meraki Cloud"
             )
 
             # set flag to prevent constant refresh of screen
