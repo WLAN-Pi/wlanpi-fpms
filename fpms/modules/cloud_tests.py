@@ -171,12 +171,12 @@ class CloudUtils(object):
         5. Can we get a response from port 443?
 
         Docs: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
-        
+
         Primary connection uses UDP port 7351 for the tunnel. APs will attempt to use HTTP/HTTPS if unable to connect over port 7351.
 
         APs perform connnection tests:
         - ping 8.8.8.8
-        - ARP gateway 
+        - ARP gateway
         - DNS resolution
 
         """
@@ -196,7 +196,7 @@ class CloudUtils(object):
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
             # Is eth0 up?
-            cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
+            cmd = "/sbin/ethtool eth0 | awk '/Link detected/ {print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
             if result == "yes":
@@ -211,7 +211,7 @@ class CloudUtils(object):
             # we're done if test failed
             if not test_fail:
                 # Have we got an IP address?
-                cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
+                cmd = "ip address show eth0 | awk '/inet / {print $2}' | awk -F'/' '{print $1}'"
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
@@ -223,15 +223,12 @@ class CloudUtils(object):
             dns_fail = False
 
             if not test_fail:
-                # https://help.central.arubanetworks.com/latest/documentation/online_help/content/nms/device-mgmt/communication_ports.htm
-                # Can we resolve address activate.arubanetworks.com?
-
                 try:
-                    socket.gethostbyname("activate.arubanetworks.com")
-                    item_list[2] = "DNS (ACTIVATE): OK"
+                    socket.gethostbyname("pool.ntp.org")
+                    item_list[2] = "DNS UDP 53: OK"
                 except Exception as error:
                     dns_fail = True
-                    item_list[2] = "DNS (ACTIVATE): FAIL"
+                    item_list[2] = "DNS UDP 53: FAIL"
 
                 if not dns_fail:
                     try:
