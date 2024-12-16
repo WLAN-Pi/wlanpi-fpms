@@ -1,6 +1,6 @@
-wlanpi-fpms (1.4.7) unstable; urgency=medium
+wlanpi-fpms (1.4.7-1) unstable; urgency=medium
 
-  * Add NO as regdom choice
+  * Add Norway (NO) as RF domain choice
 
   -- Josh Schmelzle <josh@joshschmelzle.com>  Mon, 16 Dec 2024 11:32:51 -0500
 

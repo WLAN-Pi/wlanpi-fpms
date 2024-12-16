@@ -30,7 +30,7 @@ class RegDomain(object):
             self.alert_obj.display_alert_error(g_vars, 'Failed to get domain or no domain configured')
             g_vars['display_state'] = 'menu'
             return
-        output[0] = 'Domain: ' + output[0]
+        output[0] = 'RF Domain: ' + output[0]
         self.paged_table_obj.display_list_as_paged_table(g_vars, output, title="Show Domain")
         g_vars['display_state'] = 'page'
 
