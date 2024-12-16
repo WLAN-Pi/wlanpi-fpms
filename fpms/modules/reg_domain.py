@@ -192,3 +192,23 @@ class RegDomain(object):
         time.sleep(1)
         os.system('reboot')
         return
+
+    def set_reg_domain_no(self, g_vars):
+        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+
+        try:
+            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set NO --no-prompt", shell=True).decode()
+            time.sleep(1)
+        except subprocess.CalledProcessError as exc:
+            print(exc)
+            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
+            g_vars['display_state'] = 'menu'
+            return
+
+        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        g_vars['display_state'] = 'menu'
+        g_vars['shutdown_in_progress'] = True
+        oled.drawImage(g_vars['reboot_image'])
+        time.sleep(1)
+        os.system('reboot')
+        return
