@@ -838,20 +838,20 @@ optional options:
                     {"name": "Show Domain", "action": show_reg_domain},
                     {"name": "Set Domain US", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_us},]},
-                    {"name": "Set Domain CA", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_ca},]},
-                    {"name": "Set Domain GB", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_gb},]},
                     {"name": "Set Domain BR", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_br},]},
-                    {"name": "Set Domain FR", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_fr},]},
+                    {"name": "Set Domain CA", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_ca},]},
                     {"name": "Set Domain CZ", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_cz},]},
-                    {"name": "Set Domain NL", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_nl},]},
                     {"name": "Set Domain DE", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
+                    {"name": "Set Domain FR", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_fr},]},
+                    {"name": "Set Domain GB", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_gb},]},
+                    {"name": "Set Domain NL", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_nl},]},
                     {"name": "Set Domain NO", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_no},]},
                 ]},
