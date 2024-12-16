@@ -564,6 +564,10 @@ optional options:
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_de(g_vars)
 
+    def set_reg_domain_no():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_no(g_vars)
+
     def rotate_display():
         if g_vars['display_orientation'] == DISPLAY_ORIENTATION_NORMAL:
             g_vars['display_orientation'] = DISPLAY_ORIENTATION_FLIPPED
@@ -848,6 +852,8 @@ optional options:
                         {"name": "Confirm & Reboot", "action": set_reg_domain_nl},]},
                     {"name": "Set Domain DE", "action": [
                         {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
+                    {"name": "Set Domain NO", "action": [
+                        {"name": "Confirm & Reboot", "action": set_reg_domain_no},]},
                 ]},
                 {"name": "Rotate Display", "action": rotate_display}
             ]},

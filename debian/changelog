@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.7) unstable; urgency=medium
+
+  * Add NO as regdom choice
+
+  -- Josh Schmelzle <josh@joshschmelzle.com>  Mon, 16 Dec 2024 11:32:51 -0500
+
 wlanpi-fpms (1.4.6) unstable; urgency=medium
 
   * Fix crash when running on WLAN Pi Pro
