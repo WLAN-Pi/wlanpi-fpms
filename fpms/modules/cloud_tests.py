@@ -180,6 +180,12 @@ class CloudUtils(object):
         - DNS resolution
 
         """
+        def get_default_gateway():
+            try:
+                result = subprocess.check_output("ip route | awk '/default/ {print $3}'", shell=True, text=True).strip()
+                return result
+            except subprocess.CalledProcessError:
+                return None
 
         def test_udp_connectivity(ip, port, timeout=2):
             try:
@@ -199,16 +205,32 @@ class CloudUtils(object):
             except Exception:
                 return False
 
-        # ignore any more key presses as this could cause us issues
+        def test_ping(host, timeout=2):
+            try:
+                subprocess.check_call(f"ping -c1 -W{timeout} -4 -q {host}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True
+            except subprocess.CalledProcessError:
+                return False
+
+        def test_arping(ip, interface="eth0"):
+            try:
+                subprocess.check_call(f"arping -c1 -w2 -I {interface} {ip}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True
+            except subprocess.CalledProcessError:
+                return False
+
+        # Ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
         # Has test been run already?
         if g_vars["result_cache"] == False:
 
-            # record test success/fail
+            # Record test success/fail
             test_fail = False
 
-            # create empty table
+            gateway_ip = get_default_gateway()
+
+            # Create empty table
             item_list = ["", "", "", "", "", "", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
@@ -238,8 +260,6 @@ class CloudUtils(object):
                     item_list[1] = "MyIP: None"
                     test_fail = True
 
-            dns_fail = False
-
             if not test_fail:
                 try:
                     test_udp_connectivity("64.62.142.12", 7351)
@@ -254,6 +274,34 @@ class CloudUtils(object):
                 except Exception as error:
                     dns_fail = True
                     item_list[3] = "NTP UDP 123: FAIL"
+
+                try:
+                    test_tcp_connectivity("158.115.128.12", 80)
+                    item_list[4] = "Backup TCP 80: OK"
+                except Exception as error:
+                    dns_fail = True
+                    item_list[4] = "Backup TCP 80: FAIL"
+
+                try:
+                    test_tcp_connectivity("158.115.128.12", 443)
+                    item_list[5] = "Backup TCP 443: OK"
+                except Exception as error:
+                    dns_fail = True
+                    item_list[5] = "Backup TCP 443: FAIL"
+
+                try:
+                    test_ping("8.8.8.8")
+                    item_list[6] = "Ping 8.8.8.8: OK"
+                except Exception as error:
+                    dns_fail = True
+                    item_list[6] = "Ping 8.8.8.8: FAIL"
+
+                try:
+                    test_arping(gateway_ip)
+                    item_list[7] = "ARP Gateway: OK"
+                except Exception as error:
+                    dns_fail = True
+                    item_list[7] = "ARP Gateway: FAIL"
 
                 try:
                     socket.gethostbyname("pool.ntp.org")
