@@ -187,14 +187,18 @@ class CloudUtils(object):
             except subprocess.CalledProcessError:
                 return None
 
-        def test_udp_connectivity(ip, port, timeout=2):
+        def test_udp_connectivity(host, port, timeout=2):
             try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                sock.settimeout(timeout)
-                sock.sendto(b"", (ip, port))
-                sock.close()
-                return True
-            except Exception:
+                command = ["nc", "-uz", host, str(port)]
+                result = subprocess.run(command, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout, text=True)
+                if result.returncode == 0:
+                    return True
+                else:
+                    return False
+            except subprocess.TimeoutExpired:
+                return False
+            except Exception as e:
+                print(f"Error occurred: {e}")
                 return False
 
         def test_tcp_connectivity(ip, port, timeout=2):
@@ -212,13 +216,6 @@ class CloudUtils(object):
             except subprocess.CalledProcessError:
                 return False
 
-        def test_arping(ip, interface="eth0"):
-            try:
-                subprocess.check_call(f"arping -c1 -w2 -I {interface} {ip}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                return True
-            except subprocess.CalledProcessError:
-                return False
-
         # Ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
@@ -231,7 +228,7 @@ class CloudUtils(object):
             gateway_ip = get_default_gateway()
 
             # Create empty table
-            item_list = ["", "", "", "", "", "", "", "", ""]
+            item_list = ["", "", "", "", "", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
@@ -261,99 +258,52 @@ class CloudUtils(object):
                     test_fail = True
 
             if not test_fail:
-                try:
-                    test_udp_connectivity("64.62.142.12", 7351)
+                if test_udp_connectivity("64.62.142.12", 7351):
                     item_list[2] = "Cloud UDP 7351: OK"
-                except Exception as error:
-                    dns_fail = True
+                else:
+                    test_fail = True
                     item_list[2] = "Cloud UDP 7351: FAIL"
 
-                try:
-                    test_udp_connectivity("pool.ntp.org", 123)
+                if test_udp_connectivity("pool.ntp.org", 123):
                     item_list[3] = "NTP UDP 123: OK"
-                except Exception as error:
-                    dns_fail = True
+                else:
                     item_list[3] = "NTP UDP 123: FAIL"
+                    test_fail = True
 
-                try:
-                    test_tcp_connectivity("158.115.128.12", 80)
+                if test_tcp_connectivity("158.115.128.12", 80):
                     item_list[4] = "Backup TCP 80: OK"
-                except Exception as error:
-                    dns_fail = True
+                else:
+                    test_fail = True
                     item_list[4] = "Backup TCP 80: FAIL"
 
-                try:
-                    test_tcp_connectivity("158.115.128.12", 443)
+                if test_tcp_connectivity("158.115.128.12", 443):
                     item_list[5] = "Backup TCP 443: OK"
-                except Exception as error:
-                    dns_fail = True
+                else:
+                    test_fail = True
                     item_list[5] = "Backup TCP 443: FAIL"
 
-                try:
-                    test_ping("8.8.8.8")
+                if test_ping("8.8.8.8"):
                     item_list[6] = "Ping 8.8.8.8: OK"
-                except Exception as error:
-                    dns_fail = True
+                else:
+                    test_fail = True
                     item_list[6] = "Ping 8.8.8.8: FAIL"
 
                 try:
-                    test_arping(gateway_ip)
-                    item_list[7] = "ARP Gateway: OK"
-                except Exception as error:
-                    dns_fail = True
-                    item_list[7] = "ARP Gateway: FAIL"
-
-                try:
                     socket.gethostbyname("pool.ntp.org")
-                    item_list[8] = "DNS UDP 53: OK"
+                    item_list[7] = "DNS UDP 53: OK"
                 except Exception as error:
-                    dns_fail = True
-                    item_list[8] = "DNS UDP 53: FAIL"
-
-
-
-            if dns_fail:
-                test_fail = True
-
-            if not test_fail:
-                # Can we get an ICMP response from https://pqm.arubanetworks.com?
-                cmd = ["ping", "-c", "2", "-W", "2", "pqm.arubanetworks.com"]
-                result = subprocess.run(
-                    cmd,
-                    shell=False,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-                if result.returncode == 0:
-                    item_list[7] = "ICMP (PQM): OK"
-                else:
-                    item_list[7] = "ICMP (PQM): FAIL"
                     test_fail = True
+                    item_list[7] = "DNS UDP 53: FAIL"
 
-                if not test_fail:
-                    try:
-                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        sock.settimeout(2)
-                        result = sock.connect_ex(("device.arubanetworks.com", 443))
-                    except:
-                        pass
-
-                    if result == 0:
-                        item_list[8] = "PORT (DEVICE): OK"
-                    else:
-                        item_list[8] = "PORT (DEVICE): FAIL"
-                        test_fail = True
-                    sock.close()
-
-            # show results
+            # Show results
             self.simple_table_obj.display_simple_table(
                 g_vars, item_list, title="Meraki Cloud"
             )
 
-            # set flag to prevent constant refresh of screen
+            # Set flag to prevent constant refresh of screen
             g_vars["result_cache"] = True
 
-        # re-enable front panel keys
+        # Re-enable front panel keys
         g_vars["disable_keys"] = False
 
     def test_mist_cloud(self, g_vars):
