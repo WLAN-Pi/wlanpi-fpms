@@ -181,6 +181,24 @@ class CloudUtils(object):
 
         """
 
+        def test_udp_connectivity(ip, port, timeout=2):
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.settimeout(timeout)
+                sock.sendto(b"", (ip, port))
+                sock.close()
+                return True
+            except Exception:
+                return False
+
+        def test_tcp_connectivity(ip, port, timeout=2):
+            try:
+                sock = socket.create_connection((ip, port), timeout)
+                sock.close()
+                return True
+            except Exception:
+                return False
+
         # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
@@ -208,7 +226,7 @@ class CloudUtils(object):
                 item_list[0] = "Eth0 Port Up: Unknown"
                 test_fail = True
 
-            # we're done if test failed
+            # We're done if test failed
             if not test_fail:
                 # Have we got an IP address?
                 cmd = "ip address show eth0 | awk '/inet / {print $2}' | awk -F'/' '{print $1}'"
@@ -224,41 +242,27 @@ class CloudUtils(object):
 
             if not test_fail:
                 try:
-                    socket.gethostbyname("pool.ntp.org")
-                    item_list[2] = "DNS UDP 53: OK"
+                    test_udp_connectivity("64.62.142.12", 7351)
+                    item_list[2] = "Cloud UDP 7351: OK"
                 except Exception as error:
                     dns_fail = True
-                    item_list[2] = "DNS UDP 53: FAIL"
+                    item_list[2] = "Cloud UDP 7351: FAIL"
 
-                if not dns_fail:
-                    try:
-                        socket.gethostbyname("common.cloud.hpe.com")
-                        item_list[3] = "DNS (COMMON): OK"
-                    except Exception as error:
-                        dns_fail = True
-                        item_list[3] = "DNS (COMMON): FAIL"
-                else:
-                    item_list[3] = "DNS (COMMON): SKIP"
+                try:
+                    test_udp_connectivity("pool.ntp.org", 123)
+                    item_list[3] = "NTP UDP 123: OK"
+                except Exception as error:
+                    dns_fail = True
+                    item_list[3] = "NTP UDP 123: FAIL"
 
-                if not dns_fail:
-                    try:
-                        socket.gethostbyname("device.arubanetworks.com")
-                        item_list[4] = "DNS (DEVICE): OK"
-                    except Exception as error:
-                        dns_fail = True
-                        item_list[4] = "DNS (DEVICE): FAIL"
-                else:
-                    item_list[3] = "DNS (DEVICE): SKIP"
+                try:
+                    socket.gethostbyname("pool.ntp.org")
+                    item_list[8] = "DNS UDP 53: OK"
+                except Exception as error:
+                    dns_fail = True
+                    item_list[8] = "DNS UDP 53: FAIL"
 
-                if not dns_fail:
-                    try:
-                        socket.gethostbyname("images.arubanetworks.com")
-                        item_list[6] = "DNS (IMAGES): OK"
-                    except Exception as error:
-                        dns_fail = True
-                        item_list[6] = "DNS (IMAGES): FAIL"
-                else:
-                    item_list[3] = "DNS (IMAGES): SKIP"
+
 
             if dns_fail:
                 test_fail = True
