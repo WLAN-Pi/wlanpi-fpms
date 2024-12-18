@@ -161,14 +161,16 @@ class CloudUtils(object):
 
     def test_meraki_cloud(self, g_vars):
         """
-        Perform a series of connectivity tests to check if connection
-          to Cisco Meraki Cloud is healthy:
+        Perform a series of connectivity tests to check if connection to Cisco Meraki Cloud is healthy:
 
         1. Is eth0 port up?
         2. Do we get an IP address via DHCP?
-        3. Can we resolve address?
-        4. Can we ping the WAN?
-        5. Can we get a response from port 443?
+        3. Can we contact Dashboard using primary UDP port 7351?
+        4. Is NTP server pool.ntp.org reachable at UDP port 123?
+        5. Can we contact Dashboard using backup TCP port 80?
+        6. Can we contact Dashboard using backup TCP port 443?
+        7. Can we ping 8.8.8.8?
+        8. Can we translate pool.ntp.org to IP address?
 
         Docs: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
 
