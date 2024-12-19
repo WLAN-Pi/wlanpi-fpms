@@ -172,14 +172,14 @@ class CloudUtils(object):
         7. Can we ping 8.8.8.8?
         8. Can we translate pool.ntp.org to IP address?
 
-        Docs: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
-
         Primary connection uses UDP port 7351 for the tunnel. APs will attempt to use HTTP/HTTPS if unable to connect over port 7351.
 
         APs perform connnection tests:
         - ping 8.8.8.8
         - ARP gateway
         - DNS resolution
+
+        Documentation: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
 
         """
         def get_default_gateway():
@@ -189,21 +189,24 @@ class CloudUtils(object):
             except subprocess.CalledProcessError:
                 return None
 
-        def test_udp_connectivity(host, port, timeout=2):
+        def test_udp(ip, port, timeout=4):
             try:
-                command = ["nc", "-uz", host, str(port)]
-                result = subprocess.run(command, shell=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=timeout, text=True)
-                if result.returncode == 0:
+                result = subprocess.run(
+                    ["sudo", "nmap", "-sU", f"-pU:{port}", ip],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    timeout=timeout,
+                    text=True
+                )
+                if f"{port}/udp open" in result.stdout:
                     return True
                 else:
                     return False
-            except subprocess.TimeoutExpired:
-                return False
             except Exception as e:
-                print(f"Error occurred: {e}")
+                print(f"An error occurred: {e}")
                 return False
 
-        def test_tcp_connectivity(ip, port, timeout=2):
+        def test_tcp(ip, port, timeout=2):
             try:
                 sock = socket.create_connection((ip, port), timeout)
                 sock.close()
@@ -254,31 +257,31 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "MyIP: {}".format(result)
+                    item_list[1] = "My IP: {}".format(result)
                 else:
-                    item_list[1] = "MyIP: None"
+                    item_list[1] = "My IP: None"
                     test_fail = True
 
             if not test_fail:
-                if test_udp_connectivity("64.62.142.12", 7351):
+                if test_udp("158.115.128.12", 7351):
                     item_list[2] = "Cloud UDP 7351: OK"
                 else:
                     test_fail = True
                     item_list[2] = "Cloud UDP 7351: FAIL"
 
-                if test_udp_connectivity("pool.ntp.org", 123):
+                if test_udp("pool.ntp.org", 123):
                     item_list[3] = "NTP UDP 123: OK"
                 else:
                     item_list[3] = "NTP UDP 123: FAIL"
                     test_fail = True
 
-                if test_tcp_connectivity("158.115.128.12", 80):
+                if test_tcp("158.115.128.12", 80):
                     item_list[4] = "Backup TCP 80: OK"
                 else:
                     test_fail = True
                     item_list[4] = "Backup TCP 80: FAIL"
 
-                if test_tcp_connectivity("158.115.128.12", 443):
+                if test_tcp("158.115.128.12", 443):
                     item_list[5] = "Backup TCP 443: OK"
                 else:
                     test_fail = True
