@@ -1,6 +1,5 @@
 import subprocess
 import socket
-import struct
 
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.simpletable import *
@@ -162,51 +161,25 @@ class CloudUtils(object):
 
     def test_meraki_cloud(self, g_vars):
         """
-        Perform a series of connectivity tests to check if connection to Cisco Meraki Cloud is healthy:
+        Perform a series of connectivity tests to check if connection to Cisco Meraki Cloud via TLS is healthy:
 
         1. Is eth0 port up?
         2. Do we get an IP address via DHCP?
-        3. Can we contact Dashboard using primary TCP 443?
-        4. Can we reach TCP port 80? - no longer needed???
-        5. Is NTP server pool.ntp.org reachable at UDP port 123?
-        6. Can we ping 8.8.8.8?
-        7. Can we resolve mtunnel.meraki.com to IP address?
+        3. Can we contact Dashboard via TLS on port TCP 443?
+        4. Is NTP server pool.ntp.org reachable on UDP port 123?
+        5. Can we resolve meraki.com to IP address using current DNS server?
+
+        In addition, each AP regularly performs connectivity checks:
+        - Ping 8.8.8.8
+        - DNS resolution
+        - ARP default gateway - I choose not to implement this, if we deal with ARP issues, other tests above will fail
 
         Docs: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
 
-        Primary connection now uses TCP port 443 with no backup port 80 anymore.
-        UDP port 7351 is only used by Meraki devices running older firmware and we can't reliably test UDP anyway. Skipping this test.
-
-        APs perform connnection tests:
-        - ping 8.8.8.8
-        - ARP gateway - skipping, if we deal with gateway issues, most other tests will fail
-        - DNS resolution
+        Note: This script doesn't test the legacy cloud connection on  UDP port 7351 and TCP 7734.
+        They are only used by devices running older firmware and we can't reliably test for open UDP ports anyway.
 
         """
-
-        def get_default_gateway():
-            try:
-                result = subprocess.check_output("ip route | awk '/default/ {print $3}'", shell=True, text=True).strip()
-                return result
-            except subprocess.CalledProcessError:
-                return None
-
-        def test_udp(ip, port, timeout=15):
-            try:
-                result = subprocess.run(
-                    ["sudo", "nmap", "-sU", f"-pU:{port}", ip],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    timeout=timeout,
-                    text=True
-                )
-                if f"{port}/udp open" in result.stdout:
-                    return True
-                else:
-                    return False
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                return False
 
         def test_tcp(ip, port, timeout=2):
             try:
@@ -222,9 +195,6 @@ class CloudUtils(object):
                 return True
             except subprocess.CalledProcessError:
                 return False
-
-        # Set a global timeout for socket operations
-        socket.setdefaulttimeout(2)
 
         def test_ntp(server: str, port: int = 123, timeout: int = 2) -> bool:
             try:
@@ -277,10 +247,8 @@ class CloudUtils(object):
             # Record test success/fail
             test_fail = False
 
-            gateway_ip = get_default_gateway()
-
             # Create empty table
-            item_list = ["", "", "", "", "", "", "", ""]
+            item_list = ["", "", "", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
@@ -310,36 +278,30 @@ class CloudUtils(object):
                     test_fail = True
 
             if not test_fail:
-               # Primary cloud connection
+               # Cloud TLS connection
                 if test_tcp("euc.byoip.nt.meraki.com", 443):
                     item_list[2] = "Cloud TCP 443: OK"
                 else:
                     test_fail = True
                     item_list[2] = "Cloud TCP 443: FAIL"
-                # TCP port 80 test
-                if test_tcp("canireachthe.net", 80):
-                    item_list[3] = "TCP 80: OK"
-                else:
-                    test_fail = True
-                    item_list[3] = "TCP 80: FAIL"
                 # NTP test
                 if test_ntp("pool.ntp.org"):
-                    item_list[4] = "NTP UDP 123: OK"
+                    item_list[3] = "NTP UDP 123: OK"
                 else:
-                    item_list[4] = "NTP UDP 123: FAIL"
+                    item_list[3] = "NTP UDP 123: FAIL"
                     test_fail = True
+                # DNS resolution test
+                if test_dns("meraki.com"):
+                    item_list[4] = "DNS UDP 53: OK"
+                else:
+                    test_fail = True
+                    item_list[4] = "DNS UDP 53: FAIL"
                 # Ping 8.8.8.8
                 if test_ping("8.8.8.8"):
                     item_list[5] = "Ping 8.8.8.8: OK"
                 else:
                     test_fail = True
                     item_list[5] = "Ping 8.8.8.8: FAIL"
-                # DNS resolution test
-                if test_dns("meraki.com"):
-                    item_list[6] = "DNS UDP 53: OK"
-                else:
-                    test_fail = True
-                    item_list[6] = "DNS UDP 53: FAIL"
 
             # Show results
             self.simple_table_obj.display_simple_table(
