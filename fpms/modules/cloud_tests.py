@@ -1,5 +1,6 @@
 import subprocess
 import socket
+import struct
 
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.simpletable import *
@@ -165,23 +166,24 @@ class CloudUtils(object):
 
         1. Is eth0 port up?
         2. Do we get an IP address via DHCP?
-        3. Can we contact Dashboard using primary UDP port 7351?
-        4. Is NTP server pool.ntp.org reachable at UDP port 123?
-        5. Can we contact Dashboard using backup TCP port 80?
-        6. Can we contact Dashboard using backup TCP port 443?
-        7. Can we ping 8.8.8.8?
-        8. Can we translate pool.ntp.org to IP address?
+        3. Can we contact Dashboard using primary TCP 443?
+        4. Can we reach TCP port 80? - no longer needed???
+        5. Is NTP server pool.ntp.org reachable at UDP port 123?
+        6. Can we ping 8.8.8.8?
+        7. Can we resolve mtunnel.meraki.com to IP address?
 
-        Primary connection uses UDP port 7351 for the tunnel. APs will attempt to use HTTP/HTTPS if unable to connect over port 7351.
+        Docs: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
+
+        Primary connection now uses TCP port 443 with no backup port 80 anymore.
+        UDP port 7351 is only used by Meraki devices running older firmware and we can't reliably test UDP anyway. Skipping this test.
 
         APs perform connnection tests:
         - ping 8.8.8.8
-        - ARP gateway
+        - ARP gateway - skipping, if we deal with gateway issues, most other tests will fail
         - DNS resolution
 
-        Documentation: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
-
         """
+
         def get_default_gateway():
             try:
                 result = subprocess.check_output("ip route | awk '/default/ {print $3}'", shell=True, text=True).strip()
@@ -189,7 +191,7 @@ class CloudUtils(object):
             except subprocess.CalledProcessError:
                 return None
 
-        def test_udp(ip, port, timeout=4):
+        def test_udp(ip, port, timeout=15):
             try:
                 result = subprocess.run(
                     ["sudo", "nmap", "-sU", f"-pU:{port}", ip],
@@ -219,6 +221,51 @@ class CloudUtils(object):
                 subprocess.check_call(f"ping -c1 -W{timeout} -4 -q {host}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 return True
             except subprocess.CalledProcessError:
+                return False
+
+        # Set a global timeout for socket operations
+        socket.setdefaulttimeout(2)
+
+        def test_ntp(server: str, port: int = 123, timeout: int = 2) -> bool:
+            try:
+                # Create a UDP socket
+                client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                client.settimeout(timeout)
+
+                # Construct an NTP request packet
+                ntp_packet = b'\x1b' + 47 * b'\0'
+
+                # Send the packet to the server
+                client.sendto(ntp_packet, (server, port))
+
+                # Receive the response from the server
+                data, _ = client.recvfrom(1024)
+
+                if data:
+                    return True
+            except (socket.timeout, Exception):
+                return False
+            finally:
+                client.close()
+
+        def test_dns(hostname):
+            try:
+                # Dig with timeout is faster to fail and more flexible than native Python
+                result = subprocess.run(
+                    ["dig", "+short", "+tries=1", hostname],
+                    capture_output=True,
+                    text=True,
+                    timeout=2
+                )
+                if result.returncode == 0:
+                    return True
+                else:
+                    print(f"Failed to resolve hostname {hostname}.")
+                    return False
+            except subprocess.TimeoutExpired:
+                return False
+            except Exception as e:
+                print(f"DNS test error occurred: {e}")
                 return False
 
         # Ignore any more key presses as this could cause us issues
@@ -263,42 +310,36 @@ class CloudUtils(object):
                     test_fail = True
 
             if not test_fail:
-                if test_udp("158.115.128.12", 7351):
-                    item_list[2] = "Cloud UDP 7351: OK"
+               # Primary cloud connection
+                if test_tcp("euc.byoip.nt.meraki.com", 443):
+                    item_list[2] = "Cloud TCP 443: OK"
                 else:
                     test_fail = True
-                    item_list[2] = "Cloud UDP 7351: FAIL"
-
-                if test_udp("pool.ntp.org", 123):
-                    item_list[3] = "NTP UDP 123: OK"
-                else:
-                    item_list[3] = "NTP UDP 123: FAIL"
-                    test_fail = True
-
-                if test_tcp("158.115.128.12", 80):
-                    item_list[4] = "Backup TCP 80: OK"
+                    item_list[2] = "Cloud TCP 443: FAIL"
+                # TCP port 80 test
+                if test_tcp("canireachthe.net", 80):
+                    item_list[3] = "TCP 80: OK"
                 else:
                     test_fail = True
-                    item_list[4] = "Backup TCP 80: FAIL"
-
-                if test_tcp("158.115.128.12", 443):
-                    item_list[5] = "Backup TCP 443: OK"
+                    item_list[3] = "TCP 80: FAIL"
+                # NTP test
+                if test_ntp("pool.ntp.org"):
+                    item_list[4] = "NTP UDP 123: OK"
                 else:
+                    item_list[4] = "NTP UDP 123: FAIL"
                     test_fail = True
-                    item_list[5] = "Backup TCP 443: FAIL"
-
+                # Ping 8.8.8.8
                 if test_ping("8.8.8.8"):
-                    item_list[6] = "Ping 8.8.8.8: OK"
+                    item_list[5] = "Ping 8.8.8.8: OK"
                 else:
                     test_fail = True
-                    item_list[6] = "Ping 8.8.8.8: FAIL"
-
-                try:
-                    socket.gethostbyname("pool.ntp.org")
-                    item_list[7] = "DNS UDP 53: OK"
-                except Exception as error:
+                    item_list[5] = "Ping 8.8.8.8: FAIL"
+                # DNS resolution test
+                if test_dns("meraki.com"):
+                    item_list[6] = "DNS UDP 53: OK"
+                else:
                     test_fail = True
-                    item_list[7] = "DNS UDP 53: FAIL"
+                    item_list[6] = "DNS UDP 53: FAIL"
 
             # Show results
             self.simple_table_obj.display_simple_table(
