@@ -159,6 +159,161 @@ class CloudUtils(object):
         # re-enable front panel keys
         g_vars["disable_keys"] = False
 
+    def test_meraki_cloud(self, g_vars):
+        """
+        Perform a series of connectivity tests to check if connection to Cisco Meraki Cloud via TLS is healthy:
+
+        1. Is eth0 port up?
+        2. Do we get an IP address via DHCP?
+        3. Can we contact Dashboard via TLS on port TCP 443?
+        4. Is NTP server pool.ntp.org reachable on UDP port 123?
+        5. Can we resolve meraki.com to IP address using current DNS server?
+
+        In addition, each AP regularly performs connectivity checks:
+        - Ping 8.8.8.8
+        - DNS resolution
+        - ARP default gateway - I choose not to implement this, if we deal with ARP issues, other tests above will fail
+
+        Docs: https://documentation.meraki.com/General_Administration/Other_Topics/Upstream_Firewall_Rules_for_Cloud_Connectivity
+
+        Note: This script doesn't test the legacy cloud connection on  UDP port 7351 and TCP 7734.
+        They are only used by devices running older firmware and we can't reliably test for open UDP ports anyway.
+
+        """
+
+        def test_tcp(ip, port, timeout=2):
+            try:
+                sock = socket.create_connection((ip, port), timeout)
+                sock.close()
+                return True
+            except Exception:
+                return False
+
+        def test_ping(host, timeout=2):
+            try:
+                subprocess.check_call(f"ping -c1 -W{timeout} -4 -q {host}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return True
+            except subprocess.CalledProcessError:
+                return False
+
+        def test_ntp(server: str, port: int = 123, timeout: int = 2) -> bool:
+            try:
+                # Create a UDP socket
+                client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                client.settimeout(timeout)
+
+                # Construct an NTP request packet
+                ntp_packet = b'\x1b' + 47 * b'\0'
+
+                # Send the packet to the server
+                client.sendto(ntp_packet, (server, port))
+
+                # Receive the response from the server
+                data, _ = client.recvfrom(1024)
+
+                if data:
+                    return True
+            except (socket.timeout, Exception):
+                return False
+            finally:
+                client.close()
+
+        def test_dns(hostname):
+            try:
+                # Dig with timeout is faster to fail and more flexible than native Python
+                result = subprocess.run(
+                    ["dig", "+short", "+tries=1", hostname],
+                    capture_output=True,
+                    text=True,
+                    timeout=2
+                )
+                if result.returncode == 0:
+                    return True
+                else:
+                    print(f"Failed to resolve hostname {hostname}.")
+                    return False
+            except subprocess.TimeoutExpired:
+                return False
+            except Exception as e:
+                print(f"DNS test error occurred: {e}")
+                return False
+
+        # Ignore any more key presses as this could cause us issues
+        g_vars["disable_keys"] = True
+
+        # Has test been run already?
+        if g_vars["result_cache"] == False:
+
+            # Record test success/fail
+            test_fail = False
+
+            # Create empty table
+            item_list = ["", "", "", "", "", ""]
+
+            self.alert_obj.display_popup_alert(g_vars, "Running...")
+
+            # Is eth0 up?
+            cmd = "/sbin/ethtool eth0 | awk '/Link detected/ {print $3}'"
+            result = subprocess.check_output(cmd, shell=True).decode().strip()
+
+            if result == "yes":
+                item_list[0] = "Eth0 Port Up: YES"
+            elif result == "no":
+                item_list[0] = "Eth0 Port Up: NO"
+                test_fail = True
+            else:
+                item_list[0] = "Eth0 Port Up: Unknown"
+                test_fail = True
+
+            # We're done if test failed
+            if not test_fail:
+                # Have we got an IP address?
+                cmd = "ip address show eth0 | awk '/inet / {print $2}' | awk -F'/' '{print $1}'"
+                result = subprocess.check_output(cmd, shell=True).decode().strip()
+
+                if result:
+                    item_list[1] = "My IP: {}".format(result)
+                else:
+                    item_list[1] = "My IP: None"
+                    test_fail = True
+
+            if not test_fail:
+               # Cloud TLS connection
+                if test_tcp("euc.byoip.nt.meraki.com", 443):
+                    item_list[2] = "Cloud TCP 443: OK"
+                else:
+                    test_fail = True
+                    item_list[2] = "Cloud TCP 443: FAIL"
+                # NTP test
+                if test_ntp("pool.ntp.org"):
+                    item_list[3] = "NTP UDP 123: OK"
+                else:
+                    item_list[3] = "NTP UDP 123: FAIL"
+                    test_fail = True
+                # DNS resolution test
+                if test_dns("meraki.com"):
+                    item_list[4] = "DNS UDP 53: OK"
+                else:
+                    test_fail = True
+                    item_list[4] = "DNS UDP 53: FAIL"
+                # Ping 8.8.8.8
+                if test_ping("8.8.8.8"):
+                    item_list[5] = "Ping 8.8.8.8: OK"
+                else:
+                    test_fail = True
+                    item_list[5] = "Ping 8.8.8.8: FAIL"
+
+            # Show results
+            self.simple_table_obj.display_simple_table(
+                g_vars, item_list, title="Meraki Cloud"
+            )
+
+            # Set flag to prevent constant refresh of screen
+            g_vars["result_cache"] = True
+
+        # Re-enable front panel keys
+        g_vars["disable_keys"] = False
+
     def test_mist_cloud(self, g_vars):
         """
         Perform a series of connectivity tests to see if Mist cloud available:

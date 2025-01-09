@@ -382,6 +382,10 @@ optional options:
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_ruckus_cloud(g_vars)
 
+    def show_meraki_test():
+        utils_obj = CloudUtils(g_vars)
+        utils_obj.test_meraki_cloud(g_vars)
+
     def show_mist_test():
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_mist_cloud(g_vars)
@@ -744,6 +748,7 @@ optional options:
             {"name": "Cloud Tests", "action": [
                 {"name": "Aruba Central", "action": show_aruba_test},
                 {"name": "ExtremeCloud IQ", "action": show_extreme_test},
+                {"name": "Meraki Cloud", "action": show_meraki_test},
                 {"name": "Mist Cloud", "action": show_mist_test},
                 {"name": "RUCKUS Cloud", "action": show_ruckus_test},
             ]
