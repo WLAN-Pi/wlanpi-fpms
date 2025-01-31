@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.9) unstable; urgency=medium
+
+  * Fix Aruba Central cloud test
+
+  -- Josh Schmelzle <josh@joshschmelzle.com>  Fri, 31 Jan 2025 00:00:00 -0500
+
 wlanpi-fpms (1.4.8) unstable; urgency=medium
 
   * Adds Cisco Meraki cloud test

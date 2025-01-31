@@ -25,7 +25,6 @@ class CloudUtils(object):
         3a. Can we resolve address activate.arubanetworks.com?
         3b. Can we resolve address common.cloud.hpe.com?
         3c. Can we resolve address device.arubanetworks.com?
-        3d. Can we resolve address images.arubanetworks.com?
         4. Can we ping the WAN check at pqm.arubanetworks.com?
         5. Can we get a response from port 443 on device.arubanetworks.com?
         """
@@ -76,7 +75,6 @@ class CloudUtils(object):
                 # Can we resolve address activate.arubanetworks.com?
                 # Can we resolve address common.cloud.hpe.com?
                 # Can we resolve address device.arubanetworks.com?
-                # Can we resolve address images.arubanetworks.com?
 
                 try:
                     socket.gethostbyname("activate.arubanetworks.com")
@@ -105,16 +103,6 @@ class CloudUtils(object):
                 else:
                     item_list[3] = "DNS (DEVICE): SKIP"
 
-                if not dns_fail:
-                    try:
-                        socket.gethostbyname("images.arubanetworks.com")
-                        item_list[6] = "DNS (IMAGES): OK"
-                    except Exception as error:
-                        dns_fail = True
-                        item_list[6] = "DNS (IMAGES): FAIL"
-                else:
-                    item_list[3] = "DNS (IMAGES): SKIP"
-
             if dns_fail:
                 test_fail = True
 
@@ -128,9 +116,9 @@ class CloudUtils(object):
                     stderr=subprocess.DEVNULL,
                 )
                 if result.returncode == 0:
-                    item_list[7] = "ICMP (PQM): OK"
+                    item_list[6] = "ICMP (PQM): OK"
                 else:
-                    item_list[7] = "ICMP (PQM): FAIL"
+                    item_list[6] = "ICMP (PQM): FAIL"
                     test_fail = True
 
                 if not test_fail:
@@ -142,9 +130,9 @@ class CloudUtils(object):
                         pass
 
                     if result == 0:
-                        item_list[8] = "PORT (DEVICE): OK"
+                        item_list[7] = "PORT (DEVICE): OK"
                     else:
-                        item_list[8] = "PORT (DEVICE): FAIL"
+                        item_list[7] = "PORT (DEVICE): FAIL"
                         test_fail = True
                     sock.close()
 
