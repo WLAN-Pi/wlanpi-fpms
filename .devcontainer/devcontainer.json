@@ -1,0 +1,16 @@
+{
+	"name": "wlanpi-fpms-container",
+	"build": {
+		"dockerfile": "Containerfile"
+	},
+	"overrideCommand": false,
+	"privileged": true,
+    "customizations": {
+		"vscode": {
+		  "extensions": [
+			"ms-python.python"
+		  ]
+		}
+	  },
+	   "updateRemoteUserUID": true  
+}

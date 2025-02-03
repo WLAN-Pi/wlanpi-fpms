@@ -1,0 +1,30 @@
+FROM  mcr.microsoft.com/devcontainers/base:jammy
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt install --yes --no-install-recommends apt-transport-https ca-certificates \
+  sudo git ssh build-essential software-properties-common
+
+# Setup Python 3.9 via Deadsnakes
+RUN add-apt-repository ppa:deadsnakes/ppa --yes && apt update && apt install  --yes python3.9 \
+python3.9-dev python3.9-venv
+
+# Set Python 3.9 to be the default version
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.9 2
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+
+# Install wlanpi deps
+RUN apt install --yes expat libxml2-dev pkg-config libasound2-dev libssl-dev \
+    cmake libfreetype6-dev libexpat1-dev libxcb-composite0-dev  \
+    libfontconfig-dev cargo git unzip zip nload tree dbus libharfbuzz-dev \
+    pkg-config gcc libpq-dev libdbus-glib-1-dev libglib2.0-dev \
+    libcairo2-dev libgirepository1.0-dev libffi-dev cmake vlan
+
+RUN apt-get update \
+&& apt-get install --no-install-recommends --yes rsyslog systemd systemd-cron \
+# Fix a bug with common-debian script
+&& rm -f /usr/local/bin/systemctl \
+#  Clean up
+&& apt-get clean && rm -rf /var/lib/apt/lists/*
+
+CMD ["/lib/systemd/systemd", "--system", "--unit=basic.target"]
