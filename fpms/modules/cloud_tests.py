@@ -309,7 +309,7 @@ class CloudUtils(object):
         1. Is eth0 port up?
         2. Do we get an IP address via DHCP?
         3. Can we resolve address  ep-terminator.mistsys.net
-        4. Can get get a http 200 response to https://ep-terminator.mistsys.net/about
+        4. Can get get a http 200 response to https://ep-terminator.mistsys.net/test
 
         """
 
@@ -362,8 +362,8 @@ class CloudUtils(object):
                     item_list[2] = "DNS: FAIL"
 
             if not test_fail:
-                # Can we get an http 200 from https://ep-terminator.mistsys.net/about ?
-                cmd = 'curl -k -s -o /dev/null -w "%{http_code}" https://ep-terminator.mistsys.net/about'
+                # Can we get an http 200 from https://ep-terminator.mistsys.net/test ?
+                cmd = 'curl -k -s -o /dev/null -w "%{http_code}" https://ep-terminator.mistsys.net/test'
                 result = subprocess.check_output(cmd, shell=True).decode()
 
                 if result == "200":
