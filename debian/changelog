@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.10) unstable; urgency=medium
+
+  * Fix Mist cloud test by Colin
+
+  -- Jiri Brejcha <jirka@jiribrejcha.net>  Mon, 03 Feb 2025 07:37:00 +0100
+
 wlanpi-fpms (1.4.9) unstable; urgency=medium
 
   * Fix Aruba Central cloud test
