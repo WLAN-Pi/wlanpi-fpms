@@ -13,6 +13,87 @@ class CloudUtils(object):
 
         # create alert
         self.alert_obj = Alert(g_vars)
+    def test_arista_cloud(self, g_vars):
+        """
+        Perform a series of connectivity tests to see if Arista CV-CUE is available:
+
+        1. Is eth0 port up?
+        2. Do we get an IP address via DHCP?
+        3. Can we connect to the redirector on 443?
+        4. Do we get a 403 from devices.srv.wifi.arista.com?
+
+        """
+
+        # ignore any more key presses as this could cause us issues
+        g_vars["disable_keys"] = True
+
+        # Has test been run already?
+        if g_vars["result_cache"] == False:
+
+            # record test success/fail
+            test_fail = False
+
+            # create empty table
+            item_list = ["", "", "", ""]
+
+            self.alert_obj.display_popup_alert(g_vars, "Running...")
+
+            # Is eth0 up?
+            cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
+            result = subprocess.check_output(cmd, shell=True).decode().strip()
+
+            if result == "yes":
+                item_list[0] = "Eth0 Port Up: YES"
+            elif result == "no":
+                item_list[0] = "Eth0 Port Up: NO"
+                test_fail = True
+            else:
+                item_list[0] = "Eth0 Port Up: Unknown"
+                test_fail = True
+
+            # we're done if test failed
+            if not test_fail:
+                # Have we got an IP address?
+                cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
+                result = subprocess.check_output(cmd, shell=True).decode().strip()
+
+                if result:
+                    item_list[1] = "MyIP: {}".format(result)
+                else:
+                    item_list[1] = "MyIP: None"
+                    test_fail = True
+
+            if not test_fail:
+                # Can we connect to the redirector service on https?
+                try:
+                    sock = socket.create_connection(("redirector.online.spectraguard.net", 443), 2)
+                    sock.close()
+                    item_list[2] = "Redirector HTTPS: OK"
+                except:
+                    test_fail = True
+                    item_list[2] = "Redirector HTTPS: FAIL"
+
+            if not test_fail:
+                # Can we get an http 403 from devices.srv.wifi.arista.com ?
+                cmd = 'curl -k -s -o /dev/null -w "%{http_code}" https://devices.srv.wifi.arista.com'
+                result = subprocess.check_output(cmd, shell=True).decode()
+
+                if result == "403":
+                    item_list[3] = "CV-CUE HTTPS: OK"
+                else:
+                    item_list[3] = "CV-CUE HTTPS: FAIL"
+                    test_fail = True
+
+            # show results
+            self.simple_table_obj.display_simple_table(
+                g_vars, item_list, title="Arista CV-CUE"
+            )
+
+            # set flag to prevent constant refresh of screen
+            g_vars["result_cache"] = True
+
+        # re-enable front panel keys
+        g_vars["disable_keys"] = False
 
     def test_aruba_cloud(self, g_vars):
         """

@@ -398,6 +398,10 @@ optional options:
         utils_obj = CloudUtils(g_vars)
         utils_obj.test_extreme_cloud(g_vars)
 
+    def show_arista_test():
+        utils_obj = CloudUtils(g_vars)
+        utils_obj.test_arista_cloud(g_vars)
+
     def show_blinker():
         utils_obj = Utils(g_vars)
         utils_obj.show_blinker(g_vars)
@@ -746,6 +750,7 @@ optional options:
             ]
             },
             {"name": "Cloud Tests", "action": [
+                {"name": "Arista CV-CUE", "action": show_arista_test},
                 {"name": "Aruba Central", "action": show_aruba_test},
                 {"name": "ExtremeCloud IQ", "action": show_extreme_test},
                 {"name": "Meraki Cloud", "action": show_meraki_test},
