@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.11) unstable; urgency=medium
+
+  * Added Arista CV-CUE cloud test
+
+  -- Jonathan Smith <jonathans@arista.com>  Wed, 19 Feb 2025 00:00:00 -0500
+
 wlanpi-fpms (1.4.10) unstable; urgency=medium
 
   * Fix Mist cloud test by Colin
