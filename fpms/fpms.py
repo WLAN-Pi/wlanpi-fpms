@@ -85,7 +85,7 @@ g_vars = {
     'option_selected': 0,              # Content of currently selected menu level
     'current_menu_location': [0],      # Pointer to current location in menu structure
     'current_scroll_selection': 0,     # where we currently are in scrolling table
-    'current_mode': 'classic',         # Currently selected mode (e.g. wconsole/classic)
+    'current_mode': 'classic',         # Currently selected mode (e.g. classic/server)
     'start_up': True,                  # True if in initial (home page) start-up state
     'disable_keys': False,             # Set to true when need to ignore key presses
     'table_list_length': 0,            # Total length of currently displayed table
@@ -425,10 +425,6 @@ optional options:
     ############################
     # Modes area
     ############################
-    def wconsole_switcher():
-        mode_obj = Mode(g_vars)
-        mode_obj.wconsole_switcher(g_vars)
-
     def hotspot_switcher():
         mode_obj = Mode(g_vars)
         mode_obj.hotspot_switcher(g_vars)
@@ -769,10 +765,6 @@ optional options:
         ]
         },
         {"name": "Modes", "action": [
-            {"name": "Wi-Fi Console",   "action": [
-                {"name": "Confirm", "action": wconsole_switcher},
-            ]
-            },
             {"name": "Hotspot",   "action": [
                 {"name": "Confirm", "action": hotspot_switcher},
             ]
@@ -880,10 +872,6 @@ optional options:
     ]
 
     # update menu options data structure if we're in non-classic mode
-    if g_vars['current_mode'] == "wconsole":
-        switcher_dispatcher = wconsole_switcher
-        g_vars['home_page_name'] = "Wi-Fi Console"
-
     if g_vars['current_mode'] == "hotspot":
         switcher_dispatcher = hotspot_switcher
         g_vars['home_page_name'] = "Hotspot"
