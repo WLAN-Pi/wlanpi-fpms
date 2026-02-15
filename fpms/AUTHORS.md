@@ -7,4 +7,4 @@
 * Jiri Brejcha, @jiribrejcha, <https://github.com/jiribrejcha>
 * Josh Schmelzle, @joshschmelzle, <https://github.com/joshschmelzle>
 * Nick Turner, @nickjvturner, <https://github.com/nickjvturner>
-* Matt Lee, ,
+* Matt Lee, , <https://github.com/Tekrad>
