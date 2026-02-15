@@ -256,11 +256,7 @@ class HomePage(object):
         mode_name = PLATFORM
         mode = self.classic_mode
 
-        if g_vars['current_mode'] == "wconsole":
-            if_name = "wlan0"
-            mode_name = "Wi-Fi Console"
-            mode = self.wconsole_mode
-        elif g_vars['current_mode'] == "hotspot":
+        if g_vars['current_mode'] == "hotspot":
             if_name = "wlan0"
             mode_name = "Hotspot"
             mode = self.hotspot_mode
@@ -351,12 +347,7 @@ class HomePage(object):
         g_vars['drawing_in_progress'] = True
         g_vars['display_state'] = 'page'
 
-        if g_vars['current_mode'] == "wconsole":
-            # get wlan0 IP
-            if_name = "wlan0"
-            mode_name = "Wi-Fi Console"
-
-        elif g_vars['current_mode'] == "hotspot":
+        if g_vars['current_mode'] == "hotspot":
             # get wlan0 IP
             if_name = "wlan0"
             mode_name = "Hotspot " + str(self.wifi_client_count()) + " clients"
@@ -515,19 +506,6 @@ class HomePage(object):
                 clients = str(client_count) + (" client" if client_count == 1 else " clients")
                 canvas.text((x + (PAGE_WIDTH - SMART_FONT.getbbox(clients)[2])/2, y), clients, font=SMART_FONT, fill=THEME.text_secondary_color.value)
                 y += 18
-
-            # Show the eth0 address
-            y += self.iface_summary(g_vars, "eth0", "LAN", x=x, y=y)
-
-            # Show the USB (OTG) address
-            y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
-
-
-    def wconsole_mode(self, g_vars, x=0, y=0, padding=2):
-        if g_vars['home_page_alternate']:
-            self.wifi_qrcode(g_vars, x, y)
-        else:
-            y += self.iface_details(g_vars, "wlan0", x=x, y=y, padding=padding)
 
             # Show the eth0 address
             y += self.iface_summary(g_vars, "eth0", "LAN", x=x, y=y)

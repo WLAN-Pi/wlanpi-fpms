@@ -6,7 +6,6 @@ import fpms.modules.wlanpi_oled as oled
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.simpletable import SimpleTable
 from fpms.modules.constants import (
-    WCONSOLE_SWITCHER_FILE,
     HOTSPOT_SWITCHER_FILE,
     WIPERF_SWITCHER_FILE,
     SERVER_SWITCHER_FILE,
@@ -71,18 +70,6 @@ class Mode(object):
         g_vars['display_state'] = 'menu'
 
         return False
-
-    def wconsole_switcher(self, g_vars):
-
-        wconsole_switcher_file = WCONSOLE_SWITCHER_FILE
-
-        resource_title = "Wi-Fi Console"
-        mode_name = "wconsole"
-        resource_switcher_file = wconsole_switcher_file
-
-        # switch
-        self.switcher(g_vars, resource_title, resource_switcher_file, mode_name)
-        return True
 
 
     def hotspot_switcher(self, g_vars):

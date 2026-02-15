@@ -78,7 +78,6 @@ ETHTOOL_FILE = '/sbin/ethtool'
 # Mode changer scripts
 MODE_FILE = '/etc/wlanpi-state'
 
-WCONSOLE_SWITCHER_FILE ='/opt/wlanpi-wconsole/wconsole_switcher'
 HOTSPOT_SWITCHER_FILE = '/opt/wlanpi-hotspot/hotspot_switcher'
 WIPERF_SWITCHER_FILE = '/opt/wlanpi-wiperf/wiperf_switcher'
 SERVER_SWITCHER_FILE = '/opt/wlanpi-server/server_switcher'

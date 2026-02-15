@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.12) unstable; urgency=medium
+
+  * Removing wireless console server mode
+
+  -- Jake Snyder <jsnyder81@gmail.com>  Sun, 15 Feb 2026 00:00:00 -0500
+
 wlanpi-fpms (1.4.11) unstable; urgency=medium
 
   * Added Arista CV-CUE cloud test
@@ -609,7 +615,7 @@ wlanpi-fpms (1.2.8-1) unstable; urgency=medium
 
 wlanpi-fpms (1.2.8) unstable; urgency=medium
 
-  * Adds WiFi QR code to hotspot, console, and server modes (press center
+  * Adds WiFi QR code to hotspot and server modes (press center
     button on home screen to display QR code)
   * Renames Utils > WPA Passphrase to Utils > SSID/Passphrase and changes it
     to show SSID, passphrase and WiFi QR code
