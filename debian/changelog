@@ -1,3 +1,9 @@
+wlanpi-fpms (1.4.13) unstable; urgency=medium
+
+  * Add DeviceID to wlan interface screen (#148)
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Mon, 16 Feb 2026 09:08:48 -0700
+
 wlanpi-fpms (1.4.12) unstable; urgency=medium
 
   * Removing wireless console server mode
