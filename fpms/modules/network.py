@@ -164,6 +164,26 @@ class Network(object):
             except Exception:
                 pass
 
+            # Device ID (USB or PCI)
+            try:
+                modalias_path = f"/sys/class/net/{interface}/device/modalias"
+                modalias = subprocess.check_output(
+                    f"cat {modalias_path}", shell=True).decode().strip()
+                bus = modalias.split(":")[0]
+                if bus == "usb":
+                    device_id = modalias.split(":")[1][1:10].replace("p", ":")
+                    page.append(f"DevID: {device_id}")
+                elif bus == "pci":
+                    vendor = subprocess.check_output(
+                        f"cat /sys/class/net/{interface}/device/vendor",
+                        shell=True).decode().strip()
+                    device = subprocess.check_output(
+                        f"cat /sys/class/net/{interface}/device/device",
+                        shell=True).decode().strip()
+                    page.append(f"DevID: {vendor}:{device}")
+            except Exception:
+                pass
+
             # Addr, SSID, Mode, Channel
             try:
                 iw_output = subprocess.check_output(f"{IW_FILE} {interface} info", shell=True).decode().strip()
