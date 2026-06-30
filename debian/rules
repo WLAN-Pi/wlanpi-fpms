@@ -45,18 +45,23 @@ override_dh_virtualenv:
 		--install-suffix "wlanpi-fpms" \
 		--builtin-venv \
 		--python ${SNAKE} \
-		--upgrade-pip-to=22.3.1 \
-		--preinstall="setuptools==65.5.0" \
-		--preinstall="wheel==0.37.1"
+		--upgrade-pip-to=24.3.1 \
+		--preinstall="setuptools==75.6.0" \
+		--preinstall="wheel==0.45.1" \
 		--preinstall="mock" \
 		--extra-pip-arg="--compile" \
 		--extras="all,systemd,test"
 
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip cache purge --verbose
-	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install -I --no-binary Pillow $(PILLOW_SPEC) --verbose
+	# Rebuild Pillow from source so it links the system imaging libs. Uninstall
+	# first: a binary wheel (e.g. from PyPI when piwheels lacks the build) bundles
+	# vendored libs under pillow.libs/ that dpkg-shlibdeps cannot resolve. A plain
+	# -I/--ignore-installed reinstall would leave those orphaned .so files behind.
+	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip uninstall -y Pillow
+	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install --no-binary Pillow $(PILLOW_SPEC) --verbose
 
 override_dh_strip:
 	dh_strip --exclude=cffi --exclude=_imaging --exclude=libtiff
 	
 override_dh_shlibdeps:
-	dh_shlibdeps -X/Pillow.libs/ -X/PIL/ 
+	dh_shlibdeps -X/pillow.libs/ -X/Pillow.libs/ -X/PIL/
