@@ -1,3 +1,14 @@
+wlanpi-fpms (1.4.14) unstable; urgency=medium
+
+  * Build support for Debian trixie (Python 3.13)
+  * Bump Pillow to 11.3.0 (10.1.0 fails to build on Python 3.13)
+  * Bump build tooling: pip 24.3.1, setuptools 75.6.0, wheel 0.45.1
+  * Drop python3-distutils build/runtime dependency (removed in trixie)
+  * Use libtiff-dev instead of removed libtiff5-dev
+  * Fix missing line continuation in dh_virtualenv preinstall args
+
+ -- Jake Snyder <jsnyder81@gmail.com>  Tue, 30 Jun 2026 03:07:08 +0000
+
 wlanpi-fpms (1.4.13) unstable; urgency=medium
 
   * Add DeviceID to wlan interface screen (#148)

@@ -8,6 +8,14 @@ venv/
 *.egg-info/
 .pybuild/
 *.build
+!Dockerfile.build
 *.deb
 *.buildinfo
 *.changes
+.build-manifest.txt
+debian/.debhelper/
+debian/files
+debian/wlanpi-fpms/
+debian/wlanpi-fpms.substvars
+debian/*.debhelper
+debian/*-build-deps.dsc
