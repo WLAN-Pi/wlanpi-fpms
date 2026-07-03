@@ -6,7 +6,7 @@ on:
 
   pull_request:
     branches:
-      - main
+      - debian/bullseye
     paths:
       - 'debian/changelog'
 
@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distro: [bullseye,bookworm,trixie]
+        distro: [bullseye]
         arch: [arm64]
 
     steps:
