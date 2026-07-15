@@ -68,10 +68,25 @@ class Scanner(object):
             scan_output = subprocess.check_output(cmd, shell=True).decode().strip()
             networks = self.parse(scan_output)
 
-            # Sort results by RSSI
-            networks.sort(key = lambda x: x[2])
+            # Safely get RSSI helper
+            def get_rssi(x):
+                try:
+                    return float(x[2])
+                except (ValueError, IndexError):
+                    return 0.0
+
+            # Sort results by RSSI numerically (descending)
+            networks.sort(key=get_rssi, reverse=True)
 
             results = []
+            all_zero_rssi = len(networks) > 0 and all(get_rssi(x) == 0.0 for x in networks)
+
+            if all_zero_rssi and write_file != True:
+                results.append("Warning: Adapter")
+                results.append("does not support")
+                results.append("RSSI measurement")
+                results.append("---")
+
             for network in networks:
                 # BSSID
                 bssid = network[0].upper()
@@ -81,7 +96,7 @@ class Scanner(object):
                 channel = self.freq_to_channel(freq)
 
                 # RSSI
-                rssi = int(network[2])
+                rssi = int(round(get_rssi(network)))
 
                 # LAST SEEN
                 lastseen = network[3]
