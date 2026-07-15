@@ -1,3 +1,14 @@
+wlanpi-fpms (1.4.15) unstable; urgency=medium
+
+  * scanner: handle float and zero RSSI values.
+  * Enhance regulatory domain reboot behavior.
+  * Fix ERE grep warning in preinst.
+  * CI: drop bullseye from the build matrix, update actions for the Node 20
+    deprecation, remove the redundant CodeQL workflow, and add CONTRIBUTING
+    and CODEOWNERS.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Wed, 15 Jul 2026 03:24:20 -0400
+
 wlanpi-fpms (1.4.14) unstable; urgency=medium
 
   * Build support for Debian trixie (Python 3.13)
