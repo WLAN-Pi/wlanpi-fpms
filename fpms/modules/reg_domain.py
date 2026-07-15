@@ -46,12 +46,8 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
 
     def set_reg_domain_ca(self, g_vars):
@@ -66,12 +62,9 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
+        return
 
     def set_reg_domain_gb(self, g_vars):
         self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
@@ -85,12 +78,8 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
 
     def set_reg_domain_br(self, g_vars):
@@ -105,12 +94,8 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
 
     def set_reg_domain_fr(self, g_vars):
@@ -125,12 +110,8 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
 
     def set_reg_domain_cz(self, g_vars):
@@ -145,12 +126,8 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
 
     def set_reg_domain_nl(self, g_vars):
@@ -165,12 +142,8 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
 
     def set_reg_domain_de(self, g_vars):
@@ -185,12 +158,8 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
 
     def set_reg_domain_no(self, g_vars):
@@ -205,10 +174,6 @@ class RegDomain(object):
             g_vars['display_state'] = 'menu'
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Successfully set', delay=1)
+        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
         g_vars['display_state'] = 'menu'
-        g_vars['shutdown_in_progress'] = True
-        oled.drawImage(g_vars['reboot_image'])
-        time.sleep(1)
-        os.system('reboot')
         return
