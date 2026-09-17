@@ -337,11 +337,12 @@ class HomePage(object):
         if g_vars['home_page_alternate']:
             self.profiler_obj.profiler_check_new_profile(g_vars)
 
-        # Text view mirrors the physical screen: status line, mode title,
-        # interface details, alert bar, system bar.
+        # Text view mirrors the physical screen. render_text() prepends the
+        # title itself, so home_lines only carries the status/body/bars.
         home_lines = []
 
-        # status line: time + indicators + hostname
+        # status line: time + indicator icons (no hostname; that is the
+        # system bar)
         status = time.strftime("%H:%M")
         try:
             battery = Battery(g_vars)
@@ -356,13 +357,7 @@ class HomePage(object):
             pass
         if g_vars['eth_last_reachability_result']:
             status += " \u2600"
-        status += "  " + system_bar_contents
         home_lines.append(status)
-
-        # mode title (fall back to hostname if platform is unknown)
-        home_title = title if title else system_bar_contents
-        if home_title:
-            home_lines.append(home_title.upper())
 
         # mode content: primary interface details
         addr = self.if_address(if_name)
@@ -379,6 +374,10 @@ class HomePage(object):
         # system bar
         home_lines.append(system_bar_contents)
 
+        # title: mode name, or the current mode (classic/hotspot/server/...)
+        # when the platform is unknown; never the hostname (that is the
+        # system bar)
+        home_title = title if title else g_vars['current_mode'].title()
         oled.render_text(home_title, home_lines)
         oled.drawImage(g_vars['image'])
         g_vars['drawing_in_progress'] = False
