@@ -42,19 +42,27 @@ class Utils(object):
             g_vars['disable_keys'] = True
             g_vars['speedtest_result_text'] = None
 
+            speedtest_bin = self.speedtest_cli_path()
+            if speedtest_bin is None:
+                self.alert_obj.display_alert_error(
+                    g_vars, "Speedtest CLI not installed.")
+                g_vars['disable_keys'] = False
+                g_vars['result_cache'] = True
+                return
+
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
             speedtest_info = []
-            speedtest_cmd = "/opt/wlanpi/pipx/bin/speedtest-cli --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\(/My IP: /g; s/\)\.\.\.//g; s/Download/D/g; s/Upload/U/g; s/bit\/s/bps/g'"
+            speedtest_cmd = "{} --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\\(/My IP: /g; s/\\)\\.\\.\\.//g; s/Download/D/g; s/Upload/U/g; s/bit\\/s/bps/g'".format(speedtest_bin)
 
             try:
-                speedtest_output = subprocess.check_output(speedtest_cmd, shell=True).decode().strip()
+                speedtest_output = subprocess.check_output(speedtest_cmd, shell=True, stderr=subprocess.STDOUT).decode().strip()
                 speedtest_info = speedtest_output.split('\n')
-            except subprocess.CalledProcessError as exc:
-                output = exc.output.decode()
-                self.alert_obj.display_alert_error(g_vars, output)
-                # re-enable front panel keys
+            except subprocess.CalledProcessError:
+                g_vars['speedtest_result_text'] = None
                 g_vars['disable_keys'] = False
+                g_vars['result_cache'] = True
+                self.alert_obj.display_alert_error(g_vars, "Failed to run speedtest.")
                 return
 
             if len(speedtest_info) > 1:
@@ -69,6 +77,22 @@ class Utils(object):
             self.alert_obj.display_alert_error(g_vars, "Failed to run speedtest.")
         else:
             self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='Speedtest')
+
+    @staticmethod
+    def speedtest_cli_path():
+        '''
+        Locate the speedtest-cli binary. Installed via pipx during image
+        build; a venv install is the fallback for other systems.
+        '''
+        import shutil
+        for candidate in [
+            '/opt/wlanpi/pipx/bin/speedtest-cli',
+            '/opt/wlanpi/speedtest-venv/bin/speedtest-cli',
+            shutil.which('speedtest-cli'),
+        ]:
+            if candidate and os.path.isfile(candidate):
+                return candidate
+        return None
 
     def show_blinker(self, g_vars):
         '''

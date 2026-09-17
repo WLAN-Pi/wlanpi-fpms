@@ -185,14 +185,14 @@ class Profiler(object):
                         # Channel
                         try:
                             channel = re.search("^channel:\s+(.+)", line).group(1)
-                            status.append("Channel: {}".format(channel))
+                            status.append("Target Channel: {}".format(channel))
                         except AttributeError:
                             pass
 
                         # Interface
                         try:
                             interface = re.search("^interface:\s+(.+)", line).group(1)
-                            status.append("Interface: {}".format(interface))
+                            status.append("Target Interface: {}".format(interface))
                         except AttributeError:
                             pass
 
