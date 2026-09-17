@@ -185,16 +185,21 @@ class Profiler(object):
                         # Channel
                         try:
                             channel = re.search("^channel:\s+(.+)", line).group(1)
-                            status.append("Target Channel: {}".format(channel))
+                            status.append("Channel: {}".format(channel))
                         except AttributeError:
                             pass
 
                         # Interface
                         try:
                             interface = re.search("^interface:\s+(.+)", line).group(1)
-                            status.append("Target Interface: {}".format(interface))
+                            status.append("Interface: {}".format(interface))
                         except AttributeError:
                             pass
+
+            # Label the channel/interface values as profiling targets; a
+            # shared "Targets:" header keeps each line short for the screen.
+            if len(status) > 0:
+                status = ["Targets:"] + status
 
             if beaconing:
                 # SSID
