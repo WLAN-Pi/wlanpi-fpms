@@ -113,6 +113,8 @@ class PagedTable(object):
             #if len(page) > table_display_max:
             #    page = page[0:table_display_max]
 
+            oled.render_text(f"{title} [{current_page}/{total_pages}]", page) if multi_page else oled.render_text(title, page)
+
             for item in page:
 
                 if len(item) > item_length_max:

@@ -41,6 +41,7 @@ class System(object):
     def shutdown(self, g_vars):
 
         self.alert_obj.display_popup_alert(g_vars, "Shutting down...", delay=1)
+        oled.render_text("Shutdown", ["Shutting down..."])
         oled.drawImage(g_vars['shutdown_image'])
         g_vars['shutdown_in_progress'] = True
 
@@ -50,6 +51,7 @@ class System(object):
 
     def reboot(self, g_vars):
         self.alert_obj.display_popup_alert(g_vars, "Rebooting...", delay=1)
+        oled.render_text("Reboot", ["Rebooting..."])
         oled.drawImage(g_vars['reboot_image'])
         g_vars['shutdown_in_progress'] = True
 
@@ -106,7 +108,7 @@ class System(object):
         try:
             tempI = int(open('/sys/class/thermal/thermal_zone0/temp').read())
         except:
-            tempI = "unknown"
+            tempI = 0
 
         if tempI > 1000:
             tempI = tempI/1000
@@ -196,6 +198,12 @@ class System(object):
         y = y + margin * 6
         g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_color.value)
 
+        oled.render_text("Date & Time", [
+            time.strftime("%I:%M %p"),
+            time.strftime("%e %b. %Y"),
+            g_vars['timezone_selected'].split("/")[-1].replace("_", " "),
+            time.strftime("%Z"),
+        ])
         oled.drawImage(g_vars['image'])
 
         g_vars['display_state'] = 'page'
@@ -269,6 +277,11 @@ class System(object):
             if qrcode_path != None:
                 self.display_obj.stamp_qrcode(g_vars, qrcode_path,
                     center_vertically=True)
+
+        oled.render_text("Help", [
+            "User guide:",
+            "http://userguide.wlanpi.com/",
+        ])
 
         g_vars['result_cache'] = True
         g_vars["disable_keys"] = False

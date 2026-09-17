@@ -64,6 +64,11 @@ class Scanner(object):
 
         cmd = f"{IW_FILE} {IFACE} scan"
 
+        if not os.path.exists(f"/sys/class/net/{IFACE}"):
+            g_vars["scanner_results"] = ["No WLAN adapter detected"]
+            g_vars["scanner_status"] = False
+            return
+
         try:
             scan_output = subprocess.check_output(cmd, shell=True).decode().strip()
             networks = self.parse(scan_output)
@@ -124,12 +129,24 @@ class Scanner(object):
                     time_string = time_measure_value.strftime("%H:%M:%S")
                     results.append("\"{}\", \"{}\", \"{}\", \"{}\", \"{}\"\n".format(ssid, bssid, rssi, channel, time_string))
             g_vars["scanner_results"] = results
-        except Exception as e:
-            print(e)
+        except Exception:
+            g_vars["scanner_results"] = ["Scan failed"]
         finally:
             g_vars["scanner_status"] = False
 
     def scanner_scan(self, g_vars, include_hidden=True, write_file=False):
+        # No adapter: report it immediately and skip the popup/interface
+        # config, which otherwise prints 'Cannot find device wlan0' to the
+        # terminal and leaves a stale 'Scanning...' frame on screen.
+        if not os.path.exists(f"/sys/class/net/{IFACE}"):
+            g_vars["scanner_results"] = ["No WLAN adapter detected"]
+            g_vars["scanner_status"] = False
+            g_vars["result_cache"] = True
+            self.paged_table_obj.display_paged_table(g_vars, {
+                "title": "Networks", "pages": [g_vars["scanner_results"]],
+            })
+            return
+
         # Check if this is the first time we run
         if g_vars["result_cache"] == False:
 
@@ -160,9 +177,9 @@ class Scanner(object):
             # Configure interface
             try:
                 cmd = f"{IP_FILE} link set {IFACE} down && {IW_FILE} {IFACE} set type managed && {IP_FILE} link set {IFACE} up"
-                subprocess.run(cmd, shell=True)
-            except Exception as e:
-                print(e)
+                subprocess.run(cmd, shell=True, stderr=subprocess.DEVNULL)
+            except Exception:
+                pass
 
         else:
             if g_vars["scanner_status"] == False:

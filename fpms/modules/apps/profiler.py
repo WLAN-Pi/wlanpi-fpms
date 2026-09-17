@@ -196,6 +196,11 @@ class Profiler(object):
                         except AttributeError:
                             pass
 
+            # Label the channel/interface values as profiling targets; a
+            # shared "Targets:" header keeps each line short for the screen.
+            if len(status) > 0:
+                status = ["Targets:"] + status
+
             if beaconing:
                 # SSID
                 status.append("SSID: {}".format(self.profiler_beaconing_ssid()))

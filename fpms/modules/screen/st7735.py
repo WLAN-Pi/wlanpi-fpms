@@ -16,7 +16,10 @@ LCD_Y_MAXPIXEL = 162  # LCD height maximum memory
 SCAN_DIR_DFT = 6  # U2D_R2L
 
 class RaspberryPi:
-    def __init__(self, spi=spidev.SpiDev(0, 0), spi_freq=40000000, rst=27, dc=25, bl=24, bl_freq=1000, i2c=None, i2c_freq=100000):
+    # spi is opened lazily, not as a default arg: a default arg is evaluated at
+    # class-definition (import) time, which crashes with FileNotFoundError on any
+    # machine without /dev/spidev0.0 (e.g. a VM with no display hardware).
+    def __init__(self, spi=None, spi_freq=40000000, rst=27, dc=25, bl=24, bl_freq=1000, i2c=None, i2c_freq=100000):
         self.INPUT = False
         self.OUTPUT = True
 
@@ -29,6 +32,8 @@ class RaspberryPi:
         self.bl_DutyCycle(0)
 
         # Initialize SPI
+        if spi is None:
+            spi = spidev.SpiDev(0, 0)
         self.SPI = spi
         if self.SPI:
             self.SPI.max_speed_hz = spi_freq

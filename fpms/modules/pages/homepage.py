@@ -337,6 +337,48 @@ class HomePage(object):
         if g_vars['home_page_alternate']:
             self.profiler_obj.profiler_check_new_profile(g_vars)
 
+        # Text view mirrors the physical screen. render_text() prepends the
+        # title itself, so home_lines only carries the status/body/bars.
+        home_lines = []
+
+        # status line: time + indicator icons (no hostname; that is the
+        # system bar)
+        status = time.strftime("%H:%M")
+        try:
+            battery = Battery(g_vars)
+            if battery.battery_present():
+                status += f" \u26a1{battery.battery_charge():.0f}%"
+        except Exception:
+            pass
+        try:
+            if Bluetooth(g_vars).bluetooth_power():
+                status += " \U0001f3e7"
+        except Exception:
+            pass
+        if g_vars['eth_last_reachability_result']:
+            status += " \u2600"
+        home_lines.append(status)
+
+        # mode content: primary interface details
+        addr = self.if_address(if_name)
+        if addr and addr.lower() != "no ip address":
+            home_lines.append(f"{if_name}: {addr}")
+        link = self.if_link_status(if_name)
+        if link:
+            home_lines.append(link)
+
+        # alert bar
+        if alert_bar_contents:
+            home_lines.append(alert_bar_contents)
+
+        # system bar
+        home_lines.append(system_bar_contents)
+
+        # title: mode name, or the current mode (classic/hotspot/server/...)
+        # when the platform is unknown; never the hostname (that is the
+        # system bar)
+        home_title = title if title else g_vars['current_mode'].title()
+        oled.render_text(home_title, home_lines)
         oled.drawImage(g_vars['image'])
         g_vars['drawing_in_progress'] = False
 
@@ -423,6 +465,7 @@ class HomePage(object):
         canvas.text((x + padding, y + 29), str(ip_addr), font=FONT14, fill=THEME.text_color.value)
         canvas.text((x + padding, y + 43), str(mode_name), font=SMART_FONT, fill=THEME.text_color.value)
 
+        oled.render_text(hostname, [str(ip_addr), str(mode_name)])
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False

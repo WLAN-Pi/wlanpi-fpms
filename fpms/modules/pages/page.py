@@ -188,6 +188,7 @@ class Page(object):
 
             y += y_offset
 
+        oled.render_text(page_title, menu_list)
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False

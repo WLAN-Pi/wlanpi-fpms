@@ -1,3 +1,11 @@
+wlanpi-fpms (1.4.16-1) unstable; urgency=medium
+
+  * Fix import-time crash on machines without /dev/spidev0.0 (lazy SPI open)
+  * Run headless with a virtual display when no display hardware is detected,
+    with a warning logged to journalctl; live terminal view when run with -e
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Thu, 17 Sep 2026 12:30:00 -0400
+
 wlanpi-fpms (1.4.15) unstable; urgency=medium
 
   * scanner: handle float and zero RSSI values.
