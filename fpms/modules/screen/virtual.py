@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import shutil
 import sys
 
 from PIL import Image
@@ -35,18 +34,19 @@ class Virtual(AbstractScreen):
 
     @staticmethod
     def _render_to_terminal(image):
-        # half-block char is 2 vertical pixels, so scale height to 2x columns
-        cols, rows = shutil.get_terminal_size((80, 24))
-        if cols < 8 or rows < 4:
-            return
-        img = image.convert("RGB").resize(
-            (cols, rows * 2), Image.LANCZOS
-        )
+        # Fixed output size: the 128x128 frame renders as a compact 64x64 char
+        # square (each half-block char covers a 2x2 block of native pixels)
+        # regardless of terminal size. Previously it stretched to fill the
+        # whole screen.
+        cols = 64
+        rows = 64
+        img = image.convert("RGB").resize((cols, rows * 2), Image.LANCZOS)
         px = img.load()
         out = ["\x1b[H\x1b[2J"]
         for y in range(rows):
             line = []
             for x in range(cols):
+                # half-block char: foreground = top pixel, background = bottom
                 tr, tg, tb = px[x, y * 2]
                 br, bg, bb = px[x, y * 2 + 1]
                 line.append(
