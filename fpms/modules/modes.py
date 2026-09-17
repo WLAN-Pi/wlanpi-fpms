@@ -54,6 +54,7 @@ class Mode(object):
         g_vars['shutdown_in_progress'] = True
         time.sleep(2)
 
+        oled.render_text("Rebooting", ["Rebooting..."])
         oled.drawImage(g_vars['reboot_image'])
 
         try:

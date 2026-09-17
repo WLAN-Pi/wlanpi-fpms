@@ -58,6 +58,11 @@ def drawImage(image):
     else:
         device.drawImage(image)
 
+# Show page content as terminal text (Virtual backend only)
+def render_text(title, lines):
+    if isinstance(device, Virtual):
+        device.render_text(title, lines)
+
 # Clear the display
 def clear():
     device.clear()

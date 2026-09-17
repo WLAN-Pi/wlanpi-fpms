@@ -74,6 +74,7 @@ class Alert(object):
 
             font_offset += font_size
 
+        oled.render_text(title, item_list)
         oled.drawImage(g_vars['image'])
 
         g_vars['display_state'] = 'page'
@@ -131,6 +132,7 @@ class Alert(object):
                 font=SMART_FONT, fill=THEME.alert_popup_foreground.value)
             font_offset += font_size
 
+        oled.render_text("Alert", item_list)
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False

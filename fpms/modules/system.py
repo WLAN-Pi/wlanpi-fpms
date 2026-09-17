@@ -41,6 +41,7 @@ class System(object):
     def shutdown(self, g_vars):
 
         self.alert_obj.display_popup_alert(g_vars, "Shutting down...", delay=1)
+        oled.render_text("Shutdown", ["Shutting down..."])
         oled.drawImage(g_vars['shutdown_image'])
         g_vars['shutdown_in_progress'] = True
 
@@ -50,6 +51,7 @@ class System(object):
 
     def reboot(self, g_vars):
         self.alert_obj.display_popup_alert(g_vars, "Rebooting...", delay=1)
+        oled.render_text("Reboot", ["Rebooting..."])
         oled.drawImage(g_vars['reboot_image'])
         g_vars['shutdown_in_progress'] = True
 
@@ -196,6 +198,12 @@ class System(object):
         y = y + margin * 6
         g_vars['draw'].text((x, y), text, font=FONT11, fill=THEME.text_color.value)
 
+        oled.render_text("Date & Time", [
+            time.strftime("%I:%M %p"),
+            time.strftime("%e %b. %Y"),
+            g_vars['timezone_selected'].split("/")[-1].replace("_", " "),
+            time.strftime("%Z"),
+        ])
         oled.drawImage(g_vars['image'])
 
         g_vars['display_state'] = 'page'

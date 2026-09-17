@@ -93,6 +93,7 @@ class SimpleTable(object):
 
             font_offset += font_size + 2
 
+        oled.render_text(title, item_list)
         oled.drawImage(g_vars['image'])
 
         g_vars['display_state'] = 'page'

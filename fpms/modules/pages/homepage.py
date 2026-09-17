@@ -337,6 +337,10 @@ class HomePage(object):
         if g_vars['home_page_alternate']:
             self.profiler_obj.profiler_check_new_profile(g_vars)
 
+        home_lines = [system_bar_contents]
+        if alert_bar_contents:
+            home_lines.append(alert_bar_contents)
+        oled.render_text(title, home_lines)
         oled.drawImage(g_vars['image'])
         g_vars['drawing_in_progress'] = False
 
@@ -423,6 +427,7 @@ class HomePage(object):
         canvas.text((x + padding, y + 29), str(ip_addr), font=FONT14, fill=THEME.text_color.value)
         canvas.text((x + padding, y + 43), str(mode_name), font=SMART_FONT, fill=THEME.text_color.value)
 
+        oled.render_text(hostname, [str(ip_addr), str(mode_name)])
         oled.drawImage(g_vars['image'])
 
         g_vars['drawing_in_progress'] = False
