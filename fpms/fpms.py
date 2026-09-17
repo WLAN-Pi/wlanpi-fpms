@@ -31,7 +31,7 @@ import types
 
 from PIL import Image, ImageDraw, ImageFont
 from gpiod.line import Bias, Edge
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 # Check we're running as root
 if not os.geteuid()==0:
@@ -1146,9 +1146,12 @@ optional options:
                         elif event.line_offset == BUTTONS_PINS['key3']:
                             key_3()
 
-    m = threading.Thread(name="button-monitor", target=monitor_buttons)
-    m.daemon = True
-    m.start()
+    if os.path.exists("/dev/gpiochip0"):
+        m = threading.Thread(name="button-monitor", target=monitor_buttons)
+        m.daemon = True
+        m.start()
+    else:
+        log_to_syslog("No /dev/gpiochip0 found; hardware buttons unavailable (use -e for keyboard emulation)")
 
     button_key1_present = 'key1' in BUTTONS_PINS
     button_key2_present = 'key2' in BUTTONS_PINS
