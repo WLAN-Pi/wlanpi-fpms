@@ -37,13 +37,17 @@ class Virtual(AbstractScreen):
         if key == self._last:
             return
         self._last = key
+        # \r\n, not \n: a bare \n advances without returning to column 0,
+        # which paints each line progressively indented on terminals that
+        # don't translate LF (tmux, real terminals). \x1b[J clears any rows
+        # left over when a shorter frame follows a taller one.
         out = ["\x1b[H\x1b[2J", title.upper()]
         for line in lines:
             out.append(line)
         if self.hints:
             out.append("")
             out.extend(self.hints)
-        sys.stdout.write("\n".join(out))
+        sys.stdout.write("\r\n".join(out) + "\x1b[J")
         sys.stdout.flush()
 
     def clear(self):
