@@ -148,9 +148,16 @@ class Network(object):
         pages = []
 
         try:
-            interfaces = subprocess.check_output(f"{IW_FILE} dev 2>&1 | grep -i interface" + "| awk '{ print $2 }'", shell=True).decode().strip().split()
-        except Exception as e:
-            print(e)
+            interfaces = subprocess.check_output(f"{IW_FILE} dev 2>&1 | grep -i interface" + "| awk '{ print $2 }'", shell=True, timeout=10).decode().strip().split()
+        except Exception:
+            pass
+
+        if not interfaces:
+            oled.render_text("WLAN Interfaces", ["No WLAN adapter detected"])
+            g_vars['display_state'] = 'page'
+            g_vars['drawing_in_progress'] = False
+            g_vars['disable_keys'] = False
+            return None
 
         for interface in interfaces:
             page = []
@@ -294,6 +301,9 @@ class Network(object):
             except:
                 vlan_info = ["No VLAN found"]
 
+        else:
+            vlan_info = ["No VLAN found"]
+
         # final check no-one pressed a button before we render page
         if g_vars['display_state'] == 'menu':
             return
@@ -393,7 +403,8 @@ class Network(object):
 
             publicip_info = g_vars['publicip_info']
             if len(publicip_info) == 1:
-                self.alert_obj.display_alert_error(g_vars, publicip_info[0])
+                msg = "Unable to detect public IPv6 address" if ip_version == 6 else "Unable to detect public IPv4 address"
+                self.alert_obj.display_alert_error(g_vars, msg)
                 return
 
             title = "Public IPv6" if ip_version == 6 else "Public IPv4"

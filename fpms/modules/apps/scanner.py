@@ -64,6 +64,11 @@ class Scanner(object):
 
         cmd = f"{IW_FILE} {IFACE} scan"
 
+        if not os.path.exists(f"/sys/class/net/{IFACE}"):
+            g_vars["scanner_results"] = ["No WLAN adapter detected"]
+            g_vars["scanner_status"] = False
+            return
+
         try:
             scan_output = subprocess.check_output(cmd, shell=True).decode().strip()
             networks = self.parse(scan_output)
@@ -124,8 +129,8 @@ class Scanner(object):
                     time_string = time_measure_value.strftime("%H:%M:%S")
                     results.append("\"{}\", \"{}\", \"{}\", \"{}\", \"{}\"\n".format(ssid, bssid, rssi, channel, time_string))
             g_vars["scanner_results"] = results
-        except Exception as e:
-            print(e)
+        except Exception:
+            g_vars["scanner_results"] = ["Scan failed"]
         finally:
             g_vars["scanner_status"] = False
 

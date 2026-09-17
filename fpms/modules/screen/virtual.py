@@ -16,6 +16,7 @@ class Virtual(AbstractScreen):
 
     def __init__(self):
         self.hints = []
+        self._last = None
 
     def init(self):
         return True
@@ -29,6 +30,13 @@ class Virtual(AbstractScreen):
     def render_text(self, title, lines):
         if not sys.stdout.isatty():
             return
+        # Only redraw when the content actually changes; the main loop
+        # re-runs the active page every 2s, so without this every cycle
+        # clears and redraws the same frame (flicker).
+        key = (title, tuple(lines), tuple(self.hints))
+        if key == self._last:
+            return
+        self._last = key
         out = ["\x1b[H\x1b[2J", title.upper()]
         for line in lines:
             out.append(line)

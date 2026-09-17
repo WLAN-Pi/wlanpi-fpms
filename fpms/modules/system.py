@@ -108,7 +108,7 @@ class System(object):
         try:
             tempI = int(open('/sys/class/thermal/thermal_zone0/temp').read())
         except:
-            tempI = "unknown"
+            tempI = 0
 
         if tempI > 1000:
             tempI = tempI/1000

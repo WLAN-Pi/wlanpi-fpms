@@ -1216,11 +1216,6 @@ optional options:
                     key_3()
 
     if emulate:
-        print("UP = 'w', DOWN = 'x', LEFT = 'a', RIGHT = 'd', CENTER = 's'")
-        if button_key1_present and button_key2_present and button_key3_present:
-            print("KEY1 = 'i', KEY2 = 'o', KEY3 = 'p'")
-        print("Press 'g' to capture the screen.")
-        print("Press 'k' to terminate.")
         oled.set_hints([
             "w/x/a/d/s: up/down/left/right/center",
             "g: screenshot   k: quit",
