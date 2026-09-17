@@ -337,9 +337,17 @@ class HomePage(object):
         if g_vars['home_page_alternate']:
             self.profiler_obj.profiler_check_new_profile(g_vars)
 
-        home_lines = [system_bar_contents]
+        # Text view mirrors the mode content on the physical screen
+        home_lines = []
+        addr = self.if_address(if_name)
+        if addr and addr.lower() != "no ip address":
+            home_lines.append(f"{if_name}: {addr}")
+        link = self.if_link_status(if_name)
+        if link:
+            home_lines.append(link)
         if alert_bar_contents:
             home_lines.append(alert_bar_contents)
+        home_lines.append(system_bar_contents)
         oled.render_text(title, home_lines)
         oled.drawImage(g_vars['image'])
         g_vars['drawing_in_progress'] = False
