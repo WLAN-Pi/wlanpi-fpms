@@ -278,6 +278,11 @@ class System(object):
                 self.display_obj.stamp_qrcode(g_vars, qrcode_path,
                     center_vertically=True)
 
+        oled.render_text("Help", [
+            "User guide:",
+            "http://userguide.wlanpi.com/",
+        ])
+
         g_vars['result_cache'] = True
         g_vars["disable_keys"] = False
 
