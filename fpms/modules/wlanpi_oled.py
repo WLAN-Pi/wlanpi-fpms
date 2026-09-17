@@ -63,6 +63,11 @@ def render_text(title, lines):
     if isinstance(device, Virtual):
         device.render_text(title, lines)
 
+# Set persistent help lines shown under the terminal text (Virtual only)
+def set_hints(hints):
+    if isinstance(device, Virtual):
+        device.set_hints(hints)
+
 # Clear the display
 def clear():
     device.clear()

@@ -337,18 +337,49 @@ class HomePage(object):
         if g_vars['home_page_alternate']:
             self.profiler_obj.profiler_check_new_profile(g_vars)
 
-        # Text view mirrors the mode content on the physical screen
+        # Text view mirrors the physical screen: status line, mode title,
+        # interface details, alert bar, system bar.
         home_lines = []
+
+        # status line: time + indicators + hostname
+        status = time.strftime("%H:%M")
+        try:
+            battery = Battery(g_vars)
+            if battery.battery_present():
+                status += f" \u26a1{battery.battery_charge():.0f}%"
+        except Exception:
+            pass
+        try:
+            if Bluetooth(g_vars).bluetooth_power():
+                status += " \U0001f3e7"
+        except Exception:
+            pass
+        if g_vars['eth_last_reachability_result']:
+            status += " \u2600"
+        status += "  " + system_bar_contents
+        home_lines.append(status)
+
+        # mode title (fall back to hostname if platform is unknown)
+        home_title = title if title else system_bar_contents
+        if home_title:
+            home_lines.append(home_title.upper())
+
+        # mode content: primary interface details
         addr = self.if_address(if_name)
         if addr and addr.lower() != "no ip address":
             home_lines.append(f"{if_name}: {addr}")
         link = self.if_link_status(if_name)
         if link:
             home_lines.append(link)
+
+        # alert bar
         if alert_bar_contents:
             home_lines.append(alert_bar_contents)
+
+        # system bar
         home_lines.append(system_bar_contents)
-        oled.render_text(title, home_lines)
+
+        oled.render_text(home_title, home_lines)
         oled.drawImage(g_vars['image'])
         g_vars['drawing_in_progress'] = False
 

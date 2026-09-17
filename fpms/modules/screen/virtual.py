@@ -14,11 +14,17 @@ class Virtual(AbstractScreen):
     -e emulator's 'g' key still captures full 128x128 PNG screenshots.
     """
 
+    def __init__(self):
+        self.hints = []
+
     def init(self):
         return True
 
     def drawImage(self, image):
         pass
+
+    def set_hints(self, hints):
+        self.hints = list(hints)
 
     def render_text(self, title, lines):
         if not sys.stdout.isatty():
@@ -26,6 +32,9 @@ class Virtual(AbstractScreen):
         out = ["\x1b[H\x1b[2J", title.upper()]
         for line in lines:
             out.append(line)
+        if self.hints:
+            out.append("")
+            out.extend(self.hints)
         sys.stdout.write("\n".join(out))
         sys.stdout.flush()
 
