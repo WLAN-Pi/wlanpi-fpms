@@ -37,8 +37,11 @@ fi
 
 IMAGE="wlanpi-fpms-builder:${SUITE}"
 
-# Clean up old build manifest
+# Clean up old build manifest and stale build trees. Without this, setuptools
+# reuses build/lib and repackages files that were deleted or renamed in the
+# source tree.
 rm -f .build-manifest.txt
+rm -rf build .pybuild
 
 echo "========================================="
 echo "Building wlanpi-fpms Debian Package"
