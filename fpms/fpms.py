@@ -244,7 +244,9 @@ wlanpi-fpms drives the Front Panel Menu System on the WLAN Pi
 
 optional options:
   -a                print authors
-  -e                emulate buttons from keyboard
+  -e                emulate buttons from keyboard; the menu is shown as
+                    terminal text only when no ST7735/SSD1351 display is
+                    present (on real hardware this drives that screen)
   -h                show this message and exit
   -v                show module version and exit
         """
@@ -272,6 +274,33 @@ optional options:
             sys.exit()
         else:
             assert False, "unhandled option"
+
+    ####################################
+    # Claim the hardware buttons before touching the display. GPIO lines are
+    # exclusive: if another fpms instance (e.g. the running systemd service)
+    # already holds them, fail with a clear message instead of a thread
+    # traceback later, and without fighting it for the panel.
+    # ponytail: gpio contention is the proxy for "another instance owns the
+    # display/buttons"; it won't catch a non-fpms holder of the display only.
+    # Add an explicit lock file if that case ever matters.
+    ####################################
+    button_request = None
+    if os.path.exists("/dev/gpiochip0"):
+        line_setting = gpiod.LineSettings(
+            bias=Bias.PULL_UP,
+            edge_detection=Edge.FALLING,
+            debounce_period=timedelta(microseconds=10),
+        )
+        lines = {k: line_setting for k in BUTTONS_PINS.values()}
+        try:
+            button_request = gpiod.request_lines("/dev/gpiochip0", lines)
+        except OSError:
+            print(
+                "fpms: another fpms instance is using the display/buttons. "
+                "Stop it first (e.g. 'sudo systemctl stop wlanpi-fpms').",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
     ####################################
     # Initialize the SEED OLED display
@@ -1094,18 +1123,7 @@ optional options:
 
     def monitor_buttons():
 
-        line_setting = gpiod.LineSettings(
-            bias=Bias.PULL_UP,
-            edge_detection=Edge.FALLING,
-            debounce_period=timedelta(microseconds=10)
-        )
-
-        lines = {k:line_setting for k in BUTTONS_PINS.values()}
-
-        with gpiod.request_lines(
-            "/dev/gpiochip0",
-            lines,
-        ) as request:
+        with button_request as request:
             while True:
                 request.wait_edge_events(1)
                 events = request.read_edge_events()
@@ -1146,7 +1164,7 @@ optional options:
                         elif event.line_offset == BUTTONS_PINS['key3']:
                             key_3()
 
-    if os.path.exists("/dev/gpiochip0"):
+    if button_request is not None:
         m = threading.Thread(name="button-monitor", target=monitor_buttons)
         m.daemon = True
         m.start()
@@ -1182,8 +1200,10 @@ optional options:
             char = getch()
 
             if (char == "k" or char == "K"):
+                # getch() has already restored the terminal; exit at once
+                # instead of waiting for the main loop's 2s nap to notice.
                 running = False
-                break
+                os._exit(0)
 
             if (char == "g" or char == "G"):
                 capture_screen()
@@ -1216,10 +1236,13 @@ optional options:
                     key_3()
 
     if emulate:
-        oled.set_hints([
-            "w/x/a/d/s: up/down/left/right/center",
-            "g: screenshot   k: quit",
-        ])
+        hints = ["w/x/a/d/s: up/down/left/right/center", "g: screenshot   k: quit"]
+        if button_key1_present and button_key2_present and button_key3_present:
+            hints.append("i/o/p: key1/key2/key3")
+        # On the Virtual backend these are drawn under the menu; on real
+        # hardware the terminal is the only place the user sees them.
+        oled.set_hints(hints)
+        print("\n".join(hints), flush=True)
         e = threading.Thread(name="button-emulator", target=emulate_buttons)
         e.daemon = True
         e.start()

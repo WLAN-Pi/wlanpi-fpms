@@ -34,9 +34,11 @@ def _select_device():
     if os.environ.get("FPMS_DISPLAY") == DISPLAY_TYPE_VIRTUAL:
         return Virtual()
     if not _has_spi_hardware():
-        msg = ("fpms: no display hardware detected (/dev/spidev* missing); "
-               "using virtual display. Run 'fpms -e' for keyboard emulation "
-               "and press 'g' to capture PNG screenshots.")
+        msg = ("fpms: no ST7735/SSD1351 display hardware detected (/dev/spidev* "
+               "missing); using virtual (text) display. The menu is shown as "
+               "terminal text, which is only available without a physical "
+               "display. Run 'fpms -e' for keyboard control and press 'g' to "
+               "capture PNG screenshots.")
         syslog.openlog(ident="fpms", logoption=syslog.LOG_PID, facility=syslog.LOG_USER)
         syslog.syslog(syslog.LOG_WARNING, msg)
         syslog.closelog()
