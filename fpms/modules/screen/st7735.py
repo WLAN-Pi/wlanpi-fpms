@@ -3,9 +3,15 @@
 
 import spidev
 import time
+import warnings
 
 from gpiozero import *
+from gpiozero.exc import PinFactoryFallback
 from fpms.modules.screen.screen import AbstractScreen
+
+# Some images ship without lgpio; gpiozero then silently falls back to another
+# pin factory, which works fine. The warning is noise, not a fault.
+warnings.filterwarnings("ignore", category=PinFactoryFallback)
 
 LCD_WIDTH, LCD_HEIGHT, LCD_X, LCD_Y = 128, 128, 2, 1
 

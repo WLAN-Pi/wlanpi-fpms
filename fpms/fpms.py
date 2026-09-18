@@ -1200,8 +1200,10 @@ optional options:
             char = getch()
 
             if (char == "k" or char == "K"):
+                # getch() has already restored the terminal; exit at once
+                # instead of waiting for the main loop's 2s nap to notice.
                 running = False
-                break
+                os._exit(0)
 
             if (char == "g" or char == "G"):
                 capture_screen()
