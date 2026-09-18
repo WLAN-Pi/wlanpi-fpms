@@ -75,13 +75,8 @@ IP_FILE = '/usr/sbin/ip'
 UFW_FILE = '/usr/sbin/ufw'
 ETHTOOL_FILE = '/sbin/ethtool'
 
-# Mode changer scripts
+# Mode state file (mode is no longer switchable from FPMS)
 MODE_FILE = '/etc/wlanpi-state'
-
-HOTSPOT_SWITCHER_FILE = '/opt/wlanpi-hotspot/hotspot_switcher'
-WIPERF_SWITCHER_FILE = '/opt/wlanpi-wiperf/wiperf_switcher'
-SERVER_SWITCHER_FILE = '/opt/wlanpi-server/server_switcher'
-BRIDGE_SWITCHER_FILE = '/opt/wlanpi-bridge/bridge_switcher'
 
 REG_DOMAIN_FILE = '/usr/bin/wlanpi-reg-domain'
 TIME_ZONE_FILE= '/usr/bin/wlanpi-timezone'

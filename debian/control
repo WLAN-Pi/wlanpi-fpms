@@ -44,10 +44,7 @@ Pre-Depends: dpkg (>= 1.16.1),
              ${misc:Pre-Depends}
 Depends: libopenjp2-7,
          wlanpi-common,
-         wlanpi-bridge,
          wlanpi-bluetooth,
-         wlanpi-hotspot,
-         wlanpi-server,
          wlanpi-profiler,
          ${misc:Depends},
          ${shlibs:Depends}

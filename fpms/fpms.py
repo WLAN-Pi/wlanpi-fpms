@@ -47,7 +47,6 @@ from .modules.bluetooth import *
 from .modules.cloud_tests import CloudUtils
 from .modules.constants import *
 from .modules.env_utils import EnvUtils
-from .modules.modes import *
 from .modules.nav.buttons import Button
 from .modules.network import *
 from .modules.pages.display import Display
@@ -451,25 +450,6 @@ optional options:
         utils_obj = Utils(g_vars)
         utils_obj.show_ufw(g_vars)
 
-    ############################
-    # Modes area
-    ############################
-    def hotspot_switcher():
-        mode_obj = Mode(g_vars)
-        mode_obj.hotspot_switcher(g_vars)
-
-    def wiperf_switcher():
-        mode_obj = Mode(g_vars)
-        mode_obj.wiperf_switcher(g_vars)
-
-    def server_switcher():
-        mode_obj = Mode(g_vars)
-        mode_obj.server_switcher(g_vars)
-
-    def bridge_switcher():
-        mode_obj = Mode(g_vars)
-        mode_obj.bridge_switcher(g_vars)
-
     ###########################
     # Apps area
     ###########################
@@ -601,13 +581,16 @@ optional options:
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_no(g_vars)
 
-    def rotate_display():
+    def toggle_display_orientation():
         if g_vars['display_orientation'] == DISPLAY_ORIENTATION_NORMAL:
             g_vars['display_orientation'] = DISPLAY_ORIENTATION_FLIPPED
         else:
             g_vars['display_orientation'] = DISPLAY_ORIENTATION_NORMAL
         oled.orientation = g_vars['display_orientation']
         save_value("display", "orientation", g_vars['display_orientation'])
+
+    def rotate_display():
+        toggle_display_orientation()
         g_vars['sig_fired'] = True
         menu_left()
         g_vars['sig_fired'] = False
@@ -699,13 +682,15 @@ optional options:
         button_obj.shortcut(g_vars, menu, next_shortcut)
 
     def menu_key2():
-        shortcut = create_shortcut(menu, ["Mode", "Classic Mode"])
-        if g_vars['current_mode'] == "classic":
-            shortcut = create_shortcut(menu, ["Modes", "Hotspot"])
-
-        # Switch to menu item
-        button_obj = Button(g_vars, menu)
-        button_obj.shortcut(g_vars, menu, shortcut)
+        # Key2 used to switch modes; repurposed to toggle display rotation.
+        # Repaint the current view in place (the main loop's 2s cycle is slow).
+        toggle_display_orientation()
+        if g_vars['display_state'] == 'page':
+            if isinstance(g_vars['option_selected'], types.FunctionType):
+                g_vars['option_selected']()
+        else:
+            page_obj = Page(g_vars)
+            page_obj.draw_page(g_vars, menu)
 
     def menu_key3():
         index = 0
@@ -791,25 +776,6 @@ optional options:
             {"name": "SSID/Passphrase", "action": show_ssid_passphrase},
             {"name": "USB Devices", "action": show_usb},
             {"name": "UFW Ports", "action": show_ufw},
-        ]
-        },
-        {"name": "Modes", "action": [
-            {"name": "Hotspot",   "action": [
-                {"name": "Confirm", "action": hotspot_switcher},
-            ]
-            },
-            #{"name": "Wiperf",   "action": [
-            #    {"name": "Confirm", "action": wiperf_switcher},
-            #]
-            #},
-            {"name": "Server",   "action": [
-                {"name": "Confirm", "action": server_switcher},
-            ]
-            },
-            {"name": "Bridge",   "action": [
-                {"name": "Confirm", "action": bridge_switcher},
-            ]
-            },
         ]
         },
         {"name": "Apps", "action": [
@@ -902,19 +868,15 @@ optional options:
 
     # update menu options data structure if we're in non-classic mode
     if g_vars['current_mode'] == "hotspot":
-        switcher_dispatcher = hotspot_switcher
         g_vars['home_page_name'] = "Hotspot"
 
     if g_vars['current_mode'] == "wiperf":
-        switcher_dispatcher = wiperf_switcher
         g_vars['home_page_name'] = "Wiperf"
 
     if g_vars['current_mode'] == "server":
-        switcher_dispatcher = server_switcher
         g_vars['home_page_name'] = "Server"
 
     if g_vars['current_mode'] == "bridge":
-        switcher_dispatcher = bridge_switcher
         g_vars['home_page_name'] = "Bridge"
 
     if g_vars['current_mode'] == "classic":
@@ -926,18 +888,6 @@ optional options:
                         item["action"].remove(action)
                         break
     else:
-        # Adjust Modes menu
-        for item in menu:
-            if item["name"] == "Modes":
-                item["name"] = "Mode"
-                item["action"] = [
-                    {"name": "Classic Mode",   "action": [
-                        {"name": "Confirm", "action": switcher_dispatcher},
-                    ]
-                    },
-                ]
-                break
-
         # Remove Apps menu
         for item in menu:
             if item["name"] == "Apps":
