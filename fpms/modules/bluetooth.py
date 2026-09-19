@@ -34,7 +34,7 @@ class Bluetooth(object):
                 stderr=subprocess.DEVNULL,
                 check=True)
             return True
-        except subprocess.CalledProcessError as exc:
+        except Exception:
             return False
 
     def bluetooth_name(self):
@@ -42,7 +42,7 @@ class Bluetooth(object):
             cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Name | awk '{ print $2 }'"
             name = subprocess.check_output(cmd, shell=True).decode().strip()
             return name
-        except subprocess.CalledProcessError as exc:
+        except Exception:
             return None
 
     def bluetooth_alias(self):
@@ -50,7 +50,7 @@ class Bluetooth(object):
             cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Alias | awk '{ print $2 }'"
             alias = subprocess.check_output(cmd, shell=True).decode().strip()
             return alias
-        except subprocess.CalledProcessError as exc:
+        except Exception:
             return None
 
     def bluetooth_address(self):
@@ -58,7 +58,7 @@ class Bluetooth(object):
             cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Address | awk '{ print $2 }'"
             address = subprocess.check_output(cmd, shell=True).decode().strip()
             return address
-        except subprocess.CalledProcessError as exc:
+        except Exception:
             return None
 
     def bluetooth_power(self):
@@ -72,25 +72,36 @@ class Bluetooth(object):
                 stderr=subprocess.DEVNULL,
                 check=True)
             return True
-        except subprocess.CalledProcessError as exc:
+        except Exception:
             return False
 
     def bluetooth_set_power(self, power):
         bluetooth_is_on = self.bluetooth_power()
 
-        try:
-            if power:
-                if bluetooth_is_on:
-                    return True
-                cmd = f"bt-adapter -a {BT_ADAPTER} --set Powered 1 && echo 1 > /etc/wlanpi-bluetooth/state"
-            else:
-                if not bluetooth_is_on:
-                    return True
-                cmd = f"bt-adapter -a {BT_ADAPTER} --set Powered 0 && echo 0 > /etc/wlanpi-bluetooth/state"
-            subprocess.run(cmd, shell=True)
+        if power and bluetooth_is_on:
             return True
-        except subprocess.CalledProcessError as exc:
+        if not power and not bluetooth_is_on:
+            return True
+
+        value = 1 if power else 0
+        try:
+            subprocess.run(
+                f"bt-adapter -a {BT_ADAPTER} --set Powered {value}",
+                shell=True,
+                check=True,
+            )
+        except Exception:
             return False
+
+        # Best effort: the state file is wlanpi-bluetooth's bookkeeping, so a
+        # failure here must not be reported as a failure to set the adapter.
+        try:
+            with open("/etc/wlanpi-bluetooth/state", "w") as f:
+                f.write("{}\n".format(value))
+        except OSError:
+            pass
+
+        return True
 
     def bluetooth_paired_devices(self):
         '''
@@ -108,7 +119,7 @@ class Bluetooth(object):
                 return dict([line.split(" ", 1) for line in output])
             else:
                 return None
-        except subprocess.CalledProcessError as exc:
+        except Exception:
             return None
 
     def bluetooth_status(self, g_vars):
@@ -119,9 +130,9 @@ class Bluetooth(object):
             g_vars['display_state'] = 'page'
             return
 
-        status.append("Name:"  + self.bluetooth_name())
-        status.append("Alias:" + self.bluetooth_alias())
-        status.append("Addr:"  + self.bluetooth_address().replace(":", ""))
+        status.append("Name:"  + (self.bluetooth_name() or ""))
+        status.append("Alias:" + (self.bluetooth_alias() or ""))
+        status.append("Addr:"  + (self.bluetooth_address() or "").replace(":", ""))
 
         if self.bluetooth_power():
             status.append("Power:On")
@@ -190,14 +201,14 @@ class Bluetooth(object):
                         ok = True
                         break
                 else:
-                    alias = self.bluetooth_alias()
+                    alias = self.bluetooth_alias() or ""
                     try:
                         g_vars["disable_keys"] = True
                         cmd = "systemctl start bt-timedpair"
                         subprocess.run(cmd, shell=True).check_returncode()
                         alert_msg = "Bluetooth is on. Discoverable as \"" + alias + "\""
                         ok = True
-                    except subprocess.CalledProcessError as exc:
+                    except Exception:
                         alert_msg = "Failed to set as discoverable."
                     finally:
                         g_vars["disable_keys"] = False

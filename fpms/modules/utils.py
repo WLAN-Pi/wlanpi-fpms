@@ -247,22 +247,23 @@ class Utils(object):
             g_vars['display_state'] = 'page'
             return
 
-        # If no cached ufw data from previous screen paint, run ufw status
-        if g_vars['result_cache'] == False:
+        # Use cached ufw data if we have it (cleared when leaving the page)
+        ufw_info = g_vars.get('ufw_info')
 
+        if ufw_info is None:
             try:
                 ufw_output = subprocess.check_output(
                     "sudo {} status".format(ufw_file), shell=True).decode()
                 ufw_info = ufw_output.split('\n')
-                g_vars['result_cache'] = ufw_info  # cache results
+                g_vars['ufw_info'] = ufw_info  # cache results
             except Exception as ex:
                 error_descr = "Issue getting ufw info using ufw command"
                 interfaces = ["Err: ufw error", error_descr, str(ex)]
                 self.simple_table_obj.display_simple_table(g_vars, interfaces)
                 return
-        else:
-            # we must have cached results from last time
-            ufw_info = g_vars['result_cache']
+
+        if not ufw_info:
+            ufw_info = ["No UFW info detected"]
 
         port_entries = []
 

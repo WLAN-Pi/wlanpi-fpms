@@ -147,6 +147,7 @@ class Button(object):
             g_vars['display_state'] = 'menu'
             g_vars['result_cache'] = False
             g_vars['scan_file'] = ''
+            g_vars['ufw_info'] = None
             self.page_obj.draw_page(g_vars, menu)
             return
 
@@ -188,6 +189,7 @@ class Button(object):
     def shortcut(self, g_vars, menu, shortcut):
 
         g_vars['result_cache'] = False
+        g_vars['ufw_info'] = None
 
         if len(shortcut) == 0:
             return
