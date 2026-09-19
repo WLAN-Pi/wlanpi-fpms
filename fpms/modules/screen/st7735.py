@@ -5,6 +5,7 @@ import spidev
 import time
 import warnings
 
+from PIL import Image
 from gpiozero import *
 from gpiozero.exc import PinFactoryFallback
 from fpms.modules.screen.screen import AbstractScreen

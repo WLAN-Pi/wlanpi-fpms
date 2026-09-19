@@ -182,7 +182,7 @@ class CloudUtils(object):
                         dns_fail = True
                         item_list[4] = "DNS (DEVICE): FAIL"
                 else:
-                    item_list[3] = "DNS (DEVICE): SKIP"
+                    item_list[4] = "DNS (DEVICE): SKIP"
 
             if dns_fail:
                 test_fail = True

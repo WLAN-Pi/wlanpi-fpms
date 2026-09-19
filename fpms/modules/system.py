@@ -184,7 +184,7 @@ class System(object):
         y = y + text_size[1] + margin
 
         # Draw city
-        text = g_vars['timezone_selected'].split("/")[-1].replace("_", " ")
+        text = (g_vars['timezone_selected'] or "").split("/")[-1].replace("_", " ")
         text_size = FONT11.getbbox(text)
         x = (PAGE_WIDTH - text_size[2])/2
         y = y + margin * 8
@@ -201,7 +201,7 @@ class System(object):
         oled.render_text("Date & Time", [
             time.strftime("%I:%M %p"),
             time.strftime("%e %b. %Y"),
-            g_vars['timezone_selected'].split("/")[-1].replace("_", " "),
+            (g_vars['timezone_selected'] or "").split("/")[-1].replace("_", " "),
             time.strftime("%Z"),
         ])
         oled.drawImage(g_vars['image'])

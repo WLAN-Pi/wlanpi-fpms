@@ -168,7 +168,7 @@ class HomePage(object):
         except:
             pass
 
-        return {}
+        return set()
 
 
     def if_address(self, if_name):

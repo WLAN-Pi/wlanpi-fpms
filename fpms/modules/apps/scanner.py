@@ -58,7 +58,7 @@ class Scanner(object):
         self.iw_textfsm_template.Reset()
         return self.iw_textfsm_template.ParseText(iw_scan_output)
 
-    def scan(self, g_vars, include_hidden, write_file):
+    def scan(self, g_vars, include_hidden, write_file, save_file=None):
 
         g_vars["scanner_status"] = True
 
@@ -99,6 +99,8 @@ class Scanner(object):
                 # Freq
                 freq = int(network[1])
                 channel = self.freq_to_channel(freq)
+                if channel is None:
+                    channel = "-"
 
                 # RSSI
                 rssi = int(round(get_rssi(network)))
@@ -125,9 +127,18 @@ class Scanner(object):
                 else:
                     datetime_string = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
                     time_now_value = datetime.now()
-                    time_measure_value = time_now_value - timedelta(milliseconds=int(lastseen))
+                    time_measure_value = time_now_value - timedelta(seconds=int(lastseen))
                     time_string = time_measure_value.strftime("%H:%M:%S")
                     results.append("\"{}\", \"{}\", \"{}\", \"{}\", \"{}\"\n".format(ssid, bssid, rssi, channel, time_string))
+
+            # Append this scan's rows once, here in the worker thread. Skip if
+            # the page was left/re-entered since the scan started (scan_file
+            # changed), which also stops two overlapping scans writing the
+            # same file.
+            if write_file and save_file and save_file == g_vars.get("scan_file"):
+                with open(save_file, "a+") as f:
+                    f.writelines(results)
+
             g_vars["scanner_results"] = results
         except Exception:
             g_vars["scanner_results"] = ["Scan failed"]
@@ -184,7 +195,7 @@ class Scanner(object):
         else:
             if g_vars["scanner_status"] == False:
                 # Run a scan in the background
-                thread = threading.Thread(target=self.scan, args=(g_vars,include_hidden, write_file), daemon=True)
+                thread = threading.Thread(target=self.scan, args=(g_vars, include_hidden, write_file, g_vars.get("scan_file")), daemon=True)
                 thread.start()
 
         # Check and display the results
@@ -195,12 +206,6 @@ class Scanner(object):
             table_display_max = MAX_TABLE_LINES + int(MAX_TABLE_LINES / 3)
             pages = []
             while results:
-                if write_file == True:
-                    save_file = g_vars["scan_file"]
-                    if len(save_file) > 0:
-                        # write to scan file
-                        with open(save_file, "a+") as f:
-                            f.writelines(results)
                 slice = results[:table_display_max]
                 pages.append(slice)
                 results = results[table_display_max:]

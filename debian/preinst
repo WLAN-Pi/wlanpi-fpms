@@ -1,9 +1,14 @@
 #!/bin/bash
 
-# Enable SPI interface for OLED display
+# Enable SPI interface for OLED display. Bookworm/trixie moved the boot
+# config to /boot/firmware/config.txt; fall back to the legacy path.
 echo "Enabling SPI interface"
-if grep -q -E "^#?dtparam=spi=" /boot/config.txt; then
-	sed -i 's/^#\?dtparam=spi=.*/dtparam=spi=on/' /boot/config.txt
+CONFIG=/boot/firmware/config.txt
+if [ ! -f "$CONFIG" ]; then
+	CONFIG=/boot/config.txt
+fi
+if grep -q -E "^#?dtparam=spi=" "$CONFIG"; then
+	sed -i 's/^#\?dtparam=spi=.*/dtparam=spi=on/' "$CONFIG"
 else
-	echo "dtparam=spi=on" >> /boot/config.txt
+	echo "dtparam=spi=on" >> "$CONFIG"
 fi
