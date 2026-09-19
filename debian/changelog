@@ -1,3 +1,21 @@
+wlanpi-fpms (1.4.17-1) unstable; urgency=medium
+
+  * Drop mode switching (Hotspot / Server / Bridge) from the menu and the
+    hard dependencies on wlanpi-hotspot, wlanpi-server and wlanpi-bridge.
+  * Repurpose key2 to toggle the display orientation in place.
+  * Gate a second fpms instance on the hardware buttons and quit on the
+    first 'k' when running the button emulator.
+  * Scanner: write CSV rows once per scan (no duplicates), use seconds for
+    the "last seen" timestamp, and tolerate an unknown channel.
+  * Fix the Aruba Cloud test's skipped DNS row.
+  * Bluetooth: report adapter failures instead of always succeeding, and
+    degrade gracefully when the bluez tools are missing.
+  * Fix a latent st7735 resize NameError, a timezone crash, and the UFW
+    result cache key.
+  * Enable SPI in /boot/firmware/config.txt on bookworm/trixie.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Fri, 18 Sep 2026 23:17:07 -0400
+
 wlanpi-fpms (1.4.16-1) unstable; urgency=medium
 
   * Fix import-time crash on machines without /dev/spidev0.0 (lazy SPI open)
