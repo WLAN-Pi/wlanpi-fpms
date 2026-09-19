@@ -12,31 +12,25 @@ on:
 
 jobs:
   sbuild:
-    name: sbuild ${{ matrix.distro }}+${{ matrix.arch }}
+    name: sbuild trixie+arm64
 
     runs-on: 'ubuntu-24.04-arm'
-
-    strategy:
-      fail-fast: false
-      matrix:
-        distro: [trixie]
-        arch: [arm64]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: sbuild for ${{ matrix.distro }} ${{ matrix.arch }}
+      - name: sbuild for trixie arm64
         uses: wlan-pi/sbuild-debian-package@main
         id: build-debian-package
         with:
-          distro: ${{ matrix.distro }}
-          arch: ${{ matrix.arch }}
+          distro: trixie
+          arch: arm64
 
       - name: Archive artifacts and upload to GitHub
         uses: actions/upload-artifact@v7
         with:
-          name: wlanpi-fpms-${{ matrix.distro }}-${{ matrix.arch }}
+          name: wlanpi-fpms-trixie-arm64
           path: ${{ steps.build-debian-package.outputs.deb-package }}
         
   slack-workflow-status:
