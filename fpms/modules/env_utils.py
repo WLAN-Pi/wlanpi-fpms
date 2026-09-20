@@ -142,7 +142,7 @@ class EnvUtils(object):
 
     def get_wifi_qrcode(self, ssid, passphrase):
         qrcode_spec = "WIFI:S:{};T:WPA;P:{};;".format(ssid, passphrase)
-        qrcode_hash = hashlib.sha1(qrcode_spec.encode()).hexdigest()
+        qrcode_hash = hashlib.sha256(qrcode_spec.encode()).hexdigest()
         qrcode_path = "/tmp/{}.png".format(qrcode_hash)
 
         if not os.path.exists(qrcode_path):
@@ -156,7 +156,7 @@ class EnvUtils(object):
 
     def get_help_qrcode(self, watermark=''):
         qrcode_spec = "http://userguide.wlanpi.com/"
-        qrcode_hash = hashlib.sha1(qrcode_spec.encode()).hexdigest()
+        qrcode_hash = hashlib.sha256(qrcode_spec.encode()).hexdigest()
         qrcode_path = "/tmp/{}.png".format(qrcode_hash)
 
         if not os.path.exists(qrcode_path):
