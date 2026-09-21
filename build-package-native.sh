@@ -3,7 +3,7 @@
 # Build wlanpi-fpms Debian package in a container (podman or docker)
 #
 # Usage: ./build-package-native.sh [SUITE]
-#   SUITE   Debian release to build for: bullseye | bookworm | trixie (default: trixie)
+#   SUITE   Debian release to build for (trixie only; default: trixie)
 #
 # The container engine is auto-detected (podman preferred, then docker).
 # Override it explicitly with CONTAINER_ENGINE, e.g.:

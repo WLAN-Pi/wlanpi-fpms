@@ -1,6 +1,6 @@
 # Dockerfile for building wlanpi-fpms Debian package
 #
-# Build for a specific Debian release (bullseye, bookworm, trixie) via SUITE:
+# Build for Debian trixie via SUITE:
 #   podman build -f Dockerfile.build --build-arg SUITE=trixie -t wlanpi-fpms-builder .
 #   podman run --rm -v $(pwd):/work -w /work wlanpi-fpms-builder
 #

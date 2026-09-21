@@ -1,20 +1,14 @@
-import time
-import os.path
-import subprocess
-import fpms.modules.wlanpi_oled as oled
-import sys
 import re
+import subprocess
+import time
 
-from fpms.modules.pages.simpletable import SimpleTable
-from fpms.modules.pages.pagedtable import PagedTable
 from fpms.modules.pages.alert import Alert
-
-from fpms.modules.constants import MAX_TABLE_LINES
+from fpms.modules.pages.pagedtable import PagedTable
 
 BT_ADAPTER = "hci0"
 
 
-class Bluetooth(object):
+class Bluetooth:
     def __init__(self, g_vars):
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
@@ -104,7 +98,7 @@ class Bluetooth(object):
         # failure here must not be reported as a failure to set the adapter.
         try:
             with open("/etc/wlanpi-bluetooth/state", "w") as f:
-                f.write("{}\n".format(value))
+                f.write(f"{value}\n")
         except OSError:
             pass
 
@@ -122,8 +116,8 @@ class Bluetooth(object):
             cmd = "bluetoothctl -- paired-devices | grep -iv 'no default controller'"
             output = subprocess.check_output(cmd, shell=True).decode().strip()
             if len(output) > 0:
-                output = re.sub("Device *", "", output).split("\n")
-                return dict([line.split(" ", 1) for line in output])
+                devices = re.sub("Device *", "", output).split("\n")
+                return dict([line.split(" ", 1) for line in devices])
             else:
                 return None
         except Exception:
@@ -148,7 +142,7 @@ class Bluetooth(object):
 
         paired_devices = self.bluetooth_paired_devices()
 
-        if paired_devices != None:
+        if paired_devices is not None:
             status.append("---")
             status.append("PAIRED DEVICES")
             status.append("---")
@@ -181,7 +175,7 @@ class Bluetooth(object):
                 """
                 timeout = 30
                 elapsed_time = 0
-                while paired_devices != None and elapsed_time < timeout:
+                while paired_devices is not None and elapsed_time < timeout:
                     self.alert_obj.display_popup_alert(
                         g_vars, "Unpairing existing device..."
                     )
@@ -194,7 +188,7 @@ class Bluetooth(object):
                                 stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL,
                             )
-                        except:
+                        except Exception:
                             pass
                     paired_devices = self.bluetooth_paired_devices()
                     time.sleep(1)
@@ -205,7 +199,7 @@ class Bluetooth(object):
 
             else:
                 paired_devices = self.bluetooth_paired_devices()
-                if paired_devices != None:
+                if paired_devices is not None:
                     for dev in paired_devices:
                         alert_msg = f"Paired to {paired_devices[dev]}"
                         ok = True
@@ -226,7 +220,7 @@ class Bluetooth(object):
         else:
             alert_msg = "Failed to turn on bluetooth."
 
-        if alert_msg != None:
+        if alert_msg is not None:
             if ok:
                 self.alert_obj.display_alert_info(g_vars, alert_msg, title="Success")
             else:

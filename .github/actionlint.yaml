@@ -1,0 +1,6 @@
+# actionlint configuration.
+# ubuntu-26.04 is a valid GitHub-hosted runner label, but it is newer than
+# the runner-images list bundled with the installed actionlint release.
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04

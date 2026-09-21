@@ -1,13 +1,13 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
-import spidev
 import time
 import warnings
 
-from PIL import Image
-from gpiozero import *
+import spidev
+from gpiozero import DigitalInputDevice, DigitalOutputDevice, PWMOutputDevice
 from gpiozero.exc import PinFactoryFallback
+from PIL import Image
+
 from fpms.modules.screen.screen import AbstractScreen
 
 # Some images ship without lgpio; gpiozero then silently falls back to another
@@ -280,7 +280,7 @@ class LCD(RaspberryPi):
             self.spi_writebyte(pix[i : i + 4096])
 
     def LCD_Backlight(self, onOff):
-        if onOff == True:
+        if onOff:
             self.bl_DutyCycle(100)
         else:
             self.bl_DutyCycle(0)
@@ -297,7 +297,7 @@ class ST7735(AbstractScreen):
     def drawImage(self, image):
         width, height = image.size
         if LCD_WIDTH != width or LCD_HEIGHT != height:
-            image = image.resize((LCD_WIDTH, LCD_HEIGHT), Image.LANCZOS)
+            image = image.resize((LCD_WIDTH, LCD_HEIGHT), Image.Resampling.LANCZOS)
         self.device.LCD_ShowImage(image, 0, 0)
 
     def clear(self):

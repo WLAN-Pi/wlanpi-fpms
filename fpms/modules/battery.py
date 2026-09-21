@@ -1,16 +1,9 @@
-import time
-import os.path
-import subprocess
-import fpms.modules.wlanpi_oled as oled
-import sys
-
-from fpms.modules.pages.simpletable import SimpleTable
-from fpms.modules.pages.pagedtable import PagedTable
-from fpms.modules.pages.alert import Alert
 from fpms.modules.constants import BATTERY_STATUS_FILE
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.pagedtable import PagedTable
 
 
-class Battery(object):
+class Battery:
     def __init__(self, g_vars):
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
@@ -38,7 +31,7 @@ class Battery(object):
             return self.info["POWER_SUPPLY_STATUS"].lower()
 
     def battery_charge(self):
-        charge = 0
+        charge: float = 0
         voltage_max = 4100000
         voltage_min = 3300000
 

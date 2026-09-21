@@ -1,22 +1,19 @@
-import subprocess
-import os.path
 import os
-import time
+import os.path
+import subprocess
 
-from PIL import Image
-
-from fpms.modules.pages.alert import *
-from fpms.modules.pages.simpletable import *
-from fpms.modules.pages.pagedtable import *
-from fpms.modules.env_utils import EnvUtils
 from fpms.modules.constants import (
-    REACHABILITY_FILE,
     BLINKER_FILE,
+    REACHABILITY_FILE,
     UFW_FILE,
 )
+from fpms.modules.env_utils import EnvUtils
+from fpms.modules.pages.alert import *
+from fpms.modules.pages.pagedtable import *
+from fpms.modules.pages.simpletable import *
 
 
-class Utils(object):
+class Utils:
     def __init__(self, g_vars):
         # create display object
         self.display_obj = Display(g_vars)
@@ -35,7 +32,7 @@ class Utils(object):
         Run speedtest.net speed test and format output to fit the OLED screen
         """
         # Has speedtest been run already?
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # ignore any more key presses as this could cause us issues
             g_vars["disable_keys"] = True
             g_vars["speedtest_result_text"] = None
@@ -52,9 +49,7 @@ class Utils(object):
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
             speedtest_info = []
-            speedtest_cmd = "{} --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\\(/My IP: /g; s/\\)\\.\\.\\.//g; s/Download/D/g; s/Upload/U/g; s/bit\\/s/bps/g'".format(
-                speedtest_bin
-            )
+            speedtest_cmd = f"{speedtest_bin} --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\\(/My IP: /g; s/\\)\\.\\.\\.//g; s/Download/D/g; s/Upload/U/g; s/bit\\/s/bps/g'"
 
             try:
                 speedtest_output = (
@@ -80,7 +75,7 @@ class Utils(object):
         # re-enable front panel keys
         g_vars["disable_keys"] = False
 
-        if g_vars["speedtest_result_text"] == None:
+        if g_vars["speedtest_result_text"] is None:
             self.alert_obj.display_alert_error(g_vars, "Failed to run speedtest.")
         else:
             self.simple_table_obj.display_simple_table(
@@ -110,7 +105,7 @@ class Utils(object):
         ( *** Note that blinker_status set back to False in menu_right() *** )
         """
         # Has port blinker been run already?
-        if g_vars["blinker_status"] == False:
+        if not g_vars["blinker_status"]:
             # ignore any more key presses as this could cause us issues
             g_vars["disable_keys"] = True
             g_vars["blinker_process"] = subprocess.Popen(BLINKER_FILE)
@@ -126,7 +121,7 @@ class Utils(object):
             g_vars["blinker_status"] = True
 
     def stop_blinker(self, g_vars):
-        if g_vars["blinker_status"] == True:
+        if g_vars["blinker_status"]:
             g_vars["blinker_process"].kill()
             g_vars["blinker_status"] = False
         else:
@@ -140,9 +135,9 @@ class Utils(object):
         """
 
         title = "Reachability"
-        reachability_info = []
+        reachability_info: list = []
 
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             self.paged_table_obj.display_list_as_paged_table(
                 g_vars, reachability_info, title=title
             )
@@ -184,7 +179,7 @@ class Utils(object):
         ssid = None
         passphrase = None
 
-        if g_vars["result_cache"] == True:
+        if g_vars["result_cache"]:
             return
 
         cmd = (
@@ -201,7 +196,7 @@ class Utils(object):
             )
             data.append(ssid.center(21, " "))
             data.append(passphrase.center(21, " "))
-        except:
+        except Exception:
             self.alert_obj.display_alert_error(g_vars, "No SSID/Passphrase is set")
             return
 
@@ -218,7 +213,7 @@ class Utils(object):
 
         # Get path to QR code png (it will be generated if not present)
         qrcode_path = env_utils.get_wifi_qrcode(ssid, passphrase)
-        if qrcode_path != None:
+        if qrcode_path is not None:
             self.display_obj.stamp_qrcode(
                 g_vars, qrcode_path, center_vertically=False, y=52
             )
@@ -280,7 +275,7 @@ class Utils(object):
         if ufw_info is None:
             try:
                 ufw_output = subprocess.check_output(
-                    "sudo {} status".format(ufw_file), shell=True
+                    f"sudo {ufw_file} status", shell=True
                 ).decode()
                 ufw_info = ufw_output.split("\n")
                 g_vars["ufw_info"] = ufw_info  # cache results

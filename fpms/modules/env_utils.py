@@ -5,19 +5,19 @@ FPMS is running. These will be replcaed by back-end API calls in the
 longer term
 """
 
-import subprocess
-import re
-import sys
-import os
 import hashlib
+import os
+import subprocess
+import sys
+
 import qrcode
-
 from PIL import Image
-from fpms.modules.platform import *
+
 from fpms.modules.display import *
+from fpms.modules.platform import *
 
 
-class EnvUtils(object):
+class EnvUtils:
     def __init__(self):
         pass
 
@@ -38,7 +38,7 @@ class EnvUtils(object):
         platform = PLATFORM_UNKNOWN
 
         if os.path.isfile(WLANPI_MODEL_FILE):
-            with open(WLANPI_MODEL_FILE, "r") as f:
+            with open(WLANPI_MODEL_FILE) as f:
                 platform = f.readline().strip()
 
         if platform == PLATFORM_UNKNOWN:
@@ -48,7 +48,7 @@ class EnvUtils(object):
                 platform = (
                     subprocess.check_output(model_cmd, shell=True).decode().strip()
                 )
-            except subprocess.CalledProcessError as exc:
+            except subprocess.CalledProcessError:
                 return PLATFORM_UNKNOWN
 
         if platform.endswith("?"):
@@ -67,15 +67,13 @@ class EnvUtils(object):
 
         # check mode file exists and read mode...create with classic mode if not
         if os.path.isfile(MODE_FILE):
-            with open(MODE_FILE, "r") as f:
+            with open(MODE_FILE) as f:
                 current_mode = f.readline().strip()
 
             # send msg to stdout & exit if mode invalid
-            if not current_mode in valid_modes:
+            if current_mode not in valid_modes:
                 print(
-                    "The mode read from {} is not a valid mode of operation: {}".format(
-                        MODE_FILE, current_mode
-                    )
+                    f"The mode read from {MODE_FILE} is not a valid mode of operation: {current_mode}"
                 )
                 sys.exit()
         else:
@@ -90,7 +88,7 @@ class EnvUtils(object):
         wlanpi_ver = "unknown"
 
         if os.path.isfile(WLANPI_IMAGE_FILE):
-            with open(WLANPI_IMAGE_FILE, "r") as f:
+            with open(WLANPI_IMAGE_FILE) as f:
                 lines = f.readlines()
 
             # pull out the version number for the FPMS home page
@@ -109,7 +107,7 @@ class EnvUtils(object):
                 .decode()
                 .strip()
             )
-            if not "." in hostname:
+            if "." not in hostname:
                 domain = "local"
                 try:
                     output = (
@@ -119,11 +117,11 @@ class EnvUtils(object):
                     )
                     if len(output) != 0:
                         domain = output
-                except:
+                except Exception:
                     pass
                 hostname = f"{hostname}.{domain}"
             return hostname
-        except:
+        except Exception:
             pass
 
         return None
@@ -152,9 +150,9 @@ class EnvUtils(object):
         return None
 
     def get_wifi_qrcode(self, ssid, passphrase):
-        qrcode_spec = "WIFI:S:{};T:WPA;P:{};;".format(ssid, passphrase)
+        qrcode_spec = f"WIFI:S:{ssid};T:WPA;P:{passphrase};;"
         qrcode_hash = hashlib.sha256(qrcode_spec.encode()).hexdigest()
-        qrcode_path = "/tmp/{}.png".format(qrcode_hash)
+        qrcode_path = f"/tmp/{qrcode_hash}.png"
 
         if not os.path.exists(qrcode_path):
             qr = qrcode.QRCode(
@@ -169,7 +167,7 @@ class EnvUtils(object):
     def get_help_qrcode(self, watermark=""):
         qrcode_spec = "http://userguide.wlanpi.com/"
         qrcode_hash = hashlib.sha256(qrcode_spec.encode()).hexdigest()
-        qrcode_path = "/tmp/{}.png".format(qrcode_hash)
+        qrcode_path = f"/tmp/{qrcode_hash}.png"
 
         if not os.path.exists(qrcode_path):
             qr = qrcode.QRCode(
@@ -190,15 +188,15 @@ class EnvUtils(object):
                     # Calculate size of watermark
                     qr_width, qr_height = img.size
                     max_size = min(qr_width, qr_height) // 5
-                    wmark = wmark.resize((max_size, max_size))
-                    wmark_width, wmark_height = wmark.size
+                    wmark_img = wmark.resize((max_size, max_size))
+                    wmark_width, wmark_height = wmark_img.size
 
                     # Calculate position and paste watermark
                     position = (
                         (qr_width - wmark_width) // 2,
                         (qr_height - wmark_height) // 2,
                     )
-                    img.paste(wmark, position)
+                    img.paste(wmark_img, position)
 
             # Cache QR code
             img.save(qrcode_path)

@@ -1,15 +1,16 @@
-# -*- coding: utf-8 -*-
 #
 """
 constants.py - shared constant vars
 """
 
-from PIL import ImageFont
 import os
 import pathlib
+
+from PIL import ImageFont
+
+from fpms.modules.display import *
 from fpms.modules.env_utils import EnvUtils
 from fpms.modules.platform import *
-from fpms.modules.display import *
 
 __version__ = "2.0.3"
 __author__ = "wifinigel@gmail.com"

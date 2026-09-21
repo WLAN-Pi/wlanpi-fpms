@@ -34,7 +34,7 @@ Build-Depends: debhelper (>= 11),
                libgirepository1.0-dev,
                libffi-dev
 Standards-Version: 4.6.0
-X-Python3-Version: >= 3.9
+X-Python3-Version: >= 3.13
 Homepage: https://github.com/WLAN-Pi/wlanpi-fpms
 
 Package: wlanpi-fpms

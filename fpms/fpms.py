@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 
 """
@@ -8,27 +7,27 @@ FPMS
 Front Panel Menu System
 """
 
-import dbus
-import dbus.mainloop.glib
-from gi.repository import GLib
-import syslog
 import configparser
-
 import getopt
-import gpiod
 import os
 import os.path
 import subprocess
 import sys
+import syslog
 import termios
 import threading
 import time
 import tty
 import types
-
-from PIL import Image, ImageDraw
-from gpiod.line import Bias, Edge
 from datetime import datetime, timedelta
+from typing import Any
+
+import dbus
+import dbus.mainloop.glib
+import gpiod
+from gi.repository import GLib
+from gpiod.line import Bias, Edge
+from PIL import Image, ImageDraw
 
 # Check we're running as root
 if not os.geteuid() == 0:
@@ -40,29 +39,26 @@ from .modules import wlanpi_oled as oled
 from .modules.apps.kismet import *
 from .modules.apps.profiler import *
 from .modules.apps.scanner import *
+from .modules.battery import *
 from .modules.bluetooth import *
 from .modules.cloud_tests import CloudUtils
 from .modules.constants import *
 from .modules.env_utils import EnvUtils
 from .modules.nav.buttons import Button
 from .modules.network import *
-from .modules.pages.display import Display
 from .modules.pages.homepage import HomePage
 from .modules.pages.page import Page
-from .modules.pages.pagedtable import PagedTable
-from .modules.pages.simpletable import SimpleTable
-from .modules.system import *
-from .modules.battery import *
-from .modules.utils import *
 from .modules.reg_domain import *
+from .modules.system import *
 from .modules.time_zone import *
+from .modules.utils import *
 
 FPMS_CONF_FILE = "/etc/wlanpi-fpms.conf"
 
 #######################################
 # Initialize various global variables
 #######################################
-g_vars = {
+g_vars: dict[str, Any] = {
     ##################################################
     # Shared status signals (may be changed anywhere)
     ##################################################
@@ -116,7 +112,7 @@ def handle_reboot_or_shutdown(shutdown=False):
     if not g_vars["shutdown_in_progress"]:
         g_vars["shutdown_in_progress"] = True
         log_to_syslog("Drawing shutdown/reboot image")
-        if shutdown == True:
+        if shutdown:
             oled.drawImage(g_vars["shutdown_image"])
         else:
             oled.drawImage(g_vars["reboot_image"])
@@ -151,7 +147,8 @@ def run_dbus_loop():
     login1 = dbus.Interface(login1_proxy, "org.freedesktop.login1.Manager")
 
     # Take an inhibitor lock to receive the PrepareForShutdown signal
-    fd = login1.Inhibit("shutdown", "fpms", "Delaying shutdown", "delay")
+    # Keep a reference: the inhibitor lock is released when the fd is closed.
+    _inhibitor_fd = login1.Inhibit("shutdown", "fpms", "Delaying shutdown", "delay")
 
     # Add a signal receiver for the "PrepareForShutdown" signal from login1.Manager
     # Handles systemctl reboot
@@ -171,7 +168,7 @@ def run_dbus_loop():
         signal_name="JobNew",
     )
 
-    log_to_syslog(f"event handlers added")
+    log_to_syslog("event handlers added")
 
     # Run indefinitely to handle D-Bus signals
     loop = GLib.MainLoop()
@@ -208,12 +205,18 @@ def save_value(section, key, new_value):
         config.write(f)
 
 
+# Main loop flag. Declared at module scope so the nested helpers that do
+# `global running` can rebind it; mypy cannot see a binding that only happens
+# inside main().
+running: bool = False
+
+
 def main():
     # Run D-Bus main loop in a separate thread
     dbus_thread = threading.Thread(target=run_dbus_loop)
     dbus_thread.daemon = True
     dbus_thread.start()
-    log_to_syslog(f"fpms starting after dbus thread setup")
+    log_to_syslog("fpms starting after dbus thread setup")
 
     global g_vars
     global running
@@ -260,13 +263,13 @@ optional options:
             sys.argv[1:], ":ahev", ["authors", "help", "emulate-buttons", "version"]
         )
     except getopt.GetoptError as error:
-        print("{0} ... ".format(error))
+        print(f"{error} ... ")
         print(usage())
         sys.exit(2)
 
     emulate = False
 
-    for opt, arg in opts:
+    for opt, _arg in opts:
         if opt in ["-e", "--emulate-buttons"]:
             emulate = True
         elif opt in ("-a", "--authors"):
@@ -276,10 +279,10 @@ optional options:
             print(usage())
             sys.exit()
         elif opt in ("-v", "--version"):
-            print("{0} {1}".format(__title__, __version__))
+            print(f"{__title__} {__version__}")
             sys.exit()
         else:
-            assert False, "unhandled option"
+            raise AssertionError("unhandled option")
 
     ####################################
     # Claim the hardware buttons before touching the display. GPIO lines are
@@ -290,14 +293,14 @@ optional options:
     # display/buttons"; it won't catch a non-fpms holder of the display only.
     # Add an explicit lock file if that case ever matters.
     ####################################
-    button_request = None
+    button_request: Any = None
     if os.path.exists("/dev/gpiochip0"):
         line_setting = gpiod.LineSettings(
             bias=Bias.PULL_UP,
             edge_detection=Edge.FALLING,
             debounce_period=timedelta(microseconds=10),
         )
-        lines = {k: line_setting for k in BUTTONS_PINS.values()}
+        lines = dict.fromkeys(BUTTONS_PINS.values(), line_setting)
         try:
             button_request = gpiod.request_lines("/dev/gpiochip0", lines)
         except OSError:
@@ -708,7 +711,6 @@ optional options:
             page_obj.draw_page(g_vars, menu)
 
     def menu_key3():
-        index = 0
         reboot_shortcut = create_shortcut(menu, ["System", "Reboot"])
         shutdown_shortcut = create_shortcut(menu, ["System", "Shutdown"])
 
@@ -721,7 +723,7 @@ optional options:
         button_obj = Button(g_vars, menu)
         button_obj.shortcut(g_vars, menu, next_shortcut)
 
-    def create_shortcut(menu, path, location=[]):
+    def create_shortcut(menu, path, location=None):
         if isinstance(menu, types.FunctionType):
             if len(path) > 0:
                 raise Exception("invalid path")
@@ -731,7 +733,7 @@ optional options:
             index = 0
             for item in menu:
                 if item["name"] == path[0]:
-                    return [index] + create_shortcut(item["action"], path[1:], location)
+                    return [index, *create_shortcut(item["action"], path[1:], location)]
                 index += 1
 
         return []
@@ -751,7 +753,7 @@ optional options:
             )
 
     # assume classic mode menu initially...
-    menu = [
+    menu: list[dict[str, Any]] = [
         {
             "name": "Network",
             "action": [
@@ -1064,7 +1066,7 @@ optional options:
         if "key3" in BUTTONS_PINS:
             KEY3 = BUTTONS_PINS["key3"]
 
-        if g_vars["disable_keys"] == True:
+        if g_vars["disable_keys"]:
             # someone disabled the front panel keys as they don't want to be interrupted
             return
 
@@ -1381,7 +1383,7 @@ optional options:
             if g_vars["eth_carrier_status"] != carrier:
                 wakeup_screen()
             g_vars["eth_carrier_status"] = carrier
-        except subprocess.CalledProcessError as exc:
+        except subprocess.CalledProcessError:
             pass
 
     ##############################################################################
@@ -1426,7 +1428,7 @@ optional options:
                 # no menu shown, so must be executing action.
 
                 # if we've just booted up, show home page
-                if g_vars["start_up"] == True:
+                if g_vars["start_up"]:
                     g_vars["option_selected"] = home_page
 
                 # Re-run current action to refresh screen
@@ -1456,7 +1458,7 @@ optional options:
 
             # if screen timeout is zero, clear it if not already done (blank the
             # display to reduce screenburn)
-            if g_vars["pageSleepCountdown"] == 0 and g_vars["screen_cleared"] == False:
+            if g_vars["pageSleepCountdown"] == 0 and not g_vars["screen_cleared"]:
                 sleep_screen()
 
             if g_vars["pageSleepCountdown"] > 0:
@@ -1467,7 +1469,7 @@ optional options:
 
         except KeyboardInterrupt:
             break
-        except IOError as ex:
+        except OSError as ex:
             print("Error " + str(ex))
 
         g_vars["last_button_press_count"] = g_vars["button_press_count"]

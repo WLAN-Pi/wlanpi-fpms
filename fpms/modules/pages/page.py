@@ -2,21 +2,17 @@
 # Create a page object that renders dispay page
 #################################################
 import fpms.modules.wlanpi_oled as oled
-
-from fpms.modules.pages.display import *
-from fpms.modules.themes import THEME
 from fpms.modules.constants import (
-    STATUS_BAR_HEIGHT,
-    SMART_FONT,
-    FONT11,
-    FONT12,
     FONTB11,
     FONTB12,
     MAX_PAGE_LINES,
+    STATUS_BAR_HEIGHT,
 )
+from fpms.modules.pages.display import *
+from fpms.modules.themes import THEME
 
 
-class Page(object):
+class Page:
     def __init__(self, g_vars):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
@@ -37,7 +33,7 @@ class Page(object):
         #       via evaluated location rather than crawling over menu
 
         menu_structure = menu
-        location_search = []
+        location_search: list = []
         depth = 0
         section_name = [g_vars["home_page_name"]]
 
@@ -79,7 +75,7 @@ class Page(object):
                         item_name = item_name[:14] + ".."
                     item_name = item_name + ">"
 
-                menu_list.append((item_name))
+                menu_list.append(item_name)
 
                 item_counter = item_counter + 1
 
@@ -160,7 +156,6 @@ class Page(object):
 
             rect_fill = THEME.page_item_background.value
             text_fill = THEME.page_item_foreground.value
-            nav_fill = THEME.page_item_foreground.value
             icon_fill = THEME.page_icon_foreground.value
             font_type = FONTB11
 
@@ -174,7 +169,6 @@ class Page(object):
                 sel = True
                 rect_fill = THEME.page_selected_item_background.value
                 text_fill = THEME.page_selected_item_foreground.value
-                nav_fill = THEME.page_selected_item_foreground.value
                 icon_fill = THEME.page_selected_item_foreground.value
                 menu_item = menu_item[1 : len(menu_item)]
 

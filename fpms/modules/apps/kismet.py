@@ -1,17 +1,11 @@
-import os.path
-import re
 import subprocess
-import sys
-import time
 
-import fpms.modules.wlanpi_oled as oled
-from fpms.modules.pages.display import Display
 from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.display import Display
 from fpms.modules.pages.pagedtable import PagedTable
-from fpms.modules.env_utils import EnvUtils
 
 
-class Kismet(object):
+class Kismet:
     def __init__(self, g_vars):
         # create display object
         self.display_obj = Display(g_vars)
@@ -31,7 +25,7 @@ class Kismet(object):
             # this cmd fails if service not installed
             cmd = "/bin/systemctl is-active --quiet kismet"
             subprocess.run(cmd, shell=True).check_returncode()
-        except:
+        except Exception:
             # cmd failed, so profiler service not installed
             return False
 
@@ -41,7 +35,7 @@ class Kismet(object):
         # if we're been round this loop before,
         # results treated as cached to prevent re-evaluating
         # and re-painting
-        if g_vars["result_cache"] == True:
+        if g_vars["result_cache"]:
             # re-enable keys
             g_vars["disable_keys"] = False
             return True
@@ -64,9 +58,9 @@ class Kismet(object):
                     self.alert_obj.display_alert_info(
                         g_vars, "Kismet started.", title="Success"
                     )
-                except subprocess.CalledProcessError as proc_exc:
+                except subprocess.CalledProcessError:
                     self.alert_obj.display_alert_error(g_vars, "Start failed.")
-                except subprocess.TimeoutExpired as timeout_exc:
+                except subprocess.TimeoutExpired:
                     self.alert_obj.display_alert_error(g_vars, "Process timed out.")
         elif action == "stop":
             if not self.kismet_status():
@@ -82,7 +76,7 @@ class Kismet(object):
                         self.alert_obj.display_alert_info(
                             g_vars, "Kismet stopped.", title="Success"
                         )
-                except subprocess.CalledProcessError as exc:
+                except subprocess.CalledProcessError:
                     self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 
         # signal that result is cached (stops re-painting screen)

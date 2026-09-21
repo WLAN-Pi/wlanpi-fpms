@@ -1,19 +1,18 @@
 from PIL import Image
 
 import fpms.modules.wlanpi_oled as oled
-
-from fpms.modules.themes import THEME
 from fpms.modules.constants import (
     PAGE_HEIGHT,
     PAGE_WIDTH,
 )
+from fpms.modules.themes import THEME
 
 #################################
 # Display functions
 #################################
 
 
-class Display(object):
+class Display:
     def __init__(self, g_vars):
         pass
 

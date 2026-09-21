@@ -1,25 +1,25 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import glob
 import os
 import sys
 import syslog
+from typing import Any
 
 from PIL import Image
 
 from fpms.modules.constants import (
+    DISPLAY_ORIENTATION_FLIPPED,
+    DISPLAY_ORIENTATION_NORMAL,
     DISPLAY_TYPE,
     DISPLAY_TYPE_ST7735,
     DISPLAY_TYPE_VIRTUAL,
-    DISPLAY_ORIENTATION_FLIPPED,
-    DISPLAY_ORIENTATION_NORMAL,
 )
-from fpms.modules.screen.st7735 import ST7735
 from fpms.modules.screen.luma import Luma
+from fpms.modules.screen.st7735 import ST7735
 from fpms.modules.screen.virtual import Virtual
 
-device = None
+device: Any = None
 orientation = DISPLAY_ORIENTATION_NORMAL
 
 

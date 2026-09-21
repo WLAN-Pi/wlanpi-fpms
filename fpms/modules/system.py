@@ -1,29 +1,26 @@
-import fpms.modules.wlanpi_oled as oled
 import os
-import subprocess
-import socket
 import random
-import tzupdate
+import socket
+import subprocess
 import time
 
 from PIL import ImageFont
+
+import fpms.modules.wlanpi_oled as oled
+from fpms.modules.constants import (
+    FONT11,
+    FONT13,
+    IMAGE_DIR,
+    TIME_ZONE_FILE,
+)
 from fpms.modules.env_utils import EnvUtils
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.display import *
-from fpms.modules.pages.simpletable import *
 from fpms.modules.pages.pagedtable import *
-from fpms.modules.constants import (
-    IMAGE_DIR,
-    SMART_FONT,
-    FONT11,
-    FONT12,
-    FONT13,
-    FONTB14,
-    TIME_ZONE_FILE,
-)
+from fpms.modules.pages.simpletable import *
 
 
-class System(object):
+class System:
     def __init__(self, g_vars):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
@@ -73,7 +70,7 @@ class System(object):
             # doesn't even have to be reachable
             s.connect(("10.255.255.255", 1))
             IP = s.getsockname()[0]
-        except:
+        except Exception:
             IP = "127.0.0.1"
         finally:
             s.close()
@@ -84,38 +81,39 @@ class System(object):
         cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
         try:
             CPU = subprocess.check_output(cmd, shell=True).decode()
-        except:
+        except Exception:
             CPU = "unknown"
 
         # determine mem useage
         cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
         try:
             MemUsage = subprocess.check_output(cmd, shell=True).decode()
-        except:
+        except Exception:
             MemUsage = "unknown"
 
         # determine disk util
         cmd = 'df -h | awk \'$NF=="/"{printf "Disk: %d/%dGB %s", $3,$2,$5}\''
         try:
             Disk = subprocess.check_output(cmd, shell=True).decode()
-        except:
+        except Exception:
             Disk = "unknown"
 
         # determine temp
+        tempI: float = 0
         try:
             tempI = int(open("/sys/class/thermal/thermal_zone0/temp").read())
-        except:
+        except Exception:
             tempI = 0
 
         if tempI > 1000:
             tempI = tempI / 1000
-        tempStr = "CPU Temp: %sC" % str(round(tempI, 1))
+        tempStr = f"CPU Temp: {round(tempI, 1)}C"
 
         # determine uptime
         cmd = r"uptime -p | sed -r 's/up|,//g' | sed -r 's/\s*week[s]?/w/g' | sed -r 's/\s*day[s]?/d/g' | sed -r 's/\s*hour[s]?/h/g' | sed -r 's/\s*minute[s]?/m/g'"
         try:
             uptime = subprocess.check_output(cmd, shell=True).decode().strip()
-        except:
+        except Exception:
             uptime = "unknown"
 
         uptimeStr = f"Up: {uptime}"
@@ -137,14 +135,14 @@ class System(object):
 
         # Get timezone and cache it
         timezone = ""
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             try:
                 time.tzset()
                 timezone = subprocess.check_output(
                     f"{TIME_ZONE_FILE} get", shell=True
                 ).decode()
                 g_vars["timezone_selected"] = timezone
-            except:
+            except Exception:
                 pass
 
             g_vars["result_cache"] = True
@@ -208,7 +206,7 @@ class System(object):
         g_vars["drawing_in_progress"] = False
 
     def show_about(self, g_vars):
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             g_vars["disable_keys"] = True
 
             name = "WLAN Pi OS"
@@ -249,7 +247,7 @@ class System(object):
             about.append(version.center(20, " "))
             about.append(" ")
 
-            if authors != None:
+            if authors is not None:
                 authors_list = []
                 for author in authors.split("\n"):
                     author = author.replace("*", "").strip()
@@ -257,7 +255,7 @@ class System(object):
                 random.shuffle(authors_list)
                 about.extend(authors_list)
 
-            if contributors != None:
+            if contributors is not None:
                 about.append(" ")
                 about.append("Contributors".center(20, " "))
                 about.append(" ")
@@ -283,7 +281,7 @@ class System(object):
         Displays a QR code pointing to http://userguide.wlanpi.com/
         """
 
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             g_vars["disable_keys"] = True
 
             self.display_obj.clear_display(g_vars)
@@ -293,7 +291,7 @@ class System(object):
 
             watermark = IMAGE_DIR + "/wlanpi.png"
             qrcode_path = EnvUtils().get_help_qrcode(watermark)
-            if qrcode_path != None:
+            if qrcode_path is not None:
                 self.display_obj.stamp_qrcode(
                     g_vars, qrcode_path, center_vertically=True
                 )
@@ -310,12 +308,12 @@ class System(object):
         g_vars["disable_keys"] = False
 
     def check_for_updates(self, g_vars):
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             self.alert_obj.display_popup_alert(
                 g_vars, "Checking for updates, please wait..."
             )
 
-            updates = ""
+            updates: list[str] | str | None = ""
             try:
                 g_vars["disable_keys"] = True
                 output = subprocess.check_output(
@@ -333,7 +331,7 @@ class System(object):
                 )
                 if len(new_packages) > 0:
                     updates = new_packages.split("\n")
-            except:
+            except Exception:
                 updates = None
             finally:
                 g_vars["disable_keys"] = False
@@ -343,7 +341,7 @@ class System(object):
 
         updates = g_vars["updates"]
 
-        if updates == None:
+        if updates is None:
             self.alert_obj.display_alert_error(
                 g_vars, "Failed to check for updates.", title="Error"
             )
@@ -357,7 +355,7 @@ class System(object):
             )
 
     def install_updates(self, g_vars):
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             self.alert_obj.display_popup_alert(
                 g_vars, "Checking for updates, please wait..."
             )
@@ -391,11 +389,11 @@ class System(object):
                         self.alert_obj.display_alert_error(
                             g_vars, "Nothing to update.", title="Install updates"
                         )
-                except:
+                except Exception:
                     self.alert_obj.display_alert_error(
                         g_vars, "Failed to install updates.", title="Error"
                     )
-            except:
+            except Exception:
                 self.alert_obj.display_alert_error(
                     g_vars, "Failed to check for updates.", title="Error"
                 )

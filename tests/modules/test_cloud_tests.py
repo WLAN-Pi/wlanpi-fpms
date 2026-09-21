@@ -1,5 +1,6 @@
-import pytest
 import sys
+
+import pytest
 
 
 @pytest.fixture
@@ -23,7 +24,7 @@ def test_test_mist_cloud_cached(patch_imports):
     # so we look to see that the running arg is not stored
     # FIXME: This test shows that this method should probably be refactored
     with pytest.raises(ValueError):
-        index = test_object.alert_obj.args.index("Running...")
+        test_object.alert_obj.args.index("Running...")
 
 
 def test_test_mist_cloud_all_checks_pass(patch_imports, monkeypatch):

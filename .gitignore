@@ -19,3 +19,7 @@ debian/wlanpi-fpms/
 debian/wlanpi-fpms.substvars
 debian/*.debhelper
 debian/*-build-deps.dsc
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.tox/
