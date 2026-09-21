@@ -177,7 +177,7 @@ class HomePage(object):
         '''
         ip_addr = "No IP address"
 
-        cmd = "ip addr show {}  2>/dev/null | grep -Po \'inet \K[\d.]+\' | head -n 1".format(if_name)
+        cmd = r"ip addr show {}  2>/dev/null | grep -Po 'inet \K[\d.]+' | head -n 1".format(if_name)
         try:
             output = subprocess.check_output(cmd, shell=True).decode().strip()
             if len(output) > 0:
@@ -443,7 +443,7 @@ class HomePage(object):
                 if_name = "usb0"
                 mode_name = ""
 
-        ip_addr_cmd = "ip addr show {}  2>/dev/null | grep -Po \'inet \K[\d.]+\' | head -n 1".format(if_name)
+        ip_addr_cmd = r"ip addr show {}  2>/dev/null | grep -Po 'inet \K[\d.]+' | head -n 1".format(if_name)
 
         try:
             ip_addr = subprocess.check_output(ip_addr_cmd, shell=True).decode()

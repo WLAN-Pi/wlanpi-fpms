@@ -115,7 +115,7 @@ class System(object):
         tempStr = "CPU Temp: %sC" % str(round(tempI, 1))
 
         # determine uptime
-        cmd = "uptime -p | sed -r 's/up|,//g' | sed -r 's/\s*week[s]?/w/g' | sed -r 's/\s*day[s]?/d/g' | sed -r 's/\s*hour[s]?/h/g' | sed -r 's/\s*minute[s]?/m/g'"
+        cmd = r"uptime -p | sed -r 's/up|,//g' | sed -r 's/\s*week[s]?/w/g' | sed -r 's/\s*day[s]?/d/g' | sed -r 's/\s*hour[s]?/h/g' | sed -r 's/\s*minute[s]?/m/g'"
         try:
             uptime = subprocess.check_output(cmd, shell=True).decode().strip()
         except:
@@ -297,7 +297,7 @@ class System(object):
             try:
                 g_vars["disable_keys"] = True
                 output = subprocess.check_output("/usr/bin/wlanpi-update", shell=True).decode()
-                new_packages = subprocess.check_output("echo '" + output + "' | grep ^wlanpi- | awk '{ print $1\":\"$2 }' | sed 's/\/.*:/:/g'", shell=True).decode().strip()
+                new_packages = subprocess.check_output("echo '" + output + "' | grep ^wlanpi- | awk '{ print $1\":\"$2 }' | sed 's/\\/.*:/:/g'", shell=True).decode().strip()
                 if len(new_packages) > 0:
                     updates = new_packages.split('\n')
             except:
@@ -325,7 +325,7 @@ class System(object):
 
             try:
                 output = subprocess.check_output("/usr/bin/wlanpi-update", shell=True).decode()
-                new_packages = subprocess.check_output("echo '" + output + "' | grep ^wlanpi- | awk '{ print $1\":\"$2 }' | sed 's/\/.*:/:/g'", shell=True).decode().strip()
+                new_packages = subprocess.check_output("echo '" + output + "' | grep ^wlanpi- | awk '{ print $1\":\"$2 }' | sed 's/\\/.*:/:/g'", shell=True).decode().strip()
                 try:
                     if len(new_packages) > 0:
                         self.alert_obj.display_popup_alert(g_vars, "Installing updates, please wait...")

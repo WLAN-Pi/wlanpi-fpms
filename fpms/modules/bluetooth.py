@@ -66,7 +66,7 @@ class Bluetooth(object):
         We want to use hciconfig here as it works OK when no devices are present
         '''
         try:
-            cmd = f"hciconfig {BT_ADAPTER} | grep -E '^\s+UP'"
+            cmd = rf"hciconfig {BT_ADAPTER} | grep -E '^\s+UP'"
             subprocess.run(cmd, shell=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
