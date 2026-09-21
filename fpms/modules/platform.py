@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 """
 platform.py - platform types and models

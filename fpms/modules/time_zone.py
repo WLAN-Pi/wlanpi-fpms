@@ -1,17 +1,14 @@
-import time
-import os
 import subprocess
-import fpms.modules.wlanpi_oled as oled
-import sys
+import time
+
 import tzupdate
 
-from fpms.modules.pages.simpletable import SimpleTable
-from fpms.modules.pages.pagedtable import PagedTable
-from fpms.modules.pages.alert import Alert
 from fpms.modules.constants import TIME_ZONE_FILE
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.pagedtable import PagedTable
 
 
-class TimeZone(object):
+class TimeZone:
     def __init__(self, g_vars):
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
@@ -24,7 +21,7 @@ class TimeZone(object):
         Returns a dictionary of supported Timezones as {country, [timezones]}, the timezones are filtered into country menus
         The menu names are used as the parameter for the TIME_ZONE_FILE command so show on the screen in long form : country/city
         """
-        timezone_menu_list = []
+        timezone_menu_list: list = []
         try:
             timezones_available = subprocess.getoutput(
                 f"{TIME_ZONE_FILE} list"
@@ -32,7 +29,7 @@ class TimeZone(object):
             time.sleep(1)
 
             # create a set of countries defined as the first part of the text split with '/'
-            countries = sorted(set([c.split("/", 1)[0] for c in timezones_available]))
+            countries = sorted({c.split("/", 1)[0] for c in timezones_available})
 
             # Iterate the countries and then create array of timezones for that country
             for country in countries:
@@ -46,18 +43,18 @@ class TimeZone(object):
 
             return timezone_menu_list
 
-        except subprocess.CalledProcessError as exc:
+        except subprocess.CalledProcessError:
             return None
 
     def set_time_zone_from_gvars(self, g_vars):
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             self.alert_obj.display_popup_alert(
                 g_vars, "Setting timezone, please wait..."
             )
             timezone_selected = g_vars["timezone_selected"]
 
             try:
-                alert_msg = subprocess.check_output(
+                subprocess.check_output(
                     f"{TIME_ZONE_FILE} set {timezone_selected}", shell=True
                 ).decode()
                 self.alert_obj.display_alert_info(
@@ -76,7 +73,7 @@ class TimeZone(object):
         return
 
     def set_time_zone_auto(self, g_vars):
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             self.alert_obj.display_popup_alert(
                 g_vars, "Setting timezone, please wait..."
             )
@@ -87,7 +84,7 @@ class TimeZone(object):
                     f"{TIME_ZONE_FILE} set {timezone}", shell=True
                 ).decode()
                 self.alert_obj.display_alert_info(g_vars, timezone, title="Success")
-            except:
+            except Exception:
                 self.alert_obj.display_alert_error(
                     g_vars, "Failed to set timezone.", title="Error"
                 )

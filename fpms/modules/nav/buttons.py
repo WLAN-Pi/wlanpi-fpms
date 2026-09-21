@@ -5,7 +5,7 @@ from fpms.modules.pages.page import *
 from fpms.modules.pages.simpletable import *
 
 
-class Button(object):
+class Button:
     def __init__(self, g_vars, menu):
         self.homepage_obj = HomePage(g_vars)
         self.page_obj = Page(g_vars)
@@ -45,7 +45,6 @@ class Button(object):
     def _length_of_list(self, current_location, menu):
         # pull apart current menu location (e.g. [0, 1, 1])
         menu_selection = menu
-        leaf = current_location[-1]
         branch = current_location[0:-1]
 
         # trim off the branch to reach leaf

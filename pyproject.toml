@@ -1,0 +1,33 @@
+# Tooling configuration only.
+#
+# Deliberately NO [build-system] / [project] tables: this package is built by
+# setup.py via dh-virtualenv (see debian/rules), and adding a PEP 517 build
+# backend here would change that flow. Sibling repos (wlanpi-core, wlanpi-mcp)
+# keep the same [tool.ruff] shape.
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+extend-exclude = ["build", ".pybuild", "debian", "*.egg-info"]
+
+[tool.ruff.lint]
+# E/W/F core style + pyflakes, I imports, B/BLE bugbear+blind-except, C4
+# comprehensions, UP pyupgrade modernization, RUF ruff-specific.
+# E501 is owned by `ruff format`.
+#
+# F403/F405 are ignored for now: the package still re-exports constants and
+# display helpers with `from ... import *` (50 sites). Replacing those with
+# explicit imports is tracked as follow-up debt; until then the star imports
+# would otherwise drown every real finding.
+#
+# BLE001 (blind except) matches the sibling repos: the page/app boundaries
+# intentionally catch broad exceptions so a single failing shell-out cannot
+# take down the display loop. Bare `except:` (E722) is still enforced.
+select = ["E", "W", "F", "I", "B", "BLE", "C4", "UP", "RUF"]
+ignore = ["E501", "F403", "F405", "BLE001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["fpms"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

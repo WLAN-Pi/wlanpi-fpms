@@ -45,7 +45,7 @@ setup(
     author=metadata["__author__"],
     author_email=metadata["__author_email__"],
     url=metadata["__url__"],
-    python_requires="~=3.9,",
+    python_requires=">=3.13",
     license=metadata["__license__"],
     platforms=["linux"],
     packages=find_packages(),
@@ -58,7 +58,7 @@ setup(
     classifiers=[
         "Natural Language :: English",
         "Development Status :: 3 - Alpha",
-        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.13",
         "Intended Audience :: System Administrators",
         "Topic :: Utilities",
     ],

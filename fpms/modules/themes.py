@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
 #
 """
 themes.py - display themes
 """
 
 from enum import Enum
-from fpms.modules.env_utils import EnvUtils
-from fpms.modules.constants import PLATFORM
+
 from fpms.modules.platform import *
 
 

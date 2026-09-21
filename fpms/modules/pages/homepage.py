@@ -1,30 +1,29 @@
 #################################################
 # Create a page object that renders dispay page
 #################################################
-import fpms.modules.wlanpi_oled as oled
-import subprocess
-import re
 import os.path
-import time
-import textfsm
+import re
+import subprocess
 import threading
+import time
 
-from PIL import Image
+import textfsm
 
-from fpms.modules.pages.display import *
-from fpms.modules.pages.simpletable import *
-from fpms.modules.battery import *
-from fpms.modules.bluetooth import *
+import fpms.modules.wlanpi_oled as oled
 from fpms.modules.apps.kismet import *
 from fpms.modules.apps.profiler import *
 from fpms.modules.apps.scanner import *
-from fpms.modules.themes import THEME
+from fpms.modules.battery import *
+from fpms.modules.bluetooth import *
 from fpms.modules.constants import *
 from fpms.modules.env_utils import EnvUtils
+from fpms.modules.pages.display import *
+from fpms.modules.pages.simpletable import *
 from fpms.modules.platform import *
+from fpms.modules.themes import THEME
 
 
-class HomePage(object):
+class HomePage:
     def __init__(self, g_vars):
         # load textfsm template to parse iw output
         with open(
@@ -66,7 +65,7 @@ class HomePage(object):
         try:
             client_count = subprocess.check_output(cmd, shell=True).decode().strip()
             return int(client_count)
-        except subprocess.CalledProcessError as exc:
+        except subprocess.CalledProcessError:
             return -1
 
     def check_wlan(self):
@@ -112,7 +111,7 @@ class HomePage(object):
         """
         Returns true if port blinker is active, false otherwise.
         """
-        if g_vars["blinker_status"] == True:
+        if g_vars["blinker_status"]:
             return True
         else:
             return False
@@ -126,14 +125,14 @@ class HomePage(object):
         status_file = "/tmp/wiperf_status.txt"
         if os.path.exists(status_file):
             try:
-                statusf = open(status_file, "r")
+                statusf = open(status_file)
                 msg = statusf.readline()
-            except:
+            except Exception:
                 # not much we can do, fail silently
                 return ""
 
             # return extracted line
-            return " ({})".format(msg)
+            return f" ({msg})"
         else:
             return "15 Mbps/30 Mbps"
 
@@ -165,7 +164,7 @@ class HomePage(object):
                     check=True,
                 )
                 g_vars["eth_last_reachability_result"] = True
-            except subprocess.CalledProcessError as exc:
+            except subprocess.CalledProcessError:
                 g_vars["eth_last_reachability_result"] = False
 
     def if_addresses(self):
@@ -176,7 +175,7 @@ class HomePage(object):
         try:
             output = subprocess.check_output(cmd, shell=True).decode().strip().split()
             return set(output)
-        except:
+        except Exception:
             pass
 
         return set()
@@ -187,14 +186,12 @@ class HomePage(object):
         """
         ip_addr = "No IP address"
 
-        cmd = r"ip addr show {}  2>/dev/null | grep -Po 'inet \K[\d.]+' | head -n 1".format(
-            if_name
-        )
+        cmd = rf"ip addr show {if_name}  2>/dev/null | grep -Po 'inet \K[\d.]+' | head -n 1"
         try:
             output = subprocess.check_output(cmd, shell=True).decode().strip()
             if len(output) > 0:
                 ip_addr = output
-        except:
+        except Exception:
             pass
 
         return ip_addr
@@ -206,14 +203,14 @@ class HomePage(object):
 
         try:
             subprocess.run(
-                "iw dev {} info".format(if_name),
+                f"iw dev {if_name} info",
                 shell=True,
                 stderr=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 check=True,
             )
             return True
-        except:
+        except Exception:
             pass
 
         return False
@@ -230,7 +227,7 @@ class HomePage(object):
         status = None
         try:
             eth_info = subprocess.check_output(
-                "{} {} 2>/dev/null".format(ETHTOOL_FILE, if_name), shell=True
+                f"{ETHTOOL_FILE} {if_name} 2>/dev/null", shell=True
             ).decode()
             speed_re = re.findall(r"Speed\: (.*\/s)", eth_info, re.MULTILINE)
             duplex_re = re.findall(r"Duplex\: (.*)", eth_info, re.MULTILINE)
@@ -244,9 +241,9 @@ class HomePage(object):
                 status = "Link down"
             else:
                 # Report the speed & duplex messages from ethtool
-                status = "{} {}".format(speed_re[0], duplex_re[0])
+                status = f"{speed_re[0]} {duplex_re[0]}"
 
-        except:
+        except Exception:
             # Something went wrong...show nothing
             pass
 
@@ -296,7 +293,7 @@ class HomePage(object):
         # Display mode
         display_alternate_title = False
         title = mode_name
-        if g_vars["home_page_alternate"] == True:
+        if g_vars["home_page_alternate"]:
             if g_vars["current_mode"] == "classic":
                 if self.profiler_obj.profiler_beaconing():
                     display_alternate_title = True
@@ -448,7 +445,7 @@ class HomePage(object):
             # get Ethernet port info (...for Jerry)
             try:
                 eth_info = subprocess.check_output(
-                    "{} eth0 2>/dev/null".format(ethtool_file), shell=True
+                    f"{ethtool_file} eth0 2>/dev/null", shell=True
                 ).decode()
                 speed_re = re.findall(r"Speed\: (.*\/s)", eth_info, re.MULTILINE)
                 duplex_re = re.findall(r"Duplex\: (.*)", eth_info, re.MULTILINE)
@@ -462,9 +459,9 @@ class HomePage(object):
                     mode_name = "Link down"
                 else:
                     # Report the speed & duplex messages from ethtool
-                    mode_name = "{} {}".format(speed_re[0], duplex_re[0])
+                    mode_name = f"{speed_re[0]} {duplex_re[0]}"
 
-            except Exception as ex:
+            except Exception:
                 # Something went wrong...show nothing
                 mode_name = ""
 
@@ -474,13 +471,11 @@ class HomePage(object):
                 if_name = "usb0"
                 mode_name = ""
 
-        ip_addr_cmd = r"ip addr show {}  2>/dev/null | grep -Po 'inet \K[\d.]+' | head -n 1".format(
-            if_name
-        )
+        ip_addr_cmd = rf"ip addr show {if_name}  2>/dev/null | grep -Po 'inet \K[\d.]+' | head -n 1"
 
         try:
             ip_addr = subprocess.check_output(ip_addr_cmd, shell=True).decode()
-        except Exception as ex:
+        except Exception:
             ip_addr = "No IP address"
 
         x = 0
@@ -536,7 +531,7 @@ class HomePage(object):
 
         addr = self.if_address(if_name)
         link_status = self.if_link_status(if_name)
-        if addr != None:
+        if addr is not None:
             text_color = (
                 THEME.text_color.value
                 if addr.lower() != "no ip address"
@@ -549,7 +544,7 @@ class HomePage(object):
                 fill=text_color,
             )
             offset += 13
-        if link_status != None:
+        if link_status is not None:
             canvas.text(
                 (
                     x + (PAGE_WIDTH - SMART_FONT.getbbox(link_status)[2]) / 2,
@@ -589,7 +584,6 @@ class HomePage(object):
         if g_vars["home_page_alternate"]:
             self.profiler_qrcode(g_vars, x, y)
         else:
-            canvas = g_vars["draw"]
             y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
             # Show the eth1 (tethered) address
@@ -604,7 +598,7 @@ class HomePage(object):
                 bluetooth = Bluetooth(g_vars)
                 if bluetooth.bluetooth_power():
                     paired_devices = bluetooth.bluetooth_paired_devices()
-                    if paired_devices != None:
+                    if paired_devices is not None:
                         y += self.iface_summary(g_vars, "pan0", "PAN", x=x, y=y)
 
             # Show the USB (OTG) address
@@ -670,7 +664,7 @@ class HomePage(object):
         """
         # Get path to QR code png (it will be generated if not present)
         qrcode_path = self.profiler_obj.profiler_qrcode()
-        if qrcode_path != None:
+        if qrcode_path is not None:
             self.display_obj.stamp_qrcode(
                 g_vars,
                 qrcode_path,
@@ -685,7 +679,7 @@ class HomePage(object):
         """
         # Get path to QR code png (it will be generated if not present)
         qrcode_path = self.env_obj.get_wifi_qrcode_for_hostapd()
-        if qrcode_path != None:
+        if qrcode_path is not None:
             self.display_obj.stamp_qrcode(
                 g_vars,
                 qrcode_path,
@@ -791,9 +785,10 @@ class HomePage(object):
         temp_med = 75  # getting uncomfortable
         temp_low = 70  # getting warmer but ok
 
+        temp: float = 0
         try:
             temp = int(open("/sys/class/thermal/thermal_zone0/temp").read())
-        except:
+        except Exception:
             temp = 0
 
         if temp > 1000:
@@ -870,7 +865,7 @@ class HomePage(object):
                         check=True,
                     )
                     status_up = True
-                except Exception as e:
+                except Exception:
                     pass
 
                 for other_iface in interfaces:
@@ -888,7 +883,7 @@ class HomePage(object):
                                     check=True,
                                 )
                                 active = True
-                            except Exception as e:
+                            except Exception:
                                 pass
 
                 if monitor_mode and not active:
@@ -988,7 +983,7 @@ class HomePage(object):
             fill=THEME.status_bar_foreground.value,
         )
 
-        if g_vars["eth_last_reachability_result"] != True:
+        if not g_vars["eth_last_reachability_result"]:
             canvas.line(
                 (x + 3, y + 1, x + height, y + height - 2),
                 fill=THEME.status_bar_foreground.value,
@@ -1084,7 +1079,7 @@ class HomePage(object):
         height=SYSTEM_BAR_HEIGHT,
         error=False,
     ):
-        if contents != None:
+        if contents is not None:
             canvas = g_vars["draw"]
 
             foreground = THEME.alert_info_title_foreground.value
@@ -1126,7 +1121,7 @@ class HomePage(object):
             (x, y, width, y + height), fill=THEME.system_bar_background.value
         )
 
-        if contents != None:
+        if contents is not None:
             # Truncate contents if too long
             if len(contents) > 21:
                 contents = contents[0:19] + ".."

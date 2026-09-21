@@ -1,25 +1,24 @@
-import time
 import os
-import subprocess
 import re
+import subprocess
 
-from fpms.modules.pages.alert import *
-from fpms.modules.pages.display import *
-from fpms.modules.pages.simpletable import *
-from fpms.modules.pages.pagedtable import *
 from fpms.modules.constants import (
-    LLDPNEIGH_FILE,
     CDPNEIGH_FILE,
-    IPCONFIG_FILE,
-    PUBLICIP_CMD,
-    PUBLICIP6_CMD,
     ETHTOOL_FILE,
     IFCONFIG_FILE,
+    IPCONFIG_FILE,
     IW_FILE,
+    LLDPNEIGH_FILE,
+    PUBLICIP6_CMD,
+    PUBLICIP_CMD,
 )
+from fpms.modules.pages.alert import *
+from fpms.modules.pages.display import *
+from fpms.modules.pages.pagedtable import *
+from fpms.modules.pages.simpletable import *
 
 
-class Network(object):
+class Network:
     def __init__(self, g_vars):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
@@ -83,12 +82,12 @@ class Network(object):
                         # fire up 'iw' for this interface (hmmm..is this a bit of an un-necessary ovehead?)
                         try:
                             iw_info = subprocess.check_output(
-                                "{} {} info".format(iw_file, interface_name), shell=True
+                                f"{iw_file} {interface_name} info", shell=True
                             ).decode()
 
                             if re.search("type monitor", iw_info, re.MULTILINE):
                                 ip_address = "Monitor"
-                        except:
+                        except Exception:
                             ip_address = "-"
                 else:
                     ip_address = inet_search.group(1)
@@ -97,19 +96,17 @@ class Network(object):
                 if len(interface_name) > 2:
                     short_name = interface_name
                     try:
-                        id = re.search(r".*(\d+).*", interface_name).group(1)
+                        id = re.search(r".*(\d+).*", interface_name).group(1)  # type: ignore[union-attr]
                         if interface_name.endswith(id):
-                            short_name = "{}{}".format(interface_name[0], id)
+                            short_name = f"{interface_name[0]}{id}"
                         else:
-                            short_name = "{}{}{}".format(
-                                interface_name[0], id, interface_name[-1]
-                            )
+                            short_name = f"{interface_name[0]}{id}{interface_name[-1]}"
                         interface_name = short_name
-                    except:
+                    except Exception:
                         pass
 
                 # format interface info
-                interfaces.append("{} {}:{}".format(status, interface_name, ip_address))
+                interfaces.append(f"{status} {interface_name}:{ip_address}")
 
         # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
@@ -145,7 +142,7 @@ class Network(object):
         g_vars["drawing_in_progress"] = True
 
         # Display cached results (if any)
-        if g_vars["result_cache"] == True:
+        if g_vars["result_cache"]:
             self.paged_table_obj.display_paged_table(
                 g_vars,
                 {"title": "WLAN Interfaces", "pages": g_vars[g_wlan_interfaces_key]},
@@ -190,7 +187,7 @@ class Network(object):
                     .decode()
                     .strip()
                 )
-                driver = re.search(r".*driver:\s+(.*)", ethtool_output).group(1)
+                driver = re.search(r".*driver:\s+(.*)", ethtool_output).group(1)  # type: ignore[union-attr]
                 page.append(f"Driver: {driver}")
             except Exception:
                 pass
@@ -237,7 +234,7 @@ class Network(object):
                 # Addr
                 try:
                     addr = (
-                        re.search(r".*addr\s+(.*)", iw_output)
+                        re.search(r".*addr\s+(.*)", iw_output)  # type: ignore[union-attr]
                         .group(1)
                         .replace(":", "")
                         .upper()
@@ -248,7 +245,7 @@ class Network(object):
 
                 # Mode
                 try:
-                    mode = re.search(r".*type\s+(.*)", iw_output).group(1)
+                    mode = re.search(r".*type\s+(.*)", iw_output).group(1)  # type: ignore[union-attr]
                     page.append(
                         f"Mode: {mode.capitalize() if not mode.isupper() else mode}"
                     )
@@ -257,14 +254,14 @@ class Network(object):
 
                 # SSID
                 try:
-                    ssid = re.search(r".*ssid\s+(.*)", iw_output).group(1)
+                    ssid = re.search(r".*ssid\s+(.*)", iw_output).group(1)  # type: ignore[union-attr]
                     page.append(f"SSID: {ssid}")
                 except Exception:
                     pass
 
                 # Frequency
                 try:
-                    freq = int(re.search(r".*\(([0-9]+)\s+MHz\).*", iw_output).group(1))
+                    freq = int(re.search(r".*\(([0-9]+)\s+MHz\).*", iw_output).group(1))  # type: ignore[union-attr]
                     channel = self.channel_lookup(freq)
                     page.append(f"Freq (MHz): {freq}")
                     page.append(f"Channel: {channel}")
@@ -348,7 +345,7 @@ class Network(object):
                 if len(vlan_info) == 0:
                     vlan_info.append("No VLAN found")
 
-            except:
+            except Exception:
                 vlan_info = ["No VLAN found"]
 
         else:
@@ -436,7 +433,7 @@ class Network(object):
         publicip_info = []
         cmd = PUBLICIP6_CMD if ip_version == 6 else PUBLICIP_CMD
 
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             self.alert_obj.display_popup_alert(
                 g_vars,
                 "Detecting public " + ("IPv6..." if ip_version == 6 else "IPv4..."),

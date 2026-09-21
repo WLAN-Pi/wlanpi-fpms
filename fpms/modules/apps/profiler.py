@@ -2,14 +2,12 @@ import json
 import os.path
 import re
 import subprocess
-import sys
 import time
 
-import fpms.modules.wlanpi_oled as oled
-from fpms.modules.pages.display import Display
-from fpms.modules.pages.alert import Alert
-from fpms.modules.pages.pagedtable import PagedTable
 from fpms.modules.env_utils import EnvUtils
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.pagedtable import PagedTable
 
 # Runtime files written by wlanpi-profiler. The info file is authoritative for
 # the passphrase actually in use; the config file holds the configured default.
@@ -44,7 +42,7 @@ def read_profiler_passphrase():
     return None
 
 
-class Profiler(object):
+class Profiler:
     def __init__(self, g_vars):
         # create display object
         self.display_obj = Display(g_vars)
@@ -57,7 +55,7 @@ class Profiler(object):
 
     def profiler_ctl_file_update(self, fields_dict, filename):
         # read in file to an array
-        with open(filename, "r") as f:
+        with open(filename) as f:
             lines = f.readlines()
 
         # loop through each field in values to set in file
@@ -66,7 +64,7 @@ class Profiler(object):
             for count, line in enumerate(lines):
                 # replace match in file with key/value pair
                 if line.startswith(key):
-                    lines[count] = "{}: {}\n".format(key, value)
+                    lines[count] = f"{key}: {value}\n"
 
         # write modified file back out
         with open(filename, "w") as f:
@@ -89,7 +87,7 @@ class Profiler(object):
         """
         ssid_file = "/var/run/wlanpi-profiler.ssid"
         if os.path.exists(ssid_file):
-            with open(ssid_file, "r") as f:
+            with open(ssid_file) as f:
                 return f.read()
         return None
 
@@ -108,7 +106,7 @@ class Profiler(object):
         """
         last_profile_file = "/var/run/wlanpi-profiler.last_profile"
         if os.path.exists(last_profile_file):
-            with open(last_profile_file, "r") as f:
+            with open(last_profile_file) as f:
                 return f.read()
         return None
 
@@ -122,7 +120,7 @@ class Profiler(object):
             for line in lines:
                 if not line.strip().startswith("#"):
                     try:
-                        return re.search(r"^interface:\s+(.+)", line).group(1)
+                        return re.search(r"^interface:\s+(.+)", line).group(1)  # type: ignore[union-attr]
                     except AttributeError:
                         pass
         return None
@@ -154,7 +152,7 @@ class Profiler(object):
                     last_profile[i : i + 2] for i in range(0, len(last_profile), 2)
                 )
             self.alert_obj.display_popup_alert(
-                g_vars, "Device Profiled\n{}".format(last_profile), delay=5
+                g_vars, f"Device Profiled\n{last_profile}", delay=5
             )
             return True
 
@@ -182,7 +180,7 @@ class Profiler(object):
         # if we're been round this loop before,
         # results treated as cached to prevent re-evaluating
         # and re-painting
-        if g_vars["result_cache"] == True:
+        if g_vars["result_cache"]:
             # re-enable keys
             g_vars["disable_keys"] = False
             return True
@@ -197,7 +195,7 @@ class Profiler(object):
             # this cmd fails if service not installed
             cmd = "systemctl is-enabled wlanpi-profiler"
             subprocess.run(cmd, shell=True).check_returncode()
-        except:
+        except Exception:
             # cmd failed, so profiler service not installed
             self.alert_obj.display_alert_error(g_vars, "wlanpi-profiler not available.")
             g_vars["display_state"] = "page"
@@ -219,26 +217,26 @@ class Profiler(object):
                     if not line.strip().startswith("#"):
                         # Channel
                         try:
-                            channel = re.search(r"^channel:\s+(.+)", line).group(1)
-                            status.append("Channel: {}".format(channel))
+                            channel = re.search(r"^channel:\s+(.+)", line).group(1)  # type: ignore[union-attr]
+                            status.append(f"Channel: {channel}")
                         except AttributeError:
                             pass
 
                         # Interface
                         try:
-                            interface = re.search(r"^interface:\s+(.+)", line).group(1)
-                            status.append("Interface: {}".format(interface))
+                            interface = re.search(r"^interface:\s+(.+)", line).group(1)  # type: ignore[union-attr]
+                            status.append(f"Interface: {interface}")
                         except AttributeError:
                             pass
 
             # Label the channel/interface values as profiling targets; a
             # shared "Targets:" header keeps each line short for the screen.
             if len(status) > 0:
-                status = ["Targets:"] + status
+                status = ["Targets:", *status]
 
             if beaconing:
                 # SSID
-                status.append("SSID: {}".format(self.profiler_beaconing_ssid()))
+                status.append(f"SSID: {self.profiler_beaconing_ssid()}")
 
             # Compose table
             self.paged_table_obj.display_list_as_paged_table(
@@ -250,7 +248,7 @@ class Profiler(object):
             if beaconing:
                 # Stamp QR code to facilitate profiling
                 qrcode_path = self.profiler_qrcode()
-                if qrcode_path != None:
+                if qrcode_path is not None:
                     self.display_obj.stamp_qrcode(
                         g_vars, qrcode_path, center_vertically=False, y=56
                     )
@@ -313,7 +311,7 @@ class Profiler(object):
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             else:
-                print("Unknown profiler action: {}".format(action))
+                print(f"Unknown profiler action: {action}")
 
             qrcode_offset = 50
             if self.profiler_beaconing():
@@ -331,7 +329,7 @@ class Profiler(object):
                     # we can show the QR code. We will wait for 20 seconds and
                     # if Profiler hasn't started beaconing, then it will just
                     # tell the user that Profiler has started.
-                    elapsed_time = 0
+                    elapsed_time: float = 0
                     max_wait = 20  # seconds
                     while not self.profiler_beaconing() and elapsed_time <= max_wait:
                         time.sleep(0.5)
@@ -344,14 +342,14 @@ class Profiler(object):
                     else:
                         self.alert_obj.display_alert_error(g_vars, "Start failed.")
 
-                except subprocess.CalledProcessError as proc_exc:
+                except subprocess.CalledProcessError:
                     self.alert_obj.display_alert_error(g_vars, "Start failed.")
-                except subprocess.TimeoutExpired as timeout_exc:
+                except subprocess.TimeoutExpired:
                     self.alert_obj.display_alert_error(g_vars, "Process timed out.")
 
             # Stamp QR code to facilitate profiling
             qrcode_path = self.profiler_qrcode()
-            if qrcode_path != None:
+            if qrcode_path is not None:
                 self.display_obj.stamp_qrcode(
                     g_vars, qrcode_path, center_vertically=False, y=qrcode_offset
                 )
@@ -380,7 +378,7 @@ class Profiler(object):
                             g_vars, "Profiler stopped.", title="Success"
                         )
 
-                except subprocess.CalledProcessError as exc:
+                except subprocess.CalledProcessError:
                     self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 
         elif action == "purge_reports":
@@ -395,7 +393,7 @@ class Profiler(object):
                     g_vars, "Reports purged.", title="Success"
                 )
             except subprocess.CalledProcessError as exc:
-                alert_msg = "Reports purge error: {}".format(exc)
+                alert_msg = f"Reports purge error: {exc}"
                 self.alert_obj.display_alert_error(g_vars, alert_msg)
                 print(alert_msg)
 
@@ -411,7 +409,7 @@ class Profiler(object):
                     g_vars, "Files purged.", title="Success"
                 )
             except subprocess.CalledProcessError as exc:
-                alert_msg = "Files purge error: {}".format(exc)
+                alert_msg = f"Files purge error: {exc}"
                 self.alert_obj.display_alert_error(g_vars, alert_msg)
                 print(alert_msg)
 

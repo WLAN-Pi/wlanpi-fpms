@@ -1,4 +1,4 @@
-class StringFormatter(object):
+class StringFormatter:
     def __init__(self):
         pass
 

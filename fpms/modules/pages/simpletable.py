@@ -2,19 +2,17 @@
 # Create a simpe table object
 #################################
 import fpms.modules.wlanpi_oled as oled
-
+from fpms.modules.constants import (
+    MAX_TABLE_LINES,
+    SMART_FONT,
+    STATUS_BAR_HEIGHT,
+)
 from fpms.modules.pages.display import *
 from fpms.modules.pages.utils import *
 from fpms.modules.themes import THEME
-from fpms.modules.constants import (
-    STATUS_BAR_HEIGHT,
-    SMART_FONT,
-    FONT11,
-    MAX_TABLE_LINES,
-)
 
 
-class SimpleTable(object):
+class SimpleTable:
     def __init__(self, g_vars):
         # grab a screeb obj
         self.display_obj = Display(g_vars)

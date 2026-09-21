@@ -1,11 +1,11 @@
-import subprocess
 import socket
+import subprocess
 
 from fpms.modules.pages.alert import *
 from fpms.modules.pages.simpletable import *
 
 
-class CloudUtils(object):
+class CloudUtils:
     def __init__(self, g_vars):
         # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
@@ -28,7 +28,7 @@ class CloudUtils(object):
         g_vars["disable_keys"] = True
 
         # Has test been run already?
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # record test success/fail
             test_fail = False
 
@@ -57,7 +57,7 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "MyIP: {}".format(result)
+                    item_list[1] = f"MyIP: {result}"
                 else:
                     item_list[1] = "MyIP: None"
                     test_fail = True
@@ -70,7 +70,7 @@ class CloudUtils(object):
                     )
                     sock.close()
                     item_list[2] = "Redirector HTTPS: OK"
-                except:
+                except Exception:
                     test_fail = True
                     item_list[2] = "Redirector HTTPS: FAIL"
 
@@ -115,7 +115,7 @@ class CloudUtils(object):
         g_vars["disable_keys"] = True
 
         # Has test been run already?
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # record test success/fail
             test_fail = False
 
@@ -144,7 +144,7 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "MyIP: {}".format(result)
+                    item_list[1] = f"MyIP: {result}"
                 else:
                     item_list[1] = "MyIP: None"
                     test_fail = True
@@ -160,7 +160,7 @@ class CloudUtils(object):
                 try:
                     socket.gethostbyname("activate.arubanetworks.com")
                     item_list[2] = "DNS (ACTIVATE): OK"
-                except Exception as error:
+                except Exception:
                     dns_fail = True
                     item_list[2] = "DNS (ACTIVATE): FAIL"
 
@@ -168,7 +168,7 @@ class CloudUtils(object):
                     try:
                         socket.gethostbyname("common.cloud.hpe.com")
                         item_list[3] = "DNS (COMMON): OK"
-                    except Exception as error:
+                    except Exception:
                         dns_fail = True
                         item_list[3] = "DNS (COMMON): FAIL"
                 else:
@@ -178,7 +178,7 @@ class CloudUtils(object):
                     try:
                         socket.gethostbyname("device.arubanetworks.com")
                         item_list[4] = "DNS (DEVICE): OK"
-                    except Exception as error:
+                    except Exception:
                         dns_fail = True
                         item_list[4] = "DNS (DEVICE): FAIL"
                 else:
@@ -189,14 +189,14 @@ class CloudUtils(object):
 
             if not test_fail:
                 # Can we get an ICMP response from https://pqm.arubanetworks.com?
-                cmd = ["ping", "-c", "2", "-W", "2", "pqm.arubanetworks.com"]
-                result = subprocess.run(
-                    cmd,
+                ping_cmd = ["ping", "-c", "2", "-W", "2", "pqm.arubanetworks.com"]
+                ping_result = subprocess.run(
+                    ping_cmd,
                     shell=False,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
-                if result.returncode == 0:
+                if ping_result.returncode == 0:
                     item_list[6] = "ICMP (PQM): OK"
                 else:
                     item_list[6] = "ICMP (PQM): FAIL"
@@ -206,11 +206,11 @@ class CloudUtils(object):
                     try:
                         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         sock.settimeout(2)
-                        result = sock.connect_ex(("device.arubanetworks.com", 443))
-                    except:
+                        port_result = sock.connect_ex(("device.arubanetworks.com", 443))
+                    except Exception:
                         pass
 
-                    if result == 0:
+                    if port_result == 0:
                         item_list[7] = "PORT (DEVICE): OK"
                     else:
                         item_list[7] = "PORT (DEVICE): FAIL"
@@ -287,10 +287,12 @@ class CloudUtils(object):
 
                 if data:
                     return True
-            except (socket.timeout, Exception):
+            except (TimeoutError, Exception):
                 return False
             finally:
                 client.close()
+
+            return False
 
         def test_dns(hostname):
             try:
@@ -316,7 +318,7 @@ class CloudUtils(object):
         g_vars["disable_keys"] = True
 
         # Has test been run already?
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # Record test success/fail
             test_fail = False
 
@@ -345,7 +347,7 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "My IP: {}".format(result)
+                    item_list[1] = f"My IP: {result}"
                 else:
                     item_list[1] = "My IP: None"
                     test_fail = True
@@ -402,7 +404,7 @@ class CloudUtils(object):
         g_vars["disable_keys"] = True
 
         # Has test been run already?
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # record test success/fail
             test_fail = False
 
@@ -431,7 +433,7 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "MyIP: {}".format(result)
+                    item_list[1] = f"MyIP: {result}"
                 else:
                     item_list[1] = "MyIP: None"
                     test_fail = True
@@ -441,7 +443,7 @@ class CloudUtils(object):
                 try:
                     socket.gethostbyname("ep-terminator.mistsys.net")
                     item_list[2] = "DNS: OK"
-                except:
+                except Exception:
                     test_fail = True
                     item_list[2] = "DNS: FAIL"
 
@@ -482,7 +484,7 @@ class CloudUtils(object):
         g_vars["disable_keys"] = True
 
         # Has test been run already?
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # record test success/fail
             test_fail = False
 
@@ -511,7 +513,7 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "MyIP: {}".format(result)
+                    item_list[1] = f"MyIP: {result}"
                 else:
                     item_list[1] = "MyIP: None"
                     test_fail = True
@@ -521,7 +523,7 @@ class CloudUtils(object):
                 try:
                     socket.gethostbyname("ruckus.cloud")
                     item_list[2] = "DNS: OK"
-                except:
+                except Exception:
                     test_fail = True
                     item_list[2] = "DNS: FAIL"
 
@@ -566,7 +568,7 @@ class CloudUtils(object):
         g_vars["disable_keys"] = True
 
         # Has test been run already?
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # record test success/fail
             test_fail = False
 
@@ -595,7 +597,7 @@ class CloudUtils(object):
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
                 if result:
-                    item_list[1] = "MyIP: {}".format(result)
+                    item_list[1] = f"MyIP: {result}"
                 else:
                     item_list[1] = "MyIP: None"
                     test_fail = True
@@ -610,7 +612,7 @@ class CloudUtils(object):
                     try:
                         socket.gethostbyname("fra.extremecloudiq.com")
                         item_list[2] = "DNS (IMAGES): OK"
-                    except Exception as error:
+                    except Exception:
                         dns_fail = True
                         item_list[2] = "DNS (IMAGES): FAIL"
                 else:
@@ -624,11 +626,11 @@ class CloudUtils(object):
                     try:
                         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         sock.settimeout(2)
-                        result = sock.connect_ex(("extremecloudiq.com", 443))
-                    except:
+                        port_result = sock.connect_ex(("extremecloudiq.com", 443))
+                    except Exception:
                         pass
 
-                    if result == 0:
+                    if port_result == 0:
                         item_list[3] = "PORT (DEVICE): OK"
                     else:
                         item_list[3] = "PORT (DEVICE): FAIL"

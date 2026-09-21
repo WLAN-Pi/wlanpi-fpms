@@ -2,19 +2,18 @@
 # Create an alert object
 #################################
 import time
-import fpms.modules.wlanpi_oled as oled
 from textwrap import wrap
 
+import fpms.modules.wlanpi_oled as oled
+from fpms.modules.constants import (
+    SMART_FONT,
+    STATUS_BAR_HEIGHT,
+)
 from fpms.modules.pages.display import *
 from fpms.modules.themes import THEME
-from fpms.modules.constants import (
-    STATUS_BAR_HEIGHT,
-    SMART_FONT,
-    MAX_TABLE_LINES,
-)
 
 
-class Alert(object):
+class Alert:
     def __init__(self, g_vars):
         # grab a screeb obj
         self.display_obj = Display(g_vars)
@@ -43,7 +42,6 @@ class Alert(object):
 
         y = 0
         x = 0
-        padding = 2
         font_offset = 2
 
         font_type = SMART_FONT
@@ -139,7 +137,7 @@ class Alert(object):
         item_length_max = 17
         item_list = wrap(msg, 17, break_on_hyphens=False)
 
-        font_offset = 2
+        font_offset: float = 2
         margin = 10
         font_size = SMART_FONT.getbbox(msg)[3]
 

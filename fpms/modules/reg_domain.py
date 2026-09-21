@@ -1,16 +1,12 @@
-import time
-import os
 import subprocess
-import fpms.modules.wlanpi_oled as oled
-import sys
+import time
 
-from fpms.modules.pages.simpletable import SimpleTable
-from fpms.modules.pages.pagedtable import PagedTable
-from fpms.modules.pages.alert import Alert
 from fpms.modules.constants import REG_DOMAIN_FILE
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.pagedtable import PagedTable
 
 
-class RegDomain(object):
+class RegDomain:
     def __init__(self, g_vars):
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
@@ -44,7 +40,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set US --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -62,7 +58,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set CA --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -80,7 +76,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set GB --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -98,7 +94,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set BR --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -116,7 +112,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set FR --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -134,7 +130,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set CZ --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -152,7 +148,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set NL --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -170,7 +166,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set DE --no-prompt", shell=True
             ).decode()
             time.sleep(1)
@@ -188,7 +184,7 @@ class RegDomain(object):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(
+            subprocess.check_output(
                 f"{REG_DOMAIN_FILE} set NO --no-prompt", shell=True
             ).decode()
             time.sleep(1)

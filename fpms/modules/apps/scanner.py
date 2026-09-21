@@ -1,14 +1,12 @@
 import os
+import signal
 import subprocess
 import threading
-import signal
-from typing import List
 from datetime import datetime, timedelta
 from os import kill
 
 import textfsm
 
-import fpms.modules.wlanpi_oled as oled
 from fpms.modules.constants import IP_FILE, IW_FILE, MAX_TABLE_LINES
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
@@ -16,7 +14,7 @@ from fpms.modules.pages.pagedtable import PagedTable
 IFACE = "wlan0"
 
 
-class Scanner(object):
+class Scanner:
     def __init__(self, g_vars):
         # load textfsm template to parse iw output
         with open(
@@ -47,7 +45,7 @@ class Scanner(object):
 
         return None
 
-    def parse(self, iw_scan_output: str) -> List:
+    def parse(self, iw_scan_output: str) -> list:
         """
         Returns a string containing a list of wireless networks
 
@@ -90,7 +88,7 @@ class Scanner(object):
                 get_rssi(x) == 0.0 for x in networks
             )
 
-            if all_zero_rssi and write_file != True:
+            if all_zero_rssi and not write_file:
                 results.append("Warning: Adapter")
                 results.append("does not support")
                 results.append("RSSI measurement")
@@ -107,7 +105,7 @@ class Scanner(object):
                     channel = "-"
 
                 # RSSI
-                rssi = int(round(get_rssi(network)))
+                rssi = round(get_rssi(network))
 
                 # LAST SEEN
                 lastseen = network[3]
@@ -120,27 +118,20 @@ class Scanner(object):
                         continue
                     ssid = "Hidden Network"
 
-                if write_file != True:
+                if not write_file:
                     ssid = ssid[:17]
 
-                    results.append("{} {}".format("{0: <17}".format(ssid), rssi))
-                    results.append(
-                        "{} {}".format(
-                            "{0: <17}".format(bssid), "{0: >3}".format(channel)
-                        )
-                    )
+                    results.append("{} {}".format(f"{ssid: <17}", rssi))
+                    results.append("{} {}".format(f"{bssid: <17}", f"{channel: >3}"))
                     results.append("---")
                 else:
-                    datetime_string = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
                     time_now_value = datetime.now()
                     time_measure_value = time_now_value - timedelta(
                         milliseconds=int(lastseen)
                     )
                     time_string = time_measure_value.strftime("%H:%M:%S")
                     results.append(
-                        '"{}", "{}", "{}", "{}", "{}"\n'.format(
-                            ssid, bssid, rssi, channel, time_string
-                        )
+                        f'"{ssid}", "{bssid}", "{rssi}", "{channel}", "{time_string}"\n'
                     )
 
             # Append this scan's rows once, here in the worker thread. Skip if
@@ -175,7 +166,7 @@ class Scanner(object):
             return
 
         # Check if this is the first time we run
-        if g_vars["result_cache"] == False:
+        if not g_vars["result_cache"]:
             # Check if an instance of scandump is already running (saving to PCAP).
             # If running, terminate it, then start the scanner with the given options.
             if self.scanner_active(g_vars):
@@ -208,7 +199,7 @@ class Scanner(object):
                 pass
 
         else:
-            if g_vars["scanner_status"] == False:
+            if not g_vars["scanner_status"]:
                 # Run a scan in the background
                 thread = threading.Thread(
                     target=self.scan,
@@ -244,7 +235,7 @@ class Scanner(object):
         # if we're been round this loop before,
         # results treated as cached to prevent re-evaluating
         # and re-painting
-        if g_vars["result_cache"] == True:
+        if g_vars["result_cache"]:
             # re-enable keys
             g_vars["disable_keys"] = False
             return True
@@ -271,7 +262,7 @@ class Scanner(object):
                 self.alert_obj.display_alert_info(
                     g_vars, "Scanner started.", title="Success"
                 )
-            except:
+            except Exception:
                 self.alert_obj.display_alert_error(g_vars, "Start failed.")
 
         # signal that result is cached (stops re-painting screen)
@@ -284,7 +275,7 @@ class Scanner(object):
         # if we're been round this loop before,
         # results treated as cached to prevent re-evaluating
         # and re-painting
-        if g_vars["result_cache"] == True:
+        if g_vars["result_cache"]:
             # re-enable keys
             g_vars["disable_keys"] = False
             return True

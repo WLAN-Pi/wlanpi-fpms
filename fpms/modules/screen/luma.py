@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
+import logging
+import sys
 
 from luma.core import cmdline, error
 from PIL import Image
-import sys
-import logging
-from fpms.modules.constants import PLATFORM, DISPLAY_TYPE
+
+from fpms.modules.constants import DISPLAY_TYPE, PLATFORM
 from fpms.modules.display import *
 from fpms.modules.platform import *
 from fpms.modules.screen.screen import AbstractScreen
@@ -65,8 +66,8 @@ logging.basicConfig(level=logging.DEBUG, format="%(asctime)-15s - %(message)s")
 # ignore PIL debug messages
 logging.getLogger("PIL").setLevel(logging.ERROR)
 
-DISPLAY_WIDTH = int(WIDTH)
-DISPLAY_HEIGHT = int(HEIGHT)
+DISPLAY_WIDTH = int(WIDTH) if WIDTH else 128
+DISPLAY_HEIGHT = int(HEIGHT) if HEIGHT else 128
 
 
 def display_settings(device, args):
@@ -78,7 +79,7 @@ def display_settings(device, args):
     iface = ""
     display_types = cmdline.get_display_types()
     if args.display not in display_types["emulator"]:
-        iface = "Interface: {}\n".format(args.interface)
+        iface = f"Interface: {args.interface}\n"
 
     lib_name = cmdline.get_library_for_display_type(args.display)
     if lib_name is not None:
@@ -88,11 +89,9 @@ def display_settings(device, args):
 
     import luma.core
 
-    version = "luma.{} {} (luma.core {})".format(
-        lib_name, lib_version, luma.core.__version__
-    )
+    version = f"luma.{lib_name} {lib_version} (luma.core {luma.core.__version__})"
 
-    return "{0}\nVersion: {1}\nDisplay: {2}\n{3}Dimensions: {4} x {5}\nMode: {6}\n{7}".format(
+    return "{}\nVersion: {}\nDisplay: {}\n{}Dimensions: {} x {}\nMode: {}\n{}".format(
         "-" * 50,
         version,
         args.display,
@@ -204,7 +203,7 @@ class Luma(AbstractScreen):
         img = image.convert(self.device.mode)
         width, height = img.size
         if DISPLAY_WIDTH != width or DISPLAY_HEIGHT != height:
-            img = img.resize((DISPLAY_WIDTH, DISPLAY_HEIGHT), Image.LANCZOS)
+            img = img.resize((DISPLAY_WIDTH, DISPLAY_HEIGHT), Image.Resampling.LANCZOS)
 
         self.device.display(img)
 
