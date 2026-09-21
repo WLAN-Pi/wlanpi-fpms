@@ -7,12 +7,12 @@ from fpms.modules.pages.simpletable import *
 
 class CloudUtils(object):
     def __init__(self, g_vars):
-
         # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
 
         # create alert
         self.alert_obj = Alert(g_vars)
+
     def test_arista_cloud(self, g_vars):
         """
         Perform a series of connectivity tests to see if Arista CV-CUE is available:
@@ -29,7 +29,6 @@ class CloudUtils(object):
 
         # Has test been run already?
         if g_vars["result_cache"] == False:
-
             # record test success/fail
             test_fail = False
 
@@ -66,7 +65,9 @@ class CloudUtils(object):
             if not test_fail:
                 # Can we connect to the redirector service on https?
                 try:
-                    sock = socket.create_connection(("redirector.online.spectraguard.net", 443), 2)
+                    sock = socket.create_connection(
+                        ("redirector.online.spectraguard.net", 443), 2
+                    )
                     sock.close()
                     item_list[2] = "Redirector HTTPS: OK"
                 except:
@@ -115,7 +116,6 @@ class CloudUtils(object):
 
         # Has test been run already?
         if g_vars["result_cache"] == False:
-
             # record test success/fail
             test_fail = False
 
@@ -260,7 +260,12 @@ class CloudUtils(object):
 
         def test_ping(host, timeout=2):
             try:
-                subprocess.check_call(f"ping -c1 -W{timeout} -4 -q {host}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                subprocess.check_call(
+                    f"ping -c1 -W{timeout} -4 -q {host}",
+                    shell=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
                 return True
             except subprocess.CalledProcessError:
                 return False
@@ -272,7 +277,7 @@ class CloudUtils(object):
                 client.settimeout(timeout)
 
                 # Construct an NTP request packet
-                ntp_packet = b'\x1b' + 47 * b'\0'
+                ntp_packet = b"\x1b" + 47 * b"\0"
 
                 # Send the packet to the server
                 client.sendto(ntp_packet, (server, port))
@@ -294,7 +299,7 @@ class CloudUtils(object):
                     ["dig", "+short", "+tries=1", hostname],
                     capture_output=True,
                     text=True,
-                    timeout=2
+                    timeout=2,
                 )
                 if result.returncode == 0:
                     return True
@@ -312,7 +317,6 @@ class CloudUtils(object):
 
         # Has test been run already?
         if g_vars["result_cache"] == False:
-
             # Record test success/fail
             test_fail = False
 
@@ -347,7 +351,7 @@ class CloudUtils(object):
                     test_fail = True
 
             if not test_fail:
-               # Cloud TLS connection
+                # Cloud TLS connection
                 if test_tcp("euc.byoip.nt.meraki.com", 443):
                     item_list[2] = "Cloud TCP 443: OK"
                 else:
@@ -399,7 +403,6 @@ class CloudUtils(object):
 
         # Has test been run already?
         if g_vars["result_cache"] == False:
-
             # record test success/fail
             test_fail = False
 
@@ -480,7 +483,6 @@ class CloudUtils(object):
 
         # Has test been run already?
         if g_vars["result_cache"] == False:
-
             # record test success/fail
             test_fail = False
 
@@ -565,7 +567,6 @@ class CloudUtils(object):
 
         # Has test been run already?
         if g_vars["result_cache"] == False:
-
             # record test success/fail
             test_fail = False
 

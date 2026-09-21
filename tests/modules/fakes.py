@@ -1,4 +1,4 @@
-class Alert():
+class Alert:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -7,7 +7,8 @@ class Alert():
         self.args = args
         self.kwargs = kwargs
 
-class SimpleTable():
+
+class SimpleTable:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -17,7 +18,7 @@ class SimpleTable():
         self.kwargs = kwargs
 
 
-class Display():
+class Display:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -27,7 +28,7 @@ class Display():
         self.kwargs = kwargs
 
 
-class PagedTable():
+class PagedTable:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
@@ -37,7 +38,7 @@ class PagedTable():
         self.kwargs = kwargs
 
 
-class EnvUtils():
+class EnvUtils:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs

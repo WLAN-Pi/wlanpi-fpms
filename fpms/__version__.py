@@ -7,7 +7,7 @@
 #     |_|
 
 
-""" version information for fpms """
+"""version information for fpms"""
 
 __title__ = "wlanpi-fpms"
 __description__ = "a Front Panel Menu System for the WLAN Pi"

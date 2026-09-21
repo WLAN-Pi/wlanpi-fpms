@@ -10,9 +10,9 @@ from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
 from fpms.modules.env_utils import EnvUtils
 
+
 class Kismet(object):
     def __init__(self, g_vars):
-
         # create display object
         self.display_obj = Display(g_vars)
 
@@ -70,9 +70,7 @@ class Kismet(object):
                     self.alert_obj.display_alert_error(g_vars, "Process timed out.")
         elif action == "stop":
             if not self.kismet_status():
-                self.alert_obj.display_alert_error(
-                    g_vars, "Kismet already stopped."
-                )
+                self.alert_obj.display_alert_error(g_vars, "Kismet already stopped.")
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Stopping...")
                 try:
@@ -83,7 +81,7 @@ class Kismet(object):
                     else:
                         self.alert_obj.display_alert_info(
                             g_vars, "Kismet stopped.", title="Success"
-                            )
+                        )
                 except subprocess.CalledProcessError as exc:
                     self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 
