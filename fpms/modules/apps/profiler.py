@@ -125,7 +125,7 @@ class Profiler(object):
             for line in lines:
                 if not line.strip().startswith("#"):
                     try:
-                        return re.search("^interface:\s+(.+)", line).group(1)
+                        return re.search(r"^interface:\s+(.+)", line).group(1)
                     except AttributeError:
                         pass
         return None
@@ -219,14 +219,14 @@ class Profiler(object):
                     if not line.strip().startswith("#"):
                         # Channel
                         try:
-                            channel = re.search("^channel:\s+(.+)", line).group(1)
+                            channel = re.search(r"^channel:\s+(.+)", line).group(1)
                             status.append("Channel: {}".format(channel))
                         except AttributeError:
                             pass
 
                         # Interface
                         try:
-                            interface = re.search("^interface:\s+(.+)", line).group(1)
+                            interface = re.search(r"^interface:\s+(.+)", line).group(1)
                             status.append("Interface: {}".format(interface))
                         except AttributeError:
                             pass

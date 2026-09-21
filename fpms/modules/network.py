@@ -94,7 +94,7 @@ class Network(object):
                 if len(interface_name) > 2:
                     short_name = interface_name
                     try:
-                        id = re.search(".*(\d+).*", interface_name).group(1)
+                        id = re.search(r".*(\d+).*", interface_name).group(1)
                         if interface_name.endswith(id):
                             short_name = "{}{}".format(interface_name[0], id)
                         else:
@@ -166,7 +166,7 @@ class Network(object):
             # Driver
             try:
                 ethtool_output = subprocess.check_output(f"{ETHTOOL_FILE} -i {interface}", shell=True).decode().strip()
-                driver = re.search(".*driver:\s+(.*)", ethtool_output).group(1)
+                driver = re.search(r".*driver:\s+(.*)", ethtool_output).group(1)
                 page.append(f"Driver: {driver}")
             except Exception:
                 pass
@@ -197,28 +197,28 @@ class Network(object):
 
                 # Addr
                 try:
-                    addr = re.search(".*addr\s+(.*)", iw_output).group(1).replace(":", "").upper()
+                    addr = re.search(r".*addr\s+(.*)", iw_output).group(1).replace(":", "").upper()
                     page.append(f"Addr: {addr}")
                 except Exception:
                     pass
 
                 # Mode
                 try:
-                    mode = re.search(".*type\s+(.*)", iw_output).group(1)
+                    mode = re.search(r".*type\s+(.*)", iw_output).group(1)
                     page.append(f"Mode: {mode.capitalize() if not mode.isupper() else mode}")
                 except Exception:
                     pass
 
                 # SSID
                 try:
-                    ssid = re.search(".*ssid\s+(.*)", iw_output).group(1)
+                    ssid = re.search(r".*ssid\s+(.*)", iw_output).group(1)
                     page.append(f"SSID: {ssid}")
                 except Exception:
                     pass
 
                 # Frequency
                 try:
-                    freq = int(re.search(".*\(([0-9]+)\s+MHz\).*", iw_output).group(1))
+                    freq = int(re.search(r".*\(([0-9]+)\s+MHz\).*", iw_output).group(1))
                     channel = self.channel_lookup(freq)
                     page.append(f"Freq (MHz): {freq}")
                     page.append(f"Channel: {channel}")

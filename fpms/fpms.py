@@ -18,9 +18,6 @@ import getopt
 import gpiod
 import os
 import os.path
-import random
-import signal
-import socket
 import subprocess
 import sys
 import termios
@@ -29,7 +26,7 @@ import time
 import tty
 import types
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from gpiod.line import Bias, Edge
 from datetime import datetime, timedelta
 
