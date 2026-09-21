@@ -46,7 +46,6 @@ def read_profiler_passphrase():
 
 class Profiler(object):
     def __init__(self, g_vars):
-
         # create display object
         self.display_obj = Display(g_vars)
 
@@ -57,14 +56,12 @@ class Profiler(object):
         self.alert_obj = Alert(g_vars)
 
     def profiler_ctl_file_update(self, fields_dict, filename):
-
         # read in file to an array
         with open(filename, "r") as f:
             lines = f.readlines()
 
         # loop through each field in values to set in file
         for key, value in fields_dict.items():
-
             # step through all lines and look for a match
             for count, line in enumerate(lines):
                 # replace match in file with key/value pair
@@ -153,8 +150,12 @@ class Profiler(object):
             last_profile = self.profiler_last_profile().upper()
             if len(last_profile) == 12:
                 # Insert ":" to improve readability
-                last_profile = ":".join(last_profile[i:i+2] for i in range(0, len(last_profile), 2))
-            self.alert_obj.display_popup_alert(g_vars, "Device Profiled\n{}".format(last_profile), delay=5)
+                last_profile = ":".join(
+                    last_profile[i : i + 2] for i in range(0, len(last_profile), 2)
+                )
+            self.alert_obj.display_popup_alert(
+                g_vars, "Device Profiled\n{}".format(last_profile), delay=5
+            )
             return True
 
         return False
@@ -209,7 +210,6 @@ class Profiler(object):
         # (no check for cached result as need to re-evaluate
         # on each 1 sec main loop cycle)
         if action == "status":
-
             status = []
 
             # read config
@@ -242,48 +242,74 @@ class Profiler(object):
 
             # Compose table
             self.paged_table_obj.display_list_as_paged_table(
-                g_vars, status, title="Profiler Active" if beaconing else "Profiler Inactive"
+                g_vars,
+                status,
+                title="Profiler Active" if beaconing else "Profiler Inactive",
             )
 
             if beaconing:
                 # Stamp QR code to facilitate profiling
                 qrcode_path = self.profiler_qrcode()
                 if qrcode_path != None:
-                    self.display_obj.stamp_qrcode(g_vars, qrcode_path,
-                        center_vertically=False, y=56)
+                    self.display_obj.stamp_qrcode(
+                        g_vars, qrcode_path, center_vertically=False, y=56
+                    )
 
         elif action.startswith("start"):
-
             print(action)
 
             if action == "start":
                 # set the config file to use params
-                cfg_dict = {"channel": "36", "ft_disabled": "False", "he_disabled": "False"}
+                cfg_dict = {
+                    "channel": "36",
+                    "ft_disabled": "False",
+                    "he_disabled": "False",
+                }
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_2dot4ghz":
                 # set the config file to use params
-                cfg_dict = {"channel": "11", "ft_disabled": "False", "he_disabled": "False"}
+                cfg_dict = {
+                    "channel": "11",
+                    "ft_disabled": "False",
+                    "he_disabled": "False",
+                }
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_5ghz_unii1":
                 # set the config file to use params
-                cfg_dict = {"channel": "36", "ft_disabled": "False", "he_disabled": "False"}
+                cfg_dict = {
+                    "channel": "36",
+                    "ft_disabled": "False",
+                    "he_disabled": "False",
+                }
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_5ghz_unii3":
                 # set the config file to use params
-                cfg_dict = {"channel": "149", "ft_disabled": "False", "he_disabled": "False"}
+                cfg_dict = {
+                    "channel": "149",
+                    "ft_disabled": "False",
+                    "he_disabled": "False",
+                }
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11r":
                 # set the config file to use params
-                cfg_dict = {"channel": "36", "ft_disabled": "True", "he_disabled": "False"}
+                cfg_dict = {
+                    "channel": "36",
+                    "ft_disabled": "True",
+                    "he_disabled": "False",
+                }
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11ax":
                 # set the config file to use params
-                cfg_dict = {"channel": "36", "ft_disabled": "False", "he_disabled": "True"}
+                cfg_dict = {
+                    "channel": "36",
+                    "ft_disabled": "False",
+                    "he_disabled": "True",
+                }
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             else:
@@ -306,7 +332,7 @@ class Profiler(object):
                     # if Profiler hasn't started beaconing, then it will just
                     # tell the user that Profiler has started.
                     elapsed_time = 0
-                    max_wait = 20 # seconds
+                    max_wait = 20  # seconds
                     while not self.profiler_beaconing() and elapsed_time <= max_wait:
                         time.sleep(0.5)
                         elapsed_time = elapsed_time + 0.5
@@ -326,15 +352,13 @@ class Profiler(object):
             # Stamp QR code to facilitate profiling
             qrcode_path = self.profiler_qrcode()
             if qrcode_path != None:
-                self.display_obj.stamp_qrcode(g_vars, qrcode_path,
-                    center_vertically=False, y=qrcode_offset)
+                self.display_obj.stamp_qrcode(
+                    g_vars, qrcode_path, center_vertically=False, y=qrcode_offset
+                )
 
         elif action == "stop":
-
             if not self.profiler_beaconing():
-                self.alert_obj.display_alert_error(
-                    g_vars, "Profiler already stopped."
-                )
+                self.alert_obj.display_alert_error(g_vars, "Profiler already stopped.")
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Stopping...")
                 try:
@@ -344,7 +368,7 @@ class Profiler(object):
                     # Wait for Profiler to stop beaconing so we can check
                     # it was successfully stopped.
                     elapsed_time = 0
-                    max_wait = 3 # seconds
+                    max_wait = 3  # seconds
                     while self.profiler_beaconing() and elapsed_time <= max_wait:
                         time.sleep(0.5)
                         elapsed_time = elapsed_time + 0.5

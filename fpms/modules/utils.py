@@ -15,10 +15,9 @@ from fpms.modules.constants import (
     UFW_FILE,
 )
 
+
 class Utils(object):
-
     def __init__(self, g_vars):
-
         # create display object
         self.display_obj = Display(g_vars)
 
@@ -32,122 +31,141 @@ class Utils(object):
         self.alert_obj = Alert(g_vars)
 
     def show_speedtest(self, g_vars):
-        '''
+        """
         Run speedtest.net speed test and format output to fit the OLED screen
-        '''
+        """
         # Has speedtest been run already?
-        if g_vars['result_cache'] == False:
-
+        if g_vars["result_cache"] == False:
             # ignore any more key presses as this could cause us issues
-            g_vars['disable_keys'] = True
-            g_vars['speedtest_result_text'] = None
+            g_vars["disable_keys"] = True
+            g_vars["speedtest_result_text"] = None
 
             speedtest_bin = self.speedtest_cli_path()
             if speedtest_bin is None:
                 self.alert_obj.display_alert_error(
-                    g_vars, "Speedtest CLI not installed.")
-                g_vars['disable_keys'] = False
-                g_vars['result_cache'] = True
+                    g_vars, "Speedtest CLI not installed."
+                )
+                g_vars["disable_keys"] = False
+                g_vars["result_cache"] = True
                 return
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
             speedtest_info = []
-            speedtest_cmd = "{} --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\\(/My IP: /g; s/\\)\\.\\.\\.//g; s/Download/D/g; s/Upload/U/g; s/bit\\/s/bps/g'".format(speedtest_bin)
+            speedtest_cmd = "{} --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\\(/My IP: /g; s/\\)\\.\\.\\.//g; s/Download/D/g; s/Upload/U/g; s/bit\\/s/bps/g'".format(
+                speedtest_bin
+            )
 
             try:
-                speedtest_output = subprocess.check_output(speedtest_cmd, shell=True, stderr=subprocess.STDOUT).decode().strip()
-                speedtest_info = speedtest_output.split('\n')
+                speedtest_output = (
+                    subprocess.check_output(
+                        speedtest_cmd, shell=True, stderr=subprocess.STDOUT
+                    )
+                    .decode()
+                    .strip()
+                )
+                speedtest_info = speedtest_output.split("\n")
             except subprocess.CalledProcessError:
-                g_vars['speedtest_result_text'] = None
-                g_vars['disable_keys'] = False
-                g_vars['result_cache'] = True
+                g_vars["speedtest_result_text"] = None
+                g_vars["disable_keys"] = False
+                g_vars["result_cache"] = True
                 self.alert_obj.display_alert_error(g_vars, "Failed to run speedtest.")
                 return
 
             if len(speedtest_info) > 1:
-                g_vars['speedtest_result_text'] = speedtest_info
+                g_vars["speedtest_result_text"] = speedtest_info
 
-            g_vars['result_cache'] = True
+            g_vars["result_cache"] = True
 
         # re-enable front panel keys
-        g_vars['disable_keys'] = False
+        g_vars["disable_keys"] = False
 
-        if g_vars['speedtest_result_text'] == None:
+        if g_vars["speedtest_result_text"] == None:
             self.alert_obj.display_alert_error(g_vars, "Failed to run speedtest.")
         else:
-            self.simple_table_obj.display_simple_table(g_vars, g_vars['speedtest_result_text'], title='Speedtest')
+            self.simple_table_obj.display_simple_table(
+                g_vars, g_vars["speedtest_result_text"], title="Speedtest"
+            )
 
     @staticmethod
     def speedtest_cli_path():
-        '''
+        """
         Locate the speedtest-cli binary. Installed via pipx during image
         build; a venv install is the fallback for other systems.
-        '''
+        """
         import shutil
+
         for candidate in [
-            '/opt/wlanpi/pipx/bin/speedtest-cli',
-            '/opt/wlanpi/speedtest-venv/bin/speedtest-cli',
-            shutil.which('speedtest-cli'),
+            "/opt/wlanpi/pipx/bin/speedtest-cli",
+            "/opt/wlanpi/speedtest-venv/bin/speedtest-cli",
+            shutil.which("speedtest-cli"),
         ]:
             if candidate and os.path.isfile(candidate):
                 return candidate
         return None
 
     def show_blinker(self, g_vars):
-        '''
+        """
         Run Port Blinker on eth0 and identify switch port on the far end of the Ethernet cable
         ( *** Note that blinker_status set back to False in menu_right() *** )
-        '''
+        """
         # Has port blinker been run already?
-        if g_vars['blinker_status'] == False:
-
+        if g_vars["blinker_status"] == False:
             # ignore any more key presses as this could cause us issues
-            g_vars['disable_keys'] = True
-            g_vars['blinker_process'] = subprocess.Popen(BLINKER_FILE)
-            g_vars['blinker_status'] = True
+            g_vars["disable_keys"] = True
+            g_vars["blinker_process"] = subprocess.Popen(BLINKER_FILE)
+            g_vars["blinker_status"] = True
 
             # re-enable front panel keys
-            g_vars['disable_keys'] = False
+            g_vars["disable_keys"] = False
 
         else:
-            self.alert_obj.display_alert_info(g_vars, "Blinking eth0. Watch port LEDs on the switch.", title="Success")
-            g_vars['blinker_status'] = True
+            self.alert_obj.display_alert_info(
+                g_vars, "Blinking eth0. Watch port LEDs on the switch.", title="Success"
+            )
+            g_vars["blinker_status"] = True
 
     def stop_blinker(self, g_vars):
-        if g_vars['blinker_status'] == True:
-            g_vars['blinker_process'].kill()
-            g_vars['blinker_status'] = False
+        if g_vars["blinker_status"] == True:
+            g_vars["blinker_process"].kill()
+            g_vars["blinker_status"] = False
         else:
-            self.alert_obj.display_alert_info(g_vars, "Port Blinker stopped.", title="Success")
+            self.alert_obj.display_alert_info(
+                g_vars, "Port Blinker stopped.", title="Success"
+            )
 
     def show_reachability(self, g_vars):
-        '''
+        """
         Check if default gateway, internet and DNS are reachable and working
-        '''
+        """
 
-        title = 'Reachability'
+        title = "Reachability"
         reachability_info = []
 
-        if g_vars['result_cache'] == False:
-            self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title=title)
+        if g_vars["result_cache"] == False:
+            self.paged_table_obj.display_list_as_paged_table(
+                g_vars, reachability_info, title=title
+            )
             self.alert_obj.display_popup_alert(g_vars, "Checking...")
 
         try:
-            g_vars['disable_keys'] = True
+            g_vars["disable_keys"] = True
 
             reachability_output = subprocess.check_output(
-                REACHABILITY_FILE, shell=True).decode()
-            reachability_info = reachability_output.split('\n')
+                REACHABILITY_FILE, shell=True
+            ).decode()
+            reachability_info = reachability_output.split("\n")
 
             if len(reachability_info) == 0:
                 reachability_info.append("Not available.")
 
             # final check no-one pressed a button before we render page
-            if g_vars['display_state'] == 'menu':
+            if g_vars["display_state"] == "menu":
                 return
 
-            self.paged_table_obj.display_list_as_paged_table(g_vars, reachability_info, title=title)
+            self.paged_table_obj.display_list_as_paged_table(
+                g_vars, reachability_info, title=title
+            )
 
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
@@ -155,26 +173,32 @@ class Utils(object):
             self.simple_table_obj.display_simple_table(g_vars, error, title=title)
 
         finally:
-            g_vars['result_cache'] = True
-            g_vars['disable_keys'] = False
-
+            g_vars["result_cache"] = True
+            g_vars["disable_keys"] = False
 
     def show_ssid_passphrase(self, g_vars):
-        '''
+        """
         Show SSID, passphrase and QR code if available
-        '''
+        """
 
         ssid = None
         passphrase = None
 
-        if g_vars['result_cache'] == True:
+        if g_vars["result_cache"] == True:
             return
 
-        cmd = "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
+        cmd = (
+            "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
+        )
 
         try:
             data = []
-            ssid, passphrase = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode().strip().split("\n")
+            ssid, passphrase = (
+                subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
+                .decode()
+                .strip()
+                .split("\n")
+            )
             data.append(ssid.center(21, " "))
             data.append(passphrase.center(21, " "))
         except:
@@ -182,10 +206,12 @@ class Utils(object):
             return
 
         # final check no-one pressed a button before we render page
-        if g_vars['display_state'] == 'menu':
+        if g_vars["display_state"] == "menu":
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, data, title='SSID/Passphrase')
+        self.simple_table_obj.display_simple_table(
+            g_vars, data, title="SSID/Passphrase"
+        )
 
         # Display QR code
         env_utils = EnvUtils()
@@ -193,24 +219,26 @@ class Utils(object):
         # Get path to QR code png (it will be generated if not present)
         qrcode_path = env_utils.get_wifi_qrcode(ssid, passphrase)
         if qrcode_path != None:
-            self.display_obj.stamp_qrcode(g_vars, qrcode_path, center_vertically=False, y=52)
+            self.display_obj.stamp_qrcode(
+                g_vars, qrcode_path, center_vertically=False, y=52
+            )
 
-        g_vars['result_cache'] = True
+        g_vars["result_cache"] = True
 
     def show_usb(self, g_vars):
-        '''
+        """
         Return a list of non-Linux USB interfaces found with the lsusb command
-        '''
+        """
 
-        lsusb = r'/usr/bin/lsusb | /bin/grep -v Linux | /usr/bin/cut -d\  -f7-'
+        lsusb = r"/usr/bin/lsusb | /bin/grep -v Linux | /usr/bin/cut -d\  -f7-"
         lsusb_info = []
 
         try:
             lsusb_output = subprocess.check_output(lsusb, shell=True).decode()
-            lsusb_info = lsusb_output.split('\n')
+            lsusb_info = lsusb_output.split("\n")
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
-            #error_descr = "Issue getting usb info using lsusb command"
+            # error_descr = "Issue getting usb info using lsusb command"
             interfaces = ["Err: lsusb error", str(output)]
             self.simple_table_obj.display_simple_table(g_vars, interfaces)
             return
@@ -224,37 +252,38 @@ class Utils(object):
             interfaces.append("No devices detected")
 
         # final check no-one pressed a button before we render page
-        if g_vars['display_state'] == 'menu':
+        if g_vars["display_state"] == "menu":
             return
 
-        self.simple_table_obj.display_simple_table(g_vars, interfaces, title='USB Devices')
+        self.simple_table_obj.display_simple_table(
+            g_vars, interfaces, title="USB Devices"
+        )
 
         return
 
-
     def show_ufw(self, g_vars):
-        '''
+        """
         Return a list ufw ports
-        '''
+        """
         ufw_file = UFW_FILE
 
         # check ufw is available
         if not os.path.isfile(ufw_file):
-
             self.alert_obj.display_alert_error(g_vars, "UFW is not installed.")
 
-            g_vars['display_state'] = 'page'
+            g_vars["display_state"] = "page"
             return
 
         # Use cached ufw data if we have it (cleared when leaving the page)
-        ufw_info = g_vars.get('ufw_info')
+        ufw_info = g_vars.get("ufw_info")
 
         if ufw_info is None:
             try:
                 ufw_output = subprocess.check_output(
-                    "sudo {} status".format(ufw_file), shell=True).decode()
-                ufw_info = ufw_output.split('\n')
-                g_vars['ufw_info'] = ufw_info  # cache results
+                    "sudo {} status".format(ufw_file), shell=True
+                ).decode()
+                ufw_info = ufw_output.split("\n")
+                g_vars["ufw_info"] = ufw_info  # cache results
             except Exception as ex:
                 error_descr = "Issue getting ufw info using ufw command"
                 interfaces = ["Err: ufw error", error_descr, str(ex)]
@@ -275,12 +304,11 @@ class Utils(object):
         ufw_info = ufw_info[4:-2]
 
         for result in ufw_info:
-
             # tidy/compress the output
             result = result.strip()
             result_list = result.split()
 
-            final_result = ' '.join(result_list)
+            final_result = " ".join(result_list)
 
             port_entries.append(final_result)
 
@@ -288,9 +316,11 @@ class Utils(object):
             port_entries.append("No UF info detected")
 
         # final check no-one pressed a button before we render page
-        if g_vars['display_state'] == 'menu':
+        if g_vars["display_state"] == "menu":
             return
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, port_entries, title='UFW Ports')
+        self.paged_table_obj.display_list_as_paged_table(
+            g_vars, port_entries, title="UFW Ports"
+        )
 
         return

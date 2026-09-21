@@ -56,20 +56,18 @@ elif DISPLAY_TYPE == DISPLAY_TYPE_ST7789:
     GPIO_CS = "8"
     BACKLIGHT_ACTIVE = "high"
 
-'''
+"""
 ### This code is borrowed from https://github.com/rm-hull/luma.examples/blob/master/examples/demo_opts.py
 (MIT License)
-'''
+"""
 # logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)-15s - %(message)s'
-)
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)-15s - %(message)s")
 # ignore PIL debug messages
-logging.getLogger('PIL').setLevel(logging.ERROR)
+logging.getLogger("PIL").setLevel(logging.ERROR)
 
 DISPLAY_WIDTH = int(WIDTH)
 DISPLAY_HEIGHT = int(HEIGHT)
+
 
 def display_settings(device, args):
     """
@@ -77,23 +75,33 @@ def display_settings(device, args):
 
     :rtype: str
     """
-    iface = ''
+    iface = ""
     display_types = cmdline.get_display_types()
-    if args.display not in display_types['emulator']:
-        iface = 'Interface: {}\n'.format(args.interface)
+    if args.display not in display_types["emulator"]:
+        iface = "Interface: {}\n".format(args.interface)
 
     lib_name = cmdline.get_library_for_display_type(args.display)
     if lib_name is not None:
         lib_version = cmdline.get_library_version(lib_name)
     else:
-        lib_name = lib_version = 'unknown'
+        lib_name = lib_version = "unknown"
 
     import luma.core
-    version = 'luma.{} {} (luma.core {})'.format(
-        lib_name, lib_version, luma.core.__version__)
 
-    return '{0}\nVersion: {1}\nDisplay: {2}\n{3}Dimensions: {4} x {5}\nMode: {6}\n{7}'.format(
-        '-' * 50, version, args.display, iface, device.width, device.height, device.mode, '-' * 50)
+    version = "luma.{} {} (luma.core {})".format(
+        lib_name, lib_version, luma.core.__version__
+    )
+
+    return "{0}\nVersion: {1}\nDisplay: {2}\n{3}Dimensions: {4} x {5}\nMode: {6}\n{7}".format(
+        "-" * 50,
+        version,
+        args.display,
+        iface,
+        device.width,
+        device.height,
+        device.mode,
+        "-" * 50,
+    )
 
 
 def get_device(actual_args=None):
@@ -102,7 +110,7 @@ def get_device(actual_args=None):
     """
     if actual_args is None:
         actual_args = sys.argv[1:]
-    parser = cmdline.create_parser(description='luma.examples arguments')
+    parser = cmdline.create_parser(description="luma.examples arguments")
     args = parser.parse_args(actual_args)
 
     if args.config:
@@ -120,9 +128,10 @@ def get_device(actual_args=None):
         parser.error(e)
         return None
 
-'''
+
+"""
 ### End of borrowed code
-'''
+"""
 
 actual_args = []
 
@@ -181,8 +190,8 @@ if V_OFFSET:
     actual_args.append("--v-offset")
     actual_args.append(V_OFFSET)
 
-class Luma(AbstractScreen):
 
+class Luma(AbstractScreen):
     def init(self):
         self.device = get_device(actual_args=actual_args)
         if PLATFORM == PLATFORM_PRO:

@@ -31,7 +31,7 @@ from gpiod.line import Bias, Edge
 from datetime import datetime, timedelta
 
 # Check we're running as root
-if not os.geteuid()==0:
+if not os.geteuid() == 0:
     print("fpms must be run as root ... exiting ...")
     sys.exit(-1)
 
@@ -63,46 +63,44 @@ FPMS_CONF_FILE = "/etc/wlanpi-fpms.conf"
 # Initialize various global variables
 #######################################
 g_vars = {
-
     ##################################################
     # Shared status signals (may be changed anywhere)
     ##################################################
-
     # This variable is shared between activities and is set to True if a
     # drawing action in already if progress (e.g. by another activity). An activity
     # happens during each cycle of the main while loop or when a button is pressed
     # (This does not appear to be threading or process spawning)
-    'display_orientation': DISPLAY_ORIENTATION_NORMAL, # Display module orientation
-    'drawing_in_progress': False,      # True when page being painted on screen
-    'shutdown_in_progress': False,     # True when shutdown or reboot started
-    'screen_cleared': False,           # True when display cleared (e.g. screen save)
-    'display_state': 'page',           # current display state: 'page' or 'menu'
-    'sig_fired': False,                # Set to True when button handler fired
-    'option_selected': 0,              # Content of currently selected menu level
-    'current_menu_location': [0],      # Pointer to current location in menu structure
-    'current_scroll_selection': 0,     # where we currently are in scrolling table
-    'current_mode': 'classic',         # Currently selected mode (e.g. classic/server)
-    'start_up': True,                  # True if in initial (home page) start-up state
-    'disable_keys': False,             # Set to true when need to ignore key presses
-    'table_list_length': 0,            # Total length of currently displayed table
-    'table_pages': 1,                  # pages in current table
-    'result_cache': False,             # used to cache results when paging info
-    'speedtest_result_text': '',       # tablulated speedtest result data
-    'button_press_count': 0,           # global count of button pressses
-    'last_button_press_count': -1,     # copy of count of button pressses used in main loop
-    'pageSleepCountdown': PAGE_SLEEP,  # Set page sleep control
-    'home_page_name': "Home",          # Display name for top level menu
-    'home_page_alternate': False,      # True if in alternate home page state
-    'blinker_status': False,           # Blinker status
-    'eth_carrier_status': 0,           # Eth0 physical link status
-    'eth_last_known_address_set': None,# Last known ethernet addresses
-    'eth_last_reachability_test': 0,       # Number of seconds elapsed since last reachability test
-    'eth_last_reachability_result' : False,# Last reachability state
-    'scan_file' : '',                  # Location to save scans
-    'profiler_beaconing' : False,          # Indicates if the profiler is running
-    'profiler_last_profile_date': None, # The date of the last profile
-    'timezones_available' : [],         # The list of Timezones the system can support
-    'timezone_selected' : None          # The timezone selected from the menu for use in other functions
+    "display_orientation": DISPLAY_ORIENTATION_NORMAL,  # Display module orientation
+    "drawing_in_progress": False,  # True when page being painted on screen
+    "shutdown_in_progress": False,  # True when shutdown or reboot started
+    "screen_cleared": False,  # True when display cleared (e.g. screen save)
+    "display_state": "page",  # current display state: 'page' or 'menu'
+    "sig_fired": False,  # Set to True when button handler fired
+    "option_selected": 0,  # Content of currently selected menu level
+    "current_menu_location": [0],  # Pointer to current location in menu structure
+    "current_scroll_selection": 0,  # where we currently are in scrolling table
+    "current_mode": "classic",  # Currently selected mode (e.g. classic/server)
+    "start_up": True,  # True if in initial (home page) start-up state
+    "disable_keys": False,  # Set to true when need to ignore key presses
+    "table_list_length": 0,  # Total length of currently displayed table
+    "table_pages": 1,  # pages in current table
+    "result_cache": False,  # used to cache results when paging info
+    "speedtest_result_text": "",  # tablulated speedtest result data
+    "button_press_count": 0,  # global count of button pressses
+    "last_button_press_count": -1,  # copy of count of button pressses used in main loop
+    "pageSleepCountdown": PAGE_SLEEP,  # Set page sleep control
+    "home_page_name": "Home",  # Display name for top level menu
+    "home_page_alternate": False,  # True if in alternate home page state
+    "blinker_status": False,  # Blinker status
+    "eth_carrier_status": 0,  # Eth0 physical link status
+    "eth_last_known_address_set": None,  # Last known ethernet addresses
+    "eth_last_reachability_test": 0,  # Number of seconds elapsed since last reachability test
+    "eth_last_reachability_result": False,  # Last reachability state
+    "scan_file": "",  # Location to save scans
+    "profiler_beaconing": False,  # Indicates if the profiler is running
+    "profiler_last_profile_date": None,  # The date of the last profile
+    "timezones_available": [],  # The list of Timezones the system can support
+    "timezone_selected": None,  # The timezone selected from the menu for use in other functions
 }
 
 
@@ -115,13 +113,13 @@ def log_to_syslog(message, level=syslog.LOG_INFO):
 def handle_reboot_or_shutdown(shutdown=False):
     global g_vars
     log_to_syslog(f"shutdown_in_progress: {g_vars['shutdown_in_progress']}")
-    if not g_vars['shutdown_in_progress']:
-        g_vars['shutdown_in_progress'] = True
+    if not g_vars["shutdown_in_progress"]:
+        g_vars["shutdown_in_progress"] = True
         log_to_syslog("Drawing shutdown/reboot image")
         if shutdown == True:
-            oled.drawImage(g_vars['shutdown_image'])
+            oled.drawImage(g_vars["shutdown_image"])
         else:
-            oled.drawImage(g_vars['reboot_image'])
+            oled.drawImage(g_vars["reboot_image"])
         log_to_syslog("Shutdown/reboot image drawn")
 
 
@@ -136,7 +134,7 @@ def handle_jobnew(*args):
     log_to_syslog("JobNew signal received")
     for arg in args:
         if isinstance(arg, str):
-            if ("reboot.target" in arg):
+            if "reboot.target" in arg:
                 handle_reboot_or_shutdown()
             elif ("halt.target" in arg) or ("poweroff.target" in arg):
                 handle_reboot_or_shutdown(True)
@@ -149,8 +147,8 @@ def run_dbus_loop():
     bus = dbus.SystemBus()
 
     # Get the org.freedesktop.login1.Manager interface
-    login1_proxy = bus.get_object('org.freedesktop.login1', '/org/freedesktop/login1')
-    login1 = dbus.Interface(login1_proxy, 'org.freedesktop.login1.Manager')
+    login1_proxy = bus.get_object("org.freedesktop.login1", "/org/freedesktop/login1")
+    login1 = dbus.Interface(login1_proxy, "org.freedesktop.login1.Manager")
 
     # Take an inhibitor lock to receive the PrepareForShutdown signal
     fd = login1.Inhibit("shutdown", "fpms", "Delaying shutdown", "delay")
@@ -162,7 +160,7 @@ def run_dbus_loop():
         signal_name="PrepareForShutdown",
         dbus_interface="org.freedesktop.login1.Manager",
         bus_name="org.freedesktop.login1",
-        path="/org/freedesktop/login1"
+        path="/org/freedesktop/login1",
     )
 
     # Add a signal receiver for JobNew signal from systemd1.Manager
@@ -170,7 +168,7 @@ def run_dbus_loop():
     bus.add_signal_receiver(
         handle_jobnew,
         dbus_interface="org.freedesktop.systemd1.Manager",
-        signal_name="JobNew"
+        signal_name="JobNew",
     )
 
     log_to_syslog(f"event handlers added")
@@ -178,6 +176,7 @@ def run_dbus_loop():
     # Run indefinitely to handle D-Bus signals
     loop = GLib.MainLoop()
     loop.run()
+
 
 # Function to read a value from a section in the .conf file
 def read_value(section, key, default_value):
@@ -190,6 +189,7 @@ def read_value(section, key, default_value):
         return value
     else:
         return default_value
+
 
 # Function to modify and save a value in the specified section and key
 def save_value(section, key, new_value):
@@ -204,8 +204,9 @@ def save_value(section, key, new_value):
     config.set(section, key, new_value)
 
     # Write the updated config back to the file
-    with open(FPMS_CONF_FILE, 'w') as f:
+    with open(FPMS_CONF_FILE, "w") as f:
         config.write(f)
+
 
 def main():
     # Run D-Bus main loop in a separate thread
@@ -229,8 +230,15 @@ def main():
             return ""
         else:
             with open(authors) as f:
-                return "\n".join(filter(None, [line if line.startswith('*') else "" for line in f.read().splitlines()]))
-
+                return "\n".join(
+                    filter(
+                        None,
+                        [
+                            line if line.startswith("*") else ""
+                            for line in f.read().splitlines()
+                        ],
+                    )
+                )
 
     def usage():
         return """
@@ -248,7 +256,9 @@ optional options:
         """
 
     try:
-        opts, _args = getopt.getopt(sys.argv[1:], ":ahev", ["authors", "help", "emulate-buttons", "version"])
+        opts, _args = getopt.getopt(
+            sys.argv[1:], ":ahev", ["authors", "help", "emulate-buttons", "version"]
+        )
     except getopt.GetoptError as error:
         print("{0} ... ".format(error))
         print(usage())
@@ -257,7 +267,7 @@ optional options:
     emulate = False
 
     for opt, arg in opts:
-        if opt in ['-e', "--emulate-buttons"]:
+        if opt in ["-e", "--emulate-buttons"]:
             emulate = True
         elif opt in ("-a", "--authors"):
             print(authors())
@@ -303,37 +313,41 @@ optional options:
     ####################################
     oled.init()
 
-    g_vars['display_orientation'] = read_value("display", "orientation", DISPLAY_ORIENTATION_NORMAL)
-    oled.orientation = g_vars['display_orientation']
+    g_vars["display_orientation"] = read_value(
+        "display", "orientation", DISPLAY_ORIENTATION_NORMAL
+    )
+    oled.orientation = g_vars["display_orientation"]
 
     ############################
     # shared objects
     ############################
-    g_vars['image'] = Image.new(DISPLAY_MODE, (PAGE_WIDTH, PAGE_HEIGHT))
-    g_vars['draw'] = ImageDraw.Draw(g_vars['image'])
-    g_vars['reboot_image'] = Image.open(IMAGE_DIR + '/reboot.png').convert(DISPLAY_MODE)
-    g_vars['shutdown_image'] = Image.open(IMAGE_DIR + '/shutdown.png').convert(DISPLAY_MODE)
+    g_vars["image"] = Image.new(DISPLAY_MODE, (PAGE_WIDTH, PAGE_HEIGHT))
+    g_vars["draw"] = ImageDraw.Draw(g_vars["image"])
+    g_vars["reboot_image"] = Image.open(IMAGE_DIR + "/reboot.png").convert(DISPLAY_MODE)
+    g_vars["shutdown_image"] = Image.open(IMAGE_DIR + "/shutdown.png").convert(
+        DISPLAY_MODE
+    )
 
     #####################################
     # check our current operating mode
     #####################################
 
     env_utils = EnvUtils()
-    g_vars['current_mode'] = env_utils.get_mode(MODE_FILE)
+    g_vars["current_mode"] = env_utils.get_mode(MODE_FILE)
 
     ##################################
     # Static info we want to get once
     ##################################
 
     # get & the current version of WLANPi image
-    g_vars['wlanpi_ver'] = env_utils.get_image_ver(WLANPI_IMAGE_FILE)
+    g_vars["wlanpi_ver"] = env_utils.get_image_ver(WLANPI_IMAGE_FILE)
 
     # ################################
     # Other state initialization
     # ################################
     profiler = Profiler(g_vars)
-    g_vars['profiler_last_profile_date'] = profiler.profiler_last_profile_date()
-    g_vars['profiler_beaconing'] = profiler.profiler_beaconing()
+    g_vars["profiler_last_profile_date"] = profiler.profiler_last_profile_date()
+    g_vars["profiler_beaconing"] = profiler.profiler_beaconing()
 
     timezone = TimeZone(g_vars)
     timezones_available = timezone.get_timezones_menu_format()
@@ -579,18 +593,18 @@ optional options:
         system_obj.set_reg_domain_no(g_vars)
 
     def toggle_display_orientation():
-        if g_vars['display_orientation'] == DISPLAY_ORIENTATION_NORMAL:
-            g_vars['display_orientation'] = DISPLAY_ORIENTATION_FLIPPED
+        if g_vars["display_orientation"] == DISPLAY_ORIENTATION_NORMAL:
+            g_vars["display_orientation"] = DISPLAY_ORIENTATION_FLIPPED
         else:
-            g_vars['display_orientation'] = DISPLAY_ORIENTATION_NORMAL
-        oled.orientation = g_vars['display_orientation']
-        save_value("display", "orientation", g_vars['display_orientation'])
+            g_vars["display_orientation"] = DISPLAY_ORIENTATION_NORMAL
+        oled.orientation = g_vars["display_orientation"]
+        save_value("display", "orientation", g_vars["display_orientation"])
 
     def rotate_display():
         toggle_display_orientation()
-        g_vars['sig_fired'] = True
+        g_vars["sig_fired"] = True
         menu_left()
-        g_vars['sig_fired'] = False
+        g_vars["sig_fired"] = False
 
     def show_date():
         system_obj = System(g_vars)
@@ -601,9 +615,13 @@ optional options:
         system_obj.set_time_zone_auto(g_vars)
 
     def set_time_zone():
-        g_vars['timezone_selected'] = (timezones_available[g_vars['current_menu_location'][5]]['country'] +
-        "/" +
-        timezones_available[g_vars['current_menu_location'][5]]['timezones'][g_vars['current_menu_location'][6]])
+        g_vars["timezone_selected"] = (
+            timezones_available[g_vars["current_menu_location"][5]]["country"]
+            + "/"
+            + timezones_available[g_vars["current_menu_location"][5]]["timezones"][
+                g_vars["current_menu_location"][6]
+            ]
+        )
 
         system_obj = TimeZone(g_vars)
         system_obj.set_time_zone_from_gvars(g_vars)
@@ -653,17 +671,17 @@ optional options:
 
     def menu_key1():
         shortcuts = [
-            create_shortcut(menu, ["Utils",   "Reachability"]),
+            create_shortcut(menu, ["Utils", "Reachability"]),
             create_shortcut(menu, ["Network", "LLDP Neighbour"]),
-            create_shortcut(menu, ["Network", "Eth0 IP Config"])
+            create_shortcut(menu, ["Network", "Eth0 IP Config"]),
         ]
 
-        option_selected = g_vars['option_selected']
+        option_selected = g_vars["option_selected"]
 
         option_index = 0
         option_found = False
 
-        if g_vars['display_state'] == 'page':
+        if g_vars["display_state"] == "page":
             for shortcut in shortcuts:
                 if option_selected == shortcut[-1]:
                     option_found = True
@@ -682,9 +700,9 @@ optional options:
         # Key2 used to switch modes; repurposed to toggle display rotation.
         # Repaint the current view in place (the main loop's 2s cycle is slow).
         toggle_display_orientation()
-        if g_vars['display_state'] == 'page':
-            if isinstance(g_vars['option_selected'], types.FunctionType):
-                g_vars['option_selected']()
+        if g_vars["display_state"] == "page":
+            if isinstance(g_vars["option_selected"], types.FunctionType):
+                g_vars["option_selected"]()
         else:
             page_obj = Page(g_vars)
             page_obj.draw_page(g_vars, menu)
@@ -696,7 +714,7 @@ optional options:
 
         # Select the next path
         next_shortcut = reboot_shortcut
-        if g_vars['current_menu_location'][:-1] == reboot_shortcut:
+        if g_vars["current_menu_location"][:-1] == reboot_shortcut:
             next_shortcut = shutdown_shortcut
 
         # Switch to menu
@@ -704,7 +722,6 @@ optional options:
         button_obj.shortcut(g_vars, menu, next_shortcut)
 
     def create_shortcut(menu, path, location=[]):
-
         if isinstance(menu, types.FunctionType):
             if len(path) > 0:
                 raise Exception("invalid path")
@@ -723,160 +740,297 @@ optional options:
     # menu structure here
     #######################
 
-
     # translate the timezone list into menu items (needs to be after definition of set_time_zone)
     for timezones_country in timezones_available:
-        g_vars['timezones_available'].append({"name": timezones_country['country'], "action": []})
-        for timezone in timezones_country['timezones']:
-            g_vars['timezones_available'][-1]['action'].append({"name": timezone, "action": set_time_zone})
+        g_vars["timezones_available"].append(
+            {"name": timezones_country["country"], "action": []}
+        )
+        for timezone in timezones_country["timezones"]:
+            g_vars["timezones_available"][-1]["action"].append(
+                {"name": timezone, "action": set_time_zone}
+            )
 
     # assume classic mode menu initially...
     menu = [
-        {"name": "Network", "action": [
-            {"name": "Interfaces", "action": show_interfaces},
-            {"name": "WLAN Interfaces", "action": show_wlan_interfaces},
-            {"name": "Eth0 IP Config", "action": show_eth0_ipconfig},
-            {"name": "Eth0 VLAN", "action": show_vlan},
-            {"name": "LLDP Neighbour", "action": show_lldp_neighbour},
-            {"name": "CDP Neighbour", "action": show_cdp_neighbour},
-            {"name": "Public IPv4", "action": show_publicip},
-            {"name": "Public IPv6", "action": show_publicip6},
-        ]
+        {
+            "name": "Network",
+            "action": [
+                {"name": "Interfaces", "action": show_interfaces},
+                {"name": "WLAN Interfaces", "action": show_wlan_interfaces},
+                {"name": "Eth0 IP Config", "action": show_eth0_ipconfig},
+                {"name": "Eth0 VLAN", "action": show_vlan},
+                {"name": "LLDP Neighbour", "action": show_lldp_neighbour},
+                {"name": "CDP Neighbour", "action": show_cdp_neighbour},
+                {"name": "Public IPv4", "action": show_publicip},
+                {"name": "Public IPv6", "action": show_publicip6},
+            ],
         },
-        {"name": "Bluetooth", "action": [
-            {"name": "Status", "action": bluetooth_status},
-            {"name": "Turn On", "action": bluetooth_on},
-            {"name": "Turn Off", "action": bluetooth_off},
-            {"name": "Pair Device", "action": bluetooth_pair},
-        ]
+        {
+            "name": "Bluetooth",
+            "action": [
+                {"name": "Status", "action": bluetooth_status},
+                {"name": "Turn On", "action": bluetooth_on},
+                {"name": "Turn Off", "action": bluetooth_off},
+                {"name": "Pair Device", "action": bluetooth_pair},
+            ],
         },
-        {"name": "Utils", "action": [
-            {"name": "Reachability", "action": show_reachability},
-            {"name": "Speedtest", "action": [
-                {"name": "Run Test", "action": show_speedtest},
-            ]
-            },
-            {"name": "Cloud Tests", "action": [
-                {"name": "Arista CV-CUE", "action": show_arista_test},
-                {"name": "Aruba Central", "action": show_aruba_test},
-                {"name": "ExtremeCloud IQ", "action": show_extreme_test},
-                {"name": "Meraki Cloud", "action": show_meraki_test},
-                {"name": "Mist Cloud", "action": show_mist_test},
-                {"name": "RUCKUS Cloud", "action": show_ruckus_test},
-            ]
-            },
-            {"name": "Port Blinker", "action": [
-                {"name": "Start", "action": show_blinker},
-                {"name": "Stop", "action": stop_blinker},
-            ]
-            },
-            {"name": "SSID/Passphrase", "action": show_ssid_passphrase},
-            {"name": "USB Devices", "action": show_usb},
-            {"name": "UFW Ports", "action": show_ufw},
-        ]
-        },
-        {"name": "Apps", "action": [
-            {"name": "Kismet", "action": [
-                {"name": "Start", "action": kismet_start},
-                {"name": "Stop", "action": kismet_stop},
-            ]
-            },
-            {"name": "Profiler",   "action": [
-                {"name": "Status", "action":          profiler_status},
-                {"name": "Stop", "action":            profiler_stop},
-                {"name": "Start", "action":           profiler_start},
-                {"name": "Start Other", "action": [
-                    {"name": "Start 2.4 GHz", "action": profiler_start_2dot4ghz},
-                    {"name": "Start 5 GHz 36", "action": profiler_start_5ghz_unii1},
-                    {"name": "Start 5 GHz 149", "action": profiler_start_5ghz_unii3},
-                    {"name": "Start (no 11r)", "action":  profiler_start_no11r},
-                    {"name": "Start (no 11ax)", "action": profiler_start_no11ax}
-                ]
+        {
+            "name": "Utils",
+            "action": [
+                {"name": "Reachability", "action": show_reachability},
+                {
+                    "name": "Speedtest",
+                    "action": [
+                        {"name": "Run Test", "action": show_speedtest},
+                    ],
                 },
-                {"name": "Purge Reports", "action": [
-                    {"name": "Confirm", "action": profiler_purge_reports},
-                ]
+                {
+                    "name": "Cloud Tests",
+                    "action": [
+                        {"name": "Arista CV-CUE", "action": show_arista_test},
+                        {"name": "Aruba Central", "action": show_aruba_test},
+                        {"name": "ExtremeCloud IQ", "action": show_extreme_test},
+                        {"name": "Meraki Cloud", "action": show_meraki_test},
+                        {"name": "Mist Cloud", "action": show_mist_test},
+                        {"name": "RUCKUS Cloud", "action": show_ruckus_test},
+                    ],
                 },
-                {"name": "Purge Files", "action": [
-                    {"name": "Confirm", "action": profiler_purge_files},
-                ]
-                }
-            ]
-            },
-            {"name": "Scanner", "action": [
-                {"name": "Scan", "action": scanner_scan},
-                {"name": "Scan (no hidden)", "action": scanner_scan_nohidden},
-                {"name": "Scan to CSV", "action": scanner_scan_tofile_csv},
-                {"name": "Scan to PCAP", "action": [
-                    {"name": "Start", "action" : scanner_scan_tofile_pcap_start},
-                    {"name": "Stop", "action" : scanner_scan_tofile_pcap_stop}
-                ]}
-            ]
-            },
-        ]
+                {
+                    "name": "Port Blinker",
+                    "action": [
+                        {"name": "Start", "action": show_blinker},
+                        {"name": "Stop", "action": stop_blinker},
+                    ],
+                },
+                {"name": "SSID/Passphrase", "action": show_ssid_passphrase},
+                {"name": "USB Devices", "action": show_usb},
+                {"name": "UFW Ports", "action": show_ufw},
+            ],
         },
-        {"name": "System", "action": [
-            {"name": "About", "action": show_about},
-            {"name": "Help", "action": show_help},
-            {"name": "Summary", "action": show_summary},
-            {"name": "Battery", "action": show_battery},
-            {"name": "Settings", "action": [
-                {"name": "Date & Time", "action": [
-                    {"name": "Show Time & Zone", "action": show_date},
-                    {"name": "Set Timezone", "action": [
-                        {"name": "Auto", "action" : set_time_zone_auto},
-                        {"name": "Manual", "action": g_vars['timezones_available']}
-                    ]},
-                ]},
-                {"name": "RF Domain", "action": [
-                    {"name": "Show Domain", "action": show_reg_domain},
-                    {"name": "Set Domain US", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_us},]},
-                    {"name": "Set Domain BR", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_br},]},
-                    {"name": "Set Domain CA", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_ca},]},
-                    {"name": "Set Domain CZ", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_cz},]},
-                    {"name": "Set Domain DE", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_de},]},
-                    {"name": "Set Domain FR", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_fr},]},
-                    {"name": "Set Domain GB", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_gb},]},
-                    {"name": "Set Domain NL", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_nl},]},
-                    {"name": "Set Domain NO", "action": [
-                        {"name": "Confirm & Reboot", "action": set_reg_domain_no},]},
-                ]},
-                {"name": "Rotate Display", "action": rotate_display}
-            ]},
-            {"name": "Reboot",   "action": [
-                {"name": "Confirm", "action": reboot},
-            ]
-            },
-            {"name": "Shutdown", "action": [
-                {"name": "Confirm", "action": shutdown},
-            ]
-            },
-        ]
+        {
+            "name": "Apps",
+            "action": [
+                {
+                    "name": "Kismet",
+                    "action": [
+                        {"name": "Start", "action": kismet_start},
+                        {"name": "Stop", "action": kismet_stop},
+                    ],
+                },
+                {
+                    "name": "Profiler",
+                    "action": [
+                        {"name": "Status", "action": profiler_status},
+                        {"name": "Stop", "action": profiler_stop},
+                        {"name": "Start", "action": profiler_start},
+                        {
+                            "name": "Start Other",
+                            "action": [
+                                {
+                                    "name": "Start 2.4 GHz",
+                                    "action": profiler_start_2dot4ghz,
+                                },
+                                {
+                                    "name": "Start 5 GHz 36",
+                                    "action": profiler_start_5ghz_unii1,
+                                },
+                                {
+                                    "name": "Start 5 GHz 149",
+                                    "action": profiler_start_5ghz_unii3,
+                                },
+                                {
+                                    "name": "Start (no 11r)",
+                                    "action": profiler_start_no11r,
+                                },
+                                {
+                                    "name": "Start (no 11ax)",
+                                    "action": profiler_start_no11ax,
+                                },
+                            ],
+                        },
+                        {
+                            "name": "Purge Reports",
+                            "action": [
+                                {"name": "Confirm", "action": profiler_purge_reports},
+                            ],
+                        },
+                        {
+                            "name": "Purge Files",
+                            "action": [
+                                {"name": "Confirm", "action": profiler_purge_files},
+                            ],
+                        },
+                    ],
+                },
+                {
+                    "name": "Scanner",
+                    "action": [
+                        {"name": "Scan", "action": scanner_scan},
+                        {"name": "Scan (no hidden)", "action": scanner_scan_nohidden},
+                        {"name": "Scan to CSV", "action": scanner_scan_tofile_csv},
+                        {
+                            "name": "Scan to PCAP",
+                            "action": [
+                                {
+                                    "name": "Start",
+                                    "action": scanner_scan_tofile_pcap_start,
+                                },
+                                {
+                                    "name": "Stop",
+                                    "action": scanner_scan_tofile_pcap_stop,
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            "name": "System",
+            "action": [
+                {"name": "About", "action": show_about},
+                {"name": "Help", "action": show_help},
+                {"name": "Summary", "action": show_summary},
+                {"name": "Battery", "action": show_battery},
+                {
+                    "name": "Settings",
+                    "action": [
+                        {
+                            "name": "Date & Time",
+                            "action": [
+                                {"name": "Show Time & Zone", "action": show_date},
+                                {
+                                    "name": "Set Timezone",
+                                    "action": [
+                                        {"name": "Auto", "action": set_time_zone_auto},
+                                        {
+                                            "name": "Manual",
+                                            "action": g_vars["timezones_available"],
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        {
+                            "name": "RF Domain",
+                            "action": [
+                                {"name": "Show Domain", "action": show_reg_domain},
+                                {
+                                    "name": "Set Domain US",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_us,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain BR",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_br,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain CA",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_ca,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain CZ",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_cz,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain DE",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_de,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain FR",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_fr,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain GB",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_gb,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain NL",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_nl,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain NO",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_no,
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                        {"name": "Rotate Display", "action": rotate_display},
+                    ],
+                },
+                {
+                    "name": "Reboot",
+                    "action": [
+                        {"name": "Confirm", "action": reboot},
+                    ],
+                },
+                {
+                    "name": "Shutdown",
+                    "action": [
+                        {"name": "Confirm", "action": shutdown},
+                    ],
+                },
+            ],
         },
     ]
 
     # update menu options data structure if we're in non-classic mode
-    if g_vars['current_mode'] == "hotspot":
-        g_vars['home_page_name'] = "Hotspot"
+    if g_vars["current_mode"] == "hotspot":
+        g_vars["home_page_name"] = "Hotspot"
 
-    if g_vars['current_mode'] == "wiperf":
-        g_vars['home_page_name'] = "Wiperf"
+    if g_vars["current_mode"] == "wiperf":
+        g_vars["home_page_name"] = "Wiperf"
 
-    if g_vars['current_mode'] == "server":
-        g_vars['home_page_name'] = "Server"
+    if g_vars["current_mode"] == "server":
+        g_vars["home_page_name"] = "Server"
 
-    if g_vars['current_mode'] == "bridge":
-        g_vars['home_page_name'] = "Bridge"
+    if g_vars["current_mode"] == "bridge":
+        g_vars["home_page_name"] = "Bridge"
 
-    if g_vars['current_mode'] == "classic":
+    if g_vars["current_mode"] == "classic":
         # Remove Utils > SSID/Passphrase
         for item in menu:
             if item["name"] == "Utils":
@@ -892,104 +1046,103 @@ optional options:
 
     # Set up handlers to process key presses
     def button_press(gpio_pin, g_vars=g_vars):
-
-        DOWN_KEY = BUTTONS_PINS['down']
-        UP_KEY = BUTTONS_PINS['up']
-        RIGHT_KEY = BUTTONS_PINS['right']
-        LEFT_KEY = BUTTONS_PINS['left']
-        CENTER_KEY = BUTTONS_PINS['center']
+        DOWN_KEY = BUTTONS_PINS["down"]
+        UP_KEY = BUTTONS_PINS["up"]
+        RIGHT_KEY = BUTTONS_PINS["right"]
+        LEFT_KEY = BUTTONS_PINS["left"]
+        CENTER_KEY = BUTTONS_PINS["center"]
         KEY1 = None
         KEY2 = None
         KEY3 = None
 
-        if 'key1' in BUTTONS_PINS:
-            KEY1 = BUTTONS_PINS['key1']
+        if "key1" in BUTTONS_PINS:
+            KEY1 = BUTTONS_PINS["key1"]
 
-        if 'key2' in BUTTONS_PINS:
-            KEY2 = BUTTONS_PINS['key2']
+        if "key2" in BUTTONS_PINS:
+            KEY2 = BUTTONS_PINS["key2"]
 
-        if 'key3' in BUTTONS_PINS:
-            KEY3 = BUTTONS_PINS['key3']
+        if "key3" in BUTTONS_PINS:
+            KEY3 = BUTTONS_PINS["key3"]
 
-        if g_vars['disable_keys'] == True:
+        if g_vars["disable_keys"] == True:
             # someone disabled the front panel keys as they don't want to be interrupted
             return
 
-        if (g_vars['sig_fired']):
+        if g_vars["sig_fired"]:
             # signal handler already in progress, ignore this one
             return
 
         # user pressed a button, reset the sleep counter
-        g_vars['pageSleepCountdown'] = PAGE_SLEEP
+        g_vars["pageSleepCountdown"] = PAGE_SLEEP
 
-        g_vars['start_up'] = False
+        g_vars["start_up"] = False
 
-        if g_vars['drawing_in_progress'] or g_vars['shutdown_in_progress']:
+        if g_vars["drawing_in_progress"] or g_vars["shutdown_in_progress"]:
             return
 
         # increment the button press counter to indicate the something has been done
         # and a page refresh is required
-        g_vars['button_press_count'] += 1
+        g_vars["button_press_count"] += 1
 
         # if display has been switched off to save screen, power back on and show home menu
-        if g_vars['screen_cleared']:
+        if g_vars["screen_cleared"]:
             wakeup_screen()
             return
 
         # Down key pressed
         if gpio_pin == DOWN_KEY:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_down()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
         # Down key pressed
         if gpio_pin == UP_KEY:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_up()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
         # Right/Selection key pressed
         if gpio_pin == RIGHT_KEY:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_right()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
         # Left/Back key
         if gpio_pin == LEFT_KEY:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_left()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
         # Center key
         if gpio_pin == CENTER_KEY:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_center()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
         # Key 1
         if gpio_pin == KEY1:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_key1()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
         # Key 2
         if gpio_pin == KEY2:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_key2()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
         # Key 3
         if gpio_pin == KEY3:
-            g_vars['sig_fired'] = True
+            g_vars["sig_fired"] = True
             menu_key3()
-            g_vars['sig_fired'] = False
+            g_vars["sig_fired"] = False
             return
 
     ###############################################################################
@@ -999,7 +1152,7 @@ optional options:
     ###############################################################################
 
     # First time around (power-up), draw logo on display
-    '''
+    """
     rogues_gallery = [
         IMAGE_DIR + '/wlanprologo',
         IMAGE_DIR + '/wlanprologo.png',
@@ -1015,7 +1168,7 @@ optional options:
     image0 = Image.open(random_image).convert(DISPLAY_MODE)
     oled.drawImage(image0)
     time.sleep(2.0)
-    '''
+    """
 
     ###############################################################################
     # Splash screen
@@ -1023,11 +1176,11 @@ optional options:
 
     # First time around (power-up), animate logo on display
     splash_screen_images = [
-        IMAGE_DIR + '/wlanpi0.png',
-        IMAGE_DIR + '/wlanpi1.png',
-        IMAGE_DIR + '/wlanpi2.png',
-        IMAGE_DIR + '/wlanpi3.png',
-        IMAGE_DIR + '/wlanpi4.png'
+        IMAGE_DIR + "/wlanpi0.png",
+        IMAGE_DIR + "/wlanpi1.png",
+        IMAGE_DIR + "/wlanpi2.png",
+        IMAGE_DIR + "/wlanpi3.png",
+        IMAGE_DIR + "/wlanpi4.png",
     ]
 
     for image in splash_screen_images:
@@ -1045,70 +1198,69 @@ optional options:
     # Set signal handlers for button presses - these fire every time a button
     # is pressed
     def up_key():
-        button_press(BUTTONS_PINS['up'], g_vars)
+        button_press(BUTTONS_PINS["up"], g_vars)
 
     def down_key():
-        button_press(BUTTONS_PINS['down'], g_vars)
+        button_press(BUTTONS_PINS["down"], g_vars)
 
     def left_key():
-        button_press(BUTTONS_PINS['left'], g_vars)
+        button_press(BUTTONS_PINS["left"], g_vars)
 
     def right_key():
-        button_press(BUTTONS_PINS['right'], g_vars)
+        button_press(BUTTONS_PINS["right"], g_vars)
 
     def center_key():
-        button_press(BUTTONS_PINS['center'], g_vars)
+        button_press(BUTTONS_PINS["center"], g_vars)
 
     def key_1():
-        button_press(BUTTONS_PINS['key1'], g_vars)
+        button_press(BUTTONS_PINS["key1"], g_vars)
 
     def key_2():
-        button_press(BUTTONS_PINS['key2'], g_vars)
+        button_press(BUTTONS_PINS["key2"], g_vars)
 
     def key_3():
-        button_press(BUTTONS_PINS['key3'], g_vars)
+        button_press(BUTTONS_PINS["key3"], g_vars)
 
     def monitor_buttons():
-
         with button_request as request:
             while True:
                 request.wait_edge_events(1)
                 events = request.read_edge_events()
 
                 for event in events:
-                    if g_vars['display_orientation'] == DISPLAY_ORIENTATION_FLIPPED:
-                        if event.line_offset == BUTTONS_PINS['up']:
+                    if g_vars["display_orientation"] == DISPLAY_ORIENTATION_FLIPPED:
+                        if event.line_offset == BUTTONS_PINS["up"]:
                             down_key()
-                        elif event.line_offset == BUTTONS_PINS['down']:
+                        elif event.line_offset == BUTTONS_PINS["down"]:
                             up_key()
-                        elif event.line_offset == BUTTONS_PINS['left']:
+                        elif event.line_offset == BUTTONS_PINS["left"]:
                             right_key()
-                        elif event.line_offset == BUTTONS_PINS['right']:
+                        elif event.line_offset == BUTTONS_PINS["right"]:
                             left_key()
-                        elif event.line_offset == BUTTONS_PINS['center']:
+                        elif event.line_offset == BUTTONS_PINS["center"]:
                             center_key()
-                        elif event.line_offset == BUTTONS_PINS['key1']:
+                        elif event.line_offset == BUTTONS_PINS["key1"]:
                             key_3()
-                        elif event.line_offset == BUTTONS_PINS['key2']:
+                        elif event.line_offset == BUTTONS_PINS["key2"]:
                             key_2()
-                        elif event.line_offset == BUTTONS_PINS['key3']:
+                        elif event.line_offset == BUTTONS_PINS["key3"]:
                             key_1()
                     else:
-                        if event.line_offset == BUTTONS_PINS['up']:
+                        if event.line_offset == BUTTONS_PINS["up"]:
                             up_key()
-                        elif event.line_offset == BUTTONS_PINS['down']:
+                        elif event.line_offset == BUTTONS_PINS["down"]:
                             down_key()
-                        elif event.line_offset == BUTTONS_PINS['left']:
+                        elif event.line_offset == BUTTONS_PINS["left"]:
                             left_key()
-                        elif event.line_offset == BUTTONS_PINS['right']:
+                        elif event.line_offset == BUTTONS_PINS["right"]:
                             right_key()
-                        elif event.line_offset == BUTTONS_PINS['center']:
+                        elif event.line_offset == BUTTONS_PINS["center"]:
                             center_key()
-                        elif event.line_offset == BUTTONS_PINS['key1']:
+                        elif event.line_offset == BUTTONS_PINS["key1"]:
                             key_1()
-                        elif event.line_offset == BUTTONS_PINS['key2']:
+                        elif event.line_offset == BUTTONS_PINS["key2"]:
                             key_2()
-                        elif event.line_offset == BUTTONS_PINS['key3']:
+                        elif event.line_offset == BUTTONS_PINS["key3"]:
                             key_3()
 
     if button_request is not None:
@@ -1116,11 +1268,13 @@ optional options:
         m.daemon = True
         m.start()
     else:
-        log_to_syslog("No /dev/gpiochip0 found; hardware buttons unavailable (use -e for keyboard emulation)")
+        log_to_syslog(
+            "No /dev/gpiochip0 found; hardware buttons unavailable (use -e for keyboard emulation)"
+        )
 
-    button_key1_present = 'key1' in BUTTONS_PINS
-    button_key2_present = 'key2' in BUTTONS_PINS
-    button_key3_present = 'key3' in BUTTONS_PINS
+    button_key1_present = "key1" in BUTTONS_PINS
+    button_key2_present = "key2" in BUTTONS_PINS
+    button_key3_present = "key3" in BUTTONS_PINS
 
     running = True
 
@@ -1140,46 +1294,45 @@ optional options:
         return ch
 
     def emulate_buttons():
-
         global running
 
         while True:
             char = getch()
 
-            if (char == "k" or char == "K"):
+            if char == "k" or char == "K":
                 # getch() has already restored the terminal; exit at once
                 # instead of waiting for the main loop's 2s nap to notice.
                 running = False
                 os._exit(0)
 
-            if (char == "g" or char == "G"):
+            if char == "g" or char == "G":
                 capture_screen()
 
-            if (char == "8" or char == "w"):
+            if char == "8" or char == "w":
                 up_key()
 
-            if (char == "2" or char == "x"):
+            if char == "2" or char == "x":
                 down_key()
 
-            if (char == "4" or char == "a"):
+            if char == "4" or char == "a":
                 left_key()
 
-            if (char == "6" or char == "d"):
+            if char == "6" or char == "d":
                 right_key()
 
-            if (char == "5" or char == "s"):
+            if char == "5" or char == "s":
                 center_key()
 
             if button_key1_present:
-                if (char == "*" or char == "i"):
+                if char == "*" or char == "i":
                     key_1()
 
             if button_key2_present:
-                if (char == "-" or char == "o"):
+                if char == "-" or char == "o":
                     key_2()
 
             if button_key3_present:
-                if (char == "+" or char == "p"):
+                if char == "+" or char == "p":
                     key_3()
 
     if emulate:
@@ -1198,36 +1351,36 @@ optional options:
     # Helper functions
     ##############################################################################
     def capture_screen():
-        g_vars['sig_fired'] = True
+        g_vars["sig_fired"] = True
         screenshots_dir = "/home/wlanpi/screenshots"
         if not os.path.exists(screenshots_dir):
             os.makedirs(screenshots_dir)
         timestr = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
         save_file = screenshots_dir + "/screenshot_" + timestr + ".png"
-        g_vars['image'].save(save_file)
+        g_vars["image"].save(save_file)
         print(save_file)
-        g_vars['sig_fired'] = False
+        g_vars["sig_fired"] = False
 
     def sleep_screen():
         oled.sleep()
-        g_vars['screen_cleared'] = True
+        g_vars["screen_cleared"] = True
 
     def wakeup_screen():
         oled.wakeup()
-        g_vars['screen_cleared'] = False
-        g_vars['pageSleepCountdown'] = PAGE_SLEEP
+        g_vars["screen_cleared"] = False
+        g_vars["pageSleepCountdown"] = PAGE_SLEEP
 
     def check_eth():
-        '''
+        """
         Detects a change in the status of the Ethernet port and wakes up
         the screen if necessary
-        '''
+        """
         try:
             cmd = "cat /sys/class/net/eth0/carrier"
             carrier = int(subprocess.check_output(cmd, shell=True).decode().strip())
-            if g_vars['eth_carrier_status'] != carrier:
+            if g_vars["eth_carrier_status"] != carrier:
                 wakeup_screen()
-            g_vars['eth_carrier_status'] = carrier
+            g_vars["eth_carrier_status"] = carrier
         except subprocess.CalledProcessError as exc:
             pass
 
@@ -1253,26 +1406,28 @@ optional options:
     # IDs when different parts of the script are executing.
     ##############################################################################
     while running:
-
         try:
-
             # check if eth0 link status has changed so we exit from screen save if needed
             check_eth()
 
-            if g_vars['shutdown_in_progress'] or g_vars['screen_cleared'] or g_vars['drawing_in_progress'] or g_vars['sig_fired']:
-
+            if (
+                g_vars["shutdown_in_progress"]
+                or g_vars["screen_cleared"]
+                or g_vars["drawing_in_progress"]
+                or g_vars["sig_fired"]
+            ):
                 # we don't really want to do anything at the moment, lets
                 # nap and loop around
                 time.sleep(2)
                 continue
 
             # Draw a menu or execute current action (dispatcher)
-            if g_vars['display_state'] != 'menu':
+            if g_vars["display_state"] != "menu":
                 # no menu shown, so must be executing action.
 
                 # if we've just booted up, show home page
-                if g_vars['start_up'] == True:
-                    g_vars['option_selected'] = home_page
+                if g_vars["start_up"] == True:
+                    g_vars["option_selected"] = home_page
 
                 # Re-run current action to refresh screen
                 #
@@ -1284,8 +1439,8 @@ optional options:
                 # print(g_vars['option_selected'])
                 # print(type(g_vars['option_selected']))
 
-                if isinstance(g_vars['option_selected'], types.FunctionType):
-                    g_vars['option_selected']()
+                if isinstance(g_vars["option_selected"], types.FunctionType):
+                    g_vars["option_selected"]()
 
             else:
                 # lets try drawing our page (or refresh if already painted)
@@ -1295,17 +1450,17 @@ optional options:
                 # In reality, this condition will rarely (if ever) be true
                 # as the page painting is driven from the key press which
                 # interrupts this flow anyhow. Left in as a safeguard
-                if g_vars['button_press_count'] > g_vars['last_button_press_count']:
+                if g_vars["button_press_count"] > g_vars["last_button_press_count"]:
                     page_obj = Page(g_vars)
                     page_obj.draw_page(g_vars, menu)
 
             # if screen timeout is zero, clear it if not already done (blank the
             # display to reduce screenburn)
-            if g_vars['pageSleepCountdown'] == 0 and g_vars['screen_cleared'] == False:
+            if g_vars["pageSleepCountdown"] == 0 and g_vars["screen_cleared"] == False:
                 sleep_screen()
 
-            if g_vars['pageSleepCountdown'] > 0:
-                g_vars['pageSleepCountdown'] = g_vars['pageSleepCountdown'] - 1
+            if g_vars["pageSleepCountdown"] > 0:
+                g_vars["pageSleepCountdown"] = g_vars["pageSleepCountdown"] - 1
 
             # have a nap before we start our next loop
             time.sleep(2)
@@ -1315,13 +1470,13 @@ optional options:
         except IOError as ex:
             print("Error " + str(ex))
 
-        g_vars['last_button_press_count'] = g_vars['button_press_count']
+        g_vars["last_button_press_count"] = g_vars["button_press_count"]
 
-    '''
+    """
     Discounted ideas
 
         1. Vary sleep timer for main while loop (e.g. longer for less frequently
            updating data) - doesn;t work as main while loop may be in middle of
            long sleep when button action taken, so screen refresh very long.
 
-    '''
+    """

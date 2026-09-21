@@ -7,14 +7,11 @@ import sys
 from fpms.modules.pages.simpletable import SimpleTable
 from fpms.modules.pages.pagedtable import PagedTable
 from fpms.modules.pages.alert import Alert
-from fpms.modules.constants import (
-    REG_DOMAIN_FILE
-)
+from fpms.modules.constants import REG_DOMAIN_FILE
+
 
 class RegDomain(object):
-
     def __init__(self, g_vars):
-
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
@@ -24,156 +21,183 @@ class RegDomain(object):
     def show_reg_domain(self, g_vars):
         output = []
         try:
-            output = subprocess.check_output(f"{REG_DOMAIN_FILE} get", shell=True).decode().strip().split("\n")
+            output = (
+                subprocess.check_output(f"{REG_DOMAIN_FILE} get", shell=True)
+                .decode()
+                .strip()
+                .split("\n")
+            )
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to get domain or no domain configured')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(
+                g_vars, "Failed to get domain or no domain configured"
+            )
+            g_vars["display_state"] = "menu"
             return
-        output[0] = 'RF Domain: ' + output[0]
-        self.paged_table_obj.display_list_as_paged_table(g_vars, output, title="Show Domain")
-        g_vars['display_state'] = 'page'
+        output[0] = "RF Domain: " + output[0]
+        self.paged_table_obj.display_list_as_paged_table(
+            g_vars, output, title="Show Domain"
+        )
+        g_vars["display_state"] = "page"
 
     def set_reg_domain_us(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set US --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set US --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_ca(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set CA --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set CA --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_gb(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set GB --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set GB --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_br(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set BR --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set BR --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_fr(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set FR --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set FR --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_cz(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set CZ --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set CZ --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_nl(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set NL --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set NL --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_de(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set DE --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set DE --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return
 
     def set_reg_domain_no(self, g_vars):
-        self.alert_obj.display_popup_alert(g_vars, 'Setting domain', delay=2)
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
         try:
-            alert_msg = subprocess.check_output(f"{REG_DOMAIN_FILE} set NO --no-prompt", shell=True).decode()
+            alert_msg = subprocess.check_output(
+                f"{REG_DOMAIN_FILE} set NO --no-prompt", shell=True
+            ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
             print(exc)
-            self.alert_obj.display_alert_error(g_vars, 'Failed to set domain')
-            g_vars['display_state'] = 'menu'
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, 'Success. Reboot req.', delay=2.5)
-        g_vars['display_state'] = 'menu'
+        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        g_vars["display_state"] = "menu"
         return

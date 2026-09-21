@@ -1,8 +1,8 @@
 """
 
-    A set of utilities that query vary aspects of the environment in which
-    FPMS is running. These will be replcaed by back-end API calls in the
-    longer term
+A set of utilities that query vary aspects of the environment in which
+FPMS is running. These will be replcaed by back-end API calls in the
+longer term
 """
 
 import subprocess
@@ -16,13 +16,13 @@ from PIL import Image
 from fpms.modules.platform import *
 from fpms.modules.display import *
 
-class EnvUtils(object):
 
+class EnvUtils(object):
     def __init__(self):
         pass
 
     def get_platform(self, WLANPI_MODEL_FILE):
-        '''
+        """
         Method to determine which platform we're running on.
         Uses output of "cat /proc/cpuinfo"
 
@@ -33,84 +33,90 @@ class EnvUtils(object):
            RPi4:   Raspberry Pi 4 Model B Rev 1.1
 
         Errors sent to stdout, but will not exit on error
-        '''
+        """
 
         platform = PLATFORM_UNKNOWN
 
         if os.path.isfile(WLANPI_MODEL_FILE):
-            with open(WLANPI_MODEL_FILE, 'r') as f:
+            with open(WLANPI_MODEL_FILE, "r") as f:
                 platform = f.readline().strip()
 
         if platform == PLATFORM_UNKNOWN:
             # get output of wlanpi-model
-            model_cmd = "wlanpi-model | grep \"Model:\" | cut -d \":\" -f2 | xargs"
+            model_cmd = 'wlanpi-model | grep "Model:" | cut -d ":" -f2 | xargs'
             try:
-                platform = subprocess.check_output(model_cmd, shell=True).decode().strip()
+                platform = (
+                    subprocess.check_output(model_cmd, shell=True).decode().strip()
+                )
             except subprocess.CalledProcessError as exc:
                 return PLATFORM_UNKNOWN
 
-        if platform.endswith('?'):
+        if platform.endswith("?"):
             platform = PLATFORM_UNKNOWN
 
         return platform
 
-
     def get_display_type(self, platform):
-
-         if platform == PLATFORM_PRO:
-             return DISPLAY_TYPE_SSD1351
-         else:
-             return DISPLAY_TYPE_ST7735
-
+        if platform == PLATFORM_PRO:
+            return DISPLAY_TYPE_SSD1351
+        else:
+            return DISPLAY_TYPE_ST7735
 
     def get_mode(self, MODE_FILE):
-
-        valid_modes = ['classic', 'hotspot', 'wiperf', 'server', 'bridge']
+        valid_modes = ["classic", "hotspot", "wiperf", "server", "bridge"]
 
         # check mode file exists and read mode...create with classic mode if not
         if os.path.isfile(MODE_FILE):
-            with open(MODE_FILE, 'r') as f:
+            with open(MODE_FILE, "r") as f:
                 current_mode = f.readline().strip()
 
             # send msg to stdout & exit if mode invalid
             if not current_mode in valid_modes:
-                print("The mode read from {} is not a valid mode of operation: {}". format(MODE_FILE, current_mode))
+                print(
+                    "The mode read from {} is not a valid mode of operation: {}".format(
+                        MODE_FILE, current_mode
+                    )
+                )
                 sys.exit()
         else:
             # create the mode file as it does not exist
-            with open(MODE_FILE, 'w') as f:
-                current_mode = 'classic'
+            with open(MODE_FILE, "w") as f:
+                current_mode = "classic"
                 f.write(current_mode)
 
         return current_mode
 
-
     def get_image_ver(self, WLANPI_IMAGE_FILE):
-
         wlanpi_ver = "unknown"
 
         if os.path.isfile(WLANPI_IMAGE_FILE):
-            with open(WLANPI_IMAGE_FILE, 'r') as f:
+            with open(WLANPI_IMAGE_FILE, "r") as f:
                 lines = f.readlines()
 
             # pull out the version number for the FPMS home page
             for line in lines:
                 (name, value) = line.split("=")
-                if name=="VERSION":
+                if name == "VERSION":
                     wlanpi_ver = value.strip()
                     break
 
         return wlanpi_ver
 
-
     def get_hostname(self):
-
         try:
-            hostname = subprocess.check_output('/usr/bin/hostname', shell=True).decode().strip()
+            hostname = (
+                subprocess.check_output("/usr/bin/hostname", shell=True)
+                .decode()
+                .strip()
+            )
             if not "." in hostname:
                 domain = "local"
                 try:
-                    output = subprocess.check_output('/usr/bin/hostname -d', shell=True).decode().strip()
+                    output = (
+                        subprocess.check_output("/usr/bin/hostname -d", shell=True)
+                        .decode()
+                        .strip()
+                    )
                     if len(output) != 0:
                         domain = output
                 except:
@@ -122,15 +128,21 @@ class EnvUtils(object):
 
         return None
 
-
     def get_wifi_qrcode_for_hostapd(self):
-        '''
+        """
         Generates and returns the path to a WiFi QR code for the current Hostapd config.
-        '''
-        cmd = "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
+        """
+        cmd = (
+            "grep -E '^ssid|^wpa_passphrase' /etc/hostapd/hostapd.conf | cut -d '=' -f2"
+        )
 
         try:
-            ssid, passphrase = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL).decode().strip().split("\n")
+            ssid, passphrase = (
+                subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
+                .decode()
+                .strip()
+                .split("\n")
+            )
             return self.get_wifi_qrcode(ssid, passphrase)
 
         except Exception as e:
@@ -139,28 +151,30 @@ class EnvUtils(object):
 
         return None
 
-
     def get_wifi_qrcode(self, ssid, passphrase):
         qrcode_spec = "WIFI:S:{};T:WPA;P:{};;".format(ssid, passphrase)
         qrcode_hash = hashlib.sha256(qrcode_spec.encode()).hexdigest()
         qrcode_path = "/tmp/{}.png".format(qrcode_hash)
 
         if not os.path.exists(qrcode_path):
-            qr = qrcode.QRCode(box_size=2, border=2, error_correction=qrcode.constants.ERROR_CORRECT_M)
+            qr = qrcode.QRCode(
+                box_size=2, border=2, error_correction=qrcode.constants.ERROR_CORRECT_M
+            )
             qr.add_data(qrcode_spec)
             qr.make(fit=True)
             qr.make_image().save(qrcode_path)
 
         return qrcode_path
 
-
-    def get_help_qrcode(self, watermark=''):
+    def get_help_qrcode(self, watermark=""):
         qrcode_spec = "http://userguide.wlanpi.com/"
         qrcode_hash = hashlib.sha256(qrcode_spec.encode()).hexdigest()
         qrcode_path = "/tmp/{}.png".format(qrcode_hash)
 
         if not os.path.exists(qrcode_path):
-            qr = qrcode.QRCode(box_size=2, border=2, error_correction=qrcode.constants.ERROR_CORRECT_M)
+            qr = qrcode.QRCode(
+                box_size=2, border=2, error_correction=qrcode.constants.ERROR_CORRECT_M
+            )
             qr.add_data(qrcode_spec)
             qr.make(fit=True)
             img = qr.make_image()
@@ -180,7 +194,10 @@ class EnvUtils(object):
                     wmark_width, wmark_height = wmark.size
 
                     # Calculate position and paste watermark
-                    position = ((qr_width - wmark_width) // 2, (qr_height - wmark_height) // 2)
+                    position = (
+                        (qr_width - wmark_width) // 2,
+                        (qr_height - wmark_height) // 2,
+                    )
                     img.paste(wmark, position)
 
             # Cache QR code

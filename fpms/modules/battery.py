@@ -7,14 +7,11 @@ import sys
 from fpms.modules.pages.simpletable import SimpleTable
 from fpms.modules.pages.pagedtable import PagedTable
 from fpms.modules.pages.alert import Alert
-from fpms.modules.constants import (
-    BATTERY_STATUS_FILE
-)
+from fpms.modules.constants import BATTERY_STATUS_FILE
+
 
 class Battery(object):
-
     def __init__(self, g_vars):
-
         # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
@@ -22,7 +19,7 @@ class Battery(object):
         self.alert_obj = Alert(g_vars)
 
         # load battery status info
-        self.info = { "POWER_SUPPLY_PRESENT" : "0" }
+        self.info = {"POWER_SUPPLY_PRESENT": "0"}
         try:
             with open(BATTERY_STATUS_FILE) as f:
                 self.info = dict([line.rstrip().split("=") for line in f])
@@ -52,7 +49,9 @@ class Battery(object):
             elif voltage_now <= voltage_min:
                 charge = 0
             else:
-                charge = ((voltage_now - voltage_min) * 100) / (voltage_max - voltage_min)
+                charge = ((voltage_now - voltage_min) * 100) / (
+                    voltage_max - voltage_min
+                )
 
         return charge
 
@@ -77,7 +76,7 @@ class Battery(object):
 
         if not self.battery_present():
             self.alert_obj.display_alert_error(g_vars, "Battery not found.")
-            g_vars['display_state'] = 'page'
+            g_vars["display_state"] = "page"
             return
 
         status.append(f"Status: {self.battery_status().capitalize()}")
@@ -85,5 +84,7 @@ class Battery(object):
         status.append(f"Voltage: {round(self.battery_voltage() / 1000000, 2)}V")
         status.append(f"Cycle Count: {self.battery_cycle_count()}")
 
-        self.paged_table_obj.display_list_as_paged_table(g_vars, status, title="Battery")
-        g_vars['display_state'] = 'page'
+        self.paged_table_obj.display_list_as_paged_table(
+            g_vars, status, title="Battery"
+        )
+        g_vars["display_state"] = "page"

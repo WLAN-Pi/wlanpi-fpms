@@ -22,11 +22,22 @@ LCD_Y_MAXPIXEL = 162  # LCD height maximum memory
 # scanning method
 SCAN_DIR_DFT = 6  # U2D_R2L
 
+
 class RaspberryPi:
     # spi is opened lazily, not as a default arg: a default arg is evaluated at
     # class-definition (import) time, which crashes with FileNotFoundError on any
     # machine without /dev/spidev0.0 (e.g. a VM with no display hardware).
-    def __init__(self, spi=None, spi_freq=40000000, rst=27, dc=25, bl=24, bl_freq=1000, i2c=None, i2c_freq=100000):
+    def __init__(
+        self,
+        spi=None,
+        spi_freq=40000000,
+        rst=27,
+        dc=25,
+        bl=24,
+        bl_freq=1000,
+        i2c=None,
+        i2c_freq=100000,
+    ):
         self.INPUT = False
         self.OUTPUT = True
 
@@ -92,6 +103,7 @@ class RaspberryPi:
         self.GPIO_BL_PIN.close()
         time.sleep(0.001)
 
+
 class LCD(RaspberryPi):
     width, height = LCD_WIDTH, LCD_HEIGHT
     LCD_Scan_Dir = SCAN_DIR_DFT
@@ -116,7 +128,7 @@ class LCD(RaspberryPi):
     def LCD_WriteData_NLen16Bit(self, Data, DataLen):
         self.digital_write(self.GPIO_DC_PIN, True)
         for _ in range(DataLen):
-            self.spi_writebyte([Data >> 8, Data & 0xff])
+            self.spi_writebyte([Data >> 8, Data & 0xFF])
 
     def LCD_InitReg(self):
         init_sequence = [
@@ -130,11 +142,51 @@ class LCD(RaspberryPi):
             (0xC3, [0x8A, 0x2A]),
             (0xC4, [0x8A, 0xEE]),
             (0xC5, [0x0E]),
-            (0xe0, [0x0f, 0x1a, 0x0f, 0x18, 0x2f, 0x28, 0x20, 0x22, 0x1f, 0x1b, 0x23, 0x37, 0x00, 0x07, 0x02, 0x10]),
-            (0xe1, [0x0f, 0x1b, 0x0f, 0x17, 0x33, 0x2c, 0x29, 0x2e, 0x30, 0x30, 0x39, 0x3f, 0x00, 0x07, 0x03, 0x10]),
+            (
+                0xE0,
+                [
+                    0x0F,
+                    0x1A,
+                    0x0F,
+                    0x18,
+                    0x2F,
+                    0x28,
+                    0x20,
+                    0x22,
+                    0x1F,
+                    0x1B,
+                    0x23,
+                    0x37,
+                    0x00,
+                    0x07,
+                    0x02,
+                    0x10,
+                ],
+            ),
+            (
+                0xE1,
+                [
+                    0x0F,
+                    0x1B,
+                    0x0F,
+                    0x17,
+                    0x33,
+                    0x2C,
+                    0x29,
+                    0x2E,
+                    0x30,
+                    0x30,
+                    0x39,
+                    0x3F,
+                    0x00,
+                    0x07,
+                    0x03,
+                    0x10,
+                ],
+            ),
             (0xF0, [0x01]),
             (0xF6, [0x00]),
-            (0x3A, [0x05])
+            (0x3A, [0x05]),
         ]
         for reg, data in init_sequence:
             self.LCD_WriteReg(reg)
@@ -143,10 +195,20 @@ class LCD(RaspberryPi):
 
     def LCD_SetGramScanWay(self, Scan_dir):
         self.LCD_Scan_Dir = Scan_dir
-        self.width, self.height = (LCD_HEIGHT, LCD_WIDTH) if Scan_dir in [1, 2, 3, 4] else (LCD_WIDTH, LCD_HEIGHT)
+        self.width, self.height = (
+            (LCD_HEIGHT, LCD_WIDTH)
+            if Scan_dir in [1, 2, 3, 4]
+            else (LCD_WIDTH, LCD_HEIGHT)
+        )
         MemoryAccessReg_Data = {
-            1: 0x00, 2: 0x80, 3: 0x40, 4: 0xC0,
-            5: 0x20, 6: 0x60, 7: 0xA0, 8: 0xE0
+            1: 0x00,
+            2: 0x80,
+            3: 0x40,
+            4: 0xC0,
+            5: 0x20,
+            6: 0x60,
+            7: 0xA0,
+            8: 0xE0,
         }[Scan_dir]
 
         if MemoryAccessReg_Data & 0x10 != 1:
@@ -172,15 +234,15 @@ class LCD(RaspberryPi):
     def LCD_SetWindows(self, Xstart, Ystart, Xend, Yend):
         self.LCD_WriteReg(0x2A)
         self.LCD_WriteData_8bit(0x00)
-        self.LCD_WriteData_8bit((Xstart & 0xff) + self.LCD_X_Adjust)
+        self.LCD_WriteData_8bit((Xstart & 0xFF) + self.LCD_X_Adjust)
         self.LCD_WriteData_8bit(0x00)
-        self.LCD_WriteData_8bit(((Xend - 1) & 0xff) + self.LCD_X_Adjust)
+        self.LCD_WriteData_8bit(((Xend - 1) & 0xFF) + self.LCD_X_Adjust)
 
         self.LCD_WriteReg(0x2B)
         self.LCD_WriteData_8bit(0x00)
-        self.LCD_WriteData_8bit((Ystart & 0xff) + self.LCD_Y_Adjust)
+        self.LCD_WriteData_8bit((Ystart & 0xFF) + self.LCD_Y_Adjust)
         self.LCD_WriteData_8bit(0x00)
-        self.LCD_WriteData_8bit(((Yend - 1) & 0xff) + self.LCD_Y_Adjust)
+        self.LCD_WriteData_8bit(((Yend - 1) & 0xFF) + self.LCD_Y_Adjust)
 
         self.LCD_WriteReg(0x2C)
 
@@ -189,14 +251,16 @@ class LCD(RaspberryPi):
         self.LCD_SetWindows(0, 0, self.width, self.height)
         self.digital_write(self.GPIO_DC_PIN, True)
         for i in range(0, len(_buffer), 4096):
-            self.spi_writebyte(_buffer[i:i + 4096])
+            self.spi_writebyte(_buffer[i : i + 4096])
 
     def LCD_ShowImage(self, Image, Xstart, Ystart):
         if Image is None:
             return
         imwidth, imheight = Image.size
         if imwidth != self.width or imheight != self.height:
-            raise ValueError(f'Image must be same dimensions as display ({self.width}x{self.height}).')
+            raise ValueError(
+                f"Image must be same dimensions as display ({self.width}x{self.height})."
+            )
 
         img = Image.load()
         pix = []
@@ -213,7 +277,7 @@ class LCD(RaspberryPi):
         self.digital_write(self.GPIO_DC_PIN, True)
 
         for i in range(0, len(pix), 4096):
-            self.spi_writebyte(pix[i:i+4096])
+            self.spi_writebyte(pix[i : i + 4096])
 
     def LCD_Backlight(self, onOff):
         if onOff == True:
@@ -221,10 +285,10 @@ class LCD(RaspberryPi):
         else:
             self.bl_DutyCycle(0)
 
-class ST7735(AbstractScreen):
 
+class ST7735(AbstractScreen):
     def init(self):
-        Lcd_ScanDir = SCAN_DIR_DFT  #SCAN_DIR_DFT = D2U_L2R
+        Lcd_ScanDir = SCAN_DIR_DFT  # SCAN_DIR_DFT = D2U_L2R
         self.device = LCD()
         self.device.LCD_Init(Lcd_ScanDir)
         self.device.LCD_Clear()

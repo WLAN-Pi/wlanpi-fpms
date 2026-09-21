@@ -15,11 +15,14 @@ from fpms.modules.pages.pagedtable import PagedTable
 
 IFACE = "wlan0"
 
+
 class Scanner(object):
     def __init__(self, g_vars):
         # load textfsm template to parse iw output
         with open(
-            os.path.realpath(os.path.join(os.getcwd(), "modules/templates/iw_scan.textfsm"))
+            os.path.realpath(
+                os.path.join(os.getcwd(), "modules/templates/iw_scan.textfsm")
+            )
         ) as f:
             self.iw_textfsm_template = textfsm.TextFSM(f)
 
@@ -59,7 +62,6 @@ class Scanner(object):
         return self.iw_textfsm_template.ParseText(iw_scan_output)
 
     def scan(self, g_vars, include_hidden, write_file, save_file=None):
-
         g_vars["scanner_status"] = True
 
         cmd = f"{IW_FILE} {IFACE} scan"
@@ -84,7 +86,9 @@ class Scanner(object):
             networks.sort(key=get_rssi, reverse=True)
 
             results = []
-            all_zero_rssi = len(networks) > 0 and all(get_rssi(x) == 0.0 for x in networks)
+            all_zero_rssi = len(networks) > 0 and all(
+                get_rssi(x) == 0.0 for x in networks
+            )
 
             if all_zero_rssi and write_file != True:
                 results.append("Warning: Adapter")
@@ -121,15 +125,23 @@ class Scanner(object):
 
                     results.append("{} {}".format("{0: <17}".format(ssid), rssi))
                     results.append(
-                        "{} {}".format("{0: <17}".format(bssid), "{0: >3}".format(channel))
+                        "{} {}".format(
+                            "{0: <17}".format(bssid), "{0: >3}".format(channel)
+                        )
                     )
                     results.append("---")
                 else:
                     datetime_string = datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")
                     time_now_value = datetime.now()
-                    time_measure_value = time_now_value - timedelta(milliseconds=int(lastseen))
+                    time_measure_value = time_now_value - timedelta(
+                        milliseconds=int(lastseen)
+                    )
                     time_string = time_measure_value.strftime("%H:%M:%S")
-                    results.append("\"{}\", \"{}\", \"{}\", \"{}\", \"{}\"\n".format(ssid, bssid, rssi, channel, time_string))
+                    results.append(
+                        '"{}", "{}", "{}", "{}", "{}"\n'.format(
+                            ssid, bssid, rssi, channel, time_string
+                        )
+                    )
 
             # Append this scan's rows once, here in the worker thread. Skip if
             # the page was left/re-entered since the scan started (scan_file
@@ -153,14 +165,17 @@ class Scanner(object):
             g_vars["scanner_results"] = ["No WLAN adapter detected"]
             g_vars["scanner_status"] = False
             g_vars["result_cache"] = True
-            self.paged_table_obj.display_paged_table(g_vars, {
-                "title": "Networks", "pages": [g_vars["scanner_results"]],
-            })
+            self.paged_table_obj.display_paged_table(
+                g_vars,
+                {
+                    "title": "Networks",
+                    "pages": [g_vars["scanner_results"]],
+                },
+            )
             return
 
         # Check if this is the first time we run
         if g_vars["result_cache"] == False:
-
             # Check if an instance of scandump is already running (saving to PCAP).
             # If running, terminate it, then start the scanner with the given options.
             if self.scanner_active(g_vars):
@@ -195,7 +210,11 @@ class Scanner(object):
         else:
             if g_vars["scanner_status"] == False:
                 # Run a scan in the background
-                thread = threading.Thread(target=self.scan, args=(g_vars, include_hidden, write_file, g_vars.get("scan_file")), daemon=True)
+                thread = threading.Thread(
+                    target=self.scan,
+                    args=(g_vars, include_hidden, write_file, g_vars.get("scan_file")),
+                    daemon=True,
+                )
                 thread.start()
 
         # Check and display the results
@@ -215,14 +234,11 @@ class Scanner(object):
             # Display the results
             self.paged_table_obj.display_paged_table(g_vars, table_data, justify=False)
 
-
     def scanner_scan_nohidden(self, g_vars):
         self.scanner_scan(g_vars, include_hidden=False, write_file=False)
 
-
     def scanner_scan_tofile_csv(self, g_vars):
         self.scanner_scan(g_vars, include_hidden=True, write_file=True)
-
 
     def scanner_scan_tofile_pcap_start(self, g_vars):
         # if we're been round this loop before,
@@ -251,7 +267,7 @@ class Scanner(object):
 
             try:
                 p = subprocess.Popen(["/usr/bin/scandump", IFACE, save_file])
-                g_vars["scanner_scandump_pid"] = p.pid;
+                g_vars["scanner_scandump_pid"] = p.pid
                 self.alert_obj.display_alert_info(
                     g_vars, "Scanner started.", title="Success"
                 )
@@ -263,7 +279,6 @@ class Scanner(object):
         g_vars["display_state"] = "page"
         g_vars["drawing_in_progress"] = False
         return
-
 
     def scanner_scan_tofile_pcap_stop(self, g_vars):
         # if we're been round this loop before,
@@ -296,31 +311,31 @@ class Scanner(object):
         g_vars["drawing_in_progress"] = False
         return
 
-
     def scanner_active(self, g_vars):
-        '''
+        """
         Checks if the scandump process started by this object
         is still running in the background.
-        '''
+        """
         if "scanner_scandump_pid" in g_vars:
             try:
-                subprocess.check_output("/usr/bin/ps -p {}".format(g_vars["scanner_scandump_pid"]), shell=True)
+                subprocess.check_output(
+                    "/usr/bin/ps -p {}".format(g_vars["scanner_scandump_pid"]),
+                    shell=True,
+                )
                 return True
             except subprocess.CalledProcessError:
                 return False
 
         return False
 
-
     def scanner_terminate(self, g_vars):
-        '''
+        """
         Terminate the scandump instance started by this object.
-        '''
+        """
         if "scanner_scandump_pid" in g_vars:
             pid = g_vars["scanner_scandump_pid"]
             kill(pid, signal.SIGTERM)
             del g_vars["scanner_scandump_pid"]
-
 
     def scanner_output_dir(self):
         scandir = "/home/wlanpi/scanfiles"
