@@ -237,7 +237,6 @@ class Utils(object):
         Return a list ufw ports
         '''
         ufw_file = UFW_FILE
-        ufw_info = []
 
         # check ufw is available
         if not os.path.isfile(ufw_file):
