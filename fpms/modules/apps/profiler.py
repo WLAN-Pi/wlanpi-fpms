@@ -1,3 +1,4 @@
+import json
 import os.path
 import re
 import subprocess
@@ -9,6 +10,39 @@ from fpms.modules.pages.display import Display
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
 from fpms.modules.env_utils import EnvUtils
+
+# Runtime files written by wlanpi-profiler. The info file is authoritative for
+# the passphrase actually in use; the config file holds the configured default.
+PROFILER_INFO_FILE = "/run/wlanpi-profiler.info.json"
+PROFILER_CONFIG_FILE = "/etc/wlanpi-profiler/config.ini"
+
+
+def read_profiler_passphrase():
+    """
+    Returns the passphrase the Profiler is using, or None if it cannot be
+    determined. The front panel QR code must carry the real passphrase: in AP
+    mode a mismatch means the client never completes authentication, so no
+    association request is ever captured.
+    """
+    try:
+        with open(PROFILER_INFO_FILE) as f:
+            passphrase = json.load(f).get("passphrase")
+        if passphrase:
+            return passphrase
+    except (OSError, ValueError, AttributeError):
+        pass
+
+    try:
+        with open(PROFILER_CONFIG_FILE) as f:
+            for line in f:
+                match = re.match(r"^passphrase:\s*(.+)$", line.strip())
+                if match:
+                    return match.group(1).strip()
+    except OSError:
+        pass
+
+    return None
+
 
 class Profiler(object):
     def __init__(self, g_vars):
@@ -101,8 +135,9 @@ class Profiler(object):
         Generates and returns the path to a WiFi QR code to be used for profiling
         """
         ssid = self.profiler_beaconing_ssid()
-        if ssid != None:
-            return EnvUtils().get_wifi_qrcode(ssid, "12345678")
+        passphrase = read_profiler_passphrase()
+        if ssid is not None and passphrase:
+            return EnvUtils().get_wifi_qrcode(ssid, passphrase)
 
         return None
 

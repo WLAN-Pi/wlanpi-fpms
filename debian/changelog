@@ -1,3 +1,16 @@
+wlanpi-fpms (1.4.18-1) unstable; urgency=medium
+
+  * Profiler: build the front panel Wi-Fi QR code from the passphrase the
+    profiler is actually using (read from /run/wlanpi-profiler.info.json,
+    falling back to the configured default) instead of a hardcoded value.
+    In AP mode a mismatched passphrase means the client never completes
+    authentication, so no association request is captured.
+  * Scanner: compute the CSV "last seen" time in milliseconds, matching the
+    unit iw reports. Treating the value as seconds dated every exported row
+    about 1000x too far in the past.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Mon, 21 Sep 2026 12:20:00 -0400
+
 wlanpi-fpms (1.4.17-1) unstable; urgency=medium
 
   * Drop mode switching (Hotspot / Server / Bridge) from the menu and the
