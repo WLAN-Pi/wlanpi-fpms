@@ -637,14 +637,6 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_help(g_vars)
 
-    def check_for_updates():
-        system_obj = System(g_vars)
-        system_obj.check_for_updates(g_vars)
-
-    def install_updates():
-        system_obj = System(g_vars)
-        system_obj.install_updates(g_vars)
-
     #############################
     # Button presses & home page
     #############################
