@@ -1,3 +1,10 @@
+wlanpi-fpms (1.4.22-1) unstable; urgency=medium
+
+  * Speedtest: replace the retired third-party speedtest-cli integration with
+    the installed LibreSpeed CLI and parse its JSON output directly.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Tue, 22 Sep 2026 17:05:00 -0400
+
 wlanpi-fpms (1.4.21-1) unstable; urgency=medium
 
   * Network: read the LLDP/CDP neighbour cache from

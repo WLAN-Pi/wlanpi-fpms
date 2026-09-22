@@ -1,3 +1,4 @@
+import json
 import os
 import os.path
 import subprocess
@@ -29,7 +30,7 @@ class Utils:
 
     def show_speedtest(self, g_vars):
         """
-        Run speedtest.net speed test and format output to fit the OLED screen
+        Run LibreSpeed and format output to fit the OLED screen
         """
         # Has speedtest been run already?
         if not g_vars["result_cache"]:
@@ -48,27 +49,23 @@ class Utils:
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
-            speedtest_info = []
-            speedtest_cmd = f"{speedtest_bin} --secure | egrep -w \"Testing from|Download|Upload\" | sed -r 's/Testing from.*?\\(/My IP: /g; s/\\)\\.\\.\\.//g; s/Download/D/g; s/Upload/U/g; s/bit\\/s/bps/g'"
-
             try:
-                speedtest_output = (
-                    subprocess.check_output(
-                        speedtest_cmd, shell=True, stderr=subprocess.STDOUT
-                    )
-                    .decode()
-                    .strip()
+                speedtest_output = subprocess.run(
+                    [speedtest_bin, "--json", "--simple"],
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                    check=True,
                 )
-                speedtest_info = speedtest_output.split("\n")
-            except subprocess.CalledProcessError:
+                speedtest_info = self.parse_librespeed_output(speedtest_output.stdout)
+            except (subprocess.SubprocessError, ValueError):
                 g_vars["speedtest_result_text"] = None
                 g_vars["disable_keys"] = False
                 g_vars["result_cache"] = True
                 self.alert_obj.display_alert_error(g_vars, "Failed to run speedtest.")
                 return
 
-            if len(speedtest_info) > 1:
-                g_vars["speedtest_result_text"] = speedtest_info
+            g_vars["speedtest_result_text"] = speedtest_info
 
             g_vars["result_cache"] = True
 
@@ -84,20 +81,41 @@ class Utils:
 
     @staticmethod
     def speedtest_cli_path():
-        """
-        Locate the speedtest-cli binary. Installed via pipx during image
-        build; a venv install is the fallback for other systems.
-        """
-        import shutil
+        """Locate the LibreSpeed CLI installed by wlanpi-librespeed-cli."""
+        path = "/usr/bin/librespeed-cli"
+        return path if os.path.isfile(path) else None
 
-        for candidate in [
-            "/opt/wlanpi/pipx/bin/speedtest-cli",
-            "/opt/wlanpi/speedtest-venv/bin/speedtest-cli",
-            shutil.which("speedtest-cli"),
-        ]:
-            if candidate and os.path.isfile(candidate):
-                return candidate
-        return None
+    @staticmethod
+    def parse_librespeed_output(output):
+        """Return compact display lines from LibreSpeed JSON output."""
+        for line in reversed(output.strip().splitlines()):
+            if not line.lstrip().startswith("["):
+                continue
+            try:
+                payload = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(payload, list) and payload:
+                result = payload[0]
+                try:
+                    ping = float(result["ping"])
+                    download = float(result["download"])
+                    upload = float(result["upload"])
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise ValueError("speedtest result is incomplete") from exc
+                lines = []
+                ip_address = (result.get("client") or {}).get("ip")
+                if ip_address:
+                    lines.append(f"My IP: {ip_address}")
+                lines.extend(
+                    [
+                        f"Ping: {ping:.2f} ms",
+                        f"D: {download:.2f} Mbps",
+                        f"U: {upload:.2f} Mbps",
+                    ]
+                )
+                return lines
+        raise ValueError("speedtest output did not contain JSON results")
 
     def show_blinker(self, g_vars):
         """
