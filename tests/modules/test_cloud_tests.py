@@ -227,3 +227,100 @@ def test_test_mist_cloud_eth0_up_has_ip_has_dns_no_200(patch_imports, monkeypatc
         ],
     )
     assert test_object.simple_table_obj.kwargs == {"title": "Mist Cloud"}
+
+
+def _fake_aruba_eth0(cmd, *args, **kwargs):
+    if cmd == "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'":
+        return b"yes"
+    if (
+        cmd
+        == "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
+    ):
+        return b"192.0.2.1"
+    raise AssertionError(f"unexpected command: {cmd}")
+
+
+def test_test_aruba_cloud_dns_failure_skips_following_checks(
+    patch_imports, monkeypatch
+):
+    """A failed DNS lookup marks the remaining Aruba checks as skipped (#162)."""
+    # Arrange
+    from fpms.modules.cloud_tests import CloudUtils
+
+    test_g_vars = {"result_cache": False}
+
+    def faked_gethostbyname(name):
+        if name == "activate.arubanetworks.com":
+            return "192.0.2.10"
+        raise Exception("dns failure")
+
+    monkeypatch.setattr("subprocess.check_output", _fake_aruba_eth0)
+    monkeypatch.setattr("socket.gethostbyname", faked_gethostbyname)
+
+    # Act
+    test_object = CloudUtils(g_vars=test_g_vars)
+    test_object.test_aruba_cloud(test_g_vars)
+
+    # Assert
+    assert test_object.simple_table_obj.args == (
+        {"result_cache": True, "disable_keys": False},
+        [
+            "Eth0 Port Up: YES",
+            "MyIP: 192.0.2.1",
+            "DNS (ACTIVATE): OK",
+            "DNS (COMMON): FAIL",
+            "DNS (DEVICE): SKIP",
+            "",
+            "",
+            "",
+            "",
+        ],
+    )
+    assert test_object.simple_table_obj.kwargs == {"title": "Aruba Central Cloud"}
+
+
+def test_test_aruba_cloud_all_checks_pass(patch_imports, monkeypatch):
+    """Eth0 up, IP present, all DNS/ping/port checks succeed."""
+    # Arrange
+    from fpms.modules.cloud_tests import CloudUtils
+
+    test_g_vars = {"result_cache": False}
+
+    class FakeCompleted:
+        returncode = 0
+
+    class FakeSocket:
+        def settimeout(self, _timeout):
+            pass
+
+        def connect_ex(self, _addr):
+            return 0
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("subprocess.check_output", _fake_aruba_eth0)
+    monkeypatch.setattr("socket.gethostbyname", lambda name: "192.0.2.10")
+    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: FakeCompleted())
+    monkeypatch.setattr("socket.socket", lambda *args, **kwargs: FakeSocket())
+
+    # Act
+    test_object = CloudUtils(g_vars=test_g_vars)
+    test_object.test_aruba_cloud(test_g_vars)
+
+    # Assert
+    assert test_object.simple_table_obj.args == (
+        {"result_cache": True, "disable_keys": False},
+        [
+            "Eth0 Port Up: YES",
+            "MyIP: 192.0.2.1",
+            "DNS (ACTIVATE): OK",
+            "DNS (COMMON): OK",
+            "DNS (DEVICE): OK",
+            "",
+            "ICMP (PQM): OK",
+            "PORT (DEVICE): OK",
+            "",
+        ],
+    )
+    assert test_object.simple_table_obj.kwargs == {"title": "Aruba Central Cloud"}
