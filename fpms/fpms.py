@@ -11,7 +11,6 @@ import configparser
 import getopt
 import os
 import os.path
-import subprocess
 import sys
 import syslog
 import termios
@@ -1370,12 +1369,12 @@ optional options:
         the screen if necessary
         """
         try:
-            cmd = "cat /sys/class/net/eth0/carrier"
-            carrier = int(subprocess.check_output(cmd, shell=True).decode().strip())
+            with open("/sys/class/net/eth0/carrier") as f:
+                carrier = int(f.read().strip())
             if g_vars["eth_carrier_status"] != carrier:
                 wakeup_screen()
             g_vars["eth_carrier_status"] = carrier
-        except subprocess.CalledProcessError:
+        except (OSError, ValueError):
             pass
 
     ##############################################################################

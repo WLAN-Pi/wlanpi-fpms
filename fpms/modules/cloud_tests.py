@@ -76,8 +76,17 @@ class CloudUtils:
 
             if not test_fail:
                 # Can we get an http 403 from devices.srv.wifi.arista.com ?
-                cmd = 'curl -k -s -o /dev/null -w "%{http_code}" https://devices.srv.wifi.arista.com'
-                result = subprocess.check_output(cmd, shell=True).decode()
+                curl_cmd = [
+                    "curl",
+                    "-k",
+                    "-s",
+                    "-o",
+                    "/dev/null",
+                    "-w",
+                    "%{http_code}",
+                    "https://devices.srv.wifi.arista.com",
+                ]
+                result = subprocess.check_output(curl_cmd).decode()
 
                 if result == "403":
                     item_list[3] = "CV-CUE HTTPS: OK"
@@ -261,8 +270,7 @@ class CloudUtils:
         def test_ping(host, timeout=2):
             try:
                 subprocess.check_call(
-                    f"ping -c1 -W{timeout} -4 -q {host}",
-                    shell=True,
+                    ["ping", "-c1", f"-W{timeout}", "-4", "-q", host],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
@@ -449,8 +457,17 @@ class CloudUtils:
 
             if not test_fail:
                 # Can we get an http 200 from https://ep-terminator.mistsys.net/test ?
-                cmd = 'curl -k -s -o /dev/null -w "%{http_code}" https://ep-terminator.mistsys.net/test'
-                result = subprocess.check_output(cmd, shell=True).decode()
+                curl_cmd = [
+                    "curl",
+                    "-k",
+                    "-s",
+                    "-o",
+                    "/dev/null",
+                    "-w",
+                    "%{http_code}",
+                    "https://ep-terminator.mistsys.net/test",
+                ]
+                result = subprocess.check_output(curl_cmd).decode()
 
                 if result == "200":
                     item_list[3] = "HTTP: OK"
@@ -529,10 +546,18 @@ class CloudUtils:
 
             if not test_fail:
                 # Can we get an http 200 from https://ruckus.cloud ?
-                cmd = (
-                    'curl -k -s -L -o /dev/null -w "%{http_code}" https://ruckus.cloud'
-                )
-                result = subprocess.check_output(cmd, shell=True).decode()
+                curl_cmd = [
+                    "curl",
+                    "-k",
+                    "-s",
+                    "-L",
+                    "-o",
+                    "/dev/null",
+                    "-w",
+                    "%{http_code}",
+                    "https://ruckus.cloud",
+                ]
+                result = subprocess.check_output(curl_cmd).decode()
 
                 if result == "200":
                     item_list[3] = "HTTP: OK"

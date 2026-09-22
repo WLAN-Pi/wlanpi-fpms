@@ -23,8 +23,8 @@ class Kismet:
         """
         try:
             # this cmd fails if service not installed
-            cmd = "/bin/systemctl is-active --quiet kismet"
-            subprocess.run(cmd, shell=True).check_returncode()
+            cmd = ["/bin/systemctl", "is-active", "--quiet", "kismet"]
+            subprocess.run(cmd).check_returncode()
         except Exception:
             # cmd failed, so profiler service not installed
             return False
@@ -53,8 +53,8 @@ class Kismet:
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Starting...")
                 try:
-                    cmd = "/bin/systemctl start kismet"
-                    subprocess.run(cmd, shell=True, timeout=10)
+                    cmd = ["/bin/systemctl", "start", "kismet"]
+                    subprocess.run(cmd, timeout=10)
                     self.alert_obj.display_alert_info(
                         g_vars, "Kismet started.", title="Success"
                     )
@@ -68,8 +68,8 @@ class Kismet:
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Stopping...")
                 try:
-                    cmd = "/bin/systemctl stop kismet"
-                    subprocess.run(cmd, shell=True)
+                    cmd = ["/bin/systemctl", "stop", "kismet"]
+                    subprocess.run(cmd)
                     if self.kismet_status():
                         self.alert_obj.display_alert_error(g_vars, "Stop failed.")
                     else:

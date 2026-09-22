@@ -87,8 +87,7 @@ class Bluetooth:
         value = 1 if power else 0
         try:
             subprocess.run(
-                f"bt-adapter -a {BT_ADAPTER} --set Powered {value}",
-                shell=True,
+                ["bt-adapter", "-a", BT_ADAPTER, "--set", "Powered", str(value)],
                 check=True,
             )
         except Exception:
@@ -181,10 +180,9 @@ class Bluetooth:
                     )
                     for dev in paired_devices:
                         try:
-                            cmd = f"bluetoothctl -- remove {dev}"
+                            cmd = ["bluetoothctl", "--", "remove", dev]
                             subprocess.run(
                                 cmd,
-                                shell=True,
                                 stdout=subprocess.DEVNULL,
                                 stderr=subprocess.DEVNULL,
                             )
@@ -208,8 +206,8 @@ class Bluetooth:
                     alias = self.bluetooth_alias() or ""
                     try:
                         g_vars["disable_keys"] = True
-                        cmd = "systemctl start bt-timedpair"
-                        subprocess.run(cmd, shell=True).check_returncode()
+                        cmd = ["systemctl", "start", "bt-timedpair"]
+                        subprocess.run(cmd).check_returncode()
                         alert_msg = 'Bluetooth is on. Discoverable as "' + alias + '"'
                         ok = True
                     except Exception:

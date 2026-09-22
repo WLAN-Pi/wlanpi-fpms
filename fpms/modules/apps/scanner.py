@@ -62,7 +62,7 @@ class Scanner:
     def scan(self, g_vars, include_hidden, write_file, save_file=None):
         g_vars["scanner_status"] = True
 
-        cmd = f"{IW_FILE} {IFACE} scan"
+        cmd = [IW_FILE, IFACE, "scan"]
 
         if not os.path.exists(f"/sys/class/net/{IFACE}"):
             g_vars["scanner_results"] = ["No WLAN adapter detected"]
@@ -70,7 +70,7 @@ class Scanner:
             return
 
         try:
-            scan_output = subprocess.check_output(cmd, shell=True).decode().strip()
+            scan_output = subprocess.check_output(cmd).decode().strip()
             networks = self.parse(scan_output)
 
             # Safely get RSSI helper
@@ -310,8 +310,7 @@ class Scanner:
         if "scanner_scandump_pid" in g_vars:
             try:
                 subprocess.check_output(
-                    "/usr/bin/ps -p {}".format(g_vars["scanner_scandump_pid"]),
-                    shell=True,
+                    ["/usr/bin/ps", "-p", str(g_vars["scanner_scandump_pid"])]
                 )
                 return True
             except subprocess.CalledProcessError:

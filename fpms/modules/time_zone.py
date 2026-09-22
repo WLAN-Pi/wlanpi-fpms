@@ -55,7 +55,7 @@ class TimeZone:
 
             try:
                 subprocess.check_output(
-                    f"{TIME_ZONE_FILE} set {timezone_selected}", shell=True
+                    [TIME_ZONE_FILE, "set", timezone_selected]
                 ).decode()
                 self.alert_obj.display_alert_info(
                     g_vars, timezone_selected, title="Success"
@@ -80,9 +80,7 @@ class TimeZone:
 
             try:
                 timezone = tzupdate.get_timezone("")
-                subprocess.check_output(
-                    f"{TIME_ZONE_FILE} set {timezone}", shell=True
-                ).decode()
+                subprocess.check_output([TIME_ZONE_FILE, "set", timezone]).decode()
                 self.alert_obj.display_alert_info(g_vars, timezone, title="Success")
             except Exception:
                 self.alert_obj.display_alert_error(

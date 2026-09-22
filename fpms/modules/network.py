@@ -82,7 +82,7 @@ class Network:
                         # fire up 'iw' for this interface (hmmm..is this a bit of an un-necessary ovehead?)
                         try:
                             iw_info = subprocess.check_output(
-                                f"{iw_file} {interface_name} info", shell=True
+                                [iw_file, interface_name, "info"]
                             ).decode()
 
                             if re.search("type monitor", iw_info, re.MULTILINE):
@@ -181,9 +181,7 @@ class Network:
             # Driver
             try:
                 ethtool_output = (
-                    subprocess.check_output(
-                        f"{ETHTOOL_FILE} -i {interface}", shell=True
-                    )
+                    subprocess.check_output([ETHTOOL_FILE, "-i", interface])
                     .decode()
                     .strip()
                 )
@@ -195,30 +193,17 @@ class Network:
             # Device ID (USB or PCI)
             try:
                 modalias_path = f"/sys/class/net/{interface}/device/modalias"
-                modalias = (
-                    subprocess.check_output(f"cat {modalias_path}", shell=True)
-                    .decode()
-                    .strip()
-                )
+                with open(modalias_path) as f:
+                    modalias = f.read().strip()
                 bus = modalias.split(":")[0]
                 if bus == "usb":
                     device_id = modalias.split(":")[1][1:10].replace("p", ":")
                     page.append(f"DevID: {device_id}")
                 elif bus == "pci":
-                    vendor = (
-                        subprocess.check_output(
-                            f"cat /sys/class/net/{interface}/device/vendor", shell=True
-                        )
-                        .decode()
-                        .strip()
-                    )
-                    device = (
-                        subprocess.check_output(
-                            f"cat /sys/class/net/{interface}/device/device", shell=True
-                        )
-                        .decode()
-                        .strip()
-                    )
+                    with open(f"/sys/class/net/{interface}/device/vendor") as f:
+                        vendor = f.read().strip()
+                    with open(f"/sys/class/net/{interface}/device/device") as f:
+                        device = f.read().strip()
                     page.append(f"DevID: {vendor}:{device}")
             except Exception:
                 pass
@@ -226,7 +211,7 @@ class Network:
             # Addr, SSID, Mode, Channel
             try:
                 iw_output = (
-                    subprocess.check_output(f"{IW_FILE} {interface} info", shell=True)
+                    subprocess.check_output([IW_FILE, interface, "info"])
                     .decode()
                     .strip()
                 )
@@ -293,7 +278,9 @@ class Network:
 
         try:
             ipconfig_output = (
-                subprocess.check_output(ipconfig_file, shell=True).decode().strip()
+                subprocess.check_output([ipconfig_file], stderr=subprocess.DEVNULL)
+                .decode()
+                .strip()
             )
             ipconfig_info = ipconfig_output.split("\n")
 
@@ -441,9 +428,7 @@ class Network:
 
             try:
                 g_vars["disable_keys"] = True
-                publicip_output = (
-                    subprocess.check_output(cmd, shell=True).decode().strip()
-                )
+                publicip_output = subprocess.check_output([cmd]).decode().strip()
                 publicip_info = publicip_output.split("\n")
                 g_vars["publicip_info"] = publicip_info
                 g_vars["result_cache"] = True

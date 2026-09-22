@@ -18,7 +18,7 @@ class RegDomain:
         output = []
         try:
             output = (
-                subprocess.check_output(f"{REG_DOMAIN_FILE} get", shell=True)
+                subprocess.check_output([REG_DOMAIN_FILE, "get"])
                 .decode()
                 .strip()
                 .split("\n")
@@ -41,7 +41,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set US --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "US", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -59,7 +59,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set CA --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "CA", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -77,7 +77,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set GB --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "GB", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -95,7 +95,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set BR --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "BR", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -113,7 +113,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set FR --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "FR", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -131,7 +131,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set CZ --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "CZ", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -149,7 +149,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set NL --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "NL", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -167,7 +167,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set DE --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "DE", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
@@ -185,7 +185,7 @@ class RegDomain:
 
         try:
             subprocess.check_output(
-                f"{REG_DOMAIN_FILE} set NO --no-prompt", shell=True
+                [REG_DOMAIN_FILE, "set", "NO", "--no-prompt"]
             ).decode()
             time.sleep(1)
         except subprocess.CalledProcessError as exc:
