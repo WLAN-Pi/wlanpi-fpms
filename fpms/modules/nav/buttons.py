@@ -7,7 +7,7 @@ from fpms.modules.pages.simpletable import *
 
 class Button:
     def __init__(self, g_vars, menu):
-        self.homepage_obj = HomePage(g_vars)
+        self.homepage_obj = get_homepage(g_vars)
         self.page_obj = Page(g_vars)
 
     #######################################

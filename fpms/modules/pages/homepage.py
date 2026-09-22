@@ -19,6 +19,7 @@ from fpms.modules.constants import *
 from fpms.modules.env_utils import EnvUtils
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.utils import ttl_cache
 from fpms.modules.platform import *
 from fpms.modules.themes import THEME
 
@@ -51,11 +52,19 @@ class HomePage:
         # create env utils object
         self.env_obj = EnvUtils()
 
+        # One long-lived thread instead of a new one per HomePage construction
+        # (HomePage used to be rebuilt on every repaint).
         thread = threading.Thread(
-            target=self.check_reachability, args=(g_vars,), daemon=True
+            target=self._reachability_loop, args=(g_vars,), daemon=True
         )
         thread.start()
 
+    def _reachability_loop(self, g_vars):
+        while True:
+            self.check_reachability(g_vars)
+            time.sleep(2)
+
+    @ttl_cache(5)
     def wifi_client_count(self):
         """
         Get a count of connected clients when in hotspot mode
@@ -68,6 +77,7 @@ class HomePage:
         except subprocess.CalledProcessError:
             return -1
 
+    @ttl_cache(10)
     def check_wlan(self):
         """
         Returns true if there's at least one WLAN interface present.
@@ -90,6 +100,7 @@ class HomePage:
 
         return False
 
+    @ttl_cache(10)
     def check_reg_domain(self):
         """
         Returns true if the reg. domain is set, false otherwise.
@@ -167,6 +178,7 @@ class HomePage:
             except subprocess.CalledProcessError:
                 g_vars["eth_last_reachability_result"] = False
 
+    @ttl_cache(5)
     def if_addresses(self):
         """
         Returns the set of IP addresses set on the device (for all interfaces)
@@ -180,6 +192,7 @@ class HomePage:
 
         return set()
 
+    @ttl_cache(5)
     def if_address(self, if_name):
         """
         Returns the IP address for the given interface
@@ -196,6 +209,7 @@ class HomePage:
 
         return ip_addr
 
+    @ttl_cache(15)
     def if_wireless(self, if_name):
         """
         Returns True if the interface is a wireless interface, False otherwise.
@@ -215,6 +229,7 @@ class HomePage:
 
         return False
 
+    @ttl_cache(5)
     def if_link_status(self, if_name):
         """
         Returns the link status for the given interface
@@ -731,6 +746,26 @@ class HomePage:
 
         return True
 
+    @ttl_cache(5)
+    def _iw_dev_output(self):
+        return (
+            subprocess.check_output(f"{IW_FILE} dev 2>&1", shell=True).decode().strip()
+        )
+
+    @ttl_cache(5)
+    def _iface_is_up(self, if_name):
+        try:
+            subprocess.run(
+                f"{IFCONFIG_FILE} {if_name} | grep UP",
+                shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=True,
+            )
+            return True
+        except Exception:
+            return False
+
     def wifi_indicator(self, g_vars, interfaces, if_name, x, y, width, height):
         """
         Displays a wifi indicator for the given wifi interface
@@ -746,17 +781,8 @@ class HomePage:
                 phy = iface[0]
 
                 # check if the interface is UP
-                try:
-                    subprocess.run(
-                        f"{IFCONFIG_FILE} {if_name} | grep UP",
-                        shell=True,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                        check=True,
-                    )
+                if self._iface_is_up(if_name):
                     status_up = True
-                except Exception:
-                    pass
 
                 for other_iface in interfaces:
                     if phy == other_iface[0]:
@@ -921,11 +947,7 @@ class HomePage:
             e.g.
                 [["0", "wlan0", "managed"], ["0", "wlan0mon", "monitor"], ["1", "wlan1", "managed"]]
             """
-            iw_dev_output = (
-                subprocess.check_output(f"{IW_FILE} dev 2>&1", shell=True)
-                .decode()
-                .strip()
-            )
+            iw_dev_output = self._iw_dev_output()
             self.iw_textfsm_template.Reset()
             interfaces = self.iw_textfsm_template.ParseText(iw_dev_output)
 
@@ -1024,3 +1046,20 @@ class HomePage:
             )
 
         return height
+
+
+_homepage_instance = None
+
+
+def get_homepage(g_vars):
+    """
+    Return the process-wide HomePage singleton.
+
+    HomePage used to be rebuilt on every repaint and every button press, which
+    re-read the TextFSM template, re-created the service objects and spawned a
+    reachability thread each time. Build it once and reuse it.
+    """
+    global _homepage_instance
+    if _homepage_instance is None:
+        _homepage_instance = HomePage(g_vars)
+    return _homepage_instance

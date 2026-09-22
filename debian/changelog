@@ -1,3 +1,14 @@
+wlanpi-fpms (1.4.20-1) unstable; urgency=medium
+
+  * Cut redundant work on the front panel render path: reuse the HomePage
+    instance instead of rebuilding it on every repaint and keypress (which
+    re-read the TextFSM template and spawned a reachability thread each time),
+    add a short TTL cache for slow shell-outs (IP/link/hostname/reg-domain
+    checks), and read the eth0 carrier sysfs file directly instead of
+    spawning `cat` every loop.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Mon, 21 Sep 2026 21:04:12 -0400
+
 wlanpi-fpms (1.4.19-1) unstable; urgency=medium
 
   * Remove orphaned Software Update code; the menu entry was removed in

@@ -11,7 +11,6 @@ import configparser
 import getopt
 import os
 import os.path
-import subprocess
 import sys
 import syslog
 import termios
@@ -46,7 +45,7 @@ from .modules.constants import *
 from .modules.env_utils import EnvUtils
 from .modules.nav.buttons import Button
 from .modules.network import *
-from .modules.pages.homepage import HomePage
+from .modules.pages.homepage import get_homepage
 from .modules.pages.page import Page
 from .modules.reg_domain import *
 from .modules.system import *
@@ -641,8 +640,7 @@ optional options:
     # Button presses & home page
     #############################
     def home_page():
-        homepage_obj = HomePage(g_vars)
-        homepage_obj.home_page(g_vars, menu)
+        get_homepage(g_vars).home_page(g_vars, menu)
 
     def menu_down():
         button_obj = Button(g_vars, menu)
@@ -1370,12 +1368,12 @@ optional options:
         the screen if necessary
         """
         try:
-            cmd = "cat /sys/class/net/eth0/carrier"
-            carrier = int(subprocess.check_output(cmd, shell=True).decode().strip())
+            with open("/sys/class/net/eth0/carrier") as f:
+                carrier = int(f.read().strip())
             if g_vars["eth_carrier_status"] != carrier:
                 wakeup_screen()
             g_vars["eth_carrier_status"] = carrier
-        except subprocess.CalledProcessError:
+        except (OSError, ValueError):
             pass
 
     ##############################################################################

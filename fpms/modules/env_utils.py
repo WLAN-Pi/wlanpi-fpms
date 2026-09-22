@@ -14,6 +14,7 @@ import qrcode
 from PIL import Image
 
 from fpms.modules.display import *
+from fpms.modules.pages.utils import ttl_cache
 from fpms.modules.platform import *
 
 
@@ -100,6 +101,7 @@ class EnvUtils:
 
         return wlanpi_ver
 
+    @ttl_cache(30)
     def get_hostname(self):
         try:
             hostname = (
