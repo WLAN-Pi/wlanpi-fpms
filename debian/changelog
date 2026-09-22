@@ -1,3 +1,12 @@
+wlanpi-fpms (1.4.21-1) unstable; urgency=medium
+
+  * Network: read the LLDP/CDP neighbour cache from
+    /run/wlanpi-networkinfo, where wlanpi-common's networkinfo scripts now
+    write it. They moved it out of the shared /tmp into a root-owned runtime
+    directory, so the VLAN and neighbour pages need the new paths.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Tue, 22 Sep 2026 01:10:00 -0400
+
 wlanpi-fpms (1.4.20-1) unstable; urgency=medium
 
   * Behaviour-preserving micro-optimizations on the subprocess-heavy paths:
