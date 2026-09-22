@@ -79,11 +79,14 @@ MODE_FILE = "/etc/wlanpi-state"
 REG_DOMAIN_FILE = "/usr/bin/wlanpi-reg-domain"
 TIME_ZONE_FILE = "/usr/bin/wlanpi-timezone"
 
-#### Paths below here are relative to script dir or /tmp fixed paths ###
+#### Paths below here are relative to script dir or a runtime directory ###
 
-# Networkinfo data file names
-LLDPNEIGH_FILE = "/tmp/lldpneigh.txt"
-CDPNEIGH_FILE = "/tmp/cdpneigh.txt"
+# Networkinfo data file names. wlanpi-common's networkinfo scripts write these
+# into their root-owned runtime directory (systemd
+# RuntimeDirectory=wlanpi-networkinfo), not the shared /tmp, so this service
+# must run as root to read them.
+LLDPNEIGH_FILE = "/run/wlanpi-networkinfo/lldpneigh.txt"
+CDPNEIGH_FILE = "/run/wlanpi-networkinfo/cdpneigh.txt"
 IPCONFIG_FILE = "/opt/wlanpi-common/networkinfo/ipconfig.sh"
 REACHABILITY_FILE = "/opt/wlanpi-common/networkinfo/reachability.sh"
 PUBLICIP_CMD = "/opt/wlanpi-common/networkinfo/publicip.sh"
