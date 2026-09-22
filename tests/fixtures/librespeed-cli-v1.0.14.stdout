@@ -1,0 +1,4 @@
+Ping:	17.39 ms	Jitter:	0.32 ms
+Download rate:	766.38 Mbps
+Upload rate:	509.15 Mbps
+[{"timestamp":"2026-09-22T16:58:44.832838807-04:00","server":{"name":"New York, United States (2) (Clouvider)","url":"https://nyc.speedtest.clouvider.net/backend"},"client":{"ip":"","hostname":"","city":"","region":"","country":"","loc":"","org":"","postal":"","timezone":""},"bytes_sent":993001472,"bytes_received":1494614994,"ping":17.39,"jitter":0.32,"upload":509.15,"download":766.38,"share":""}]
