@@ -40,7 +40,7 @@ class System:
         oled.drawImage(g_vars["shutdown_image"])
         g_vars["shutdown_in_progress"] = True
 
-        os.system("systemctl poweroff")
+        subprocess.run(["systemctl", "poweroff"])
 
         return
 
@@ -50,7 +50,7 @@ class System:
         oled.drawImage(g_vars["reboot_image"])
         g_vars["shutdown_in_progress"] = True
 
-        os.system("systemctl reboot")
+        subprocess.run(["systemctl", "reboot"])
 
         return
 
@@ -138,9 +138,7 @@ class System:
         if not g_vars["result_cache"]:
             try:
                 time.tzset()
-                timezone = subprocess.check_output(
-                    f"{TIME_ZONE_FILE} get", shell=True
-                ).decode()
+                timezone = subprocess.check_output([TIME_ZONE_FILE, "get"]).decode()
                 g_vars["timezone_selected"] = timezone
             except Exception:
                 pass

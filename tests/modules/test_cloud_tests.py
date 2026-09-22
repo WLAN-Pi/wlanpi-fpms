@@ -46,10 +46,16 @@ def test_test_mist_cloud_all_checks_pass(patch_imports, monkeypatch):
             == "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
         ):
             return test_ip["set"].encode("utf-8")
-        if (
-            args[0]
-            == 'curl -k -s -o /dev/null -w "%{http_code}" https://ep-terminator.mistsys.net/test'
-        ):
+        if args[0] == [
+            "curl",
+            "-k",
+            "-s",
+            "-o",
+            "/dev/null",
+            "-w",
+            "%{http_code}",
+            "https://ep-terminator.mistsys.net/test",
+        ]:
             return test_return_code["set"].encode("utf-8")
 
     def faked_socket(*args, **kwargs):
@@ -200,10 +206,16 @@ def test_test_mist_cloud_eth0_up_has_ip_has_dns_no_200(patch_imports, monkeypatc
             == "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
         ):
             return test_ip["set"].encode("utf-8")
-        if (
-            args[0]
-            == 'curl -k -s -o /dev/null -w "%{http_code}" https://ep-terminator.mistsys.net/test'
-        ):
+        if args[0] == [
+            "curl",
+            "-k",
+            "-s",
+            "-o",
+            "/dev/null",
+            "-w",
+            "%{http_code}",
+            "https://ep-terminator.mistsys.net/test",
+        ]:
             return test_return_code["set"].encode("utf-8")
 
     def faked_socket(*args, **kwargs):

@@ -193,8 +193,8 @@ class Profiler:
         # check resource is available
         try:
             # this cmd fails if service not installed
-            cmd = "systemctl is-enabled wlanpi-profiler"
-            subprocess.run(cmd, shell=True).check_returncode()
+            cmd = ["systemctl", "is-enabled", "wlanpi-profiler"]
+            subprocess.run(cmd).check_returncode()
         except Exception:
             # cmd failed, so profiler service not installed
             self.alert_obj.display_alert_error(g_vars, "wlanpi-profiler not available.")
@@ -322,8 +322,8 @@ class Profiler:
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Starting...")
                 try:
-                    cmd = "/bin/systemctl start wlanpi-profiler"
-                    subprocess.run(cmd, shell=True, timeout=10)
+                    cmd = ["/bin/systemctl", "start", "wlanpi-profiler"]
+                    subprocess.run(cmd, timeout=10)
 
                     # We need to wait until Profiler starts beaconing so that
                     # we can show the QR code. We will wait for 20 seconds and
@@ -360,8 +360,8 @@ class Profiler:
             else:
                 self.alert_obj.display_popup_alert(g_vars, "Stopping...")
                 try:
-                    cmd = "/bin/systemctl stop wlanpi-profiler"
-                    subprocess.run(cmd, shell=True)
+                    cmd = ["/bin/systemctl", "stop", "wlanpi-profiler"]
+                    subprocess.run(cmd)
 
                     # Wait for Profiler to stop beaconing so we can check
                     # it was successfully stopped.
@@ -387,8 +387,8 @@ class Profiler:
             self.alert_obj.display_popup_alert(g_vars, "Purging reports...")
 
             try:
-                cmd = "/usr/sbin/profiler --clean --yes"
-                subprocess.run(cmd, shell=True).check_returncode()
+                cmd = ["/usr/sbin/profiler", "--clean", "--yes"]
+                subprocess.run(cmd).check_returncode()
                 self.alert_obj.display_alert_info(
                     g_vars, "Reports purged.", title="Success"
                 )
@@ -403,8 +403,8 @@ class Profiler:
             self.alert_obj.display_popup_alert(g_vars, "Purging files...")
 
             try:
-                cmd = "/usr/sbin/profiler --clean --files --yes"
-                subprocess.run(cmd, shell=True)
+                cmd = ["/usr/sbin/profiler", "--clean", "--files", "--yes"]
+                subprocess.run(cmd)
                 self.alert_obj.display_alert_info(
                     g_vars, "Files purged.", title="Success"
                 )

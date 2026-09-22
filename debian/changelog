@@ -1,3 +1,13 @@
+wlanpi-fpms (1.4.20-1) unstable; urgency=medium
+
+  * Behaviour-preserving micro-optimizations on the subprocess-heavy paths:
+    run single commands directly instead of via `/bin/sh`, read `cat`-ed sysfs
+    files with open(), and avoid duplicate `iw dev`/`hciconfig` reads within a
+    single home-page render. Measured ~10% fewer execve and ~16% fewer clone
+    calls over a 20s active window.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Mon, 21 Sep 2026 21:51:48 -0400
+
 wlanpi-fpms (1.4.19-1) unstable; urgency=medium
 
   * Remove orphaned Software Update code; the menu entry was removed in

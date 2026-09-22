@@ -146,9 +146,7 @@ class Utils:
         try:
             g_vars["disable_keys"] = True
 
-            reachability_output = subprocess.check_output(
-                REACHABILITY_FILE, shell=True
-            ).decode()
+            reachability_output = subprocess.check_output([REACHABILITY_FILE]).decode()
             reachability_info = reachability_output.split("\n")
 
             if len(reachability_info) == 0:
@@ -275,7 +273,7 @@ class Utils:
         if ufw_info is None:
             try:
                 ufw_output = subprocess.check_output(
-                    f"sudo {ufw_file} status", shell=True
+                    ["sudo", ufw_file, "status"]
                 ).decode()
                 ufw_info = ufw_output.split("\n")
                 g_vars["ufw_info"] = ufw_info  # cache results

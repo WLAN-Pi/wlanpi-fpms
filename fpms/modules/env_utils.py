@@ -102,16 +102,12 @@ class EnvUtils:
 
     def get_hostname(self):
         try:
-            hostname = (
-                subprocess.check_output("/usr/bin/hostname", shell=True)
-                .decode()
-                .strip()
-            )
+            hostname = subprocess.check_output(["/usr/bin/hostname"]).decode().strip()
             if "." not in hostname:
                 domain = "local"
                 try:
                     output = (
-                        subprocess.check_output("/usr/bin/hostname -d", shell=True)
+                        subprocess.check_output(["/usr/bin/hostname", "-d"])
                         .decode()
                         .strip()
                     )

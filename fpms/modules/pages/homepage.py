@@ -68,23 +68,36 @@ class HomePage:
         except subprocess.CalledProcessError:
             return -1
 
+    def _get_iw_interfaces(self):
+        """
+        Return the parsed `iw dev` interface list, computed at most once per
+        HomePage instance (i.e. once per render).
+        """
+        if getattr(self, "_iw_interfaces", None) is None:
+            iw_dev_output = (
+                subprocess.check_output([IW_FILE, "dev"], stderr=subprocess.STDOUT)
+                .decode()
+                .strip()
+            )
+            self.iw_textfsm_template.Reset()
+            self._iw_interfaces = self.iw_textfsm_template.ParseText(iw_dev_output)
+        return self._iw_interfaces
+
+    def _get_bt_power(self, g_vars):
+        """
+        Return whether the Bluetooth adapter is powered, computed at most once
+        per HomePage instance (i.e. once per render).
+        """
+        if getattr(self, "_bt_power", None) is None:
+            self._bt_power = Bluetooth(g_vars).bluetooth_power()
+        return self._bt_power
+
     def check_wlan(self):
         """
         Returns true if there's at least one WLAN interface present.
         """
-        interfaces = []
         try:
-            interfaces = (
-                subprocess.check_output(
-                    f"{IW_FILE} dev 2>&1 | grep -i interface" + "| awk '{ print $2 }'",
-                    shell=True,
-                )
-                .decode()
-                .strip()
-                .split()
-            )
-            if len(interfaces) > 0:
-                return True
+            return len(self._get_iw_interfaces()) > 0
         except Exception as e:
             print(e)
 
@@ -203,8 +216,7 @@ class HomePage:
 
         try:
             subprocess.run(
-                f"iw dev {if_name} info",
-                shell=True,
+                ["iw", "dev", if_name, "info"],
                 stderr=subprocess.DEVNULL,
                 stdout=subprocess.DEVNULL,
                 check=True,
@@ -227,7 +239,7 @@ class HomePage:
         status = None
         try:
             eth_info = subprocess.check_output(
-                f"{ETHTOOL_FILE} {if_name} 2>/dev/null", shell=True
+                [ETHTOOL_FILE, if_name], stderr=subprocess.DEVNULL
             ).decode()
             speed_re = re.findall(r"Speed\: (.*\/s)", eth_info, re.MULTILINE)
             duplex_re = re.findall(r"Duplex\: (.*)", eth_info, re.MULTILINE)
@@ -256,6 +268,10 @@ class HomePage:
         x = 0
         y = 0
         padding = 2
+
+        # Per-render memo, cleared here so it can never outlive the render.
+        self._iw_interfaces = None
+        self._bt_power = None
 
         g_vars["drawing_in_progress"] = True
         g_vars["display_state"] = "page"
@@ -380,7 +396,7 @@ class HomePage:
         except Exception:
             pass
         try:
-            if Bluetooth(g_vars).bluetooth_power():
+            if self._get_bt_power(g_vars):
                 status += " \U0001f3e7"
         except Exception:
             pass
@@ -485,9 +501,8 @@ class HomePage:
             # Show the PAN address if bluetooth is on and we're paired with a device
             pan = self.if_address("pan0")
             if pan.lower() != "no ip address":
-                bluetooth = Bluetooth(g_vars)
-                if bluetooth.bluetooth_power():
-                    paired_devices = bluetooth.bluetooth_paired_devices()
+                if self._get_bt_power(g_vars):
+                    paired_devices = Bluetooth(g_vars).bluetooth_paired_devices()
                     if paired_devices is not None:
                         y += self.iface_summary(g_vars, "pan0", "PAN", x=x, y=y)
 
@@ -839,8 +854,7 @@ class HomePage:
         Displays a bluetooth icon if bluetooth is on
         """
 
-        bluetooth = Bluetooth(g_vars)
-        if bluetooth.bluetooth_power():
+        if self._get_bt_power(g_vars):
             bluetooth_icon = chr(0xF128)
             canvas = g_vars["draw"]
             x = x + (width - ICONS.getbbox(bluetooth_icon)[2]) / 2 + 1
@@ -915,19 +929,8 @@ class HomePage:
 
         # WiFi Indicators
         try:
-            """
-            Get the list of wireless interfaces from iw and parse it as:
-                [["phy_index", "interface_name", "type"], ...]
-            e.g.
-                [["0", "wlan0", "managed"], ["0", "wlan0mon", "monitor"], ["1", "wlan1", "managed"]]
-            """
-            iw_dev_output = (
-                subprocess.check_output(f"{IW_FILE} dev 2>&1", shell=True)
-                .decode()
-                .strip()
-            )
-            self.iw_textfsm_template.Reset()
-            interfaces = self.iw_textfsm_template.ParseText(iw_dev_output)
+            # Parsed `iw dev` output: [["phy_index", "interface_name", "type"], ...]
+            interfaces = self._get_iw_interfaces()
 
             # WiFi indicator (wlan1)
             if x > current_time_width:
