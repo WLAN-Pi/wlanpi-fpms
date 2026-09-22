@@ -12,9 +12,6 @@ from fpms.modules.display import *
 from fpms.modules.env_utils import EnvUtils
 from fpms.modules.platform import *
 
-__version__ = "2.0.3"
-__author__ = "wifinigel@gmail.com"
-
 # Model file for WLAN Pi
 WLANPI_MODEL_FILE = "/etc/wlanpi-model"
 
@@ -25,6 +22,8 @@ env_util = EnvUtils()
 PLATFORM = env_util.get_platform(WLANPI_MODEL_FILE)
 DISPLAY_TYPE = env_util.get_display_type(PLATFORM)
 # Uncomment the line below to force a display type
+# NOTE: ST7789 retained for future HAT support; not selectable via
+# EnvUtils.get_display_type().
 # DISPLAY_TYPE = DISPLAY_TYPE_ST7789
 
 DISPLAY_ORIENTATION_NORMAL = "normal"
@@ -41,8 +40,6 @@ PAGE_HEIGHT = 128  # Pixel size of screen height
 NAV_BAR_TOP = PAGE_HEIGHT - 10  # Top pixel number of nav bar
 STATUS_BAR_HEIGHT = 16
 SYSTEM_BAR_HEIGHT = 15
-
-MENU_VERSION = __version__  # fpms version
 
 # figure out the script path
 SCRIPT_PATH = str(pathlib.Path(__file__).parent.parent.absolute())

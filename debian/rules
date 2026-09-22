@@ -49,8 +49,7 @@ override_dh_virtualenv:
 		--preinstall="setuptools==75.6.0" \
 		--preinstall="wheel==0.45.1" \
 		--preinstall="mock" \
-		--extra-pip-arg="--compile" \
-		--extras="all,systemd,test"
+		--extra-pip-arg="--compile"
 
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip cache purge --verbose
 	# Rebuild Pillow from source so it links the system imaging libs. Uninstall

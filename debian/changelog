@@ -1,3 +1,13 @@
+wlanpi-fpms (1.4.19-1) unstable; urgency=medium
+
+  * Remove orphaned Software Update code; the menu entry was removed in
+    commit 361714b but the backing functions were left unreferenced.
+  * Delete unused home_page_legacy and stale constants version metadata.
+  * Make the test suite runnable under tox and add a tests CI workflow.
+  * Fix the release manifest so it no longer picks up stale .deb files.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Mon, 21 Sep 2026 20:14:44 -0400
+
 wlanpi-fpms (1.4.18-1) unstable; urgency=medium
 
   * Profiler: build the front panel Wi-Fi QR code from the passphrase the

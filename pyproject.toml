@@ -31,3 +31,7 @@ known-first-party = ["fpms"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Put the repo root on sys.path so `pytest` (as invoked by tox) can import the
+# `fpms` package without an editable install. Without this, bare pytest fails
+# with ModuleNotFoundError while `python -m pytest` happens to work.
+pythonpath = ["."]

@@ -45,6 +45,8 @@ elif DISPLAY_TYPE == DISPLAY_TYPE_ST7735:
     BACKLIGHT_ACTIVE = "high"
     H_OFFSET = "1"
     V_OFFSET = "2"
+# NOTE: ST7789 path retained for future HAT support; not selectable via
+# EnvUtils.get_display_type().
 elif DISPLAY_TYPE == DISPLAY_TYPE_ST7789:
     # 240x240 1.3 in LCD Display HAT
     INTERFACE_TYPE = "gpio_cs_spi"
