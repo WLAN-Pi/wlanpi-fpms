@@ -3,10 +3,9 @@ Section: contrib/python
 Priority: optional
 Maintainer: Jiri Brejcha <jirka@jiribrejcha.net>
 Uploaders: Adrian Granados <adrian@intuitibits.com>, Josh Schmelzle <josh@joshschmelzle.com>, Nigel Bowden <wifinigel@gmail.com>
-Build-Depends: debhelper (>= 11),
-               dh-python,
+Build-Depends: dh-python,
                dh-virtualenv (>= 1.2),
-               debhelper-compat (= 11),
+               debhelper-compat (= 13),
                python3,
                python3-setuptools,
                python3-dev,
