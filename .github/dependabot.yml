@@ -17,3 +17,10 @@ updates:
       - dependency-name: "tzupdate"
       - dependency-name: "Pillow"
       - dependency-name: "qrcode"
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
