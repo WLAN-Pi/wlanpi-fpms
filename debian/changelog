@@ -1,3 +1,11 @@
+wlanpi-fpms (1.4.22-3) unstable; urgency=medium
+
+  * Build with debhelper compat 13. The compat 11 pin was a workaround
+    for dh_dwz breaking the Pillow build, which override_dh_dwz already
+    handles. Package contents and maintainer scripts are unchanged.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Wed, 23 Sep 2026 19:57:05 -0400
+
 wlanpi-fpms (1.4.22-2) unstable; urgency=medium
 
   * Sync the Python package version with the Debian 1.4.22 release.
