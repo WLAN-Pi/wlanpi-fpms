@@ -15,8 +15,16 @@ permissions:
   actions: read
 
 jobs:
+  check_version:
+    name: Check py & deb pkg versions match
+    uses: WLAN-Pi/gh-workflows/.github/workflows/check-py-deb-pkg-versions-match.yml@main
+    with:
+      python_version_file_path: 'fpms/__version__.py'
+
   sbuild:
     name: sbuild trixie+arm64
+
+    needs: check_version
 
     runs-on: 'ubuntu-24.04-arm'
 
