@@ -17,6 +17,7 @@ from fpms.modules.battery import *
 from fpms.modules.bluetooth import *
 from fpms.modules.constants import *
 from fpms.modules.env_utils import EnvUtils
+from fpms.modules.network import iw_dev_outputs, netns_cmd
 from fpms.modules.pages.display import *
 from fpms.modules.pages.simpletable import *
 from fpms.modules.platform import *
@@ -70,17 +71,17 @@ class HomePage:
 
     def _get_iw_interfaces(self):
         """
-        Return the parsed `iw dev` interface list, computed at most once per
-        HomePage instance (i.e. once per render).
+        Return the parsed `iw dev` interface list across the root and named
+        network namespaces as [[phy, name, type, netns], ...] (netns "" is
+        root), computed at most once per HomePage instance (i.e. once per render).
         """
         if getattr(self, "_iw_interfaces", None) is None:
-            iw_dev_output = (
-                subprocess.check_output([IW_FILE, "dev"], stderr=subprocess.STDOUT)
-                .decode()
-                .strip()
-            )
-            self.iw_textfsm_template.Reset()
-            self._iw_interfaces = self.iw_textfsm_template.ParseText(iw_dev_output)
+            interfaces = []
+            for netns, iw_dev_output in iw_dev_outputs():
+                self.iw_textfsm_template.Reset()
+                for row in self.iw_textfsm_template.ParseText(iw_dev_output.strip()):
+                    interfaces.append([*row, netns])
+            self._iw_interfaces: list | None = interfaces
         return self._iw_interfaces
 
     def _get_bt_power(self, g_vars):
@@ -757,19 +758,16 @@ class HomePage:
 
         for iface in interfaces:
             if iface[1] == if_name:
-                # phy index
+                # phy index (phy indexes are unique across namespaces)
                 phy = iface[0]
 
-                # check if the interface is UP
+                # check if the interface is UP, inside its own netns
                 try:
-                    subprocess.run(
-                        f"{IFCONFIG_FILE} {if_name} | grep UP",
-                        shell=True,
-                        stdout=subprocess.DEVNULL,
+                    ifconfig_output = subprocess.check_output(
+                        netns_cmd(iface[3], [IFCONFIG_FILE, if_name]),
                         stderr=subprocess.DEVNULL,
-                        check=True,
-                    )
-                    status_up = True
+                    ).decode()
+                    status_up = "UP" in ifconfig_output
                 except Exception:
                     pass
 
@@ -929,7 +927,7 @@ class HomePage:
 
         # WiFi Indicators
         try:
-            # Parsed `iw dev` output: [["phy_index", "interface_name", "type"], ...]
+            # Parsed `iw dev` output: [["phy_index", "interface_name", "type", "netns"], ...]
             interfaces = self._get_iw_interfaces()
 
             # WiFi indicator (wlan1)

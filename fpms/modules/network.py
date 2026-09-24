@@ -6,6 +6,7 @@ from fpms.modules.constants import (
     CDPNEIGH_FILE,
     ETHTOOL_FILE,
     IFCONFIG_FILE,
+    IP_FILE,
     IPCONFIG_FILE,
     IW_FILE,
     LLDPNEIGH_FILE,
@@ -16,6 +17,70 @@ from fpms.modules.pages.alert import *
 from fpms.modules.pages.display import *
 from fpms.modules.pages.pagedtable import *
 from fpms.modules.pages.simpletable import *
+
+
+def netns_cmd(netns, cmd):
+    """
+    Prefix an argv list so it runs inside the named network namespace
+    (netns "" is the root namespace and returns cmd unchanged).
+    """
+    return [IP_FILE, "netns", "exec", netns, *cmd] if netns else cmd
+
+
+def read_sysfs(netns, path):
+    """
+    Read a sysfs file as seen from the given netns. `ip netns exec` remounts
+    /sys, so a namespaced interface's entries are only visible from inside it.
+    """
+    if not netns:
+        with open(path) as f:
+            return f.read().strip()
+    return (
+        subprocess.check_output(netns_cmd(netns, ["cat", path]), timeout=5)
+        .decode()
+        .strip()
+    )
+
+
+def iw_dev_outputs(timeout=5):
+    """
+    Return [(netns, `iw dev` output), ...] for the root namespace (netns "")
+    and every named netns. wlanpi-core can move a whole phy into a named netns,
+    which hides it from the root `iw dev`. A named netns whose exec fails is
+    skipped so one broken namespace cannot hide the others.
+    """
+    outputs = [
+        (
+            "",
+            subprocess.check_output(
+                [IW_FILE, "dev"], stderr=subprocess.STDOUT, timeout=timeout
+            ).decode(),
+        )
+    ]
+
+    try:
+        netns_list = subprocess.check_output(
+            [IP_FILE, "netns", "list"], stderr=subprocess.DEVNULL, timeout=timeout
+        ).decode()
+    except Exception:
+        return outputs
+
+    # `ip netns list` lines look like "name" or "name (id: 0)"
+    for line in netns_list.splitlines():
+        if not line.strip():
+            continue
+        netns = line.split()[0]
+        try:
+            output = subprocess.check_output(
+                netns_cmd(netns, [IW_FILE, "dev"]),
+                stderr=subprocess.DEVNULL,
+                timeout=timeout,
+            ).decode()
+        except Exception:
+            continue
+        outputs.append((netns, output))
+
+    return outputs
 
 
 class Network:
@@ -154,16 +219,12 @@ class Network:
         pages = []
 
         try:
-            interfaces = (
-                subprocess.check_output(
-                    f"{IW_FILE} dev 2>&1 | grep -i interface" + "| awk '{ print $2 }'",
-                    shell=True,
-                    timeout=10,
-                )
-                .decode()
-                .strip()
-                .split()
-            )
+            # [(netns, interface), ...]; netns "" is the root namespace
+            interfaces = [
+                (netns, interface)
+                for netns, output in iw_dev_outputs()
+                for interface in re.findall(r"^\s*Interface\s+(\S+)", output, re.M)
+            ]
         except Exception:
             pass
 
@@ -174,14 +235,18 @@ class Network:
             g_vars["disable_keys"] = False
             return None
 
-        for interface in interfaces:
+        for netns, interface in interfaces:
             page = []
             page.append(f"Interface: {interface}")
+            if netns:
+                page.append(f"Netns: {netns}")
 
             # Driver
             try:
                 ethtool_output = (
-                    subprocess.check_output([ETHTOOL_FILE, "-i", interface])
+                    subprocess.check_output(
+                        netns_cmd(netns, [ETHTOOL_FILE, "-i", interface])
+                    )
                     .decode()
                     .strip()
                 )
@@ -192,18 +257,20 @@ class Network:
 
             # Device ID (USB or PCI)
             try:
-                modalias_path = f"/sys/class/net/{interface}/device/modalias"
-                with open(modalias_path) as f:
-                    modalias = f.read().strip()
+                modalias = read_sysfs(
+                    netns, f"/sys/class/net/{interface}/device/modalias"
+                )
                 bus = modalias.split(":")[0]
                 if bus == "usb":
                     device_id = modalias.split(":")[1][1:10].replace("p", ":")
                     page.append(f"DevID: {device_id}")
                 elif bus == "pci":
-                    with open(f"/sys/class/net/{interface}/device/vendor") as f:
-                        vendor = f.read().strip()
-                    with open(f"/sys/class/net/{interface}/device/device") as f:
-                        device = f.read().strip()
+                    vendor = read_sysfs(
+                        netns, f"/sys/class/net/{interface}/device/vendor"
+                    )
+                    device = read_sysfs(
+                        netns, f"/sys/class/net/{interface}/device/device"
+                    )
                     page.append(f"DevID: {vendor}:{device}")
             except Exception:
                 pass
@@ -211,7 +278,9 @@ class Network:
             # Addr, SSID, Mode, Channel
             try:
                 iw_output = (
-                    subprocess.check_output([IW_FILE, interface, "info"])
+                    subprocess.check_output(
+                        netns_cmd(netns, [IW_FILE, interface, "info"])
+                    )
                     .decode()
                     .strip()
                 )
