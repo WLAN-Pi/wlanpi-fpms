@@ -50,7 +50,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -68,7 +68,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -86,7 +86,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -104,7 +104,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -122,7 +122,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -140,7 +140,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -158,7 +158,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -176,7 +176,7 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
 
@@ -194,6 +194,6 @@ class RegDomain:
             g_vars["display_state"] = "menu"
             return
 
-        self.alert_obj.display_popup_alert(g_vars, "Success. Reboot req.", delay=2.5)
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
         g_vars["display_state"] = "menu"
         return
