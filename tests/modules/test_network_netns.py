@@ -2,8 +2,13 @@ import subprocess
 
 import pytest
 
-from fpms.modules.constants import IP_FILE, IW_FILE
-from fpms.modules.network import iw_dev_outputs, netns_cmd
+from fpms.modules.constants import IFCONFIG_FILE, IP_FILE, IW_FILE
+from fpms.modules.network import (
+    interface_lines,
+    iw_dev_outputs,
+    netns_cmd,
+    netns_outputs,
+)
 
 ROOT_IW_DEV = "phy#0\n\tInterface wlan0\n\t\ttype managed\n"
 NS_IW_DEV = "phy#1\n\tInterface wlan1\n\t\ttype monitor\n"
@@ -102,3 +107,67 @@ def test_iw_dev_outputs_skips_broken_netns(monkeypatch, error):
     )
 
     assert iw_dev_outputs() == [("", ROOT_IW_DEV), ("ns1", NS_IW_DEV)]
+
+
+IFCONFIG = """\
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.6.59  netmask 255.255.255.0  broadcast 192.168.6.255
+        RX packets 10  bytes 100 (100.0 B)
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        RX packets 1  bytes 10 (10.0 B)
+"""
+
+NS_IFCONFIG = """\
+lo: flags=8<LOOPBACK>  mtu 65536
+        RX packets 0  bytes 0 (0.0 B)
+wlan2: flags=4098<BROADCAST,MULTICAST>  mtu 1500
+        RX packets 0  bytes 0 (0.0 B)
+"""
+
+
+def test_interface_lines_root_keeps_lo(monkeypatch):
+    assert interface_lines("", IFCONFIG) == ["▲ e0:192.168.6.59", "▲ lo:127.0.0.1"]
+
+
+def test_interface_lines_netns_skips_lo_and_checks_monitor_inside(monkeypatch):
+    calls = []
+
+    def _check_output(cmd, **kwargs):
+        calls.append(cmd)
+        return b"Interface wlan2\n\ttype monitor\n"
+
+    monkeypatch.setattr(subprocess, "check_output", _check_output)
+
+    assert interface_lines("ns1", NS_IFCONFIG) == ["▽ w2:Monitor"]
+    assert calls == [[IP_FILE, "netns", "exec", "ns1", IW_FILE, "wlan2", "info"]]
+
+
+def test_netns_outputs_runs_cmd_in_each_netns(monkeypatch):
+    monkeypatch.setattr(
+        subprocess,
+        "check_output",
+        fake_check_output(
+            {
+                (IFCONFIG_FILE, "-a"): IFCONFIG,
+                (IP_FILE, "netns", "list"): "ns1 (id: 0)\n",
+                (IP_FILE, "netns", "exec", "ns1", IFCONFIG_FILE, "-a"): NS_IFCONFIG,
+            }
+        ),
+    )
+
+    assert netns_outputs([IFCONFIG_FILE, "-a"]) == [
+        ("", IFCONFIG),
+        ("ns1", NS_IFCONFIG),
+    ]
+
+
+def test_netns_outputs_root_failure_raises(monkeypatch):
+    monkeypatch.setattr(
+        subprocess,
+        "check_output",
+        fake_check_output({(IFCONFIG_FILE, "-a"): FileNotFoundError(IFCONFIG_FILE)}),
+    )
+
+    with pytest.raises(FileNotFoundError):
+        netns_outputs([IFCONFIG_FILE, "-a"])

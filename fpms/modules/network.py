@@ -42,18 +42,19 @@ def read_sysfs(netns, path):
     )
 
 
-def iw_dev_outputs(timeout=5):
+def netns_outputs(cmd, timeout=5):
     """
-    Return [(netns, `iw dev` output), ...] for the root namespace (netns "")
+    Return [(netns, output of cmd), ...] for the root namespace (netns "")
     and every named netns. wlanpi-core can move a whole phy into a named netns,
-    which hides it from the root `iw dev`. A named netns whose exec fails is
-    skipped so one broken namespace cannot hide the others.
+    which hides its interfaces from root. A root failure raises as before; a
+    named netns whose exec fails is skipped so one broken namespace cannot hide
+    the others.
     """
     outputs = [
         (
             "",
             subprocess.check_output(
-                [IW_FILE, "dev"], stderr=subprocess.STDOUT, timeout=timeout
+                cmd, stderr=subprocess.STDOUT, timeout=timeout
             ).decode(),
         )
     ]
@@ -72,7 +73,7 @@ def iw_dev_outputs(timeout=5):
         netns = line.split()[0]
         try:
             output = subprocess.check_output(
-                netns_cmd(netns, [IW_FILE, "dev"]),
+                netns_cmd(netns, cmd),
                 stderr=subprocess.DEVNULL,
                 timeout=timeout,
             ).decode()
@@ -81,6 +82,67 @@ def iw_dev_outputs(timeout=5):
         outputs.append((netns, output))
 
     return outputs
+
+
+def iw_dev_outputs(timeout=5):
+    """Return [(netns, `iw dev` output), ...] for root and every named netns."""
+    return netns_outputs([IW_FILE, "dev"], timeout=timeout)
+
+
+def interface_lines(netns, ifconfig_info):
+    """
+    Format `ifconfig -a` output from one namespace as "<status> <name>:<ip>"
+    lines. Every named netns has its own loopback, so lo is skipped there.
+    """
+    lines = []
+    # Extract interface info with a bit of regex magic
+    for interface_name, interface_info in re.findall(
+        r"^(\w+?)\: flags(.*?)RX packets", ifconfig_info, re.DOTALL | re.MULTILINE
+    ):
+        if netns and interface_name == "lo":
+            continue
+
+        # determine interface status
+        status = (
+            "▲" if re.search("UP", interface_info, re.MULTILINE) is not None else "▽"
+        )
+
+        # determine IP address
+        inet_search = re.search("inet (.+?) ", interface_info, re.MULTILINE)
+        if inet_search is None:
+            ip_address = "-"
+
+            # do check if this is an interface in monitor mode
+            if re.search(r"(wlan\d+)|(mon\d+)", interface_name, re.MULTILINE):
+                try:
+                    iw_info = subprocess.check_output(
+                        netns_cmd(netns, [IW_FILE, interface_name, "info"]),
+                        timeout=5,
+                    ).decode()
+
+                    if re.search("type monitor", iw_info, re.MULTILINE):
+                        ip_address = "Monitor"
+                except Exception:
+                    ip_address = "-"
+        else:
+            ip_address = inet_search.group(1)
+
+        # shorten interface name to make space for status and IP address
+        if len(interface_name) > 2:
+            short_name = interface_name
+            try:
+                id = re.search(r".*(\d+).*", interface_name).group(1)  # type: ignore[union-attr]
+                if interface_name.endswith(id):
+                    short_name = f"{interface_name[0]}{id}"
+                else:
+                    short_name = f"{interface_name[0]}{id}{interface_name[-1]}"
+                interface_name = short_name
+            except Exception:
+                pass
+
+        # format interface info
+        lines.append(f"{status} {interface_name}:{ip_address}")
+    return lines
 
 
 class Network:
@@ -102,76 +164,20 @@ class Network:
         Return the list of network interfaces with IP address (if available)
         """
 
-        ifconfig_file = IFCONFIG_FILE
-        iw_file = IW_FILE
-
         try:
-            ifconfig_info = subprocess.check_output(
-                f"{ifconfig_file} -a", shell=True
-            ).decode()
+            outputs = netns_outputs([IFCONFIG_FILE, "-a"])
         except Exception as ex:
             interfaces = ["Err: ifconfig error", str(ex)]
             self.simple_table_obj.display_simple_table(g_vars, interfaces)
             return
 
-        # Extract interface info with a bit of regex magic
-        interface_re = re.findall(
-            r"^(\w+?)\: flags(.*?)RX packets", ifconfig_info, re.DOTALL | re.MULTILINE
-        )
-        if interface_re is None:
-            # Something broke is our regex - report an issue
-            interfaces = ["Error: match error"]
-        else:
-            interfaces = []
-            for result in interface_re:
-                # save the interface name
-                interface_name = result[0]
-
-                # look at the rest of the interface info & extract IP if available
-                interface_info = result[1]
-
-                # determine interface status
-                status = (
-                    "▲"
-                    if re.search("UP", interface_info, re.MULTILINE) is not None
-                    else "▽"
-                )
-
-                # determine IP address
-                inet_search = re.search("inet (.+?) ", interface_info, re.MULTILINE)
-                if inet_search is None:
-                    ip_address = "-"
-
-                    # do check if this is an interface in monitor mode
-                    if re.search(r"(wlan\d+)|(mon\d+)", interface_name, re.MULTILINE):
-                        # fire up 'iw' for this interface (hmmm..is this a bit of an un-necessary ovehead?)
-                        try:
-                            iw_info = subprocess.check_output(
-                                [iw_file, interface_name, "info"]
-                            ).decode()
-
-                            if re.search("type monitor", iw_info, re.MULTILINE):
-                                ip_address = "Monitor"
-                        except Exception:
-                            ip_address = "-"
-                else:
-                    ip_address = inet_search.group(1)
-
-                # shorten interface name to make space for status and IP address
-                if len(interface_name) > 2:
-                    short_name = interface_name
-                    try:
-                        id = re.search(r".*(\d+).*", interface_name).group(1)  # type: ignore[union-attr]
-                        if interface_name.endswith(id):
-                            short_name = f"{interface_name[0]}{id}"
-                        else:
-                            short_name = f"{interface_name[0]}{id}{interface_name[-1]}"
-                        interface_name = short_name
-                    except Exception:
-                        pass
-
-                # format interface info
-                interfaces.append(f"{status} {interface_name}:{ip_address}")
+        interfaces = []
+        for netns, ifconfig_info in outputs:
+            lines = interface_lines(netns, ifconfig_info)
+            if netns and lines:
+                # the screen is too narrow for a per-line suffix
+                interfaces.append(f"[{netns}]")
+            interfaces.extend(lines)
 
         # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
