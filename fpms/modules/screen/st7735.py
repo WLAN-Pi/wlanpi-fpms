@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 
 import time
-import warnings
 
+import gpiod
 import spidev
-from gpiozero import DigitalInputDevice, DigitalOutputDevice, PWMOutputDevice
-from gpiozero.exc import PinFactoryFallback
+from gpiod.line import Direction, Value
 from PIL import Image
 
+from fpms.modules.constants import GPIO_CHIP
 from fpms.modules.screen.screen import AbstractScreen
-
-# Some images ship without lgpio; gpiozero then silently falls back to another
-# pin factory, which works fine. The warning is noise, not a fault.
-warnings.filterwarnings("ignore", category=PinFactoryFallback)
 
 LCD_WIDTH, LCD_HEIGHT, LCD_X, LCD_Y = 128, 128, 2, 1
 
@@ -27,6 +23,8 @@ class RaspberryPi:
     # spi is opened lazily, not as a default arg: a default arg is evaluated at
     # class-definition (import) time, which crashes with FileNotFoundError on any
     # machine without /dev/spidev0.0 (e.g. a VM with no display hardware).
+    # GPIO goes through gpiod rather than gpiozero: gpiozero falls back to
+    # RPi.GPIO, which cannot drive the Pi 5 (RP1) header.
     def __init__(
         self,
         spi=None,
@@ -34,20 +32,22 @@ class RaspberryPi:
         rst=27,
         dc=25,
         bl=24,
-        bl_freq=1000,
-        i2c=None,
-        i2c_freq=100000,
     ):
-        self.INPUT = False
-        self.OUTPUT = True
-
         self.SPEED = spi_freq
-        self.BL_freq = bl_freq
 
-        self.GPIO_RST_PIN = self.gpio_mode(rst, self.OUTPUT)
-        self.GPIO_DC_PIN = self.gpio_mode(dc, self.OUTPUT)
-        self.GPIO_BL_PIN = self.gpio_pwm(bl)
-        self.bl_DutyCycle(0)
+        self.GPIO_RST_PIN = rst
+        self.GPIO_DC_PIN = dc
+        self.GPIO_BL_PIN = bl
+        # Backlight starts off (all lines low), as before
+        self.gpio = gpiod.request_lines(
+            GPIO_CHIP,
+            consumer="fpms-st7735",
+            config={
+                (rst, dc, bl): gpiod.LineSettings(
+                    direction=Direction.OUTPUT, output_value=Value.INACTIVE
+                )
+            },
+        )
 
         # Initialize SPI
         if spi is None:
@@ -57,36 +57,20 @@ class RaspberryPi:
             self.SPI.max_speed_hz = spi_freq
             self.SPI.mode = 0b00
 
-    def gpio_mode(self, Pin, Mode, pull_up=None, active_state=True):
-        if Mode:
-            return DigitalOutputDevice(Pin, active_high=True, initial_value=False)
-        else:
-            return DigitalInputDevice(Pin, pull_up=pull_up, active_state=active_state)
-
     def digital_write(self, Pin, value):
-        if value:
-            Pin.on()
-        else:
-            Pin.off()
-
-    def digital_read(self, Pin):
-        return Pin.value
+        self.gpio.set_value(Pin, Value.ACTIVE if value else Value.INACTIVE)
 
     def delay_ms(self, delaytime):
         time.sleep(delaytime / 1000.0)
-
-    def gpio_pwm(self, Pin):
-        return PWMOutputDevice(Pin, frequency=self.BL_freq)
 
     def spi_writebyte(self, data):
         if self.SPI:
             self.SPI.writebytes(data)
 
+    # ponytail: backlight is on/off only; callers only ever pass 0 or 100.
+    # Add software PWM here if brightness control is ever wanted.
     def bl_DutyCycle(self, duty):
-        self.GPIO_BL_PIN.value = duty / 100
-
-    def bl_Frequency(self, freq):
-        self.GPIO_BL_PIN.frequency = freq
+        self.digital_write(self.GPIO_BL_PIN, duty > 0)
 
     def module_init(self):
         if self.SPI:
@@ -100,7 +84,7 @@ class RaspberryPi:
 
         self.digital_write(self.GPIO_RST_PIN, 1)
         self.digital_write(self.GPIO_DC_PIN, 0)
-        self.GPIO_BL_PIN.close()
+        self.gpio.release()
         time.sleep(0.001)
 
 

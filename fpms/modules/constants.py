@@ -21,6 +21,7 @@ WLANPI_IMAGE_FILE = "/etc/wlanpi-release"
 env_util = EnvUtils()
 PLATFORM = env_util.get_platform(WLANPI_MODEL_FILE)
 DISPLAY_TYPE = env_util.get_display_type(PLATFORM)
+GPIO_CHIP = env_util.get_gpiochip()
 # Uncomment the line below to force a display type
 # NOTE: ST7789 retained for future HAT support; not selectable via
 # EnvUtils.get_display_type().
