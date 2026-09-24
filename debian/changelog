@@ -1,3 +1,13 @@
+wlanpi-fpms (1.4.23-1) unstable; urgency=medium
+
+  * Show Wi-Fi adapters that wlanpi-core moved into a network namespace
+    on the home page, Network > WLAN Interfaces and Network >
+    Interfaces, instead of reporting NO WI-FI ADAPTER (#187).
+  * After setting the RF domain, say "Domain set" instead of "Success.
+    Reboot req.": the domain applies immediately (#190).
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Thu, 24 Sep 2026 17:03:46 -0400
+
 wlanpi-fpms (1.4.22-3) unstable; urgency=medium
 
   * Build with debhelper compat 13. The compat 11 pin was a workaround
