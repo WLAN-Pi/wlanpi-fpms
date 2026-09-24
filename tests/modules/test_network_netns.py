@@ -171,3 +171,41 @@ def test_netns_outputs_root_failure_raises(monkeypatch):
 
     with pytest.raises(FileNotFoundError):
         netns_outputs([IFCONFIG_FILE, "-a"])
+
+
+class _Table:
+    def __init__(self):
+        self.lines = None
+
+    def display_list_as_paged_table(self, g_vars, lines, title=""):
+        self.lines = lines
+
+
+def _show_interfaces(monkeypatch, outputs):
+    import fpms.modules.network as network
+
+    monkeypatch.setattr(network, "netns_outputs", lambda cmd: outputs)
+    monkeypatch.setattr(
+        subprocess, "check_output", lambda cmd, **kw: b"\ttype monitor\n"
+    )
+    obj = network.Network.__new__(network.Network)
+    obj.paged_table_obj = _Table()
+    obj.show_interfaces({"display_state": "page"})
+    return obj.paged_table_obj.lines
+
+
+def test_show_interfaces_groups_named_netns_under_heading(monkeypatch):
+    assert _show_interfaces(monkeypatch, [("", IFCONFIG), ("ns1", NS_IFCONFIG)]) == [
+        "▲ e0:192.168.6.59",
+        "▲ lo:127.0.0.1",
+        "[ns1]",
+        "▽ w2:Monitor",
+    ]
+
+
+def test_show_interfaces_omits_heading_for_loopback_only_netns(monkeypatch):
+    lo_only = "lo: flags=8<LOOPBACK>  mtu 65536\n        RX packets 0\n"
+    assert _show_interfaces(monkeypatch, [("", IFCONFIG), ("ns1", lo_only)]) == [
+        "▲ e0:192.168.6.59",
+        "▲ lo:127.0.0.1",
+    ]
