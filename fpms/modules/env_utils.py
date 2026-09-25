@@ -5,6 +5,7 @@ FPMS is running. These will be replcaed by back-end API calls in the
 longer term
 """
 
+import glob
 import hashlib
 import os
 import subprocess
@@ -55,6 +56,28 @@ class EnvUtils:
             platform = PLATFORM_UNKNOWN
 
         return platform
+
+    def get_gpiochip(self, dev_dir="/dev"):
+        """
+        Return the gpiochip that drives the 40-pin header. Chip numbering is
+        not stable: on the Pi 5 the RP1 header chip is not gpiochip0 on every
+        kernel, so match the driver label instead. Falls back to gpiochip0.
+        """
+        fallback = os.path.join(dev_dir, "gpiochip0")
+        try:
+            # Pi-only runtime dependency, absent on CI and dev machines
+            import gpiod
+        except ImportError:
+            return fallback
+
+        for path in sorted(glob.glob(os.path.join(dev_dir, "gpiochip*"))):
+            try:
+                with gpiod.Chip(path) as chip:
+                    if chip.get_info().label in HEADER_GPIOCHIP_LABELS:
+                        return path
+            except OSError:
+                continue
+        return fallback
 
     def get_display_type(self, platform):
         if platform == PLATFORM_PRO:

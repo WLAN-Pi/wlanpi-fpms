@@ -293,7 +293,7 @@ optional options:
     # Add an explicit lock file if that case ever matters.
     ####################################
     button_request: Any = None
-    if os.path.exists("/dev/gpiochip0"):
+    if os.path.exists(GPIO_CHIP):
         line_setting = gpiod.LineSettings(
             bias=Bias.PULL_UP,
             edge_detection=Edge.FALLING,
@@ -301,7 +301,7 @@ optional options:
         )
         lines = dict.fromkeys(BUTTONS_PINS.values(), line_setting)
         try:
-            button_request = gpiod.request_lines("/dev/gpiochip0", lines)
+            button_request = gpiod.request_lines(GPIO_CHIP, lines)
         except OSError:
             print(
                 "fpms: another fpms instance is using the display/buttons. "
@@ -1262,7 +1262,7 @@ optional options:
         m.start()
     else:
         log_to_syslog(
-            "No /dev/gpiochip0 found; hardware buttons unavailable (use -e for keyboard emulation)"
+            f"No {GPIO_CHIP} found; hardware buttons unavailable (use -e for keyboard emulation)"
         )
 
     button_key1_present = "key1" in BUTTONS_PINS
