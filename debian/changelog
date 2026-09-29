@@ -1,3 +1,12 @@
+wlanpi-fpms (1.4.24-1) unstable; urgency=medium
+
+  * Drive the ST7735 display and the buttons on a Raspberry Pi 5. FPMS
+    crashed at display init there, and the buttons were disabled,
+    because the Pi 5 header is not /dev/gpiochip0. FPMS now finds the
+    header chip by its kernel label; Pi 4 and CM4 are unchanged.
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Tue, 29 Sep 2026 00:53:52 -0400
+
 wlanpi-fpms (1.4.23-1) unstable; urgency=medium
 
   * Show Wi-Fi adapters that wlanpi-core moved into a network namespace
