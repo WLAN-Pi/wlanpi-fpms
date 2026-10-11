@@ -336,7 +336,13 @@ optional options:
 
     # Report ready only once a reboot can draw its screen: startup reboots
     # (wlanpi-config-at-startup) wait for multi-user.target, which waits for this.
-    dbus_handlers_ready.wait(timeout=5)
+    # Without D-Bus, report ready anyway: a menu with no reboot screen beats
+    # systemd killing fpms at TimeoutStartSec.
+    if not dbus_handlers_ready.wait(timeout=20):
+        log_to_syslog(
+            "D-Bus handlers not ready; the reboot screen will not show",
+            syslog.LOG_WARNING,
+        )
     sd_notify_ready()
 
     #####################################
