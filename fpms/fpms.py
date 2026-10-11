@@ -340,7 +340,7 @@ optional options:
     # systemd killing fpms at TimeoutStartSec.
     if not dbus_handlers_ready.wait(timeout=20):
         log_to_syslog(
-            "D-Bus handlers not ready; the reboot screen will not show",
+            "D-Bus handlers not ready; reboots started outside fpms show no screen",
             syslog.LOG_WARNING,
         )
     sd_notify_ready()
