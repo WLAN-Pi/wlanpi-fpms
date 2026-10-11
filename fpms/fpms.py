@@ -135,6 +135,9 @@ def handle_jobnew(*args):
                 handle_reboot_or_shutdown(True)
 
 
+dbus_handlers_ready = threading.Event()
+
+
 def run_dbus_loop():
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
@@ -168,6 +171,7 @@ def run_dbus_loop():
     )
 
     log_to_syslog("event handlers added")
+    dbus_handlers_ready.set()
 
     # Run indefinitely to handle D-Bus signals
     loop = GLib.MainLoop()
@@ -329,6 +333,11 @@ optional options:
     g_vars["shutdown_image"] = Image.open(IMAGE_DIR + "/shutdown.png").convert(
         DISPLAY_MODE
     )
+
+    # Report ready only once a reboot can draw its screen: startup reboots
+    # (wlanpi-config-at-startup) wait for multi-user.target, which waits for this.
+    dbus_handlers_ready.wait(timeout=5)
+    sd_notify_ready()
 
     #####################################
     # check our current operating mode

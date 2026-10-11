@@ -3,6 +3,9 @@ Description=Front Panel Menu System for the WLAN Pi OLED display
 RequiresMountsFor=/dev/spidev
 
 [Service]
+# fpms sends READY=1 once it can draw the reboot screen
+Type=notify
+TimeoutStartSec=30
 ExecStart=/usr/sbin/fpms
 
 [Install]
