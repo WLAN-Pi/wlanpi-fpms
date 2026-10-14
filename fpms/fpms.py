@@ -105,17 +105,27 @@ def log_to_syslog(message, level=syslog.LOG_INFO):
     syslog.closelog()
 
 
+def _release_shutdown_inhibitor():
+    """Release the delay lock once, even if both shutdown signals arrive."""
+    inhibitor_fd = g_vars.pop("shutdown_inhibitor_fd", None)
+    if inhibitor_fd is not None:
+        os.close(inhibitor_fd)
+
+
 def handle_reboot_or_shutdown(shutdown=False):
     global g_vars
     log_to_syslog(f"shutdown_in_progress: {g_vars['shutdown_in_progress']}")
-    if not g_vars["shutdown_in_progress"]:
-        g_vars["shutdown_in_progress"] = True
-        log_to_syslog("Drawing shutdown/reboot image")
-        if shutdown:
-            oled.drawImage(g_vars["shutdown_image"])
-        else:
-            oled.drawImage(g_vars["reboot_image"])
-        log_to_syslog("Shutdown/reboot image drawn")
+    try:
+        if not g_vars["shutdown_in_progress"]:
+            g_vars["shutdown_in_progress"] = True
+            log_to_syslog("Drawing shutdown/reboot image")
+            if shutdown:
+                oled.drawImage(g_vars["shutdown_image"])
+            else:
+                oled.drawImage(g_vars["reboot_image"])
+            log_to_syslog("Shutdown/reboot image drawn")
+    finally:
+        _release_shutdown_inhibitor()
 
 
 # Handler for PrepareForShutdown signal
@@ -148,9 +158,10 @@ def run_dbus_loop():
     login1_proxy = bus.get_object("org.freedesktop.login1", "/org/freedesktop/login1")
     login1 = dbus.Interface(login1_proxy, "org.freedesktop.login1.Manager")
 
-    # Take an inhibitor lock to receive the PrepareForShutdown signal
-    # Keep a reference: the inhibitor lock is released when the fd is closed.
-    _inhibitor_fd = login1.Inhibit("shutdown", "fpms", "Delaying shutdown", "delay")
+    # Own the fd so the shutdown handler can release the delay after drawing.
+    g_vars["shutdown_inhibitor_fd"] = login1.Inhibit(
+        "shutdown", "fpms", "Delaying shutdown", "delay"
+    ).take()
 
     # Add a signal receiver for the "PrepareForShutdown" signal from login1.Manager
     # Handles systemctl reboot
@@ -175,7 +186,10 @@ def run_dbus_loop():
 
     # Run indefinitely to handle D-Bus signals
     loop = GLib.MainLoop()
-    loop.run()
+    try:
+        loop.run()
+    finally:
+        _release_shutdown_inhibitor()
 
 
 # Function to read a value from a section in the .conf file
