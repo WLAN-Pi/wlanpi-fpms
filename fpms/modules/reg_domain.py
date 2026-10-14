@@ -54,6 +54,24 @@ class RegDomain:
         g_vars["display_state"] = "menu"
         return
 
+    def set_reg_domain_au(self, g_vars):
+        self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
+
+        try:
+            subprocess.check_output(
+                [REG_DOMAIN_FILE, "set", "AU", "--no-prompt"]
+            ).decode()
+            time.sleep(1)
+        except subprocess.CalledProcessError as exc:
+            print(exc)
+            self.alert_obj.display_alert_error(g_vars, "Failed to set domain")
+            g_vars["display_state"] = "menu"
+            return
+
+        self.alert_obj.display_popup_alert(g_vars, "Domain set", delay=2.5)
+        g_vars["display_state"] = "menu"
+        return
+
     def set_reg_domain_ca(self, g_vars):
         self.alert_obj.display_popup_alert(g_vars, "Setting domain", delay=2)
 
