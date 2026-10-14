@@ -577,6 +577,10 @@ optional options:
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_us(g_vars)
 
+    def set_reg_domain_au():
+        system_obj = RegDomain(g_vars)
+        system_obj.set_reg_domain_au(g_vars)
+
     def set_reg_domain_ca():
         system_obj = RegDomain(g_vars)
         system_obj.set_reg_domain_ca(g_vars)
@@ -929,6 +933,15 @@ optional options:
                                         {
                                             "name": "Confirm & Reboot",
                                             "action": set_reg_domain_us,
+                                        },
+                                    ],
+                                },
+                                {
+                                    "name": "Set Domain AU",
+                                    "action": [
+                                        {
+                                            "name": "Confirm & Reboot",
+                                            "action": set_reg_domain_au,
                                         },
                                     ],
                                 },
