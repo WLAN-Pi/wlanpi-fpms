@@ -59,7 +59,7 @@ jobs:
             exit 1
           fi
           target="wlanpi/dev/debian/trixie"
-          sudo gem install package_cloud
+          sudo gem install package_cloud -v 0.3.15
           echo "Pushing ${DEB_PACKAGE} to ${target}"
           out=$(package_cloud push "${target}" "${DEB_PACKAGE}" 2>&1) || true
           echo "${out}"
