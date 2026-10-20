@@ -1,10 +1,5 @@
 /*
  * fpms-splash [file]: draw a frame fpms saved (default /var/lib/wlanpi-fpms/boot-splash).
- *
- * Runs as soon as systemd starts, long before fpms (Python) can. The file is
- * "<panel> <gpiochip>\n" followed by a 128x128 RGB565 frame; fpms writes it
- * (fpms/boot_splash.py) for the panel and orientation in use. Panel init
- * mirrors fpms/modules/screen/st7735.py and luma.oled's ssd1351.
  */
 #include <fcntl.h>
 #include <linux/gpio.h>
@@ -43,7 +38,6 @@ static const uint16_t st7735_init[] = {
 	END,
 };
 
-/* luma.oled ssd1351 128x128 BGR, fpms contrast 128. */
 static const uint16_t ssd1351_init[] = {
 	0x1FD, 0x12, 0x1FD, 0xB1, 0x1AE, 0x1B3, 0xF1, 0x1CA, 0x7F,
 	0x115, 0x00, 0x7F, 0x175, 0x00, 0x7F, 0x1A0, 0x74, 0x1A1, 0x00,
@@ -53,7 +47,6 @@ static const uint16_t ssd1351_init[] = {
 	END,
 };
 
-/* Commands are tagged 0x100 so data bytes and commands share one table. */
 static const uint16_t st7735_window[] = {
 	0x12A, 0, 1, 0, 128, 0x12B, 0, 2, 0, 129, 0x12C, END,
 };
@@ -126,7 +119,6 @@ int main(int argc, char **argv)
 	ioctl(spi, SPI_IOC_WR_MODE, &mode);
 	ioctl(spi, SPI_IOC_WR_MAX_SPEED_HZ, &speed);
 
-	/* Line index order: rst, dc, then the ST7735 backlight. */
 	struct gpio_v2_line_request req = {
 		.offsets = { st7735 ? 27 : 25, st7735 ? 25 : 24, 24 },
 		.num_lines = st7735 ? 3 : 2,
@@ -158,7 +150,6 @@ int main(int argc, char **argv)
 	}
 	set_line(dc_idx, 1);
 	spi_write(buf + n + 1, FRAME_BYTES);
-	/* Never light up a half-written panel. */
 	if (failed) {
 		perror("fpms-splash");
 		return 1;

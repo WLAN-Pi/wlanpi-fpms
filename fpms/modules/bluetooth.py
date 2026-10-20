@@ -10,10 +10,8 @@ BT_ADAPTER = "hci0"
 
 class Bluetooth:
     def __init__(self, g_vars):
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def bluetooth_present(self):
@@ -93,8 +91,6 @@ class Bluetooth:
         except Exception:
             return False
 
-        # Best effort: the state file is wlanpi-bluetooth's bookkeeping, so a
-        # failure here must not be reported as a failure to set the adapter.
         try:
             with open("/etc/wlanpi-bluetooth/state", "w") as f:
                 f.write(f"{value}\n")
@@ -163,7 +159,6 @@ class Bluetooth:
         alert_msg = None
         if self.bluetooth_set_power(True):
             if not g_vars["result_cache"]:
-                # Unpair existing paired devices
                 g_vars["disable_keys"] = True
                 self.alert_obj.display_popup_alert(g_vars, "Entering pairing mode...")
                 paired_devices = self.bluetooth_paired_devices()

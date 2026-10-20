@@ -95,24 +95,20 @@ def interface_lines(netns, ifconfig_info):
     lines. Every named netns has its own loopback, so lo is skipped there.
     """
     lines = []
-    # Extract interface info with a bit of regex magic
     for interface_name, interface_info in re.findall(
         r"^(\w+?)\: flags(.*?)RX packets", ifconfig_info, re.DOTALL | re.MULTILINE
     ):
         if netns and interface_name == "lo":
             continue
 
-        # determine interface status
         status = (
             "▲" if re.search("UP", interface_info, re.MULTILINE) is not None else "▽"
         )
 
-        # determine IP address
         inet_search = re.search("inet (.+?) ", interface_info, re.MULTILINE)
         if inet_search is None:
             ip_address = "-"
 
-            # do check if this is an interface in monitor mode
             if re.search(r"(wlan\d+)|(mon\d+)", interface_name, re.MULTILINE):
                 try:
                     iw_info = subprocess.check_output(
@@ -127,36 +123,28 @@ def interface_lines(netns, ifconfig_info):
         else:
             ip_address = inet_search.group(1)
 
-        # shorten interface name to make space for status and IP address
         if len(interface_name) > 2:
             short_name = interface_name
-            try:
-                id = re.search(r".*(\d+).*", interface_name).group(1)  # type: ignore[union-attr]
+            if m := re.search(r".*(\d+).*", interface_name):
+                id = m.group(1)
                 if interface_name.endswith(id):
                     short_name = f"{interface_name[0]}{id}"
                 else:
                     short_name = f"{interface_name[0]}{id}{interface_name[-1]}"
                 interface_name = short_name
-            except Exception:
-                pass
 
-        # format interface info
         lines.append(f"{status} {interface_name}:{ip_address}")
     return lines
 
 
 class Network:
     def __init__(self, g_vars):
-        # grab a screeb obj
         self.display_obj = Display(g_vars)
 
-        # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def show_interfaces(self, g_vars):
@@ -175,11 +163,9 @@ class Network:
         for netns, ifconfig_info in outputs:
             lines = interface_lines(netns, ifconfig_info)
             if netns and lines:
-                # the screen is too narrow for a per-line suffix
                 interfaces.append(f"[{netns}]")
             interfaces.extend(lines)
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 
@@ -212,7 +198,6 @@ class Network:
         g_vars["disable_keys"] = True
         g_vars["drawing_in_progress"] = True
 
-        # Display cached results (if any)
         if g_vars["result_cache"]:
             self.paged_table_obj.display_paged_table(
                 g_vars,
@@ -225,7 +210,6 @@ class Network:
         pages = []
 
         try:
-            # [(netns, interface), ...]; netns "" is the root namespace
             interfaces = [
                 (netns, interface)
                 for netns, output in iw_dev_outputs()
@@ -247,7 +231,6 @@ class Network:
             if netns:
                 page.append(f"Netns: {netns}")
 
-            # Driver
             try:
                 ethtool_output = (
                     subprocess.check_output(
@@ -256,12 +239,11 @@ class Network:
                     .decode()
                     .strip()
                 )
-                driver = re.search(r".*driver:\s+(.*)", ethtool_output).group(1)  # type: ignore[union-attr]
-                page.append(f"Driver: {driver}")
+                if m := re.search(r".*driver:\s+(.*)", ethtool_output):
+                    page.append(f"Driver: {m.group(1)}")
             except Exception:
                 pass
 
-            # Device ID (USB or PCI)
             try:
                 modalias = read_sysfs(
                     netns, f"/sys/class/net/{interface}/device/modalias"
@@ -281,7 +263,6 @@ class Network:
             except Exception:
                 pass
 
-            # Addr, SSID, Mode, Channel
             try:
                 iw_output = (
                     subprocess.check_output(
@@ -291,42 +272,22 @@ class Network:
                     .strip()
                 )
 
-                # Addr
-                try:
-                    addr = (
-                        re.search(r".*addr\s+(.*)", iw_output)  # type: ignore[union-attr]
-                        .group(1)
-                        .replace(":", "")
-                        .upper()
-                    )
-                    page.append(f"Addr: {addr}")
-                except Exception:
-                    pass
+                if m := re.search(r".*addr\s+(.*)", iw_output):
+                    page.append(f"Addr: {m.group(1).replace(':', '').upper()}")
 
-                # Mode
-                try:
-                    mode = re.search(r".*type\s+(.*)", iw_output).group(1)  # type: ignore[union-attr]
+                if m := re.search(r".*type\s+(.*)", iw_output):
+                    mode = m.group(1)
                     page.append(
                         f"Mode: {mode.capitalize() if not mode.isupper() else mode}"
                     )
-                except Exception:
-                    pass
 
-                # SSID
-                try:
-                    ssid = re.search(r".*ssid\s+(.*)", iw_output).group(1)  # type: ignore[union-attr]
-                    page.append(f"SSID: {ssid}")
-                except Exception:
-                    pass
+                if m := re.search(r".*ssid\s+(.*)", iw_output):
+                    page.append(f"SSID: {m.group(1)}")
 
-                # Frequency
-                try:
-                    freq = int(re.search(r".*\(([0-9]+)\s+MHz\).*", iw_output).group(1))  # type: ignore[union-attr]
-                    channel = self.channel_lookup(freq)
+                if m := re.search(r".*\(([0-9]+)\s+MHz\).*", iw_output):
+                    freq = int(m.group(1))
                     page.append(f"Freq (MHz): {freq}")
-                    page.append(f"Channel: {channel}")
-                except Exception:
-                    pass
+                    page.append(f"Channel: {self.channel_lookup(freq)}")
 
             except Exception as e:
                 print(e)
@@ -361,18 +322,15 @@ class Network:
 
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
-            # error_descr = "Issue getting ipconfig"
             ipconfigerror = ["Err: ipconfig command error", output]
             self.simple_table_obj.display_simple_table(g_vars, ipconfigerror)
             return
 
         for n in ipconfig_info:
-            # do some cleanup
             n = n.replace("DHCP server name", "DHCP")
             n = n.replace("DHCP server address", "DHCP IP")
             eth0_ipconfig_info.append(n)
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 
@@ -413,7 +371,6 @@ class Network:
         else:
             vlan_info = ["No VLAN found"]
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 
@@ -437,7 +394,6 @@ class Network:
 
             except subprocess.CalledProcessError as exc:
                 output = exc.output.decode()
-                # error_descr = "Issue getting LLDP neighbour"
                 error = ["Err: Neighbour command error", output]
                 self.simple_table_obj.display_simple_table(g_vars, error)
                 return
@@ -445,7 +401,6 @@ class Network:
         if len(neighbour_info) == 0:
             neighbour_info.append("No neighbour")
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 
@@ -471,7 +426,6 @@ class Network:
 
             except subprocess.CalledProcessError as exc:
                 output = exc.output.decode()
-                # error_descr = "Issue getting LLDP neighbour"
                 error = ["Err: Neighbour command error", output]
                 self.simple_table_obj.display_simple_table(g_vars, error)
                 return
@@ -479,7 +433,6 @@ class Network:
         if len(neighbour_info) == 0:
             neighbour_info.append("No neighbour")
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 

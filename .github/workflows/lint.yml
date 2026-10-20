@@ -1,17 +1,16 @@
 name: Lint
 
 on:
-  # Allow manual runs of workflow from Actions tab
   workflow_dispatch:
 
   push:
-    paths-ignore: # ignore files that don't change build output
+    paths-ignore:
       - '**/*.md'
       - .github/dependabot.yml
       - .gitignore
       - LICENSE
   pull_request:
-    paths-ignore: # ignore files that don't change build output
+    paths-ignore:
       - '**/*.md'
       - .github/dependabot.yml
       - .gitignore
@@ -33,9 +32,6 @@ jobs:
       - name: Install shellcheck
         run: sudo apt-get update && sudo apt-get install -y shellcheck
 
-      # Every tracked shell script, plus any tracked executable with a shell
-      # shebang (the profile.d snippets and /usr/bin links are covered by the
-      # latter).
       - name: Run shellcheck (warning severity)
         run: |
           { git ls-files '*.sh'

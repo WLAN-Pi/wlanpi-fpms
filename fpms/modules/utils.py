@@ -17,25 +17,19 @@ from fpms.modules.pages.simpletable import *
 
 class Utils:
     def __init__(self, g_vars):
-        # create display object
         self.display_obj = Display(g_vars)
 
-        # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
 
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def show_speedtest(self, g_vars):
         """
         Run LibreSpeed and format output to fit the OLED screen
         """
-        # Has speedtest been run already?
         if not g_vars["result_cache"]:
-            # ignore any more key presses as this could cause us issues
             g_vars["disable_keys"] = True
             g_vars["speedtest_result_text"] = None
 
@@ -70,7 +64,6 @@ class Utils:
 
             g_vars["result_cache"] = True
 
-        # re-enable front panel keys
         g_vars["disable_keys"] = False
 
         if g_vars["speedtest_result_text"] is None:
@@ -123,14 +116,11 @@ class Utils:
         Run Port Blinker on eth0 and identify switch port on the far end of the Ethernet cable
         ( *** Note that blinker_status set back to False in menu_right() *** )
         """
-        # Has port blinker been run already?
         if not g_vars["blinker_status"]:
-            # ignore any more key presses as this could cause us issues
             g_vars["disable_keys"] = True
             g_vars["blinker_process"] = subprocess.Popen(BLINKER_FILE)
             g_vars["blinker_status"] = True
 
-            # re-enable front panel keys
             g_vars["disable_keys"] = False
 
         else:
@@ -171,7 +161,6 @@ class Utils:
             if len(reachability_info) == 0:
                 reachability_info.append("Not available.")
 
-            # final check no-one pressed a button before we render page
             if g_vars["display_state"] == "menu":
                 return
 
@@ -217,7 +206,6 @@ class Utils:
             self.alert_obj.display_alert_error(g_vars, "No SSID/Passphrase is set")
             return
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 
@@ -225,10 +213,8 @@ class Utils:
             g_vars, data, title="SSID/Passphrase"
         )
 
-        # Display QR code
         env_utils = EnvUtils()
 
-        # Get path to QR code png (it will be generated if not present)
         qrcode_path = env_utils.get_wifi_qrcode(ssid, passphrase)
         if qrcode_path is not None:
             self.display_obj.stamp_qrcode(
@@ -250,7 +236,6 @@ class Utils:
             lsusb_info = lsusb_output.split("\n")
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
-            # error_descr = "Issue getting usb info using lsusb command"
             interfaces = ["Err: lsusb error", str(output)]
             self.simple_table_obj.display_simple_table(g_vars, interfaces)
             return
@@ -263,7 +248,6 @@ class Utils:
         if len(interfaces) == 0:
             interfaces.append("No devices detected")
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 
@@ -279,14 +263,12 @@ class Utils:
         """
         ufw_file = UFW_FILE
 
-        # check ufw is available
         if not os.path.isfile(ufw_file):
             self.alert_obj.display_alert_error(g_vars, "UFW is not installed.")
 
             g_vars["display_state"] = "page"
             return
 
-        # Use cached ufw data if we have it (cleared when leaving the page)
         ufw_info = g_vars.get("ufw_info")
 
         if ufw_info is None:
@@ -295,7 +277,7 @@ class Utils:
                     ["sudo", ufw_file, "status"]
                 ).decode()
                 ufw_info = ufw_output.split("\n")
-                g_vars["ufw_info"] = ufw_info  # cache results
+                g_vars["ufw_info"] = ufw_info
             except Exception as ex:
                 error_descr = "Issue getting ufw info using ufw command"
                 interfaces = ["Err: ufw error", error_descr, str(ex)]
@@ -307,16 +289,13 @@ class Utils:
 
         port_entries = []
 
-        # Add in status line
         port_entries.append(ufw_info[0])
 
         port_entries.append("Ports:")
 
-        # lose top 4 & last 2 lines of output
         ufw_info = ufw_info[4:-2]
 
         for result in ufw_info:
-            # tidy/compress the output
             result = result.strip()
             result_list = result.split()
 
@@ -327,7 +306,6 @@ class Utils:
         if len(port_entries) == 0:
             port_entries.append("No UF info detected")
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 

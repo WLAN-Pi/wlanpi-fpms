@@ -34,7 +34,6 @@ def make_chips(tmp_path, monkeypatch, labels):
 
 
 def test_pi5_rp1_header_chip_is_not_gpiochip0(tmp_path, monkeypatch):
-    # 7.x kernel on a Pi 5: brcmstb chips first, RP1 header last
     make_chips(
         tmp_path,
         monkeypatch,
@@ -63,11 +62,11 @@ def test_unknown_labels_fall_back_to_gpiochip0(tmp_path, monkeypatch):
 
 def test_unopenable_chip_does_not_hide_later_rp1_chip(tmp_path, monkeypatch):
     make_chips(tmp_path, monkeypatch, {"gpiochip15": "pinctrl-rp1"})
-    (tmp_path / "gpiochip0").touch()  # not a gpiochip: Chip() raises OSError
+    (tmp_path / "gpiochip0").touch()
     assert EnvUtils().get_gpiochip(str(tmp_path)) == str(tmp_path / "gpiochip15")
 
 
 def test_missing_gpiod_falls_back_to_gpiochip0(tmp_path, monkeypatch):
     (tmp_path / "gpiochip15").touch()
-    monkeypatch.setitem(sys.modules, "gpiod", None)  # import raises ImportError
+    monkeypatch.setitem(sys.modules, "gpiod", None)
     assert EnvUtils().get_gpiochip(str(tmp_path)) == str(tmp_path / "gpiochip0")

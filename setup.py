@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import os
 from codecs import open
 
 from setuptools import find_packages, setup
 
-# load the package's __version__.py module as a dictionary
 metadata = {}
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -21,7 +18,7 @@ def parse_requires(_list):
         if any(match in require for match in trims):
             continue
         requires.append(require)
-    requires = list(filter(None, requires))  # remove "" from list
+    requires = list(filter(None, requires))
     return requires
 
 

@@ -1,4 +1,3 @@
-#
 """
 themes.py - display themes
 """
@@ -140,5 +139,4 @@ class DarkTheme(Enum):
     alert_popup_background = "#5b616b"
 
 
-# Set theme
 THEME = DarkTheme

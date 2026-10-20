@@ -9,8 +9,6 @@ from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.display import Display
 from fpms.modules.pages.pagedtable import PagedTable
 
-# Runtime files written by wlanpi-profiler. The info file is authoritative for
-# the passphrase actually in use; the config file holds the configured default.
 PROFILER_INFO_FILE = "/run/wlanpi-profiler.info.json"
 PROFILER_CONFIG_FILE = "/etc/wlanpi-profiler/config.ini"
 
@@ -44,29 +42,21 @@ def read_profiler_passphrase():
 
 class Profiler:
     def __init__(self, g_vars):
-        # create display object
         self.display_obj = Display(g_vars)
 
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def profiler_ctl_file_update(self, fields_dict, filename):
-        # read in file to an array
         with open(filename) as f:
             lines = f.readlines()
 
-        # loop through each field in values to set in file
         for key, value in fields_dict.items():
-            # step through all lines and look for a match
             for count, line in enumerate(lines):
-                # replace match in file with key/value pair
                 if line.startswith(key):
                     lines[count] = f"{key}: {value}\n"
 
-        # write modified file back out
         with open(filename, "w") as f:
             f.writelines(lines)
 
@@ -119,10 +109,8 @@ class Profiler:
             lines = f.readlines()
             for line in lines:
                 if not line.strip().startswith("#"):
-                    try:
-                        return re.search(r"^interface:\s+(.+)", line).group(1)  # type: ignore[union-attr]
-                    except AttributeError:
-                        pass
+                    if m := re.search(r"^interface:\s+(.+)", line):
+                        return m.group(1)
         return None
 
     def profiler_qrcode(self):
@@ -147,7 +135,6 @@ class Profiler:
             g_vars["profiler_last_profile_date"] = last_profile_date
             last_profile = self.profiler_last_profile().upper()
             if len(last_profile) == 12:
-                # Insert ":" to improve readability
                 last_profile = ":".join(
                     last_profile[i : i + 2] for i in range(0, len(last_profile), 2)
                 )
@@ -162,41 +149,29 @@ class Profiler:
         """
         Function to start/stop and get status of Profiler processes
         """
-        # Reset result_cache if the profiler has changed state so that we
-        # can update the status screen
         beaconing = self.profiler_beaconing()
         if g_vars["profiler_beaconing"] != beaconing:
             g_vars["profiler_beaconing"] = beaconing
             if action == "status":
                 g_vars["result_cache"] = False
 
-        # Check if we need to notify about a new profile. If so, set result_cache
-        # to false to repaint the screen after the alert is presented
         if action == "status" or action.startswith("start"):
             if beaconing:
                 if self.profiler_check_new_profile(g_vars):
                     g_vars["result_cache"] = False
 
-        # if we're been round this loop before,
-        # results treated as cached to prevent re-evaluating
-        # and re-painting
         if g_vars["result_cache"]:
-            # re-enable keys
             g_vars["disable_keys"] = False
             return True
 
         g_vars["drawing_in_progress"] = True
 
-        # disable keys while we react to the key press that got us here
         g_vars["disable_keys"] = True
 
-        # check resource is available
         try:
-            # this cmd fails if service not installed
             cmd = ["systemctl", "is-enabled", "wlanpi-profiler"]
             subprocess.run(cmd).check_returncode()
         except Exception:
-            # cmd failed, so profiler service not installed
             self.alert_obj.display_alert_error(g_vars, "wlanpi-profiler not available.")
             g_vars["display_state"] = "page"
             g_vars["result_cache"] = True
@@ -204,41 +179,25 @@ class Profiler:
 
         config_file = "/etc/wlanpi-profiler/config.ini"
 
-        # get profiler process status
-        # (no check for cached result as need to re-evaluate
-        # on each 1 sec main loop cycle)
         if action == "status":
             status = []
 
-            # read config
             with open(config_file) as f:
                 lines = f.readlines()
                 for line in lines:
                     if not line.strip().startswith("#"):
-                        # Channel
-                        try:
-                            channel = re.search(r"^channel:\s+(.+)", line).group(1)  # type: ignore[union-attr]
-                            status.append(f"Channel: {channel}")
-                        except AttributeError:
-                            pass
+                        if m := re.search(r"^channel:\s+(.+)", line):
+                            status.append(f"Channel: {m.group(1)}")
 
-                        # Interface
-                        try:
-                            interface = re.search(r"^interface:\s+(.+)", line).group(1)  # type: ignore[union-attr]
-                            status.append(f"Interface: {interface}")
-                        except AttributeError:
-                            pass
+                        if m := re.search(r"^interface:\s+(.+)", line):
+                            status.append(f"Interface: {m.group(1)}")
 
-            # Label the channel/interface values as profiling targets; a
-            # shared "Targets:" header keeps each line short for the screen.
             if len(status) > 0:
                 status = ["Targets:", *status]
 
             if beaconing:
-                # SSID
                 status.append(f"SSID: {self.profiler_beaconing_ssid()}")
 
-            # Compose table
             self.paged_table_obj.display_list_as_paged_table(
                 g_vars,
                 status,
@@ -246,7 +205,6 @@ class Profiler:
             )
 
             if beaconing:
-                # Stamp QR code to facilitate profiling
                 qrcode_path = self.profiler_qrcode()
                 if qrcode_path is not None:
                     self.display_obj.stamp_qrcode(
@@ -257,7 +215,6 @@ class Profiler:
             print(action)
 
             if action == "start":
-                # set the config file to use params
                 cfg_dict = {
                     "channel": "36",
                     "ft_disabled": "False",
@@ -266,7 +223,6 @@ class Profiler:
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_2dot4ghz":
-                # set the config file to use params
                 cfg_dict = {
                     "channel": "11",
                     "ft_disabled": "False",
@@ -275,7 +231,6 @@ class Profiler:
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_5ghz_unii1":
-                # set the config file to use params
                 cfg_dict = {
                     "channel": "36",
                     "ft_disabled": "False",
@@ -284,7 +239,6 @@ class Profiler:
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_5ghz_unii3":
-                # set the config file to use params
                 cfg_dict = {
                     "channel": "149",
                     "ft_disabled": "False",
@@ -293,7 +247,6 @@ class Profiler:
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11r":
-                # set the config file to use params
                 cfg_dict = {
                     "channel": "36",
                     "ft_disabled": "True",
@@ -302,7 +255,6 @@ class Profiler:
                 self.profiler_ctl_file_update(cfg_dict, config_file)
 
             elif action == "start_no11ax":
-                # set the config file to use params
                 cfg_dict = {
                     "channel": "36",
                     "ft_disabled": "False",
@@ -325,12 +277,8 @@ class Profiler:
                     cmd = ["/bin/systemctl", "start", "wlanpi-profiler"]
                     subprocess.run(cmd, timeout=10)
 
-                    # We need to wait until Profiler starts beaconing so that
-                    # we can show the QR code. We will wait for 20 seconds and
-                    # if Profiler hasn't started beaconing, then it will just
-                    # tell the user that Profiler has started.
                     elapsed_time: float = 0
-                    max_wait = 20  # seconds
+                    max_wait = 20
                     while not self.profiler_beaconing() and elapsed_time <= max_wait:
                         time.sleep(0.5)
                         elapsed_time = elapsed_time + 0.5
@@ -347,7 +295,6 @@ class Profiler:
                 except subprocess.TimeoutExpired:
                     self.alert_obj.display_alert_error(g_vars, "Process timed out.")
 
-            # Stamp QR code to facilitate profiling
             qrcode_path = self.profiler_qrcode()
             if qrcode_path is not None:
                 self.display_obj.stamp_qrcode(
@@ -363,10 +310,8 @@ class Profiler:
                     cmd = ["/bin/systemctl", "stop", "wlanpi-profiler"]
                     subprocess.run(cmd)
 
-                    # Wait for Profiler to stop beaconing so we can check
-                    # it was successfully stopped.
                     elapsed_time = 0
-                    max_wait = 3  # seconds
+                    max_wait = 3
                     while self.profiler_beaconing() and elapsed_time <= max_wait:
                         time.sleep(0.5)
                         elapsed_time = elapsed_time + 0.5
@@ -382,8 +327,6 @@ class Profiler:
                     self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 
         elif action == "purge_reports":
-            # call profiler2 with the --clean option
-
             self.alert_obj.display_popup_alert(g_vars, "Purging reports...")
 
             try:
@@ -398,8 +341,6 @@ class Profiler:
                 print(alert_msg)
 
         elif action == "purge_files":
-            # call profiler2 with the --clean --files option
-
             self.alert_obj.display_popup_alert(g_vars, "Purging files...")
 
             try:
@@ -413,7 +354,6 @@ class Profiler:
                 self.alert_obj.display_alert_error(g_vars, alert_msg)
                 print(alert_msg)
 
-        # signal that result is cached (stops re-painting screen)
         g_vars["result_cache"] = True
         g_vars["display_state"] = "page"
         g_vars["drawing_in_progress"] = False

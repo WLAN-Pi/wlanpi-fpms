@@ -10,10 +10,8 @@ from fpms.modules.pages.pagedtable import PagedTable
 
 class TimeZone:
     def __init__(self, g_vars):
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def get_timezones_menu_format(self):
@@ -28,10 +26,8 @@ class TimeZone:
             ).splitlines()
             time.sleep(1)
 
-            # create a set of countries defined as the first part of the text split with '/'
             countries = sorted({c.split("/", 1)[0] for c in timezones_available})
 
-            # Iterate the countries and then create array of timezones for that country
             for country in countries:
                 timezone_menu_list.append({"country": country, "timezones": []})
                 for timezone in filter(

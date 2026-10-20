@@ -11,7 +11,6 @@ from fpms.modules.display import *
 from fpms.modules.platform import *
 from fpms.modules.screen.screen import AbstractScreen
 
-# set possible vars to None
 I2C_PORT = None
 SPI_BUS_SPEED = None
 I2C_ADDRESS = None
@@ -28,12 +27,10 @@ H_OFFSET = None
 V_OFFSET = None
 
 if DISPLAY_TYPE == DISPLAY_TYPE_SSD1351:
-    # ssd1351 128 x 128
     INTERFACE_TYPE = "spi"
     WIDTH = "128"
     HEIGHT = "128"
 elif DISPLAY_TYPE == DISPLAY_TYPE_ST7735:
-    # 128x128 1.44 in LCD Display HAT
     INTERFACE_TYPE = "gpio_cs_spi"
     SPI_BUS_SPEED = "2000000"
     WIDTH = "128"
@@ -45,10 +42,7 @@ elif DISPLAY_TYPE == DISPLAY_TYPE_ST7735:
     BACKLIGHT_ACTIVE = "high"
     H_OFFSET = "1"
     V_OFFSET = "2"
-# NOTE: ST7789 path retained for future HAT support; not selectable via
-# EnvUtils.get_display_type().
 elif DISPLAY_TYPE == DISPLAY_TYPE_ST7789:
-    # 240x240 1.3 in LCD Display HAT
     INTERFACE_TYPE = "gpio_cs_spi"
     SPI_BUS_SPEED = "52000000"
     WIDTH = "240"
@@ -63,9 +57,7 @@ elif DISPLAY_TYPE == DISPLAY_TYPE_ST7789:
 ### This code is borrowed from https://github.com/rm-hull/luma.examples/blob/master/examples/demo_opts.py
 (MIT License)
 """
-# logging
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)-15s - %(message)s")
-# ignore PIL debug messages
 logging.getLogger("PIL").setLevel(logging.ERROR)
 
 DISPLAY_WIDTH = int(WIDTH) if WIDTH else 128
@@ -115,11 +107,9 @@ def get_device(actual_args=None):
     args = parser.parse_args(actual_args)
 
     if args.config:
-        # load config from file
         config = cmdline.load_config(args.config)
         args = parser.parse_args(config + actual_args)
 
-    # create device
     try:
         device = cmdline.create_device(args)
         print(display_settings(device, args))

@@ -1,18 +1,9 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
-#
-# Build Debian package using https://github.com/spotify/dh-virtualenv
-#
 # The below targets create a clean copy of the workdir via
 # using "sdist", else "pip" goes haywire when installing from
 # sourcedir ".", because that includes the debian build stage,
 # and a recursive explosion ensues when symlinks are followed.
-#
-# It also ensures your MANIFEST is complete and at least covers
-# all files needed for a release build.
 
-# Increase trace logging, see debhelper(7) (uncomment to enable)
-# DH_VERBOSE=1
 
 export DH_VIRTUALENV_INSTALL_ROOT=/opt
 export PYBUILD_NAME=wlanpi-fpms
@@ -36,7 +27,6 @@ PKG_PREFIX=debian/wlanpi-fpms
 
 .PHONY: override_dh_virtualenv override_dh_strip override_dh_shlibdeps
 
-# we don't really want dwz to do anything to our files.
 override_dh_dwz:
 
 override_dh_installexamples:

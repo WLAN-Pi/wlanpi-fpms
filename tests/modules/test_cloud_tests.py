@@ -11,25 +11,17 @@ def patch_imports():
 
 def test_test_mist_cloud_cached(patch_imports):
     """Tests the fall through if the results cached value is true"""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": True}
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_mist_cloud(test_g_vars)
-    # Assert
-    # If g_vars["result_cache"] is True then
-    # self.alert_obj.display_popup_alert is never called
-    # so we look to see that the running arg is not stored
-    # FIXME: This test shows that this method should probably be refactored
     with pytest.raises(ValueError):
         test_object.alert_obj.args.index("Running...")
 
 
 def test_test_mist_cloud_all_checks_pass(patch_imports, monkeypatch):
     """Tests if port is up, ip is present, dns is ok, and call returns 200"""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": False}
@@ -65,10 +57,8 @@ def test_test_mist_cloud_all_checks_pass(patch_imports, monkeypatch):
     monkeypatch.setattr("subprocess.check_output", faked_eth0)
     monkeypatch.setattr("socket.gethostbyname", faked_socket)
 
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_mist_cloud(test_g_vars)
-    # Assert
     assert test_object.simple_table_obj.args == (
         {"result_cache": True, "disable_keys": False},
         [
@@ -86,7 +76,6 @@ def test_test_mist_cloud_all_checks_pass(patch_imports, monkeypatch):
 )
 def test_test_mist_cloud_eth0_down(patch_imports, monkeypatch, nic_state):
     """Tests if eth0 is not up or unknown value comes back"""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": False}
@@ -98,10 +87,8 @@ def test_test_mist_cloud_eth0_down(patch_imports, monkeypatch, nic_state):
 
     monkeypatch.setattr("subprocess.check_output", faked_eth0)
 
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_mist_cloud(test_g_vars)
-    # Assert
     assert test_object.simple_table_obj.args == (
         {"result_cache": True, "disable_keys": False},
         [test_link_state["expected"], "", "", ""],
@@ -111,7 +98,6 @@ def test_test_mist_cloud_eth0_down(patch_imports, monkeypatch, nic_state):
 
 def test_test_mist_cloud_eth0_up_no_ip(patch_imports, monkeypatch):
     """Tests if eth0 is up but there is no IP"""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": False}
@@ -129,10 +115,8 @@ def test_test_mist_cloud_eth0_up_no_ip(patch_imports, monkeypatch):
 
     monkeypatch.setattr("subprocess.check_output", faked_eth0)
 
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_mist_cloud(test_g_vars)
-    # Assert
     assert test_object.simple_table_obj.args == (
         {"result_cache": True, "disable_keys": False},
         [
@@ -147,7 +131,6 @@ def test_test_mist_cloud_eth0_up_no_ip(patch_imports, monkeypatch):
 
 def test_test_mist_cloud_eth0_up_has_ip_no_dns(patch_imports, monkeypatch):
     """Tests if eth0 is up and has an IP but DNS fails"""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": False}
@@ -171,10 +154,8 @@ def test_test_mist_cloud_eth0_up_has_ip_no_dns(patch_imports, monkeypatch):
     monkeypatch.setattr("subprocess.check_output", faked_eth0)
     monkeypatch.setattr("socket.gethostbyname", faked_socket)
 
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_mist_cloud(test_g_vars)
-    # Assert
     assert test_object.simple_table_obj.args == (
         {"result_cache": True, "disable_keys": False},
         [
@@ -189,7 +170,6 @@ def test_test_mist_cloud_eth0_up_has_ip_no_dns(patch_imports, monkeypatch):
 
 def test_test_mist_cloud_eth0_up_has_ip_has_dns_no_200(patch_imports, monkeypatch):
     """Tests if eth0 is up, has an IP, has DNS, but does not get 200 back"""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": False}
@@ -225,10 +205,8 @@ def test_test_mist_cloud_eth0_up_has_ip_has_dns_no_200(patch_imports, monkeypatc
     monkeypatch.setattr("subprocess.check_output", faked_eth0)
     monkeypatch.setattr("socket.gethostbyname", faked_socket)
 
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_mist_cloud(test_g_vars)
-    # Assert
     assert test_object.simple_table_obj.args == (
         {"result_cache": True, "disable_keys": False},
         [
@@ -256,7 +234,6 @@ def test_test_aruba_cloud_dns_failure_skips_following_checks(
     patch_imports, monkeypatch
 ):
     """A failed DNS lookup marks the remaining Aruba checks as skipped (#162)."""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": False}
@@ -269,11 +246,9 @@ def test_test_aruba_cloud_dns_failure_skips_following_checks(
     monkeypatch.setattr("subprocess.check_output", _fake_aruba_eth0)
     monkeypatch.setattr("socket.gethostbyname", faked_gethostbyname)
 
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_aruba_cloud(test_g_vars)
 
-    # Assert
     assert test_object.simple_table_obj.args == (
         {"result_cache": True, "disable_keys": False},
         [
@@ -293,7 +268,6 @@ def test_test_aruba_cloud_dns_failure_skips_following_checks(
 
 def test_test_aruba_cloud_all_checks_pass(patch_imports, monkeypatch):
     """Eth0 up, IP present, all DNS/ping/port checks succeed."""
-    # Arrange
     from fpms.modules.cloud_tests import CloudUtils
 
     test_g_vars = {"result_cache": False}
@@ -316,11 +290,9 @@ def test_test_aruba_cloud_all_checks_pass(patch_imports, monkeypatch):
     monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: FakeCompleted())
     monkeypatch.setattr("socket.socket", lambda *args, **kwargs: FakeSocket())
 
-    # Act
     test_object = CloudUtils(g_vars=test_g_vars)
     test_object.test_aruba_cloud(test_g_vars)
 
-    # Assert
     assert test_object.simple_table_obj.args == (
         {"result_cache": True, "disable_keys": False},
         [

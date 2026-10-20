@@ -7,10 +7,8 @@ from fpms.modules.pages.simpletable import *
 
 class CloudUtils:
     def __init__(self, g_vars):
-        # create simple table object to show dialog & results on display
         self.simple_table_obj = SimpleTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def test_arista_cloud(self, g_vars):
@@ -24,20 +22,15 @@ class CloudUtils:
 
         """
 
-        # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has test been run already?
         if not g_vars["result_cache"]:
-            # record test success/fail
             test_fail = False
 
-            # create empty table
             item_list = ["", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
-            # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -50,9 +43,7 @@ class CloudUtils:
                 item_list[0] = "Eth0 Port Up: Unknown"
                 test_fail = True
 
-            # we're done if test failed
             if not test_fail:
-                # Have we got an IP address?
                 cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -63,7 +54,6 @@ class CloudUtils:
                     test_fail = True
 
             if not test_fail:
-                # Can we connect to the redirector service on https?
                 try:
                     sock = socket.create_connection(
                         ("redirector.online.spectraguard.net", 443), 2
@@ -75,7 +65,6 @@ class CloudUtils:
                     item_list[2] = "Redirector HTTPS: FAIL"
 
             if not test_fail:
-                # Can we get an http 403 from devices.srv.wifi.arista.com ?
                 curl_cmd = [
                     "curl",
                     "-k",
@@ -94,15 +83,12 @@ class CloudUtils:
                     item_list[3] = "CV-CUE HTTPS: FAIL"
                     test_fail = True
 
-            # show results
             self.simple_table_obj.display_simple_table(
                 g_vars, item_list, title="Arista CV-CUE"
             )
 
-            # set flag to prevent constant refresh of screen
             g_vars["result_cache"] = True
 
-        # re-enable front panel keys
         g_vars["disable_keys"] = False
 
     def test_aruba_cloud(self, g_vars):
@@ -120,20 +106,15 @@ class CloudUtils:
         5. Can we get a response from port 443 on device.arubanetworks.com?
         """
 
-        # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has test been run already?
         if not g_vars["result_cache"]:
-            # record test success/fail
             test_fail = False
 
-            # create empty table
             item_list = ["", "", "", "", "", "", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
-            # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -146,9 +127,7 @@ class CloudUtils:
                 item_list[0] = "Eth0 Port Up: Unknown"
                 test_fail = True
 
-            # we're done if test failed
             if not test_fail:
-                # Have we got an IP address?
                 cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -162,9 +141,6 @@ class CloudUtils:
 
             if not test_fail:
                 # https://help.central.arubanetworks.com/latest/documentation/online_help/content/nms/device-mgmt/communication_ports.htm
-                # Can we resolve address activate.arubanetworks.com?
-                # Can we resolve address common.cloud.hpe.com?
-                # Can we resolve address device.arubanetworks.com?
 
                 try:
                     socket.gethostbyname("activate.arubanetworks.com")
@@ -197,7 +173,6 @@ class CloudUtils:
                 test_fail = True
 
             if not test_fail:
-                # Can we get an ICMP response from https://pqm.arubanetworks.com?
                 ping_cmd = ["ping", "-c", "2", "-W", "2", "pqm.arubanetworks.com"]
                 ping_result = subprocess.run(
                     ping_cmd,
@@ -226,15 +201,12 @@ class CloudUtils:
                         test_fail = True
                     sock.close()
 
-            # show results
             self.simple_table_obj.display_simple_table(
                 g_vars, item_list, title="Aruba Central Cloud"
             )
 
-            # set flag to prevent constant refresh of screen
             g_vars["result_cache"] = True
 
-        # re-enable front panel keys
         g_vars["disable_keys"] = False
 
     def test_meraki_cloud(self, g_vars):
@@ -280,17 +252,13 @@ class CloudUtils:
 
         def test_ntp(server: str, port: int = 123, timeout: int = 2) -> bool:
             try:
-                # Create a UDP socket
                 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 client.settimeout(timeout)
 
-                # Construct an NTP request packet
                 ntp_packet = b"\x1b" + 47 * b"\0"
 
-                # Send the packet to the server
                 client.sendto(ntp_packet, (server, port))
 
-                # Receive the response from the server
                 data, _ = client.recvfrom(1024)
 
                 if data:
@@ -304,7 +272,6 @@ class CloudUtils:
 
         def test_dns(hostname):
             try:
-                # Dig with timeout is faster to fail and more flexible than native Python
                 result = subprocess.run(
                     ["dig", "+short", "+tries=1", hostname],
                     capture_output=True,
@@ -322,20 +289,15 @@ class CloudUtils:
                 print(f"DNS test error occurred: {e}")
                 return False
 
-        # Ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has test been run already?
         if not g_vars["result_cache"]:
-            # Record test success/fail
             test_fail = False
 
-            # Create empty table
             item_list = ["", "", "", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
-            # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | awk '/Link detected/ {print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -348,9 +310,7 @@ class CloudUtils:
                 item_list[0] = "Eth0 Port Up: Unknown"
                 test_fail = True
 
-            # We're done if test failed
             if not test_fail:
-                # Have we got an IP address?
                 cmd = "ip address show eth0 | awk '/inet / {print $2}' | awk -F'/' '{print $1}'"
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -361,40 +321,33 @@ class CloudUtils:
                     test_fail = True
 
             if not test_fail:
-                # Cloud TLS connection
                 if test_tcp("euc.byoip.nt.meraki.com", 443):
                     item_list[2] = "Cloud TCP 443: OK"
                 else:
                     test_fail = True
                     item_list[2] = "Cloud TCP 443: FAIL"
-                # NTP test
                 if test_ntp("pool.ntp.org"):
                     item_list[3] = "NTP UDP 123: OK"
                 else:
                     item_list[3] = "NTP UDP 123: FAIL"
                     test_fail = True
-                # DNS resolution test
                 if test_dns("meraki.com"):
                     item_list[4] = "DNS UDP 53: OK"
                 else:
                     test_fail = True
                     item_list[4] = "DNS UDP 53: FAIL"
-                # Ping 8.8.8.8
                 if test_ping("8.8.8.8"):
                     item_list[5] = "Ping 8.8.8.8: OK"
                 else:
                     test_fail = True
                     item_list[5] = "Ping 8.8.8.8: FAIL"
 
-            # Show results
             self.simple_table_obj.display_simple_table(
                 g_vars, item_list, title="Meraki Cloud"
             )
 
-            # Set flag to prevent constant refresh of screen
             g_vars["result_cache"] = True
 
-        # Re-enable front panel keys
         g_vars["disable_keys"] = False
 
     def test_mist_cloud(self, g_vars):
@@ -408,20 +361,15 @@ class CloudUtils:
 
         """
 
-        # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has test been run already?
         if not g_vars["result_cache"]:
-            # record test success/fail
             test_fail = False
 
-            # create empty table
             item_list = ["", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
-            # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -434,9 +382,7 @@ class CloudUtils:
                 item_list[0] = "Eth0 Port Up: Unknown"
                 test_fail = True
 
-            # we're done if test failed
             if not test_fail:
-                # Have we got an IP address?
                 cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -447,7 +393,6 @@ class CloudUtils:
                     test_fail = True
 
             if not test_fail:
-                # Can we resolve address ep-terminator.mistsys.net?
                 try:
                     socket.gethostbyname("ep-terminator.mistsys.net")
                     item_list[2] = "DNS: OK"
@@ -456,7 +401,6 @@ class CloudUtils:
                     item_list[2] = "DNS: FAIL"
 
             if not test_fail:
-                # Can we get an http 200 from https://ep-terminator.mistsys.net/test ?
                 curl_cmd = [
                     "curl",
                     "-k",
@@ -475,15 +419,12 @@ class CloudUtils:
                     item_list[3] = "HTTP: FAIL"
                     test_fail = True
 
-            # show results
             self.simple_table_obj.display_simple_table(
                 g_vars, item_list, title="Mist Cloud"
             )
 
-            # set flag to prevent constant refresh of screen
             g_vars["result_cache"] = True
 
-        # re-enable front panel keys
         g_vars["disable_keys"] = False
 
     def test_ruckus_cloud(self, g_vars):
@@ -497,20 +438,15 @@ class CloudUtils:
 
         """
 
-        # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has test been run already?
         if not g_vars["result_cache"]:
-            # record test success/fail
             test_fail = False
 
-            # create empty table
             item_list = ["", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
-            # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -523,9 +459,7 @@ class CloudUtils:
                 item_list[0] = "Eth0 Port Up: Unknown"
                 test_fail = True
 
-            # we're done if test failed
             if not test_fail:
-                # Have we got an IP address?
                 cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -536,7 +470,6 @@ class CloudUtils:
                     test_fail = True
 
             if not test_fail:
-                # Can we resolve address ruckus.cloud?
                 try:
                     socket.gethostbyname("ruckus.cloud")
                     item_list[2] = "DNS: OK"
@@ -545,7 +478,6 @@ class CloudUtils:
                     item_list[2] = "DNS: FAIL"
 
             if not test_fail:
-                # Can we get an http 200 from https://ruckus.cloud ?
                 curl_cmd = [
                     "curl",
                     "-k",
@@ -565,15 +497,12 @@ class CloudUtils:
                     item_list[3] = "HTTP: FAIL"
                     test_fail = True
 
-            # show results
             self.simple_table_obj.display_simple_table(
                 g_vars, item_list, title="Ruckus Cloud"
             )
 
-            # set flag to prevent constant refresh of screen
             g_vars["result_cache"] = True
 
-        # re-enable front panel keys
         g_vars["disable_keys"] = False
 
     def test_extreme_cloud(self, g_vars):
@@ -589,20 +518,15 @@ class CloudUtils:
 
         """
 
-        # ignore any more key presses as this could cause us issues
         g_vars["disable_keys"] = True
 
-        # Has test been run already?
         if not g_vars["result_cache"]:
-            # record test success/fail
             test_fail = False
 
-            # create empty table
             item_list = ["", "", "", ""]
 
             self.alert_obj.display_popup_alert(g_vars, "Running...")
 
-            # Is eth0 up?
             cmd = "/sbin/ethtool eth0 | grep 'Link detected'| awk '{print $3}'"
             result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -615,9 +539,7 @@ class CloudUtils:
                 item_list[0] = "Eth0 Port Up: Unknown"
                 test_fail = True
 
-            # we're done if test failed
             if not test_fail:
-                # Have we got an IP address?
                 cmd = "ip address show eth0 | grep 'inet ' | awk '{print $2}' | awk -F'/' '{print $1}'"
                 result = subprocess.check_output(cmd, shell=True).decode().strip()
 
@@ -631,7 +553,6 @@ class CloudUtils:
 
             if not test_fail:
                 # https://extremeportal.force.com/ExtrArticleDetail?an=000079429&q=Fqdn%20extremecloud%20rdc
-                # Can we resolve address fra.extremecloudiq.com
 
                 if not dns_fail:
                     try:
@@ -647,7 +568,6 @@ class CloudUtils:
                     test_fail = True
 
                 if not test_fail:
-                    # can we connect to https extremecloudiq?
                     try:
                         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                         sock.settimeout(2)
@@ -662,13 +582,10 @@ class CloudUtils:
                         test_fail = True
                     sock.close()
 
-            # show results
             self.simple_table_obj.display_simple_table(
                 g_vars, item_list, title="Extreme Cloud"
             )
 
-            # set flag to prevent constant refresh of screen
             g_vars["result_cache"] = True
 
-        # re-enable front panel keys
         g_vars["disable_keys"] = False

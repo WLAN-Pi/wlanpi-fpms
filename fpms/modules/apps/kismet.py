@@ -7,13 +7,10 @@ from fpms.modules.pages.pagedtable import PagedTable
 
 class Kismet:
     def __init__(self, g_vars):
-        # create display object
         self.display_obj = Display(g_vars)
 
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def kismet_status(self):
@@ -22,27 +19,20 @@ class Kismet:
         Returns true if Kismet is running, false otherwise.
         """
         try:
-            # this cmd fails if service not installed
             cmd = ["/bin/systemctl", "is-active", "--quiet", "kismet"]
             subprocess.run(cmd).check_returncode()
         except Exception:
-            # cmd failed, so profiler service not installed
             return False
 
         return True
 
     def kismet_ctl(self, g_vars, action):
-        # if we're been round this loop before,
-        # results treated as cached to prevent re-evaluating
-        # and re-painting
         if g_vars["result_cache"]:
-            # re-enable keys
             g_vars["disable_keys"] = False
             return True
 
         g_vars["drawing_in_progress"] = True
 
-        # disable keys while we react to the key press that got us here
         g_vars["disable_keys"] = True
 
         if action == "start":
@@ -79,7 +69,6 @@ class Kismet:
                 except subprocess.CalledProcessError:
                     self.alert_obj.display_alert_error(g_vars, "Stop failed.")
 
-        # signal that result is cached (stops re-painting screen)
         g_vars["result_cache"] = True
         g_vars["display_state"] = "page"
         g_vars["drawing_in_progress"] = False

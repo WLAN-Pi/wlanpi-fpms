@@ -1,17 +1,16 @@
 name: Run Python Lint Police
 
 on:
-  # Allow manual runs of workflow from Actions tab
   workflow_dispatch:
 
   push:
-    paths-ignore: # ignore files that don't change build output
+    paths-ignore:
       - '**.md'
       - .github/dependabot.yml
       - .gitignore
       - LICENSE
   pull_request:
-    paths-ignore: # ignore files that don't change build output
+    paths-ignore:
       - '**/*.md'
       - .github/dependabot.yml
       - .gitignore

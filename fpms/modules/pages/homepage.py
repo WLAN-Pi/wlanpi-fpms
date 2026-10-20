@@ -1,6 +1,3 @@
-#################################################
-# Create a page object that renders dispay page
-#################################################
 import os.path
 import re
 import subprocess
@@ -26,7 +23,6 @@ from fpms.modules.themes import THEME
 
 class HomePage:
     def __init__(self, g_vars):
-        # load textfsm template to parse iw output
         with open(
             os.path.realpath(
                 os.path.join(os.getcwd(), "modules/templates/iw_dev.textfsm")
@@ -34,22 +30,16 @@ class HomePage:
         ) as f:
             self.iw_textfsm_template = textfsm.TextFSM(f)
 
-        # grab a screeb obj
         self.display_obj = Display(g_vars)
 
-        # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
-        # create a scanner object
         self.scanner_obj = Scanner(g_vars)
 
-        # create a profiler object
         self.profiler_obj = Profiler(g_vars)
 
-        # create a kismet object
         self.kismet_obj = Kismet(g_vars)
 
-        # create env utils object
         self.env_obj = EnvUtils()
 
         thread = threading.Thread(
@@ -142,27 +132,22 @@ class HomePage:
                 statusf = open(status_file)
                 msg = statusf.readline()
             except Exception:
-                # not much we can do, fail silently
                 return ""
 
-            # return extracted line
             return f" ({msg})"
         else:
             return "15 Mbps/30 Mbps"
 
     def check_reachability(self, g_vars):
-        # Detect changes in the IP address assigned to any interface
         address_set = self.if_addresses()
         if g_vars["eth_last_known_address_set"] != address_set:
             g_vars["eth_last_known_address_set"] = address_set
             g_vars["eth_last_reachability_test"] = 0
 
-        # Run a reachability test if enough time has passed
         last_reachability_test = g_vars["eth_last_reachability_test"]
         if last_reachability_test > 0:
             g_vars["eth_last_reachability_test"] = last_reachability_test - 1
         else:
-            # check reachability every 30 seconds
             g_vars["eth_last_reachability_test"] = 30
 
             reachability_cmd = (
@@ -233,7 +218,6 @@ class HomePage:
         Returns the link status for the given interface
         """
 
-        # Check if the interface is a wireless interface, if so, we skip it
         if self.if_wireless(if_name):
             return None
 
@@ -247,17 +231,13 @@ class HomePage:
             link_re = re.findall(r"Link detected\: (.*)", eth_info, re.MULTILINE)
 
             if (speed_re is None) or (duplex_re is None) or (link_re is None):
-                # Our pattern matching failed...silently fail....we must set up logging at some stage
                 pass
             elif link_re[0] == "no":
-                # Ethernet link is down, report msg instead of speed & duplex
                 status = "Link down"
             else:
-                # Report the speed & duplex messages from ethtool
                 status = f"{speed_re[0]} {duplex_re[0]}"
 
         except Exception:
-            # Something went wrong...show nothing
             pass
 
         return status
@@ -270,7 +250,6 @@ class HomePage:
         y = 0
         padding = 2
 
-        # Per-render memo, cleared here so it can never outlive the render.
         self._iw_interfaces = None
         self._bt_power = None
 
@@ -303,11 +282,9 @@ class HomePage:
 
         system_bar_contents = self.env_obj.get_hostname()
 
-        # Display status bar
         y += self.status_bar(g_vars)
         y += padding * 4
 
-        # Display mode
         display_alternate_title = False
         title = mode_name
         if g_vars["home_page_alternate"]:
@@ -318,7 +295,6 @@ class HomePage:
             else:
                 display_alternate_title = True
 
-        # Truncate title if too long
         if len(title) > 21:
             title = title[0:19] + ".."
 
@@ -342,8 +318,6 @@ class HomePage:
 
         mode(g_vars, x=x, y=y, padding=padding)
 
-        # Display alert bar if no Wi-Fi adapter or reg. domain is not set,
-        # or if profiler is active
         alert_bar_contents = None
         alert_bar_error = False
         if not self.check_wlan():
@@ -365,7 +339,6 @@ class HomePage:
             if not display_alternate_title:
                 alert_bar_contents = "KISMET ACTIVE"
 
-        # Display alert bar
         self.alert_bar(
             g_vars,
             alert_bar_contents,
@@ -374,21 +347,15 @@ class HomePage:
             error=alert_bar_error,
         )
 
-        # Display system bar
         self.system_bar(
             g_vars, system_bar_contents, x=0, y=PAGE_WIDTH - SYSTEM_BAR_HEIGHT - 1
         )
 
-        # Display any overlay alerts
         if g_vars["home_page_alternate"]:
             self.profiler_obj.profiler_check_new_profile(g_vars)
 
-        # Text view mirrors the physical screen. render_text() prepends the
-        # title itself, so home_lines only carries the status/body/bars.
         home_lines = []
 
-        # status line: time + indicator icons (no hostname; that is the
-        # system bar)
         status = time.strftime("%H:%M")
         try:
             battery = Battery(g_vars)
@@ -405,7 +372,6 @@ class HomePage:
             status += " \u2600"
         home_lines.append(status)
 
-        # mode content: primary interface details
         addr = self.if_address(if_name)
         if addr and addr.lower() != "no ip address":
             home_lines.append(f"{if_name}: {addr}")
@@ -413,16 +379,11 @@ class HomePage:
         if link:
             home_lines.append(link)
 
-        # alert bar
         if alert_bar_contents:
             home_lines.append(alert_bar_contents)
 
-        # system bar
         home_lines.append(system_bar_contents)
 
-        # title: mode name, or the current mode (classic/hotspot/server/...)
-        # when the platform is unknown; never the hostname (that is the
-        # system bar)
         home_title = title if title else g_vars["current_mode"].title()
         oled.render_text(home_title, home_lines)
         oled.drawImage(g_vars["image"])
@@ -493,13 +454,10 @@ class HomePage:
         else:
             y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
-            # Show the eth1 (tethered) address
             y += self.iface_summary(g_vars, "eth1", "ETH1", x=x, y=y)
 
-            # Show the usb1 (tethered, Android) address
             y += self.iface_summary(g_vars, "usb1", "USB1", x=x, y=y)
 
-            # Show the PAN address if bluetooth is on and we're paired with a device
             pan = self.if_address("pan0")
             if pan.lower() != "no ip address":
                 if self._get_bt_power(g_vars):
@@ -507,7 +465,6 @@ class HomePage:
                     if paired_devices is not None:
                         y += self.iface_summary(g_vars, "pan0", "PAN", x=x, y=y)
 
-            # Show the USB (OTG) address
             y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
 
     def hotspot_mode(self, g_vars, x=0, y=0, padding=2):
@@ -530,16 +487,13 @@ class HomePage:
                 )
                 y += 18
 
-            # Show the eth0 address
             y += self.iface_summary(g_vars, "eth0", "LAN", x=x, y=y)
 
-            # Show the USB (OTG) address
             y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
 
     def bridge_mode(self, g_vars, x=0, y=0, padding=2):
         y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
-        # Show the USB (OTG) address
         y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
 
     def wiperf_mode(self, g_vars, x=0, y=0, padding=2):
@@ -558,17 +512,14 @@ class HomePage:
         if g_vars["home_page_alternate"]:
             self.wifi_qrcode(g_vars, x, y)
         else:
-            # Show eth0 details
             y += self.iface_details(g_vars, "eth0", x=x, y=y, padding=padding)
 
-            # Show the USB (OTG) address
             y += self.iface_summary(g_vars, "usb0", "OTG", x=x, y=y)
 
     def profiler_qrcode(self, g_vars, x, y):
         """
         Displays the profiler QR code
         """
-        # Get path to QR code png (it will be generated if not present)
         qrcode_path = self.profiler_obj.profiler_qrcode()
         if qrcode_path is not None:
             self.display_obj.stamp_qrcode(
@@ -583,7 +534,6 @@ class HomePage:
         """
         Displays the Wi-Fi QR code
         """
-        # Get path to QR code png (it will be generated if not present)
         qrcode_path = self.env_obj.get_wifi_qrcode_for_hostapd()
         if qrcode_path is not None:
             self.display_obj.stamp_qrcode(
@@ -603,7 +553,6 @@ class HomePage:
         if not battery.battery_present():
             return False
 
-        # Draw indicator
         canvas = g_vars["draw"]
         bx = x + 3
         by = y + 2
@@ -625,7 +574,6 @@ class HomePage:
         status = battery.battery_status()
         charge = battery.battery_charge()
 
-        # Draw current charge level
         if charge > 0:
             bx = x + 2
             by = y + 2
@@ -649,7 +597,6 @@ class HomePage:
                 fill=fill_color,
             )
 
-        # Draw charging indicator (aka lighting bolt)
         if status == "charging":
             xy = [
                 (bx + battery_indicator_width / 2 + 1, by - 2),
@@ -687,9 +634,9 @@ class HomePage:
         Displays a system temperature indicator
         """
 
-        temp_high = 80  # thermal throttling kicks in
-        temp_med = 75  # getting uncomfortable
-        temp_low = 70  # getting warmer but ok
+        temp_high = 80
+        temp_med = 75
+        temp_low = 70
 
         temp: float = 0
         try:
@@ -700,7 +647,6 @@ class HomePage:
         if temp > 1000:
             temp = temp / 1000
 
-        # do not draw if temperature is ok
         if temp < temp_low:
             return False
 
@@ -717,7 +663,6 @@ class HomePage:
 
         x = x + (width - 6) / 2
 
-        # draw thermometer
         canvas.ellipse((x, y + 7, x + 6, y + 13), fill=temp_color)
         canvas.rounded_rectangle(
             (x + 2, y + 1, x + 4, y + 11),
@@ -726,12 +671,10 @@ class HomePage:
             radius=1,
         )
 
-        # draw marks
         canvas.line((x + 6, y + 2, x + 7, y + 2), fill=temp_color)
         canvas.line((x + 6, y + 4, x + 7, y + 4), fill=temp_color)
         canvas.line((x + 6, y + 6, x + 7, y + 6), fill=temp_color)
 
-        # fill thermometer
         if temp >= temp_high:
             canvas.rounded_rectangle(
                 (x + 2, y + 2, x + 4, y + 11), fill=temp_color, radius=1
@@ -761,7 +704,6 @@ class HomePage:
                 # phy index (phy indexes are unique across namespaces)
                 phy = iface[0]
 
-                # check if the interface is UP, inside its own netns
                 try:
                     ifconfig_output = subprocess.check_output(
                         netns_cmd(iface[3], [IFCONFIG_FILE, if_name]),
@@ -776,7 +718,6 @@ class HomePage:
                         if other_iface[2] == "monitor":
                             monitor_mode = True
 
-                            # check if it's being used for capturing with tcpdump or dumpcap
                             try:
                                 subprocess.run(
                                     f"ps aux 2>&1 | grep -v grep | grep -E 'tcpdump|dumpcap' | grep {other_iface[1]}",
@@ -790,7 +731,6 @@ class HomePage:
                                 pass
 
                 if monitor_mode and not active:
-                    # check if the interface is being used for capturing with Profiler
                     if self.profiler_obj.profiler_interface() == if_name:
                         if self.profiler_obj.profiler_beaconing():
                             active = True
@@ -800,7 +740,6 @@ class HomePage:
                 if active:
                     fill_color = THEME.status_bar_wifi_active.value
 
-                # draw wifi icon
                 if status_up or monitor_mode:
                     canvas.pieslice(
                         (x, y + 3, x + height, y + height + 3),
@@ -809,7 +748,6 @@ class HomePage:
                         fill=fill_color,
                     )
                     if monitor_mode:
-                        # draw the monitor mode 'eye'
                         canvas.ellipse(
                             (
                                 x + height / 2 - 3,
@@ -909,35 +847,28 @@ class HomePage:
             fill=THEME.status_bar_foreground.value,
         )
 
-        # We position each indicator starting from the right edge of the status bar
         x = width - 20
         fixed_indicator_width = 16
 
-        # Battery indicator
         if self.battery_indicator(g_vars, x - 4, y + 2, 24, height):
             x -= fixed_indicator_width + 4
 
         y += 1
         height -= 2
 
-        # Temperature indicator
         if x > current_time_width:
             if self.temperature_indicator(g_vars, x, y, fixed_indicator_width, height):
                 x -= fixed_indicator_width
 
-        # WiFi Indicators
         try:
-            # Parsed `iw dev` output: [["phy_index", "interface_name", "type", "netns"], ...]
             interfaces = self._get_iw_interfaces()
 
-            # WiFi indicator (wlan1)
             if x > current_time_width:
                 if self.wifi_indicator(
                     g_vars, interfaces, "wlan1", x, y, fixed_indicator_width, height
                 ):
                     x -= fixed_indicator_width
 
-            # WiFi indicator (wlan0)
             if x > current_time_width:
                 if self.wifi_indicator(
                     g_vars, interfaces, "wlan0", x, y, fixed_indicator_width, height
@@ -947,12 +878,10 @@ class HomePage:
         except Exception as e:
             print(e)
 
-        # Bluetooth indicator
         if x > current_time_width:
             if self.bluetooth_indicator(g_vars, x, y, fixed_indicator_width, height):
                 x -= fixed_indicator_width
 
-        # Reachability indicator
         if x > current_time_width:
             if self.reachability_indicator(g_vars, x, y, fixed_indicator_width, height):
                 x -= fixed_indicator_width
@@ -979,10 +908,8 @@ class HomePage:
                 foreground = THEME.alert_error_title_foreground.value
                 background = THEME.alert_error_title_background.value
 
-            # Draw background
             canvas.rectangle((x, y, width, y + height), fill=background)
 
-            # Truncate contents if too long
             if len(contents) > 21:
                 contents = contents[0:19] + ".."
 
@@ -1007,13 +934,11 @@ class HomePage:
     ):
         canvas = g_vars["draw"]
 
-        # Draw background
         canvas.rectangle(
             (x, y, width, y + height), fill=THEME.system_bar_background.value
         )
 
         if contents is not None:
-            # Truncate contents if too long
             if len(contents) > 21:
                 contents = contents[0:19] + ".."
 

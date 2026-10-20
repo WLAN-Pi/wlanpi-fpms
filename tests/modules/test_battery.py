@@ -2,7 +2,6 @@ from fpms.modules.battery import Battery
 
 
 def make_battery(info):
-    # Bypass __init__ so we don't touch the sysfs battery file.
     battery = Battery.__new__(Battery)
     battery.info = info
     return battery

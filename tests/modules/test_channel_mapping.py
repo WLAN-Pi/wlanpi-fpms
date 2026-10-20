@@ -3,9 +3,6 @@ import pytest
 from fpms.modules.apps.scanner import Scanner
 from fpms.modules.network import Network
 
-# `channel_lookup` (network.py) and `freq_to_channel` (scanner.py) are
-# duplicated implementations. These tests pin the expected values and guard
-# against the two copies drifting apart.
 FREQUENCIES = [
     2484,
     2412,

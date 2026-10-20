@@ -12,17 +12,13 @@ from fpms.modules.screen.screen import AbstractScreen
 
 LCD_WIDTH, LCD_HEIGHT, LCD_X, LCD_Y = 128, 128, 2, 1
 
-LCD_X_MAXPIXEL = 132  # LCD width maximum memory
-LCD_Y_MAXPIXEL = 162  # LCD height maximum memory
+LCD_X_MAXPIXEL = 132
+LCD_Y_MAXPIXEL = 162
 
-# scanning method
-SCAN_DIR_DFT = 6  # U2D_R2L
+SCAN_DIR_DFT = 6
 
 
 class RaspberryPi:
-    # spi is opened lazily, not as a default arg: a default arg is evaluated at
-    # class-definition (import) time, which crashes with FileNotFoundError on any
-    # machine without /dev/spidev0.0 (e.g. a VM with no display hardware).
     # GPIO goes through gpiod rather than gpiozero: gpiozero falls back to
     # RPi.GPIO, which cannot drive the Pi 5 (RP1) header.
     def __init__(
@@ -38,7 +34,6 @@ class RaspberryPi:
         self.GPIO_RST_PIN = rst
         self.GPIO_DC_PIN = dc
         self.GPIO_BL_PIN = bl
-        # Backlight starts off (all lines low), as before
         self.gpio = gpiod.request_lines(
             GPIO_CHIP,
             consumer="fpms-st7735",
@@ -49,7 +44,6 @@ class RaspberryPi:
             },
         )
 
-        # Initialize SPI
         if spi is None:
             spi = spidev.SpiDev(0, 0)
         self.SPI = spi
@@ -271,7 +265,7 @@ class LCD(RaspberryPi):
 
 class ST7735(AbstractScreen):
     def init(self):
-        Lcd_ScanDir = SCAN_DIR_DFT  # SCAN_DIR_DFT = D2U_L2R
+        Lcd_ScanDir = SCAN_DIR_DFT
         self.device = LCD()
         self.device.LCD_Init(Lcd_ScanDir)
         self.device.LCD_Clear()
