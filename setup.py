@@ -12,7 +12,7 @@ with open(os.path.join(here, "fpms", "__version__.py"), "r", "utf-8") as f:
 
 
 def parse_requires(_list):
-    requires = list()
+    requires = []
     trims = ["#", "piwheels.org"]
     for require in _list:
         if any(match in require for match in trims):
