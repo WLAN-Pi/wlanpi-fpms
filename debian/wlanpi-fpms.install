@@ -1,0 +1,2 @@
+splash/fpms-splash usr/lib/wlanpi-fpms
+splash/wlanpi-fpms-splash.conf usr/lib/modules-load.d

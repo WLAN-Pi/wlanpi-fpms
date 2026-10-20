@@ -206,7 +206,6 @@ class LCD(RaspberryPi):
     def LCD_Init(self, Lcd_ScanDir):
         if self.module_init() != 0:
             return -1
-        self.bl_DutyCycle(100)
         self.LCD_Reset()
         self.LCD_InitReg()
         self.LCD_SetGramScanWay(Lcd_ScanDir)
@@ -276,6 +275,8 @@ class ST7735(AbstractScreen):
         self.device = LCD()
         self.device.LCD_Init(Lcd_ScanDir)
         self.device.LCD_Clear()
+        # Backlight after the clear, so the blank (white) controller RAM never shows.
+        self.device.LCD_Backlight(True)
         return True
 
     def drawImage(self, image):

@@ -120,9 +120,9 @@ def handle_reboot_or_shutdown(shutdown=False):
             g_vars["shutdown_in_progress"] = True
             log_to_syslog("Drawing shutdown/reboot image")
             if shutdown:
-                oled.drawImage(g_vars["shutdown_image"])
+                oled.final_frame(g_vars["shutdown_image"])
             else:
-                oled.drawImage(g_vars["reboot_image"])
+                oled.final_frame(g_vars["reboot_image"])
             log_to_syslog("Shutdown/reboot image drawn")
     finally:
         _release_shutdown_inhibitor()
@@ -193,6 +193,16 @@ def run_dbus_loop():
 
 
 # Function to read a value from a section in the .conf file
+def save_boot_splash():
+    try:
+        oled.save_boot_splash(Image.open(IMAGE_DIR + "/booting.png"))
+        oled.save_boot_splash(
+            Image.open(IMAGE_DIR + "/fpms-failed.png"), oled.boot_splash.FAILED_FILE
+        )
+    except OSError as exc:
+        log_to_syslog(f"Boot splash not saved: {exc}", syslog.LOG_WARNING)
+
+
 def read_value(section, key, default_value):
     config = configparser.ConfigParser()
     config.read(FPMS_CONF_FILE)
@@ -331,12 +341,14 @@ optional options:
     ####################################
     # Initialize the SEED OLED display
     ####################################
-    oled.init()
-
     g_vars["display_orientation"] = read_value(
         "display", "orientation", DISPLAY_ORIENTATION_NORMAL
     )
     oled.orientation = g_vars["display_orientation"]
+    oled.select_device()
+    # Before init, so a display init failure still has a failure screen to show.
+    save_boot_splash()
+    oled.init()
 
     ############################
     # shared objects
@@ -607,6 +619,7 @@ optional options:
             g_vars["display_orientation"] = DISPLAY_ORIENTATION_NORMAL
         oled.orientation = g_vars["display_orientation"]
         save_value("display", "orientation", g_vars["display_orientation"])
+        save_boot_splash()
 
     def rotate_display():
         toggle_display_orientation()

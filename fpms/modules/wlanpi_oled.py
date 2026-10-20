@@ -4,16 +4,19 @@ import glob
 import os
 import sys
 import syslog
+import threading
 from typing import Any
 
 from PIL import Image
 
+from fpms import boot_splash
 from fpms.modules.constants import (
     DISPLAY_ORIENTATION_FLIPPED,
     DISPLAY_ORIENTATION_NORMAL,
     DISPLAY_TYPE,
     DISPLAY_TYPE_ST7735,
     DISPLAY_TYPE_VIRTUAL,
+    GPIO_CHIP,
 )
 from fpms.modules.screen.luma import Luma
 from fpms.modules.screen.st7735 import ST7735
@@ -21,6 +24,10 @@ from fpms.modules.screen.virtual import Virtual
 
 device: Any = None
 orientation = DISPLAY_ORIENTATION_NORMAL
+# Held for every panel write; frozen once the shutdown frame is up so no
+# in-flight page render can paint over it.
+_draw_lock = threading.Lock()
+_frozen = False
 
 
 def _has_spi_hardware():
@@ -52,19 +59,55 @@ def _select_device():
 
 
 # Initialize the device
-def init():
+def select_device():
     global device
     if device is None:
         device = _select_device()
+
+
+def init():
+    select_device()
     device.init()
+
+
+def _draw(image):
+    device.drawImage(_oriented(image))
 
 
 # Draw an image on the display
 def drawImage(image):
+    with _draw_lock:
+        if not _frozen:
+            _draw(image)
+
+
+def _oriented(image):
     if orientation == DISPLAY_ORIENTATION_FLIPPED:
-        device.drawImage(image.transpose(Image.Transpose.ROTATE_180))
+        return image.transpose(Image.Transpose.ROTATE_180)
+    return image
+
+
+def save_boot_splash(image, path=boot_splash.SPLASH_FILE):
+    """Store a frame fpms-splash can draw, for this panel and orientation."""
+    if isinstance(device, ST7735):
+        panel = boot_splash.PANEL_ST7735
+    elif isinstance(device, Luma):
+        panel = boot_splash.PANEL_SSD1351
     else:
-        device.drawImage(image)
+        return
+    frame = boot_splash.rgb565(_oriented(image).resize((128, 128)))
+    boot_splash.save(panel, GPIO_CHIP, frame, path)
+
+
+def final_frame(image):
+    """Draw the shutdown/reboot image and ignore every later write."""
+    global _frozen
+    with _draw_lock:
+        if not _frozen:
+            _draw(image)
+            _frozen = True
+            # The screen may be asleep with the backlight off.
+            device.wakeup()
 
 
 # Show page content as terminal text (Virtual backend only)
@@ -81,14 +124,20 @@ def set_hints(hints):
 
 # Clear the display
 def clear():
-    device.clear()
+    with _draw_lock:
+        if not _frozen:
+            device.clear()
 
 
 # Put the display to sleep
 def sleep():
-    device.sleep()
+    with _draw_lock:
+        if not _frozen:
+            device.sleep()
 
 
 # Wake up the display
 def wakeup():
-    device.wakeup()
+    with _draw_lock:
+        if not _frozen:
+            device.wakeup()

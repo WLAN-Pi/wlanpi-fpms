@@ -1,0 +1,13 @@
+[Unit]
+Description=Front panel boot screen for the WLAN Pi
+DefaultDependencies=no
+RequiresMountsFor=/var/lib/wlanpi-fpms
+Before=sysinit.target wlanpi-fpms.service
+ConditionPathExists=/var/lib/wlanpi-fpms/boot-splash
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/wlanpi-fpms/fpms-splash
+
+[Install]
+WantedBy=sysinit.target

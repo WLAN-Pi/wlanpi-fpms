@@ -17,6 +17,8 @@
 export DH_VIRTUALENV_INSTALL_ROOT=/opt
 export PYBUILD_NAME=wlanpi-fpms
 
+include /usr/share/dpkg/buildflags.mk
+
 SNAKE=/usr/bin/python3
 
 PACKAGE=$(shell dh_listpackages)
@@ -58,6 +60,18 @@ override_dh_virtualenv:
 	# -I/--ignore-installed reinstall would leave those orphaned .so files behind.
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip uninstall -y Pillow
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install --no-binary Pillow $(PILLOW_SPEC) --verbose
+
+# dh-virtualenv's sequence skips dh_auto_build and dh_auto_clean.
+execute_before_dh_install:
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Wall -o splash/fpms-splash splash/fpms-splash.c
+
+execute_before_dh_clean:
+	rm -f splash/fpms-splash
+
+override_dh_installsystemd:
+	dh_installsystemd
+	dh_installsystemd --name=wlanpi-fpms-splash --no-start
+	dh_installsystemd --name=wlanpi-fpms-failed --no-enable --no-start
 
 override_dh_strip:
 	dh_strip --exclude=cffi --exclude=_imaging --exclude=libtiff

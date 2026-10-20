@@ -1,0 +1,7 @@
+[Unit]
+Description=Front panel failure screen for the WLAN Pi
+ConditionPathExists=/var/lib/wlanpi-fpms/failed-splash
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/wlanpi-fpms/fpms-splash /var/lib/wlanpi-fpms/failed-splash
