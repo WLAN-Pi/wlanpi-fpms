@@ -14,18 +14,15 @@ from fpms.modules.constants import (
     DISPLAY_ORIENTATION_FLIPPED,
     DISPLAY_ORIENTATION_NORMAL,
     DISPLAY_TYPE,
-    DISPLAY_TYPE_ST7735,
-    DISPLAY_TYPE_VIRTUAL,
     GPIO_CHIP,
 )
+from fpms.modules.display import DISPLAY_TYPE_ST7735, DISPLAY_TYPE_VIRTUAL
 from fpms.modules.screen.luma import Luma
 from fpms.modules.screen.st7735 import ST7735
 from fpms.modules.screen.virtual import Virtual
 
 device: Any = None
 orientation = DISPLAY_ORIENTATION_NORMAL
-# Held for every panel write; frozen once the shutdown frame is up so no
-# in-flight page render can paint over it.
 _draw_lock = threading.Lock()
 _frozen = False
 
@@ -58,7 +55,6 @@ def _select_device():
     return ST7735() if DISPLAY_TYPE == DISPLAY_TYPE_ST7735 else Luma()
 
 
-# Initialize the device
 def select_device():
     global device
     if device is None:
@@ -74,7 +70,6 @@ def _draw(image):
     device.drawImage(_oriented(image))
 
 
-# Draw an image on the display
 def drawImage(image):
     with _draw_lock:
         if not _frozen:
@@ -106,37 +101,31 @@ def final_frame(image):
         if not _frozen:
             _draw(image)
             _frozen = True
-            # The screen may be asleep with the backlight off.
             device.wakeup()
 
 
-# Show page content as terminal text (Virtual backend only)
 def render_text(title, lines):
     if isinstance(device, Virtual):
         device.render_text(title, lines)
 
 
-# Set persistent help lines shown under the terminal text (Virtual only)
 def set_hints(hints):
     if isinstance(device, Virtual):
         device.set_hints(hints)
 
 
-# Clear the display
 def clear():
     with _draw_lock:
         if not _frozen:
             device.clear()
 
 
-# Put the display to sleep
 def sleep():
     with _draw_lock:
         if not _frozen:
             device.sleep()
 
 
-# Wake up the display
 def wakeup():
     with _draw_lock:
         if not _frozen:

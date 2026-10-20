@@ -1,26 +1,15 @@
 #!/bin/bash
-#
-# Build Debian package and deploy to WLAN Pi device
-#
 set -e
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Configuration - Edit these values as needed
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PACKAGE_NAME="wlanpi-fpms"
 WLANPI_IP="${WLANPI_IP:-198.18.42.1}"
 WLANPI_USER="${WLANPI_USER:-wlanpi}"
 DEPLOY_PATH="/tmp"
 SUITE="${1:-trixie}"
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Script logic - No need to edit below
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Use sshpass for non-interactive auth when SSHPASS is set, e.g.:
-#   WLANPI_IP=192.168.6.63 SSHPASS=wlanpi ./build-and-deploy.sh trixie
 SSH="ssh"
 SCP="scp"
 if [ -n "${SSHPASS:-}" ]; then
@@ -32,7 +21,6 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "Build and Deploy $PACKAGE_NAME ($SUITE)"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-# Step 1: Check if target is reachable
 echo "Step 1: Checking connection to $WLANPI_IP..."
 if ! ping -c 1 -W 2 "$WLANPI_IP" > /dev/null 2>&1; then
     echo "ERROR: Cannot reach $WLANPI_IP"
@@ -41,7 +29,6 @@ if ! ping -c 1 -W 2 "$WLANPI_IP" > /dev/null 2>&1; then
 fi
 echo "Target is reachable."
 
-# Step 2: Build the package
 echo ""
 echo "Step 2: Building package..."
 if ! bash build-package-native.sh "$SUITE"; then
@@ -51,7 +38,6 @@ if ! bash build-package-native.sh "$SUITE"; then
     exit 1
 fi
 
-# Step 3: Read build manifest
 echo ""
 echo "Step 3: Reading build manifest..."
 if [ ! -f .build-manifest.txt ]; then
@@ -69,7 +55,6 @@ fi
 echo "Packages to deploy:"
 for f in $DEB_FILES; do echo "  $(basename $f)"; done
 
-# Step 4: Copy to WLAN Pi
 echo ""
 echo "Step 4: Copying to WLAN Pi at $WLANPI_IP..."
 for DEB_FILE in $DEB_FILES; do
@@ -79,7 +64,6 @@ for DEB_FILE in $DEB_FILES; do
     fi
 done
 
-# Step 5: Install on WLAN Pi
 echo ""
 echo "Step 5: Installing on WLAN Pi..."
 for DEB_FILE in $DEB_FILES; do

@@ -1,20 +1,17 @@
-#################################
-# Create a simpe table object
-#################################
 import fpms.modules.wlanpi_oled as oled
 from fpms.modules.constants import (
     MAX_TABLE_LINES,
+    PAGE_WIDTH,
     SMART_FONT,
     STATUS_BAR_HEIGHT,
 )
-from fpms.modules.pages.display import *
-from fpms.modules.pages.utils import *
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.utils import StringFormatter
 from fpms.modules.themes import THEME
 
 
 class SimpleTable:
     def __init__(self, g_vars):
-        # grab a screeb obj
         self.display_obj = Display(g_vars)
         self.draw = g_vars["draw"]
         self.string_formatter = StringFormatter()
@@ -29,7 +26,6 @@ class SimpleTable:
         g_vars["drawing_in_progress"] = True
         g_vars["display_state"] = "page"
 
-        # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
         y = 0
@@ -41,9 +37,7 @@ class SimpleTable:
         title_length_max = 17
         table_display_max = MAX_TABLE_LINES + 1
 
-        # write title if present
         if title != "":
-            # shorten title if necessary
             if len(title) > title_length_max:
                 title = title[: title_length_max - 2] + ".."
 
@@ -61,7 +55,6 @@ class SimpleTable:
             font_offset += font_size + padding * 4
             table_display_max -= 1
 
-            # draw back nav indicator
             g_vars["draw"].line(
                 [(4, (STATUS_BAR_HEIGHT / 2)), (8, 4)],
                 fill=THEME.simple_table_title_foreground.value,
@@ -76,27 +69,21 @@ class SimpleTable:
         previous_table_list_length = g_vars["table_list_length"]
         g_vars["table_list_length"] = len(item_list)
 
-        # if table length changes, reset current scroll selection
-        # e.g. when showing lldp table info and eth cable
-        # pulled so list size changes
         if g_vars["table_list_length"] != previous_table_list_length:
             g_vars["current_scroll_selection"] = 0
 
-        # if we're going to scroll of the end of the list, adjust pointer
         if (
             g_vars["current_scroll_selection"] + table_display_max
             > g_vars["table_list_length"]
         ):
             g_vars["current_scroll_selection"] -= 1
 
-        # modify list to display if scrolling required
         if g_vars["table_list_length"] > table_display_max:
             table_bottom_entry = g_vars["current_scroll_selection"] + table_display_max
             item_list = item_list[
                 g_vars["current_scroll_selection"] : table_bottom_entry
             ]
 
-        # split long lines
         item_list = self.string_formatter.split(item_list)
 
         for item in item_list:

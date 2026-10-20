@@ -36,10 +36,8 @@ class Bluetooth:
         # hotplug, so resolve it here rather than at import.
         self.adapter = bt_adapter()
 
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def bluetooth_present(self):
@@ -126,8 +124,6 @@ class Bluetooth:
         except Exception:
             return False
 
-        # Best effort: the state file is wlanpi-bluetooth's bookkeeping, so a
-        # failure here must not be reported as a failure to set the adapter.
         try:
             with open("/etc/wlanpi-bluetooth/state", "w") as f:
                 f.write(f"{value}\n")
@@ -289,7 +285,6 @@ class Bluetooth:
         alert_msg = None
         if self.bluetooth_set_power(True):
             if not g_vars["result_cache"]:
-                # Unpair existing paired devices
                 g_vars["disable_keys"] = True
                 g_vars["bt_pair_error"] = None
                 self.alert_obj.display_popup_alert(g_vars, "Entering pairing mode...")

@@ -1,11 +1,8 @@
-#
 """
 themes.py - display themes
 """
 
 from enum import Enum
-
-from fpms.modules.platform import *
 
 
 class BlackAndWhiteTheme(Enum):
@@ -140,5 +137,4 @@ class DarkTheme(Enum):
     alert_popup_background = "#5b616b"
 
 
-# Set theme
 THEME = DarkTheme

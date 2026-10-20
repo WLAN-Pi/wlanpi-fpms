@@ -14,8 +14,8 @@ import sys
 import qrcode
 from PIL import Image
 
-from fpms.modules.display import *
-from fpms.modules.platform import *
+from fpms.modules.display import DISPLAY_TYPE_SSD1351, DISPLAY_TYPE_ST7735
+from fpms.modules.platform import HEADER_GPIOCHIP_LABELS, PLATFORM_PRO, PLATFORM_UNKNOWN
 
 
 class EnvUtils:
@@ -43,7 +43,6 @@ class EnvUtils:
                 platform = f.readline().strip()
 
         if platform == PLATFORM_UNKNOWN:
-            # get output of wlanpi-model
             model_cmd = 'wlanpi-model | grep "Model:" | cut -d ":" -f2 | xargs'
             try:
                 platform = (
@@ -65,7 +64,6 @@ class EnvUtils:
         """
         fallback = os.path.join(dev_dir, "gpiochip0")
         try:
-            # Pi-only runtime dependency, absent on CI and dev machines
             import gpiod
         except ImportError:
             return fallback
@@ -88,19 +86,16 @@ class EnvUtils:
     def get_mode(self, MODE_FILE):
         valid_modes = ["classic", "hotspot", "wiperf", "server", "bridge"]
 
-        # check mode file exists and read mode...create with classic mode if not
         if os.path.isfile(MODE_FILE):
             with open(MODE_FILE) as f:
                 current_mode = f.readline().strip()
 
-            # send msg to stdout & exit if mode invalid
             if current_mode not in valid_modes:
                 print(
                     f"The mode read from {MODE_FILE} is not a valid mode of operation: {current_mode}"
                 )
                 sys.exit()
         else:
-            # create the mode file as it does not exist
             with open(MODE_FILE, "w") as f:
                 current_mode = "classic"
                 f.write(current_mode)
@@ -114,7 +109,6 @@ class EnvUtils:
             with open(WLANPI_IMAGE_FILE) as f:
                 lines = f.readlines()
 
-            # pull out the version number for the FPMS home page
             for line in lines:
                 (name, value) = line.split("=")
                 if name == "VERSION":
@@ -196,28 +190,23 @@ class EnvUtils:
             qr.make(fit=True)
             img = qr.make_image()
 
-            # Paste watermark
             if os.path.exists(watermark):
                 wmark = Image.open(watermark)
 
                 if wmark is not None:
-                    # Convert to RGB
                     img = img.convert("RGB")
 
-                    # Calculate size of watermark
                     qr_width, qr_height = img.size
                     max_size = min(qr_width, qr_height) // 5
                     wmark_img = wmark.resize((max_size, max_size))
                     wmark_width, wmark_height = wmark_img.size
 
-                    # Calculate position and paste watermark
                     position = (
                         (qr_width - wmark_width) // 2,
                         (qr_height - wmark_height) // 2,
                     )
                     img.paste(wmark_img, position)
 
-            # Cache QR code
             img.save(qrcode_path)
 
         return qrcode_path

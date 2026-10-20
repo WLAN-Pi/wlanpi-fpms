@@ -11,27 +11,26 @@ from fpms.modules.constants import (
     FONT11,
     FONT13,
     IMAGE_DIR,
+    PAGE_HEIGHT,
+    PAGE_WIDTH,
     TIME_ZONE_FILE,
 )
 from fpms.modules.env_utils import EnvUtils
-from fpms.modules.pages.alert import *
-from fpms.modules.pages.display import *
-from fpms.modules.pages.pagedtable import *
-from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.pagedtable import PagedTable
+from fpms.modules.pages.simpletable import SimpleTable
+from fpms.modules.themes import THEME
 
 
 class System:
     def __init__(self, g_vars):
-        # grab a screeb obj
         self.display_obj = Display(g_vars)
 
-        # create simple table
         self.simple_table_obj = SimpleTable(g_vars)
 
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def shutdown(self, g_vars):
@@ -59,11 +58,8 @@ class System:
         Summary page - taken from original bakebit script
         """
 
-        # The commands here take quite a while to execute, so lock screen early
-        # (normally done by page drawing function)
         g_vars["drawing_in_progress"] = True
 
-        # figure out our IP
         IP = ""
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -77,28 +73,24 @@ class System:
 
         ipStr = f"IP: {IP}"
 
-        # determine CPU load
         cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
         try:
             CPU = subprocess.check_output(cmd, shell=True).decode()
         except Exception:
             CPU = "unknown"
 
-        # determine mem useage
         cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
         try:
             MemUsage = subprocess.check_output(cmd, shell=True).decode()
         except Exception:
             MemUsage = "unknown"
 
-        # determine disk util
         cmd = 'df -h | awk \'$NF=="/"{printf "Disk: %d/%dGB %s", $3,$2,$5}\''
         try:
             Disk = subprocess.check_output(cmd, shell=True).decode()
         except Exception:
             Disk = "unknown"
 
-        # determine temp
         tempI: float = 0
         try:
             tempI = int(open("/sys/class/thermal/thermal_zone0/temp").read())
@@ -109,7 +101,6 @@ class System:
             tempI = tempI / 1000
         tempStr = f"CPU Temp: {round(tempI, 1)}C"
 
-        # determine uptime
         cmd = r"uptime -p | sed -r 's/up|,//g' | sed -r 's/\s*week[s]?/w/g' | sed -r 's/\s*day[s]?/d/g' | sed -r 's/\s*hour[s]?/h/g' | sed -r 's/\s*minute[s]?/m/g'"
         try:
             uptime = subprocess.check_output(cmd, shell=True).decode().strip()
@@ -120,7 +111,6 @@ class System:
 
         results = [ipStr, str(CPU), str(MemUsage), str(Disk), tempStr, uptimeStr]
 
-        # final check no-one pressed a button before we render page
         if g_vars["display_state"] == "menu":
             return
 
@@ -133,7 +123,6 @@ class System:
         Date page - taken from original bakebit script & modified to add TZ
         """
 
-        # Get timezone and cache it
         timezone = ""
         if not g_vars["result_cache"]:
             try:
@@ -145,16 +134,13 @@ class System:
 
             g_vars["result_cache"] = True
 
-        # Print date, time and timezone
         g_vars["drawing_in_progress"] = True
 
-        # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
         clock_font = ImageFont.truetype("fonts/DejaVuSansMono-Bold.ttf", 18)
         margin = 2
 
-        # Draw time
         text = time.strftime("%I:%M %p")
         text_size = clock_font.getbbox(text)
         x = (PAGE_WIDTH - text_size[2]) / 2
@@ -164,7 +150,6 @@ class System:
         )
         y = y + text_size[1] + margin
 
-        # Draw date
         text = time.strftime("%e %b. %Y")
         text_size = FONT13.getbbox(text)
         x = (PAGE_WIDTH - text_size[2]) / 2
@@ -172,7 +157,6 @@ class System:
         g_vars["draw"].text((x, y), text, font=FONT13, fill=THEME.text_color.value)
         y = y + text_size[1] + margin
 
-        # Draw city
         text = (g_vars["timezone_selected"] or "").split("/")[-1].replace("_", " ")
         text_size = FONT11.getbbox(text)
         x = (PAGE_WIDTH - text_size[2]) / 2
@@ -182,7 +166,6 @@ class System:
         )
         y = y + text_size[1] + margin
 
-        # Draw timezone
         text = time.strftime("%Z")
         text_size = FONT11.getbbox(text)
         x = (PAGE_WIDTH - text_size[2]) / 2

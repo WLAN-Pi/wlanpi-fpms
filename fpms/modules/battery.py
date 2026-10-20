@@ -5,13 +5,10 @@ from fpms.modules.pages.pagedtable import PagedTable
 
 class Battery:
     def __init__(self, g_vars):
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
-        # load battery status info
         self.info = {"POWER_SUPPLY_PRESENT": "0"}
         try:
             with open(BATTERY_STATUS_FILE) as f:

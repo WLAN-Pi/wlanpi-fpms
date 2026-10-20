@@ -15,8 +15,6 @@ def oled(monkeypatch):
     constants.DISPLAY_ORIENTATION_FLIPPED = "flipped"
     constants.DISPLAY_ORIENTATION_NORMAL = "normal"
     constants.DISPLAY_TYPE = "st7735"
-    constants.DISPLAY_TYPE_ST7735 = "st7735"
-    constants.DISPLAY_TYPE_VIRTUAL = "virtual"
     constants.GPIO_CHIP = "/dev/gpiochip0"
     monkeypatch.setitem(sys.modules, "fpms.modules.constants", constants)
     for name, cls in (("luma", "Luma"), ("st7735", "ST7735"), ("virtual", "Virtual")):

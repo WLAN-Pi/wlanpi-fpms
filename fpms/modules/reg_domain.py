@@ -8,10 +8,8 @@ from fpms.modules.pages.pagedtable import PagedTable
 
 class RegDomain:
     def __init__(self, g_vars):
-        # create paged table
         self.paged_table_obj = PagedTable(g_vars)
 
-        # create alert
         self.alert_obj = Alert(g_vars)
 
     def show_reg_domain(self, g_vars):

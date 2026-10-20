@@ -28,74 +28,75 @@ from gi.repository import GLib
 from gpiod.line import Bias, Edge
 from PIL import Image, ImageDraw
 
-# Check we're running as root
 if not os.geteuid() == 0:
     print("fpms must be run as root ... exiting ...")
     sys.exit(-1)
 
 from .__version__ import __title__, __version__
 from .modules import wlanpi_oled as oled
-from .modules.apps.kismet import *
-from .modules.apps.profiler import *
-from .modules.apps.scanner import *
-from .modules.battery import *
-from .modules.bluetooth import *
+from .modules.apps.kismet import Kismet
+from .modules.apps.profiler import Profiler
+from .modules.apps.scanner import Scanner
+from .modules.battery import Battery
+from .modules.bluetooth import Bluetooth
 from .modules.cloud_tests import CloudUtils
-from .modules.constants import *
+from .modules.constants import (
+    BUTTONS_PINS,
+    DISPLAY_MODE,
+    DISPLAY_ORIENTATION_FLIPPED,
+    DISPLAY_ORIENTATION_NORMAL,
+    GPIO_CHIP,
+    IMAGE_DIR,
+    MODE_FILE,
+    PAGE_HEIGHT,
+    PAGE_SLEEP,
+    PAGE_WIDTH,
+    WLANPI_IMAGE_FILE,
+)
 from .modules.env_utils import EnvUtils
 from .modules.nav.buttons import Button
-from .modules.network import *
+from .modules.network import Network
 from .modules.pages.homepage import HomePage
 from .modules.pages.page import Page
-from .modules.reg_domain import *
-from .modules.system import *
-from .modules.time_zone import *
-from .modules.utils import *
+from .modules.reg_domain import RegDomain
+from .modules.system import System
+from .modules.time_zone import TimeZone
+from .modules.utils import Utils, sd_notify_ready
 
 FPMS_CONF_FILE = "/etc/wlanpi-fpms.conf"
 
-#######################################
-# Initialize various global variables
-#######################################
 g_vars: dict[str, Any] = {
-    ##################################################
-    # Shared status signals (may be changed anywhere)
-    ##################################################
-    # This variable is shared between activities and is set to True if a
-    # drawing action in already if progress (e.g. by another activity). An activity
-    # happens during each cycle of the main while loop or when a button is pressed
-    # (This does not appear to be threading or process spawning)
-    "display_orientation": DISPLAY_ORIENTATION_NORMAL,  # Display module orientation
-    "drawing_in_progress": False,  # True when page being painted on screen
-    "shutdown_in_progress": False,  # True when shutdown or reboot started
-    "screen_cleared": False,  # True when display cleared (e.g. screen save)
-    "display_state": "page",  # current display state: 'page' or 'menu'
-    "sig_fired": False,  # Set to True when button handler fired
-    "option_selected": 0,  # Content of currently selected menu level
-    "current_menu_location": [0],  # Pointer to current location in menu structure
-    "current_scroll_selection": 0,  # where we currently are in scrolling table
-    "current_mode": "classic",  # Currently selected mode (e.g. classic/server)
-    "start_up": True,  # True if in initial (home page) start-up state
-    "disable_keys": False,  # Set to true when need to ignore key presses
-    "table_list_length": 0,  # Total length of currently displayed table
-    "table_pages": 1,  # pages in current table
-    "result_cache": False,  # used to cache results when paging info
-    "speedtest_result_text": "",  # tablulated speedtest result data
-    "button_press_count": 0,  # global count of button pressses
-    "last_button_press_count": -1,  # copy of count of button pressses used in main loop
-    "pageSleepCountdown": PAGE_SLEEP,  # Set page sleep control
-    "home_page_name": "Home",  # Display name for top level menu
-    "home_page_alternate": False,  # True if in alternate home page state
-    "blinker_status": False,  # Blinker status
-    "eth_carrier_status": 0,  # Eth0 physical link status
-    "eth_last_known_address_set": None,  # Last known ethernet addresses
-    "eth_last_reachability_test": 0,  # Number of seconds elapsed since last reachability test
-    "eth_last_reachability_result": False,  # Last reachability state
-    "scan_file": "",  # Location to save scans
-    "profiler_beaconing": False,  # Indicates if the profiler is running
-    "profiler_last_profile_date": None,  # The date of the last profile
-    "timezones_available": [],  # The list of Timezones the system can support
-    "timezone_selected": None,  # The timezone selected from the menu for use in other functions
+    "display_orientation": DISPLAY_ORIENTATION_NORMAL,
+    "drawing_in_progress": False,
+    "shutdown_in_progress": False,
+    "screen_cleared": False,
+    "display_state": "page",
+    "sig_fired": False,
+    "option_selected": 0,
+    "current_menu_location": [0],
+    "current_scroll_selection": 0,
+    "current_mode": "classic",
+    "start_up": True,
+    "disable_keys": False,
+    "table_list_length": 0,
+    "table_pages": 1,
+    "result_cache": False,
+    "speedtest_result_text": "",
+    "button_press_count": 0,
+    "last_button_press_count": -1,
+    "pageSleepCountdown": PAGE_SLEEP,
+    "home_page_name": "Home",
+    "home_page_alternate": False,
+    "blinker_status": False,
+    "eth_carrier_status": 0,
+    "eth_last_known_address_set": None,
+    "eth_last_reachability_test": 0,
+    "eth_last_reachability_result": False,
+    "scan_file": "",
+    "profiler_beaconing": False,
+    "profiler_last_profile_date": None,
+    "timezones_available": [],
+    "timezone_selected": None,
 }
 
 
@@ -128,13 +129,11 @@ def handle_reboot_or_shutdown(shutdown=False):
         _release_shutdown_inhibitor()
 
 
-# Handler for PrepareForShutdown signal
 def handle_prepare_for_shutdown(arg):
     log_to_syslog("PrepareForShutdown signal received")
     handle_reboot_or_shutdown()
 
 
-# Handler for JobNew signal
 def handle_jobnew(*args):
     log_to_syslog("JobNew signal received")
     for arg in args:
@@ -151,20 +150,15 @@ dbus_handlers_ready = threading.Event()
 def run_dbus_loop():
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-    # Connect to the system bus
     bus = dbus.SystemBus()
 
-    # Get the org.freedesktop.login1.Manager interface
     login1_proxy = bus.get_object("org.freedesktop.login1", "/org/freedesktop/login1")
     login1 = dbus.Interface(login1_proxy, "org.freedesktop.login1.Manager")
 
-    # Own the fd so the shutdown handler can release the delay after drawing.
     g_vars["shutdown_inhibitor_fd"] = login1.Inhibit(
         "shutdown", "fpms", "Delaying shutdown", "delay"
     ).take()
 
-    # Add a signal receiver for the "PrepareForShutdown" signal from login1.Manager
-    # Handles systemctl reboot
     bus.add_signal_receiver(
         handle_prepare_for_shutdown,
         signal_name="PrepareForShutdown",
@@ -173,8 +167,6 @@ def run_dbus_loop():
         path="/org/freedesktop/login1",
     )
 
-    # Add a signal receiver for JobNew signal from systemd1.Manager
-    # Handles (legacy) reboot
     bus.add_signal_receiver(
         handle_jobnew,
         dbus_interface="org.freedesktop.systemd1.Manager",
@@ -184,7 +176,6 @@ def run_dbus_loop():
     log_to_syslog("event handlers added")
     dbus_handlers_ready.set()
 
-    # Run indefinitely to handle D-Bus signals
     loop = GLib.MainLoop()
     try:
         loop.run()
@@ -192,7 +183,6 @@ def run_dbus_loop():
         _release_shutdown_inhibitor()
 
 
-# Function to read a value from a section in the .conf file
 def save_boot_splash():
     try:
         oled.save_boot_splash(Image.open(IMAGE_DIR + "/booting.png"))
@@ -207,7 +197,6 @@ def read_value(section, key, default_value):
     config = configparser.ConfigParser()
     config.read(FPMS_CONF_FILE)
 
-    # Read the value from the specified section and key
     if config.has_section(section) and config.has_option(section, key):
         value = config.get(section, key)
         return value
@@ -215,31 +204,23 @@ def read_value(section, key, default_value):
         return default_value
 
 
-# Function to modify and save a value in the specified section and key
 def save_value(section, key, new_value):
     config = configparser.ConfigParser()
     config.read(FPMS_CONF_FILE)
 
-    # Check if the section exists, if not, create it
     if not config.has_section(section):
         config.add_section(section)
 
-    # Modify or add the value
     config.set(section, key, new_value)
 
-    # Write the updated config back to the file
     with open(FPMS_CONF_FILE, "w") as f:
         config.write(f)
 
 
-# Main loop flag. Declared at module scope so the nested helpers that do
-# `global running` can rebind it; mypy cannot see a binding that only happens
-# inside main().
 running: bool = False
 
 
 def main():
-    # Run D-Bus main loop in a separate thread
     dbus_thread = threading.Thread(target=run_dbus_loop)
     dbus_thread.daemon = True
     dbus_thread.start()
@@ -248,14 +229,9 @@ def main():
     global g_vars
     global running
 
-    ####################################
-    # Parse arguments
-    ####################################
-
     def authors():
         authors = os.path.realpath(os.path.join(os.getcwd(), "AUTHORS.md"))
         if not os.path.isfile(authors):
-            # Couldn't find authors
             print(authors)
             return ""
         else:
@@ -311,15 +287,9 @@ optional options:
         else:
             raise AssertionError("unhandled option")
 
-    ####################################
-    # Claim the hardware buttons before touching the display. GPIO lines are
-    # exclusive: if another fpms instance (e.g. the running systemd service)
-    # already holds them, fail with a clear message instead of a thread
-    # traceback later, and without fighting it for the panel.
     # ponytail: gpio contention is the proxy for "another instance owns the
     # display/buttons"; it won't catch a non-fpms holder of the display only.
     # Add an explicit lock file if that case ever matters.
-    ####################################
     button_request: Any = None
     if os.path.exists(GPIO_CHIP):
         line_setting = gpiod.LineSettings(
@@ -338,21 +308,14 @@ optional options:
             )
             sys.exit(1)
 
-    ####################################
-    # Initialize the SEED OLED display
-    ####################################
     g_vars["display_orientation"] = read_value(
         "display", "orientation", DISPLAY_ORIENTATION_NORMAL
     )
     oled.orientation = g_vars["display_orientation"]
     oled.select_device()
-    # Before init, so a display init failure still has a failure screen to show.
     save_boot_splash()
     oled.init()
 
-    ############################
-    # shared objects
-    ############################
     g_vars["image"] = Image.new(DISPLAY_MODE, (PAGE_WIDTH, PAGE_HEIGHT))
     g_vars["draw"] = ImageDraw.Draw(g_vars["image"])
     g_vars["reboot_image"] = Image.open(IMAGE_DIR + "/reboot.png").convert(DISPLAY_MODE)
@@ -371,23 +334,11 @@ optional options:
         )
     sd_notify_ready()
 
-    #####################################
-    # check our current operating mode
-    #####################################
-
     env_utils = EnvUtils()
     g_vars["current_mode"] = env_utils.get_mode(MODE_FILE)
 
-    ##################################
-    # Static info we want to get once
-    ##################################
-
-    # get & the current version of WLANPi image
     g_vars["wlanpi_ver"] = env_utils.get_image_ver(WLANPI_IMAGE_FILE)
 
-    # ################################
-    # Other state initialization
-    # ################################
     profiler = Profiler(g_vars)
     g_vars["profiler_last_profile_date"] = profiler.profiler_last_profile_date()
     g_vars["profiler_beaconing"] = profiler.profiler_beaconing()
@@ -395,9 +346,6 @@ optional options:
     timezone = TimeZone(g_vars)
     timezones_available = timezone.get_timezones_menu_format()
 
-    ###########################
-    # Network menu area utils
-    ###########################
     def show_interfaces():
         network_obj = Network(g_vars)
         network_obj.show_interfaces(g_vars)
@@ -430,9 +378,6 @@ optional options:
         network_obj = Network(g_vars)
         network_obj.show_publicip(g_vars, ip_version=6)
 
-    ###########################
-    # Bluetooth menu area
-    ###########################
     def bluetooth_status():
         bluetooth_obj = Bluetooth(g_vars)
         bluetooth_obj.bluetooth_status(g_vars)
@@ -449,9 +394,6 @@ optional options:
         bluetooth_obj = Bluetooth(g_vars)
         bluetooth_obj.bluetooth_off(g_vars)
 
-    ###########################
-    # Utils menu area
-    ###########################
     def show_reachability():
         utils_obj = Utils(g_vars)
         utils_obj.show_reachability(g_vars)
@@ -504,9 +446,6 @@ optional options:
         utils_obj = Utils(g_vars)
         utils_obj.show_ufw(g_vars)
 
-    ###########################
-    # Apps area
-    ###########################
     def kismet_start():
         app_obj = Kismet(g_vars)
         app_obj.kismet_start(g_vars)
@@ -574,10 +513,6 @@ optional options:
     def scanner_scan_tofile_pcap_stop():
         app_obj = Scanner(g_vars)
         app_obj.scanner_scan_tofile_pcap_stop(g_vars)
-
-    ###########################
-    # System menu area utils
-    ###########################
 
     def shutdown():
         system_obj = System(g_vars)
@@ -655,9 +590,6 @@ optional options:
         system_obj = System(g_vars)
         system_obj.show_help(g_vars)
 
-    #############################
-    # Button presses & home page
-    #############################
     def home_page():
         homepage_obj = HomePage(g_vars)
         homepage_obj.home_page(g_vars, menu)
@@ -710,8 +642,6 @@ optional options:
         button_obj.shortcut(g_vars, menu, next_shortcut)
 
     def menu_key2():
-        # Key2 used to switch modes; repurposed to toggle display rotation.
-        # Repaint the current view in place (the main loop's 2s cycle is slow).
         toggle_display_orientation()
         if g_vars["display_state"] == "page":
             if isinstance(g_vars["option_selected"], types.FunctionType):
@@ -724,12 +654,10 @@ optional options:
         reboot_shortcut = create_shortcut(menu, ["System", "Reboot"])
         shutdown_shortcut = create_shortcut(menu, ["System", "Shutdown"])
 
-        # Select the next path
         next_shortcut = reboot_shortcut
         if g_vars["current_menu_location"][:-1] == reboot_shortcut:
             next_shortcut = shutdown_shortcut
 
-        # Switch to menu
         button_obj = Button(g_vars, menu)
         button_obj.shortcut(g_vars, menu, next_shortcut)
 
@@ -748,11 +676,6 @@ optional options:
 
         return []
 
-    #######################
-    # menu structure here
-    #######################
-
-    # translate the timezone list into menu items (needs to be after definition of set_time_zone)
     for timezones_country in timezones_available:
         g_vars["timezones_available"].append(
             {"name": timezones_country["country"], "action": []}
@@ -762,7 +685,6 @@ optional options:
                 {"name": timezone, "action": set_time_zone}
             )
 
-    # assume classic mode menu initially...
     menu: list[dict[str, Any]] = [
         {
             "name": "Network",
@@ -1038,7 +960,6 @@ optional options:
         },
     ]
 
-    # update menu options data structure if we're in non-classic mode
     if g_vars["current_mode"] == "hotspot":
         g_vars["home_page_name"] = "Hotspot"
 
@@ -1052,7 +973,6 @@ optional options:
         g_vars["home_page_name"] = "Bridge"
 
     if g_vars["current_mode"] == "classic":
-        # Remove Utils > SSID/Passphrase
         for item in menu:
             if item["name"] == "Utils":
                 for action in item["action"]:
@@ -1060,12 +980,10 @@ optional options:
                         item["action"].remove(action)
                         break
     else:
-        # Remove Apps menu
         for item in menu:
             if item["name"] == "Apps":
                 menu.remove(item)
 
-    # Set up handlers to process key presses
     def button_press(gpio_pin, g_vars=g_vars):
         DOWN_KEY = BUTTONS_PINS["down"]
         UP_KEY = BUTTONS_PINS["up"]
@@ -1086,14 +1004,11 @@ optional options:
             KEY3 = BUTTONS_PINS["key3"]
 
         if g_vars["disable_keys"]:
-            # someone disabled the front panel keys as they don't want to be interrupted
             return
 
         if g_vars["sig_fired"]:
-            # signal handler already in progress, ignore this one
             return
 
-        # user pressed a button, reset the sleep counter
         g_vars["pageSleepCountdown"] = PAGE_SLEEP
 
         g_vars["start_up"] = False
@@ -1101,78 +1016,60 @@ optional options:
         if g_vars["drawing_in_progress"] or g_vars["shutdown_in_progress"]:
             return
 
-        # increment the button press counter to indicate the something has been done
-        # and a page refresh is required
         g_vars["button_press_count"] += 1
 
-        # if display has been switched off to save screen, power back on and show home menu
         if g_vars["screen_cleared"]:
             wakeup_screen()
             return
 
-        # Down key pressed
         if gpio_pin == DOWN_KEY:
             g_vars["sig_fired"] = True
             menu_down()
             g_vars["sig_fired"] = False
             return
 
-        # Down key pressed
         if gpio_pin == UP_KEY:
             g_vars["sig_fired"] = True
             menu_up()
             g_vars["sig_fired"] = False
             return
 
-        # Right/Selection key pressed
         if gpio_pin == RIGHT_KEY:
             g_vars["sig_fired"] = True
             menu_right()
             g_vars["sig_fired"] = False
             return
 
-        # Left/Back key
         if gpio_pin == LEFT_KEY:
             g_vars["sig_fired"] = True
             menu_left()
             g_vars["sig_fired"] = False
             return
 
-        # Center key
         if gpio_pin == CENTER_KEY:
             g_vars["sig_fired"] = True
             menu_center()
             g_vars["sig_fired"] = False
             return
 
-        # Key 1
         if gpio_pin == KEY1:
             g_vars["sig_fired"] = True
             menu_key1()
             g_vars["sig_fired"] = False
             return
 
-        # Key 2
         if gpio_pin == KEY2:
             g_vars["sig_fired"] = True
             menu_key2()
             g_vars["sig_fired"] = False
             return
 
-        # Key 3
         if gpio_pin == KEY3:
             g_vars["sig_fired"] = True
             menu_key3()
             g_vars["sig_fired"] = False
             return
 
-    ###############################################################################
-    #
-    # ****** MAIN *******
-    #
-    ###############################################################################
-
-    # First time around (power-up), draw logo on display
     """
     rogues_gallery = [
         IMAGE_DIR + '/wlanprologo',
@@ -1191,11 +1088,6 @@ optional options:
     time.sleep(2.0)
     """
 
-    ###############################################################################
-    # Splash screen
-    ###############################################################################
-
-    # First time around (power-up), animate logo on display
     splash_screen_images = [
         IMAGE_DIR + "/wlanpi0.png",
         IMAGE_DIR + "/wlanpi1.png",
@@ -1209,15 +1101,8 @@ optional options:
         oled.drawImage(img)
         time.sleep(0.100)
 
-    # Leave logo on screen some more time
     time.sleep(2)
 
-    ###############################################################################
-    # Buttons setup
-    ###############################################################################
-
-    # Set signal handlers for button presses - these fire every time a button
-    # is pressed
     def up_key():
         button_press(BUTTONS_PINS["up"], g_vars)
 
@@ -1299,10 +1184,6 @@ optional options:
 
     running = True
 
-    ##############################################################################
-    # Emulate button presses using a keyboard
-    ##############################################################################
-
     def getch():
         fd = sys.stdin.fileno()
         old_settings = termios.tcgetattr(fd)
@@ -1321,8 +1202,6 @@ optional options:
             char = getch()
 
             if char == "k" or char == "K":
-                # getch() has already restored the terminal; exit at once
-                # instead of waiting for the main loop's 2s nap to notice.
                 running = False
                 os._exit(0)
 
@@ -1360,17 +1239,12 @@ optional options:
         hints = ["w/x/a/d/s: up/down/left/right/center", "g: screenshot   k: quit"]
         if button_key1_present and button_key2_present and button_key3_present:
             hints.append("i/o/p: key1/key2/key3")
-        # On the Virtual backend these are drawn under the menu; on real
-        # hardware the terminal is the only place the user sees them.
         oled.set_hints(hints)
         print("\n".join(hints), flush=True)
         e = threading.Thread(name="button-emulator", target=emulate_buttons)
         e.daemon = True
         e.start()
 
-    ##############################################################################
-    # Helper functions
-    ##############################################################################
     def capture_screen():
         g_vars["sig_fired"] = True
         screenshots_dir = "/home/wlanpi/screenshots"
@@ -1405,30 +1279,8 @@ optional options:
         except (OSError, ValueError):
             pass
 
-    ##############################################################################
-    # Constant 'while' loop to paint images on display or execute actions in
-    # response to selections made with buttons. When any of the 3 WLANPi buttons
-    # are pressed, I believe the signal handler takes over the Python interpreter
-    # and executes the code associated with the button. The original flow continues
-    # once the button press action has been completed.
-    #
-    # The current sleep period of the while loop is ignored when a button is
-    # pressed.
-    #
-    # All global variables defined outside of the while loop are preserved and may
-    # read/set as required. The same variables are available for read/write even
-    # when a button is pressed and an interrupt occurs: no additional thread or
-    # interpreter with its own set of vars appears to be launched. For this reason,
-    # vars may be used to signal between the main while loop and any button press
-    # activity to indicate that processes such as screen paints are in progress.
-    #
-    # Despite the sample code suggesting threading is used I do not believe this
-    # is the case, based on testing with variable scopes and checking for process
-    # IDs when different parts of the script are executing.
-    ##############################################################################
     while running:
         try:
-            # check if eth0 link status has changed so we exit from screen save if needed
             check_eth()
 
             if (
@@ -1437,53 +1289,27 @@ optional options:
                 or g_vars["drawing_in_progress"]
                 or g_vars["sig_fired"]
             ):
-                # we don't really want to do anything at the moment, lets
-                # nap and loop around
                 time.sleep(2)
                 continue
 
-            # Draw a menu or execute current action (dispatcher)
             if g_vars["display_state"] != "menu":
-                # no menu shown, so must be executing action.
-
-                # if we've just booted up, show home page
                 if g_vars["start_up"]:
                     g_vars["option_selected"] = home_page
-
-                # Re-run current action to refresh screen
-                #
-                # Handle when g_vars['option_selected'] does not return
-                #   a func but returns a list instead and fpms freezes.
-                #
-                # investigate by uncommenting these print statements
-                # and `tail -f /tmp/nanoled-python.log`:
-                # print(g_vars['option_selected'])
-                # print(type(g_vars['option_selected']))
 
                 if isinstance(g_vars["option_selected"], types.FunctionType):
                     g_vars["option_selected"]()
 
             else:
-                # lets try drawing our page (or refresh if already painted)
-
-                # No point in repainting screen if we are on a
-                # menu page and no buttons pressed since last loop cycle
-                # In reality, this condition will rarely (if ever) be true
-                # as the page painting is driven from the key press which
-                # interrupts this flow anyhow. Left in as a safeguard
                 if g_vars["button_press_count"] > g_vars["last_button_press_count"]:
                     page_obj = Page(g_vars)
                     page_obj.draw_page(g_vars, menu)
 
-            # if screen timeout is zero, clear it if not already done (blank the
-            # display to reduce screenburn)
             if g_vars["pageSleepCountdown"] == 0 and not g_vars["screen_cleared"]:
                 sleep_screen()
 
             if g_vars["pageSleepCountdown"] > 0:
                 g_vars["pageSleepCountdown"] = g_vars["pageSleepCountdown"] - 1
 
-            # have a nap before we start our next loop
             time.sleep(2)
 
         except KeyboardInterrupt:

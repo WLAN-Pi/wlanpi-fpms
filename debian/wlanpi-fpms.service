@@ -1,12 +1,9 @@
 [Unit]
 Description=Front Panel Menu System for the WLAN Pi OLED display
 RequiresMountsFor=/dev/spidev
-# Replace the boot screen so a failed fpms doesn't look like a hung boot.
 OnFailure=wlanpi-fpms-failed.service
 
 [Service]
-# fpms sends READY=1 once it can draw the reboot screen (or after 20 s
-# without D-Bus)
 Type=notify
 TimeoutStartSec=30
 ExecStart=/usr/sbin/fpms

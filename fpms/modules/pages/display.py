@@ -7,10 +7,6 @@ from fpms.modules.constants import (
 )
 from fpms.modules.themes import THEME
 
-#################################
-# Display functions
-#################################
-
 
 class Display:
     def __init__(self, g_vars):
@@ -21,7 +17,6 @@ class Display:
         Paint display black prior to painting new page
         """
 
-        # Draw a black filled box to clear the display.
         g_vars["draw"].rectangle(
             (0, 0, PAGE_WIDTH, PAGE_HEIGHT), fill=THEME.display_background.value
         )

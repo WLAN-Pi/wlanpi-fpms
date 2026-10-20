@@ -1,21 +1,19 @@
-#################################
-# Create an alert object
-#################################
 import time
 from textwrap import wrap
 
 import fpms.modules.wlanpi_oled as oled
 from fpms.modules.constants import (
+    PAGE_HEIGHT,
+    PAGE_WIDTH,
     SMART_FONT,
     STATUS_BAR_HEIGHT,
 )
-from fpms.modules.pages.display import *
+from fpms.modules.pages.display import Display
 from fpms.modules.themes import THEME
 
 
 class Alert:
     def __init__(self, g_vars):
-        # grab a screeb obj
         self.display_obj = Display(g_vars)
         self.draw = g_vars["draw"]
 
@@ -37,7 +35,6 @@ class Alert:
 
         item_list = wrap(message, 17, break_on_hyphens=False)
 
-        # Clear display prior to painting new item
         self.display_obj.clear_display(g_vars)
 
         y = 0
@@ -49,11 +46,9 @@ class Alert:
         item_length_max = 21
         title_length_max = 17
 
-        # shorten title if necessary
         if len(title) > title_length_max:
             title = title[: title_length_max - 2] + ".."
 
-        # write title
         self.draw.rectangle(
             (x, y, PAGE_WIDTH, STATUS_BAR_HEIGHT), fill=title_background
         )
@@ -66,7 +61,6 @@ class Alert:
         )
         font_offset += font_size
 
-        # draw back nav indicator
         g_vars["draw"].line(
             [(4, (STATUS_BAR_HEIGHT / 2)), (8, 4)], fill=title_foreground, width=1
         )
@@ -77,8 +71,6 @@ class Alert:
         )
 
         y += font_offset
-
-        # item_length_max = 21
 
         for item in item_list:
             if len(item) > item_length_max:
