@@ -4,6 +4,7 @@ import glob
 import os
 import sys
 import syslog
+import threading
 from typing import Any
 
 from PIL import Image
@@ -21,6 +22,10 @@ from fpms.modules.screen.virtual import Virtual
 
 device: Any = None
 orientation = DISPLAY_ORIENTATION_NORMAL
+# Held for every panel write; frozen once the shutdown frame is up so no
+# in-flight page render can paint over it.
+_draw_lock = threading.Lock()
+_frozen = False
 
 
 def _has_spi_hardware():
@@ -59,12 +64,29 @@ def init():
     device.init()
 
 
-# Draw an image on the display
-def drawImage(image):
+def _draw(image):
     if orientation == DISPLAY_ORIENTATION_FLIPPED:
         device.drawImage(image.transpose(Image.Transpose.ROTATE_180))
     else:
         device.drawImage(image)
+
+
+# Draw an image on the display
+def drawImage(image):
+    with _draw_lock:
+        if not _frozen:
+            _draw(image)
+
+
+def final_frame(image):
+    """Draw the shutdown/reboot image and ignore every later write."""
+    global _frozen
+    with _draw_lock:
+        if not _frozen:
+            _draw(image)
+            _frozen = True
+            # The screen may be asleep with the backlight off.
+            device.wakeup()
 
 
 # Show page content as terminal text (Virtual backend only)
@@ -81,14 +103,20 @@ def set_hints(hints):
 
 # Clear the display
 def clear():
-    device.clear()
+    with _draw_lock:
+        if not _frozen:
+            device.clear()
 
 
 # Put the display to sleep
 def sleep():
-    device.sleep()
+    with _draw_lock:
+        if not _frozen:
+            device.sleep()
 
 
 # Wake up the display
 def wakeup():
-    device.wakeup()
+    with _draw_lock:
+        if not _frozen:
+            device.wakeup()

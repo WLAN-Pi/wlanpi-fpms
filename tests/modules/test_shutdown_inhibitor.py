@@ -72,7 +72,7 @@ def shutdown_module(monkeypatch):
     module.g_vars["shutdown_image"] = "shutdown"
     module.g_vars["reboot_image"] = "reboot"
     events = []
-    module.oled.drawImage = Mock(side_effect=lambda image: events.append(image))
+    module.oled.final_frame = Mock(side_effect=lambda image: events.append(image))
     module.os = types.SimpleNamespace(
         close=Mock(side_effect=lambda fd: events.append(fd))
     )
@@ -120,7 +120,7 @@ def test_duplicate_shutdown_signals_release_inhibitor_once(shutdown_module):
 
 def test_failed_shutdown_drawing_releases_inhibitor(shutdown_module):
     module, _, loop, events = shutdown_module
-    module.oled.drawImage.side_effect = RuntimeError("display unavailable")
+    module.oled.final_frame.side_effect = RuntimeError("display unavailable")
     loop.run.side_effect = module.handle_reboot_or_shutdown
 
     with pytest.raises(RuntimeError, match="display unavailable"):

@@ -195,6 +195,8 @@ if V_OFFSET:
 class Luma(AbstractScreen):
     def init(self):
         self.device = get_device(actual_args=actual_args)
+        # Skip luma's atexit hide/clear so the reboot image stays up.
+        self.device.persist = True
         if PLATFORM == PLATFORM_PRO:
             # Reduce the contrast to also help reduce the noise
             # that's being produced by the display for some reason

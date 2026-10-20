@@ -37,7 +37,7 @@ class System:
     def shutdown(self, g_vars):
         self.alert_obj.display_popup_alert(g_vars, "Shutting down...", delay=1)
         oled.render_text("Shutdown", ["Shutting down..."])
-        oled.drawImage(g_vars["shutdown_image"])
+        oled.final_frame(g_vars["shutdown_image"])
         g_vars["shutdown_in_progress"] = True
 
         subprocess.run(["systemctl", "poweroff"])
@@ -47,7 +47,7 @@ class System:
     def reboot(self, g_vars):
         self.alert_obj.display_popup_alert(g_vars, "Rebooting...", delay=1)
         oled.render_text("Reboot", ["Rebooting..."])
-        oled.drawImage(g_vars["reboot_image"])
+        oled.final_frame(g_vars["reboot_image"])
         g_vars["shutdown_in_progress"] = True
 
         subprocess.run(["systemctl", "reboot"])

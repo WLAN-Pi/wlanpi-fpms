@@ -120,9 +120,9 @@ def handle_reboot_or_shutdown(shutdown=False):
             g_vars["shutdown_in_progress"] = True
             log_to_syslog("Drawing shutdown/reboot image")
             if shutdown:
-                oled.drawImage(g_vars["shutdown_image"])
+                oled.final_frame(g_vars["shutdown_image"])
             else:
-                oled.drawImage(g_vars["reboot_image"])
+                oled.final_frame(g_vars["reboot_image"])
             log_to_syslog("Shutdown/reboot image drawn")
     finally:
         _release_shutdown_inhibitor()
