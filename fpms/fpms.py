@@ -587,45 +587,18 @@ optional options:
         system_obj = RegDomain(g_vars)
         system_obj.show_reg_domain(g_vars)
 
-    def set_reg_domain_us():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_us(g_vars)
+    def set_reg_domain(domain):
+        def action():
+            if RegDomain(g_vars).set_reg_domain(g_vars, domain):
+                Button(g_vars, menu).shortcut(
+                    g_vars,
+                    menu,
+                    create_shortcut(
+                        menu, ["System", "Settings", "RF Domain", "Show Domain"]
+                    ),
+                )
 
-    def set_reg_domain_au():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_au(g_vars)
-
-    def set_reg_domain_ca():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_ca(g_vars)
-
-    def set_reg_domain_gb():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_gb(g_vars)
-
-    def set_reg_domain_br():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_br(g_vars)
-
-    def set_reg_domain_fr():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_fr(g_vars)
-
-    def set_reg_domain_cz():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_cz(g_vars)
-
-    def set_reg_domain_nl():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_nl(g_vars)
-
-    def set_reg_domain_de():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_de(g_vars)
-
-    def set_reg_domain_no():
-        system_obj = RegDomain(g_vars)
-        system_obj.set_reg_domain_no(g_vars)
+        return action
 
     def toggle_display_orientation():
         if g_vars["display_orientation"] == DISPLAY_ORIENTATION_NORMAL:
@@ -945,8 +918,8 @@ optional options:
                                     "name": "Set Domain US",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_us,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("US"),
                                         },
                                     ],
                                 },
@@ -954,8 +927,8 @@ optional options:
                                     "name": "Set Domain AU",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_au,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("AU"),
                                         },
                                     ],
                                 },
@@ -963,8 +936,8 @@ optional options:
                                     "name": "Set Domain BR",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_br,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("BR"),
                                         },
                                     ],
                                 },
@@ -972,8 +945,8 @@ optional options:
                                     "name": "Set Domain CA",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_ca,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("CA"),
                                         },
                                     ],
                                 },
@@ -981,8 +954,8 @@ optional options:
                                     "name": "Set Domain CZ",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_cz,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("CZ"),
                                         },
                                     ],
                                 },
@@ -990,8 +963,8 @@ optional options:
                                     "name": "Set Domain DE",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_de,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("DE"),
                                         },
                                     ],
                                 },
@@ -999,8 +972,8 @@ optional options:
                                     "name": "Set Domain FR",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_fr,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("FR"),
                                         },
                                     ],
                                 },
@@ -1008,8 +981,8 @@ optional options:
                                     "name": "Set Domain GB",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_gb,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("GB"),
                                         },
                                     ],
                                 },
@@ -1017,8 +990,8 @@ optional options:
                                     "name": "Set Domain NL",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_nl,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("NL"),
                                         },
                                     ],
                                 },
@@ -1026,8 +999,8 @@ optional options:
                                     "name": "Set Domain NO",
                                     "action": [
                                         {
-                                            "name": "Confirm & Reboot",
-                                            "action": set_reg_domain_no,
+                                            "name": "Confirm",
+                                            "action": set_reg_domain("NO"),
                                         },
                                     ],
                                 },
