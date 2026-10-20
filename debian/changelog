@@ -1,3 +1,24 @@
+wlanpi-fpms (1.4.25-1) unstable; urgency=medium
+
+  * Report ready to systemd only once the reboot screen can be drawn, so a
+    reboot queued at boot shows it (#198).
+  * Keep the reboot and shutdown screen on the panel until reset, draw a
+    Booting... screen early in boot, and a failure screen if FPMS does not
+    start. The package now builds a small C helper for the boot screen (#204).
+  * Release the shutdown inhibitor after drawing, so reboots no longer wait 5 s
+    for it (#201).
+  * Add Australia to the RF Domain menu (#200). After setting a domain, show
+    the new domain instead of staying on the popup, and rename Confirm &
+    Reboot to Confirm, since no reboot is needed (#203).
+  * Bluetooth Status, Turn On/Off and Pair Device act on the adapter
+    wlanpi-bluetooth uses instead of hci0. Pair Device now removes old pairings
+    before opening the window, as intended; it never did since BlueZ 5.65
+    (#205).
+  * Show Link down, speed and duplex correctly in the interface link status
+    (#206).
+
+ -- Josh Schmelzle <josh@joshschmelzle.com>  Tue, 20 Oct 2026 05:23:31 -0400
+
 wlanpi-fpms (1.4.24-1) unstable; urgency=medium
 
   * Drive the ST7735 display and the buttons on a Raspberry Pi 5. FPMS
