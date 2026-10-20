@@ -9,12 +9,14 @@ from typing import Any
 
 from PIL import Image
 
+from fpms import boot_splash
 from fpms.modules.constants import (
     DISPLAY_ORIENTATION_FLIPPED,
     DISPLAY_ORIENTATION_NORMAL,
     DISPLAY_TYPE,
     DISPLAY_TYPE_ST7735,
     DISPLAY_TYPE_VIRTUAL,
+    GPIO_CHIP,
 )
 from fpms.modules.screen.luma import Luma
 from fpms.modules.screen.st7735 import ST7735
@@ -65,10 +67,7 @@ def init():
 
 
 def _draw(image):
-    if orientation == DISPLAY_ORIENTATION_FLIPPED:
-        device.drawImage(image.transpose(Image.Transpose.ROTATE_180))
-    else:
-        device.drawImage(image)
+    device.drawImage(_oriented(image))
 
 
 # Draw an image on the display
@@ -76,6 +75,24 @@ def drawImage(image):
     with _draw_lock:
         if not _frozen:
             _draw(image)
+
+
+def _oriented(image):
+    if orientation == DISPLAY_ORIENTATION_FLIPPED:
+        return image.transpose(Image.Transpose.ROTATE_180)
+    return image
+
+
+def save_boot_splash(image, path=boot_splash.SPLASH_FILE):
+    """Store a frame fpms-splash can draw, for this panel and orientation."""
+    if isinstance(device, ST7735):
+        panel = boot_splash.PANEL_ST7735
+    elif isinstance(device, Luma):
+        panel = boot_splash.PANEL_SSD1351
+    else:
+        return
+    frame = boot_splash.rgb565(_oriented(image).resize((128, 128)))
+    boot_splash.save(panel, GPIO_CHIP, frame, path)
 
 
 def final_frame(image):
