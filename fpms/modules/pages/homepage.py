@@ -7,17 +7,31 @@ import time
 import textfsm
 
 import fpms.modules.wlanpi_oled as oled
-from fpms.modules.apps.kismet import *
-from fpms.modules.apps.profiler import *
-from fpms.modules.apps.scanner import *
-from fpms.modules.battery import *
-from fpms.modules.bluetooth import *
-from fpms.modules.constants import *
+from fpms.modules.apps.kismet import Kismet
+from fpms.modules.apps.profiler import Profiler
+from fpms.modules.apps.scanner import Scanner
+from fpms.modules.battery import Battery
+from fpms.modules.bluetooth import Bluetooth
+from fpms.modules.constants import (
+    ETHTOOL_FILE,
+    FONTB10,
+    FONTB11,
+    FONTB12,
+    FONTB13,
+    ICONS,
+    IFCONFIG_FILE,
+    PAGE_WIDTH,
+    PLATFORM,
+    REACHABILITY_FILE,
+    SMART_FONT,
+    STATUS_BAR_HEIGHT,
+    SYSTEM_BAR_HEIGHT,
+    TINY_FONT,
+)
 from fpms.modules.env_utils import EnvUtils
-from fpms.modules.network import iw_dev_outputs, netns_cmd
-from fpms.modules.pages.display import *
-from fpms.modules.pages.simpletable import *
-from fpms.modules.platform import *
+from fpms.modules.network import IwInterface, iw_dev_outputs, netns_cmd
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.simpletable import SimpleTable
 from fpms.modules.themes import THEME
 
 
@@ -61,17 +75,18 @@ class HomePage:
 
     def _get_iw_interfaces(self):
         """
-        Return the parsed `iw dev` interface list across the root and named
-        network namespaces as [[phy, name, type, netns], ...] (netns "" is
-        root), computed at most once per HomePage instance (i.e. once per render).
+        Return the parsed `iw dev` interfaces across the root and named
+        network namespaces, computed at most once per HomePage instance
+        (i.e. once per render).
         """
         if getattr(self, "_iw_interfaces", None) is None:
             interfaces = []
             for netns, iw_dev_output in iw_dev_outputs():
                 self.iw_textfsm_template.Reset()
                 for row in self.iw_textfsm_template.ParseText(iw_dev_output.strip()):
-                    interfaces.append([*row, netns])
-            self._iw_interfaces: list | None = interfaces
+                    phy, name, iftype = row
+                    interfaces.append(IwInterface(phy, name, iftype, netns))
+            self._iw_interfaces: list[IwInterface] | None = interfaces
         return self._iw_interfaces
 
     def _get_bt_power(self, g_vars):
@@ -230,11 +245,9 @@ class HomePage:
             duplex_re = re.findall(r"Duplex\: (.*)", eth_info, re.MULTILINE)
             link_re = re.findall(r"Link detected\: (.*)", eth_info, re.MULTILINE)
 
-            if (speed_re is None) or (duplex_re is None) or (link_re is None):
-                pass
-            elif link_re[0] == "no":
+            if link_re and link_re[0] == "no":
                 status = "Link down"
-            else:
+            elif speed_re and duplex_re:
                 status = f"{speed_re[0]} {duplex_re[0]}"
 
         except Exception:
@@ -700,13 +713,13 @@ class HomePage:
         active = False
 
         for iface in interfaces:
-            if iface[1] == if_name:
+            if iface.name == if_name:
                 # phy index (phy indexes are unique across namespaces)
-                phy = iface[0]
+                phy = iface.phy
 
                 try:
                     ifconfig_output = subprocess.check_output(
-                        netns_cmd(iface[3], [IFCONFIG_FILE, if_name]),
+                        netns_cmd(iface.netns, [IFCONFIG_FILE, if_name]),
                         stderr=subprocess.DEVNULL,
                     ).decode()
                     status_up = "UP" in ifconfig_output
@@ -714,13 +727,13 @@ class HomePage:
                     pass
 
                 for other_iface in interfaces:
-                    if phy == other_iface[0]:
-                        if other_iface[2] == "monitor":
+                    if phy == other_iface.phy:
+                        if other_iface.type == "monitor":
                             monitor_mode = True
 
                             try:
                                 subprocess.run(
-                                    f"ps aux 2>&1 | grep -v grep | grep -E 'tcpdump|dumpcap' | grep {other_iface[1]}",
+                                    f"ps aux 2>&1 | grep -v grep | grep -E 'tcpdump|dumpcap' | grep {other_iface.name}",
                                     shell=True,
                                     stdout=subprocess.DEVNULL,
                                     stderr=subprocess.DEVNULL,

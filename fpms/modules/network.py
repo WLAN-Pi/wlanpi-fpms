@@ -1,7 +1,9 @@
 import os
 import re
 import subprocess
+from typing import NamedTuple
 
+import fpms.modules.wlanpi_oled as oled
 from fpms.modules.constants import (
     CDPNEIGH_FILE,
     ETHTOOL_FILE,
@@ -13,10 +15,30 @@ from fpms.modules.constants import (
     PUBLICIP6_CMD,
     PUBLICIP_CMD,
 )
-from fpms.modules.pages.alert import *
-from fpms.modules.pages.display import *
-from fpms.modules.pages.pagedtable import *
-from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.pagedtable import PagedTable
+from fpms.modules.pages.simpletable import SimpleTable
+
+
+class IwInterface(NamedTuple):
+    phy: str
+    name: str
+    type: str
+    netns: str
+
+
+def freq_to_channel(freq_mhz):
+    if freq_mhz == 2484:
+        return 14
+    elif freq_mhz >= 2412 and freq_mhz <= 2484:
+        return int(((freq_mhz - 2412) / 5) + 1)
+    elif freq_mhz >= 5160 and freq_mhz <= 5885:
+        return int(((freq_mhz - 5180) / 5) + 36)
+    elif freq_mhz >= 5955 and freq_mhz <= 7115:
+        return int(((freq_mhz - 5955) / 5) + 1)
+
+    return None
 
 
 def netns_cmd(netns, cmd):
@@ -173,21 +195,6 @@ class Network:
             g_vars, interfaces, title="Interfaces"
         )
 
-    def channel_lookup(self, freq_mhz):
-        """
-        Converts frequency (MHz) to channel number
-        """
-        if freq_mhz == 2484:
-            return 14
-        elif freq_mhz >= 2412 and freq_mhz <= 2484:
-            return int(((freq_mhz - 2412) / 5) + 1)
-        elif freq_mhz >= 5160 and freq_mhz <= 5885:
-            return int(((freq_mhz - 5180) / 5) + 36)
-        elif freq_mhz >= 5955 and freq_mhz <= 7115:
-            return int(((freq_mhz - 5955) / 5) + 1)
-
-        return None
-
     def show_wlan_interfaces(self, g_vars):
         """
         Create pages to summarise WLAN interface info
@@ -287,7 +294,7 @@ class Network:
                 if m := re.search(r".*\(([0-9]+)\s+MHz\).*", iw_output):
                     freq = int(m.group(1))
                     page.append(f"Freq (MHz): {freq}")
-                    page.append(f"Channel: {self.channel_lookup(freq)}")
+                    page.append(f"Channel: {freq_to_channel(freq)}")
 
             except Exception as e:
                 print(e)

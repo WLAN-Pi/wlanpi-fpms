@@ -14,8 +14,8 @@ import sys
 import qrcode
 from PIL import Image
 
-from fpms.modules.display import *
-from fpms.modules.platform import *
+from fpms.modules.display import DISPLAY_TYPE_SSD1351, DISPLAY_TYPE_ST7735
+from fpms.modules.platform import HEADER_GPIOCHIP_LABELS, PLATFORM_PRO, PLATFORM_UNKNOWN
 
 
 class EnvUtils:

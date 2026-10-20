@@ -7,9 +7,8 @@ import pathlib
 
 from PIL import ImageFont
 
-from fpms.modules.display import *
 from fpms.modules.env_utils import EnvUtils
-from fpms.modules.platform import *
+from fpms.modules.platform import PLATFORM_PRO
 
 WLANPI_MODEL_FILE = "/etc/wlanpi-model"
 

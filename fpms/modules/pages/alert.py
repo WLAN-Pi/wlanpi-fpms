@@ -3,10 +3,12 @@ from textwrap import wrap
 
 import fpms.modules.wlanpi_oled as oled
 from fpms.modules.constants import (
+    PAGE_HEIGHT,
+    PAGE_WIDTH,
     SMART_FONT,
     STATUS_BAR_HEIGHT,
 )
-from fpms.modules.pages.display import *
+from fpms.modules.pages.display import Display
 from fpms.modules.themes import THEME
 
 

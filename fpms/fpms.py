@@ -34,22 +34,34 @@ if not os.geteuid() == 0:
 
 from .__version__ import __title__, __version__
 from .modules import wlanpi_oled as oled
-from .modules.apps.kismet import *
-from .modules.apps.profiler import *
-from .modules.apps.scanner import *
-from .modules.battery import *
-from .modules.bluetooth import *
+from .modules.apps.kismet import Kismet
+from .modules.apps.profiler import Profiler
+from .modules.apps.scanner import Scanner
+from .modules.battery import Battery
+from .modules.bluetooth import Bluetooth
 from .modules.cloud_tests import CloudUtils
-from .modules.constants import *
+from .modules.constants import (
+    BUTTONS_PINS,
+    DISPLAY_MODE,
+    DISPLAY_ORIENTATION_FLIPPED,
+    DISPLAY_ORIENTATION_NORMAL,
+    GPIO_CHIP,
+    IMAGE_DIR,
+    MODE_FILE,
+    PAGE_HEIGHT,
+    PAGE_SLEEP,
+    PAGE_WIDTH,
+    WLANPI_IMAGE_FILE,
+)
 from .modules.env_utils import EnvUtils
 from .modules.nav.buttons import Button
-from .modules.network import *
+from .modules.network import Network
 from .modules.pages.homepage import HomePage
 from .modules.pages.page import Page
-from .modules.reg_domain import *
-from .modules.system import *
-from .modules.time_zone import *
-from .modules.utils import *
+from .modules.reg_domain import RegDomain
+from .modules.system import System
+from .modules.time_zone import TimeZone
+from .modules.utils import Utils, sd_notify_ready
 
 FPMS_CONF_FILE = "/etc/wlanpi-fpms.conf"
 

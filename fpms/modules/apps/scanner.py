@@ -8,6 +8,7 @@ from os import kill
 import textfsm
 
 from fpms.modules.constants import IP_FILE, IW_FILE, MAX_TABLE_LINES
+from fpms.modules.network import freq_to_channel
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
 
@@ -26,21 +27,6 @@ class Scanner:
         self.paged_table_obj = PagedTable(g_vars)
 
         self.alert_obj = Alert(g_vars)
-
-    def freq_to_channel(self, freq_mhz):
-        """
-        Converts frequency (MHz) to channel number
-        """
-        if freq_mhz == 2484:
-            return 14
-        elif freq_mhz >= 2412 and freq_mhz <= 2484:
-            return int(((freq_mhz - 2412) / 5) + 1)
-        elif freq_mhz >= 5160 and freq_mhz <= 5885:
-            return int(((freq_mhz - 5180) / 5) + 36)
-        elif freq_mhz >= 5955 and freq_mhz <= 7115:
-            return int(((freq_mhz - 5955) / 5) + 1)
-
-        return None
 
     def parse(self, iw_scan_output: str) -> list:
         """
@@ -93,7 +79,7 @@ class Scanner:
                 bssid = network[0].upper()
 
                 freq = int(network[1])
-                channel = self.freq_to_channel(freq)
+                channel = freq_to_channel(freq)
                 if channel is None:
                     channel = "-"
 

@@ -4,8 +4,6 @@ themes.py - display themes
 
 from enum import Enum
 
-from fpms.modules.platform import *
-
 
 class BlackAndWhiteTheme(Enum):
     display_background = "black"

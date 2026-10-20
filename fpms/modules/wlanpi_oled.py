@@ -14,10 +14,9 @@ from fpms.modules.constants import (
     DISPLAY_ORIENTATION_FLIPPED,
     DISPLAY_ORIENTATION_NORMAL,
     DISPLAY_TYPE,
-    DISPLAY_TYPE_ST7735,
-    DISPLAY_TYPE_VIRTUAL,
     GPIO_CHIP,
 )
+from fpms.modules.display import DISPLAY_TYPE_ST7735, DISPLAY_TYPE_VIRTUAL
 from fpms.modules.screen.luma import Luma
 from fpms.modules.screen.st7735 import ST7735
 from fpms.modules.screen.virtual import Virtual

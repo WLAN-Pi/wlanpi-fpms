@@ -1,8 +1,7 @@
 import types
 
-from fpms.modules.pages.homepage import *
-from fpms.modules.pages.page import *
-from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.homepage import HomePage
+from fpms.modules.pages.page import Page
 
 
 class Button:

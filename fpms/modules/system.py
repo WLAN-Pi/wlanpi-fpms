@@ -11,13 +11,16 @@ from fpms.modules.constants import (
     FONT11,
     FONT13,
     IMAGE_DIR,
+    PAGE_HEIGHT,
+    PAGE_WIDTH,
     TIME_ZONE_FILE,
 )
 from fpms.modules.env_utils import EnvUtils
-from fpms.modules.pages.alert import *
-from fpms.modules.pages.display import *
-from fpms.modules.pages.pagedtable import *
-from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.pagedtable import PagedTable
+from fpms.modules.pages.simpletable import SimpleTable
+from fpms.modules.themes import THEME
 
 
 class System:

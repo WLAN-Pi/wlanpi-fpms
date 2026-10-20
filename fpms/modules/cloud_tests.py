@@ -1,8 +1,8 @@
 import socket
 import subprocess
 
-from fpms.modules.pages.alert import *
-from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.simpletable import SimpleTable
 
 
 class CloudUtils:

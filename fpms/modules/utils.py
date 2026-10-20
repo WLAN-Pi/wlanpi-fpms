@@ -10,9 +10,10 @@ from fpms.modules.constants import (
     UFW_FILE,
 )
 from fpms.modules.env_utils import EnvUtils
-from fpms.modules.pages.alert import *
-from fpms.modules.pages.pagedtable import *
-from fpms.modules.pages.simpletable import *
+from fpms.modules.pages.alert import Alert
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.pagedtable import PagedTable
+from fpms.modules.pages.simpletable import SimpleTable
 
 
 class Utils:

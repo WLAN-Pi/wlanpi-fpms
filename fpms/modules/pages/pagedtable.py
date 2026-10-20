@@ -1,11 +1,13 @@
 import fpms.modules.wlanpi_oled as oled
 from fpms.modules.constants import (
     MAX_TABLE_LINES,
+    PAGE_HEIGHT,
+    PAGE_WIDTH,
     SMART_FONT,
     STATUS_BAR_HEIGHT,
 )
-from fpms.modules.pages.display import *
-from fpms.modules.pages.utils import *
+from fpms.modules.pages.display import Display
+from fpms.modules.pages.utils import StringFormatter
 from fpms.modules.themes import THEME
 
 

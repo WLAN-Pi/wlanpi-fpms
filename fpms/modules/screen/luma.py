@@ -7,8 +7,12 @@ from luma.core import cmdline, error
 from PIL import Image
 
 from fpms.modules.constants import DISPLAY_TYPE, PLATFORM
-from fpms.modules.display import *
-from fpms.modules.platform import *
+from fpms.modules.display import (
+    DISPLAY_TYPE_SSD1351,
+    DISPLAY_TYPE_ST7735,
+    DISPLAY_TYPE_ST7789,
+)
+from fpms.modules.platform import PLATFORM_PRO
 from fpms.modules.screen.screen import AbstractScreen
 
 I2C_PORT = None

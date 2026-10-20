@@ -38,17 +38,11 @@ def shutdown_module(monkeypatch):
     )
     modules = {name: types.ModuleType(name) for name in module_names}
     for name, module in modules.items():
+        if name.startswith("fpms."):
+            module.__getattr__ = lambda attr: Mock()
         monkeypatch.setitem(sys.modules, name, module)
-    for name, attribute in (
-        ("fpms.modules.cloud_tests", "CloudUtils"),
-        ("fpms.modules.env_utils", "EnvUtils"),
-        ("fpms.modules.nav.buttons", "Button"),
-        ("fpms.modules.pages.homepage", "HomePage"),
-        ("fpms.modules.pages.page", "Page"),
-        ("gpiod.line", "Bias"),
-        ("gpiod.line", "Edge"),
-    ):
-        setattr(modules[name], attribute, Mock())
+    modules["gpiod.line"].Bias = Mock()
+    modules["gpiod.line"].Edge = Mock()
     modules["fpms.modules.constants"].DISPLAY_ORIENTATION_NORMAL = 0
     modules["fpms.modules.constants"].PAGE_SLEEP = 10
     modules["dbus"].mainloop = modules["dbus.mainloop"]

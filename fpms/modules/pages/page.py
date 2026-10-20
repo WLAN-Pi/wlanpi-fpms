@@ -3,9 +3,10 @@ from fpms.modules.constants import (
     FONTB11,
     FONTB12,
     MAX_PAGE_LINES,
+    PAGE_WIDTH,
     STATUS_BAR_HEIGHT,
 )
-from fpms.modules.pages.display import *
+from fpms.modules.pages.display import Display
 from fpms.modules.themes import THEME
 
 
