@@ -341,13 +341,14 @@ optional options:
     ####################################
     # Initialize the SEED OLED display
     ####################################
-    oled.init()
-
     g_vars["display_orientation"] = read_value(
         "display", "orientation", DISPLAY_ORIENTATION_NORMAL
     )
     oled.orientation = g_vars["display_orientation"]
+    oled.select_device()
+    # Before init, so a display init failure still has a failure screen to show.
     save_boot_splash()
+    oled.init()
 
     ############################
     # shared objects

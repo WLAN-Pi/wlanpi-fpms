@@ -59,10 +59,14 @@ def _select_device():
 
 
 # Initialize the device
-def init():
+def select_device():
     global device
     if device is None:
         device = _select_device()
+
+
+def init():
+    select_device()
     device.init()
 
 

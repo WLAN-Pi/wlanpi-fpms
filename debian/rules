@@ -61,12 +61,11 @@ override_dh_virtualenv:
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip uninstall -y Pillow
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install --no-binary Pillow $(PILLOW_SPEC) --verbose
 
-override_dh_auto_build:
-	dh_auto_build
+# dh-virtualenv's sequence skips dh_auto_build and dh_auto_clean.
+execute_before_dh_install:
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -Wall -o splash/fpms-splash splash/fpms-splash.c
 
-override_dh_auto_clean:
-	dh_auto_clean
+execute_before_dh_clean:
 	rm -f splash/fpms-splash
 
 override_dh_installsystemd:

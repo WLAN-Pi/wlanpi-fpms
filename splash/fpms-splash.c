@@ -58,7 +58,7 @@ static const uint16_t st7735_window[] = {
 	0x12A, 0, 1, 0, 128, 0x12B, 0, 2, 0, 129, 0x12C, END,
 };
 
-static int spi, lines, dc_idx;
+static int spi, lines, dc_idx, failed;
 
 static void msleep(int ms)
 {
@@ -69,7 +69,8 @@ static void msleep(int ms)
 static void set_line(int idx, int on)
 {
 	struct gpio_v2_line_values v = { .bits = (uint64_t)on << idx, .mask = 1ULL << idx };
-	ioctl(lines, GPIO_V2_LINE_SET_VALUES_IOCTL, &v);
+	if (ioctl(lines, GPIO_V2_LINE_SET_VALUES_IOCTL, &v) < 0)
+		failed = 1;
 }
 
 static void spi_write(const uint8_t *buf, size_t len)
@@ -77,8 +78,10 @@ static void spi_write(const uint8_t *buf, size_t len)
 	/* spidev's default bufsiz is 4096. */
 	while (len) {
 		size_t n = len > 4096 ? 4096 : len;
-		if (write(spi, buf, n) < 0)
+		if (write(spi, buf, n) != (ssize_t)n) {
+			failed = 1;
 			return;
+		}
 		buf += n;
 		len -= n;
 	}
@@ -155,6 +158,11 @@ int main(int argc, char **argv)
 	}
 	set_line(dc_idx, 1);
 	spi_write(buf + n + 1, FRAME_BYTES);
+	/* Never light up a half-written panel. */
+	if (failed) {
+		perror("fpms-splash");
+		return 1;
+	}
 	if (st7735)
 		set_line(2, 1); /* backlight last: blank controller RAM is white */
 	else
