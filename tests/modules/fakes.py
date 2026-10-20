@@ -7,6 +7,10 @@ class Alert:
         self.args = args
         self.kwargs = kwargs
 
+    def display_alert_error(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
 
 class SimpleTable:
     def __init__(self, *args, **kwargs):
