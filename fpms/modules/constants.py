@@ -63,6 +63,7 @@ MODE_FILE = "/etc/wlanpi-state"
 
 REG_DOMAIN_FILE = "/usr/bin/wlanpi-reg-domain"
 TIME_ZONE_FILE = "/usr/bin/wlanpi-timezone"
+BT_ADAPTER_FILE = "/usr/bin/wlanpi-bt-adapter"
 
 
 # Networkinfo data file names. wlanpi-common's networkinfo scripts write these

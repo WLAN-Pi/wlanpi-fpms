@@ -1,15 +1,41 @@
+import json
 import re
 import subprocess
 import time
 
+from fpms.modules.constants import BT_ADAPTER_FILE
 from fpms.modules.pages.alert import Alert
 from fpms.modules.pages.pagedtable import PagedTable
 
-BT_ADAPTER = "hci0"
+
+def bt_adapter():
+    """
+    The adapter wlanpi-bluetooth uses (hci0 can be a USB dongle), or None.
+    Releases without wlanpi-bt-adapter always used hci0. If it fails, hci0
+    may not be the adapter bt-timedpair opens, so there is no fallback.
+    """
+    try:
+        adapter = (
+            subprocess.check_output(
+                [BT_ADAPTER_FILE], stderr=subprocess.DEVNULL, timeout=2
+            )
+            .decode()
+            .strip()
+        )
+    except FileNotFoundError:
+        return "hci0"
+    except Exception:
+        return None
+    # The name goes into shell commands.
+    return adapter if re.fullmatch(r"hci\d+", adapter) else None
 
 
 class Bluetooth:
     def __init__(self, g_vars):
+        # fpms creates one per action run, and the adapter can change on
+        # hotplug, so resolve it here rather than at import.
+        self.adapter = bt_adapter()
+
         self.paged_table_obj = PagedTable(g_vars)
 
         self.alert_obj = Alert(g_vars)
@@ -18,8 +44,10 @@ class Bluetooth:
         """
         We want to use hciconfig here as it works OK when no devices are present
         """
+        if self.adapter is None:
+            return False
         try:
-            cmd = f"hciconfig | grep {BT_ADAPTER}"
+            cmd = f"hciconfig | grep {self.adapter}"
             subprocess.run(
                 cmd,
                 shell=True,
@@ -33,7 +61,9 @@ class Bluetooth:
 
     def bluetooth_name(self):
         try:
-            cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Name | awk '{ print $2 }'"
+            cmd = (
+                f"bt-adapter -a {self.adapter} -i" + "| grep Name | awk '{ print $2 }'"
+            )
             name = subprocess.check_output(cmd, shell=True).decode().strip()
             return name
         except Exception:
@@ -41,7 +71,9 @@ class Bluetooth:
 
     def bluetooth_alias(self):
         try:
-            cmd = f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Alias | awk '{ print $2 }'"
+            cmd = (
+                f"bt-adapter -a {self.adapter} -i" + "| grep Alias | awk '{ print $2 }'"
+            )
             alias = subprocess.check_output(cmd, shell=True).decode().strip()
             return alias
         except Exception:
@@ -50,7 +82,8 @@ class Bluetooth:
     def bluetooth_address(self):
         try:
             cmd = (
-                f"bt-adapter -a {BT_ADAPTER} -i" + "| grep Address | awk '{ print $2 }'"
+                f"bt-adapter -a {self.adapter} -i"
+                + "| grep Address | awk '{ print $2 }'"
             )
             address = subprocess.check_output(cmd, shell=True).decode().strip()
             return address
@@ -62,7 +95,7 @@ class Bluetooth:
         We want to use hciconfig here as it works OK when no devices are present
         """
         try:
-            cmd = rf"hciconfig {BT_ADAPTER} | grep -E '^\s+UP'"
+            cmd = rf"hciconfig {self.adapter} | grep -E '^\s+UP'"
             subprocess.run(
                 cmd,
                 shell=True,
@@ -85,7 +118,7 @@ class Bluetooth:
         value = 1 if power else 0
         try:
             subprocess.run(
-                ["bt-adapter", "-a", BT_ADAPTER, "--set", "Powered", str(value)],
+                ["bt-adapter", "-a", self.adapter, "--set", "Powered", str(value)],
                 check=True,
             )
         except Exception:
@@ -99,6 +132,67 @@ class Bluetooth:
 
         return True
 
+    def paired_device_objects(self):
+        """
+        Returns (address, alias) of each device paired on self.adapter,
+        indexed by D-Bus object path. Raises if BlueZ can't be read.
+        """
+
+        # Not bluetoothctl: it lists its default controller's devices, which
+        # need not be self.adapter. Not GetManagedObjects: busctl --json fails
+        # on it while BlueZ holds a nearby device's ManufacturerData (a{qv}).
+        def bluez_objects():
+            return (
+                subprocess.check_output(
+                    ["busctl", "--system", "tree", "--list", "org.bluez"], timeout=10
+                )
+                .decode()
+                .splitlines()
+            )
+
+        def device_paths():
+            objects = bluez_objects()
+            # Without the adapter, BlueZ is restarting and the listing can't
+            # show its pairings.
+            if f"/org/bluez/{self.adapter}" not in objects:
+                raise RuntimeError(f"BlueZ has not registered {self.adapter}")
+            return [
+                path
+                for path in objects
+                if re.fullmatch(rf"/org/bluez/{self.adapter}/dev_[0-9A-F_]+", path)
+            ]
+
+        devices = {}
+        for path in device_paths():
+            try:
+                output = subprocess.check_output(
+                    [
+                        "busctl",
+                        "--system",
+                        "--json=short",
+                        "get-property",
+                        "org.bluez",
+                        path,
+                        "org.bluez.Device1",
+                        "Paired",
+                        "Address",
+                        "Alias",
+                    ],
+                    timeout=10,
+                )
+            except subprocess.CalledProcessError:
+                # BlueZ drops a device it only saw nearby soon after a scan,
+                # maybe since the listing. Paired devices are never dropped.
+                if path in device_paths():
+                    raise
+                continue
+            paired, address, alias = (
+                json.loads(line)["data"] for line in output.splitlines()
+            )
+            if paired:
+                devices[path] = (address, alias)
+        return devices
+
     def bluetooth_paired_devices(self):
         """
         Returns a dictionary of paired devices, indexed by MAC address
@@ -108,15 +202,47 @@ class Bluetooth:
             return None
 
         try:
-            cmd = "bluetoothctl -- paired-devices | grep -iv 'no default controller'"
-            output = subprocess.check_output(cmd, shell=True).decode().strip()
-            if len(output) > 0:
-                devices = re.sub("Device *", "", output).split("\n")
-                return dict([line.split(" ", 1) for line in devices])
-            else:
-                return None
+            devices = self.paired_device_objects()
         except Exception:
             return None
+        return dict(devices.values()) or None
+
+    def unpair_all(self, g_vars):
+        """
+        Removes every pairing on self.adapter. Raises if BlueZ can't be read,
+        a removal fails, or a device is still paired after 30 seconds.
+        """
+        # Removal doesn't always take effect at once (seen on Bullseye), so
+        # retry until none are left.
+        deadline = time.monotonic() + 30
+        adapter_path = f"/org/bluez/{self.adapter}"
+        paired = self.paired_device_objects()
+        while paired:
+            if time.monotonic() > deadline:
+                raise TimeoutError("Bluetooth devices still paired")
+            self.alert_obj.display_popup_alert(g_vars, "Unpairing existing device...")
+            # Remove by object path: with a random address, the path isn't
+            # derived from the Address property.
+            for path in paired:
+                subprocess.run(
+                    [
+                        "busctl",
+                        "--system",
+                        "call",
+                        "org.bluez",
+                        adapter_path,
+                        "org.bluez.Adapter1",
+                        "RemoveDevice",
+                        "o",
+                        path,
+                    ],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=True,
+                    timeout=10,
+                )
+            time.sleep(1)
+            paired = self.paired_device_objects()
 
     def bluetooth_status(self, g_vars):
         status = []
@@ -160,44 +286,33 @@ class Bluetooth:
         if self.bluetooth_set_power(True):
             if not g_vars["result_cache"]:
                 g_vars["disable_keys"] = True
+                g_vars["bt_pair_error"] = None
                 self.alert_obj.display_popup_alert(g_vars, "Entering pairing mode...")
-                paired_devices = self.bluetooth_paired_devices()
-                """
-                For some reason removing devices isn't working immediately in Bullseye,
-                so we need to keep trying until all devices are removed.
-                Give up after 30 seconds.
-                """
-                timeout = 30
-                elapsed_time = 0
-                while paired_devices is not None and elapsed_time < timeout:
-                    self.alert_obj.display_popup_alert(
-                        g_vars, "Unpairing existing device..."
-                    )
-                    for dev in paired_devices:
-                        try:
-                            cmd = ["bluetoothctl", "--", "remove", dev]
-                            subprocess.run(
-                                cmd,
-                                stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL,
-                            )
-                        except Exception:
-                            pass
-                    paired_devices = self.bluetooth_paired_devices()
-                    time.sleep(1)
-                    elapsed_time += 1
+                try:
+                    self.unpair_all(g_vars)
+                except Exception:
+                    # Never open the pairing window with an old pairing left.
+                    # Later runs of this page keep showing the error.
+                    g_vars["bt_pair_error"] = "Failed to remove paired devices."
+                    alert_msg = g_vars["bt_pair_error"]
 
                 g_vars["result_cache"] = True
                 g_vars["disable_keys"] = False
 
+            elif g_vars.get("bt_pair_error"):
+                alert_msg = g_vars["bt_pair_error"]
+
             else:
-                paired_devices = self.bluetooth_paired_devices()
-                if paired_devices is not None:
-                    for dev in paired_devices:
-                        alert_msg = f"Paired to {paired_devices[dev]}"
-                        ok = True
-                        break
-                else:
+                try:
+                    paired_devices = self.paired_device_objects()
+                except Exception:
+                    paired_devices = None
+                    alert_msg = "Failed to read paired devices."
+                if paired_devices:
+                    _, name = next(iter(paired_devices.values()))
+                    alert_msg = f"Paired to {name}"
+                    ok = True
+                elif paired_devices is not None:
                     alias = self.bluetooth_alias() or ""
                     try:
                         g_vars["disable_keys"] = True
