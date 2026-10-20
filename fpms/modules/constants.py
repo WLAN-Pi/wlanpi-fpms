@@ -79,6 +79,7 @@ MODE_FILE = "/etc/wlanpi-state"
 
 REG_DOMAIN_FILE = "/usr/bin/wlanpi-reg-domain"
 TIME_ZONE_FILE = "/usr/bin/wlanpi-timezone"
+BT_ADAPTER_FILE = "/usr/bin/wlanpi-bt-adapter"
 
 #### Paths below here are relative to script dir or a runtime directory ###
 
