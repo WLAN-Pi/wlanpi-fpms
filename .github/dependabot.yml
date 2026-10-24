@@ -1,8 +1,14 @@
 
 version: 2
+registries:
+  piwheels:
+    type: python-index
+    url: https://www.piwheels.org/simple
 updates:
   - package-ecosystem: "pip"
     directory: "/"
+    registries:
+      - piwheels
     schedule:
       interval: "weekly"
     allow:
