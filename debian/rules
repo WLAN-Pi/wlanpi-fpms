@@ -50,6 +50,10 @@ override_dh_virtualenv:
 	# -I/--ignore-installed reinstall would leave those orphaned .so files behind.
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip uninstall -y Pillow
 	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install --no-binary Pillow $(PILLOW_SPEC) --verbose
+	$(DH_VENV_DIR)/bin/python $(DH_VENV_DIR)/bin/pip install --verbose \
+		dbus-python==1.3.2 \
+		PyGObject==3.50.0 \
+		pycairo==1.27.0
 
 # dh-virtualenv's sequence skips dh_auto_build and dh_auto_clean.
 execute_before_dh_install:

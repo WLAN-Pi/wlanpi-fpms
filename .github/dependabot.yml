@@ -9,6 +9,10 @@ updates:
     directory: "/"
     registries:
       - piwheels
+    # A registries entry disables external code execution. Pip then refuses
+    # to parse manifests (unexpected_external_code).
+    # https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference#insecure-external-code-execution
+    insecure-external-code-execution: allow
     schedule:
       interval: "weekly"
     allow:
