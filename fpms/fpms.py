@@ -54,6 +54,7 @@ from .modules.constants import (
     WLANPI_IMAGE_FILE,
 )
 from .modules.env_utils import EnvUtils
+from .modules.modes import hotspot_switcher, place_hotspot_menu
 from .modules.nav.buttons import Button
 from .modules.network import Network
 from .modules.pages.homepage import HomePage
@@ -983,6 +984,11 @@ optional options:
         for item in menu:
             if item["name"] == "Apps":
                 menu.remove(item)
+
+    def hotspot_confirm():
+        hotspot_switcher(g_vars)
+
+    place_hotspot_menu(menu, g_vars["current_mode"], hotspot_confirm)
 
     def button_press(gpio_pin, g_vars=g_vars):
         DOWN_KEY = BUTTONS_PINS["down"]
