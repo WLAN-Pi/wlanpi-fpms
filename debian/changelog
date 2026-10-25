@@ -1,3 +1,11 @@
+wlanpi-fpms (1.4.26) unstable; urgency=medium
+
+  * Bring hotspot mode back to the front panel: Modes > Hotspot turns it
+    on and Mode > Classic Mode turns it off, shown only when wlanpi-
+    hotspot is installed (#216)
+
+ -- jsz <josh@joshschmelzle.com>  Sat, 24 Oct 2026 21:58:37 -0400
+
 wlanpi-fpms (1.4.25-1) unstable; urgency=medium
 
   * Report ready to systemd only once the reboot screen can be drawn, so a
