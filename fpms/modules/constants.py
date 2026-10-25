@@ -60,6 +60,7 @@ UFW_FILE = "/usr/sbin/ufw"
 ETHTOOL_FILE = "/sbin/ethtool"
 
 MODE_FILE = "/etc/wlanpi-state"
+HOTSPOT_SWITCHER_FILE = "/opt/wlanpi-hotspot/hotspot_switcher"
 
 REG_DOMAIN_FILE = "/usr/bin/wlanpi-reg-domain"
 TIME_ZONE_FILE = "/usr/bin/wlanpi-timezone"
