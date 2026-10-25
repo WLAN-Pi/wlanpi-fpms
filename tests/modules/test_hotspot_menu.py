@@ -95,7 +95,7 @@ def _switch(
     mode: str,
     switcher: str,
     fail: bool = False,
-) -> tuple[dict[str, Any], _Alert, list[list[str]]]:
+) -> tuple[dict[str, Any], _Alert, list[list[str]], dict[str, bool]]:
     alerts: list[_Alert] = []
 
     def make_alert(g_vars: dict[str, Any]) -> _Alert:
@@ -104,9 +104,12 @@ def _switch(
         return alert
 
     launched: list[list[str]] = []
+    during_launch = {"shutdown_in_progress": False, "drawing_in_progress": False}
 
     def run(args: list[str], check: bool, capture_output: bool) -> None:
         launched.append(args)
+        during_launch["shutdown_in_progress"] = bool(g_vars["shutdown_in_progress"])
+        during_launch["drawing_in_progress"] = bool(g_vars.get("drawing_in_progress"))
         if fail:
             raise subprocess.CalledProcessError(1, args)
 
@@ -125,15 +128,21 @@ def _switch(
         "display_state": "page",
     }
     hotspot_switcher(g_vars, switcher)
-    return g_vars, alerts[0], launched
+    return g_vars, alerts[0], launched, during_launch
 
 
 def test_classic_confirm_runs_switcher_on(monkeypatch, tmp_path):
     switcher = tmp_path / "hotspot_switcher"
     switcher.write_text("")
-    g_vars, alert, launched = _switch(monkeypatch, "classic", str(switcher))
+    g_vars, alert, launched, during_launch = _switch(
+        monkeypatch, "classic", str(switcher)
+    )
 
     assert launched == [[str(switcher), "on"]]
+    assert during_launch == {
+        "shutdown_in_progress": False,
+        "drawing_in_progress": True,
+    }
     assert alert.popups == [("Switching to Hotspot mode...", 2)]
     assert alert.errors == ["Failed to enable Hotspot mode."]
     assert g_vars["shutdown_in_progress"] is False
@@ -144,14 +153,21 @@ def test_classic_confirm_runs_switcher_on(monkeypatch, tmp_path):
 def test_hotspot_confirm_runs_switcher_off(monkeypatch, tmp_path):
     switcher = tmp_path / "hotspot_switcher"
     switcher.write_text("")
-    _g_vars, alert, launched = _switch(monkeypatch, "hotspot", str(switcher))
+    _g_vars, alert, launched, during_launch = _switch(
+        monkeypatch, "hotspot", str(switcher)
+    )
 
     assert launched == [[str(switcher), "off"]]
     assert alert.popups == [("Switching to Classic mode...", 2)]
+    assert alert.errors == ["Failed to switch to Classic mode."]
+    assert during_launch == {
+        "shutdown_in_progress": False,
+        "drawing_in_progress": True,
+    }
 
 
 def test_missing_switcher_does_not_launch(monkeypatch):
-    g_vars, alert, launched = _switch(
+    g_vars, alert, launched, _during_launch = _switch(
         monkeypatch, "classic", "/no/such/hotspot_switcher"
     )
 
@@ -165,7 +181,9 @@ def test_missing_switcher_does_not_launch(monkeypatch):
 def test_retired_mode_does_not_launch(monkeypatch, tmp_path):
     switcher = tmp_path / "hotspot_switcher"
     switcher.write_text("")
-    g_vars, alert, launched = _switch(monkeypatch, "server", str(switcher))
+    g_vars, alert, launched, _during_launch = _switch(
+        monkeypatch, "server", str(switcher)
+    )
 
     assert launched == []
     assert alert.popups == []
@@ -176,8 +194,11 @@ def test_retired_mode_does_not_launch(monkeypatch, tmp_path):
 def test_switcher_failure_reports_the_error(monkeypatch, tmp_path):
     switcher = tmp_path / "hotspot_switcher"
     switcher.write_text("")
-    g_vars, alert, launched = _switch(monkeypatch, "classic", str(switcher), fail=True)
+    g_vars, alert, launched, during_launch = _switch(
+        monkeypatch, "classic", str(switcher), fail=True
+    )
 
     assert launched == [[str(switcher), "on"]]
+    assert during_launch["shutdown_in_progress"] is False
     assert alert.errors == ["Failed to enable Hotspot mode."]
     assert g_vars["display_state"] == "menu"

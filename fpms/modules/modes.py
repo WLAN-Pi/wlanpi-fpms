@@ -21,9 +21,11 @@ def hotspot_switcher(
     mode = g_vars["current_mode"]
     if mode == "classic":
         message = "Switching to Hotspot mode..."
+        failure = "Failed to enable Hotspot mode."
         switch = "on"
     elif mode == "hotspot":
         message = "Switching to Classic mode..."
+        failure = "Failed to switch to Classic mode."
         switch = "off"
     else:
         alert.display_alert_error(g_vars, f"Unknown mode: {mode}")
@@ -31,7 +33,7 @@ def hotspot_switcher(
         return
 
     alert.display_popup_alert(g_vars, message, delay=2)
-    g_vars["shutdown_in_progress"] = True
+    g_vars["drawing_in_progress"] = True
     time.sleep(2)
 
     oled.render_text("Rebooting", ["Rebooting..."])
@@ -43,9 +45,9 @@ def hotspot_switcher(
     except (subprocess.CalledProcessError, OSError) as exc:
         print(exc)
 
-    g_vars["shutdown_in_progress"] = False
+    g_vars["drawing_in_progress"] = False
     g_vars["screen_cleared"] = False
-    alert.display_alert_error(g_vars, "Failed to enable Hotspot mode.")
+    alert.display_alert_error(g_vars, failure)
     g_vars["display_state"] = "menu"
 
 
